@@ -10,7 +10,8 @@
 #import "ZCUIRatingView.h"
 
 @interface ZCChatEvaluationCell()<RatingViewDelegate>{
-    
+    // 0五星   1是0星
+    int defaultStar;
 }
 
 @property(nonatomic,strong) ZCLibSatisfaction *satisfaction;
@@ -22,6 +23,10 @@
 @property(nonatomic,strong) NSLayoutConstraint *layoutStarItemsTop;
 @property(nonatomic,strong) NSLayoutConstraint *layoutStarItemsHeight;
 @property(nonatomic,strong) NSLayoutConstraint *layoutSendHeight;
+@property(nonatomic,strong) NSLayoutConstraint *layoutRatingHeight;
+@property(nonatomic,strong) NSLayoutConstraint *layoutRatingW;
+
+@property(nonatomic,strong) NSLayoutConstraint *layoutItemTipsT;
 
 
 // 深色背景
@@ -42,6 +47,7 @@
 
 @property (strong, nonatomic) ZCUIRatingView *ratingView; //星标或分数
 @property (strong, nonatomic) UILabel *labStarTips; //标题
+@property (strong, nonatomic) UILabel *labItemTips; //标题
 @property (strong, nonatomic) ZCItemView *itemStarViews; //星标或分数
 
 @property (strong, nonatomic) SobotButton *btnSend;
@@ -69,7 +75,7 @@
     });
     _bgView = ({
         UIView *iv = [[UIView alloc] init];
-        [iv setBackgroundColor:UIColorFromModeColor(SobotColorBgSub2Dark2)];
+        [iv setBackgroundColor:UIColorFromModeColor(SobotColorBgMainDark2)];
         iv.layer.cornerRadius = 4.0f;
         iv.layer.borderColor = [ZCUIKitTools zcgetChatBottomLineColor].CGColor;
         iv.layer.borderWidth = 1.0f;
@@ -91,9 +97,9 @@
         SobotButton *iv = [SobotButton buttonWithType:UIButtonTypeCustom];
         [iv.titleLabel setFont:SobotFont14];
         [iv setTitle:SobotKitLocalString(@"已解决") forState:UIControlStateNormal];
-        [iv setImage:SobotKitGetImage(@"zcicon_useless_nol") forState:UIControlStateNormal];
-        [iv setImage:SobotKitGetImage(@"zcicon_useless_sel") forState:UIControlStateSelected];
-        [iv setImage:SobotKitGetImage(@"zcicon_useless_sel") forState:UIControlStateHighlighted];
+        [iv setImage:SobotKitGetImage(@"zcicon_useful_nol") forState:UIControlStateNormal];
+        [iv setImage:SobotKitGetImage(@"zcicon_useful_sel") forState:UIControlStateSelected];
+        [iv setImage:SobotKitGetImage(@"zcicon_useful_sel") forState:UIControlStateHighlighted];
         iv.tag = 1;
         
         iv.layer.cornerRadius = 18;
@@ -117,9 +123,9 @@
         SobotButton *iv = [SobotButton buttonWithType:UIButtonTypeCustom];
         [iv.titleLabel setFont:SobotFont14];
         [iv setTitle:SobotKitLocalString(@"未解决") forState:UIControlStateNormal];
-        [iv setImage:SobotKitGetImage(@"zcicon_useful_nol") forState:UIControlStateNormal];
-        [iv setImage:SobotKitGetImage(@"zcicon_useful_sel") forState:UIControlStateSelected];
-        [iv setImage:SobotKitGetImage(@"zcicon_useful_sel") forState:UIControlStateHighlighted];
+        [iv setImage:SobotKitGetImage(@"zcicon_useless_nol") forState:UIControlStateNormal];
+        [iv setImage:SobotKitGetImage(@"zcicon_useless_sel") forState:UIControlStateSelected];
+        [iv setImage:SobotKitGetImage(@"zcicon_useless_sel") forState:UIControlStateHighlighted];
         iv.tag = 2;
         iv.layer.cornerRadius = 18;
         [iv setTitleColor:[ZCUIKitTools zcgetNoSatisfactionTextColor] forState:UIControlStateNormal];
@@ -161,6 +167,17 @@
         [self.bgView addSubview:iv];
         iv;
     });
+    _labItemTips = ({
+        UILabel *iv = [[UILabel alloc] init];
+        [iv setTextColor:[ZCUIKitTools zcgetTextPlaceHolderColor]];
+        [iv setFont:SobotFontBold14];
+        iv.textAlignment = NSTextAlignmentLeft;
+        iv.numberOfLines = 0;
+        iv.textColor = [ZCUIKitTools zcgetSatisfactionColor];
+        [self.bgView addSubview:iv];
+        iv;
+    });
+    
     _itemStarViews = ({
         ZCItemView *iv = [[ZCItemView alloc] init];
         [self.bgView addSubview:iv];
@@ -229,23 +246,35 @@
         [self.bgGroupView addConstraint:sobotLayoutPaddingRight(-0, self.lineView, self.bgView)];
         
         
-        [self.bgView addConstraints:sobotLayoutSize(280, 60, self.ratingView, NSLayoutRelationEqual)];
+        _layoutRatingHeight = sobotLayoutEqualHeight(60, self.ratingView, NSLayoutRelationEqual);
+        _layoutRatingW = sobotLayoutEqualWidth(280, self.ratingView, NSLayoutRelationEqual);
+        [self.bgView addConstraint:_layoutRatingHeight];
+        [self.bgView addConstraint:_layoutRatingW];
         [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatPaddingHSpace, self.ratingView, self.lineView)];
         [self.bgView addConstraint:sobotLayoutEqualCenterX(0,self.ratingView, self.bgView)];
         self.ratingView.backgroundColor = UIColor.clearColor;
         
         [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatMarginVSpace, self.labStarTips, self.ratingView)];
-        [self.bgView addConstraint:sobotLayoutPaddingLeft(0, self.labStarTips, self.bgView)];
-        [self.bgGroupView addConstraint:sobotLayoutPaddingRight(0, self.labStarTips, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingLeft(10, self.labStarTips, self.bgView)];
+        [self.bgGroupView addConstraint:sobotLayoutPaddingRight(-10, self.labStarTips, self.bgView)];
+        
+        _layoutItemTipsT = sobotLayoutMarginTop(ZCChatMarginVSpace, self.labItemTips, self.labStarTips);
+        [self.bgView addConstraint:_layoutItemTipsT];
+        [self.bgView addConstraint:sobotLayoutPaddingLeft(10, self.labItemTips, self.bgView)];
+        [self.bgGroupView addConstraint:sobotLayoutPaddingRight(-10, self.labItemTips, self.bgView)];
+        
         
         
         _layoutStarItemsHeight = sobotLayoutEqualHeight(0, self.itemStarViews, NSLayoutRelationEqual);
-        _layoutStarItemsTop = sobotLayoutMarginTop(ZCChatMarginVSpace, self.itemStarViews, self.labStarTips);
+        _layoutStarItemsTop = sobotLayoutMarginTop(ZCChatMarginVSpace, self.itemStarViews, self.labItemTips);
         [self.bgView addConstraint:_layoutStarItemsHeight];
         [self.bgView addConstraint:sobotLayoutEqualWidth(280, self.itemStarViews, NSLayoutRelationEqual)];
         [self.bgView addConstraint:_layoutStarItemsTop];
         [self.bgView addConstraint:sobotLayoutEqualCenterX(0,self.itemStarViews, self.bgView)];
         
+        
+        self.btnSend.contentEdgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
+        self.btnSend.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         _layoutSendHeight = sobotLayoutEqualHeight(36, self.btnSend, NSLayoutRelationEqual);
         [self.bgView addConstraint:sobotLayoutEqualWidth(200, self.btnSend, NSLayoutRelationEqual)];
         [self.bgView addConstraint:_layoutSendHeight];
@@ -279,35 +308,68 @@
     self.lblSugguest.hidden = YES;
     self.ivBgView.hidden = YES;
     
-    int isResolved = -1;
+    // 不选中
+    int isResolved = 2;
     
-    NSDictionary *dict = [ZCUICore getUICore].satisfactionDict;
+    ZCSatisfactionConfig *config = [ZCUICore getUICore].satisfactionConfig;
+    _satisfaction = nil;
+    
     int starCount = 5;
-    
-    int defaultStar = 0;
-    if(dict!=nil && dict.count > 0){
-        NSArray * arr = dict[@"data"];
-
-        if(arr != nil && [arr isKindOfClass:[NSArray class]] && arr.count > 0){
-            ZCLibSatisfaction *first = [[ZCLibSatisfaction alloc] initWithMyDict:arr[0]];
-            message.isQuestionFlag = first.isQuestionFlag;
-            if(arr.count >= 5){
-                _satisfaction = [[ZCLibSatisfaction alloc] initWithMyDict:arr[arr.count - 1]];
-                defaultStar = _satisfaction.defaultStar;
-                if(_satisfaction.scoreFlag==1){
-                    starCount = 10;
-                }
-                int aDefaultStar = defaultStar;
-                if (!aDefaultStar) {
-                    aDefaultStar = 1;
-                }
-                _satisfaction = [[ZCLibSatisfaction alloc] initWithMyDict:arr[aDefaultStar - 1]];
+    if(config!=nil && config.isCreated == 1){
+        // 0 5星，1、10星
+        // scoreFlag==0星级: 0代表5星,1代表不选中
+        // scoreFlag==1分值: 0代表10分，1代表5分，2代表0分，3代表不选中
+        if(config.scoreFlag==0){
+            starCount = 5;
+            if(config.defaultType == 0 && config.list.count >= defaultStar){
+                defaultStar = 5;
+                _satisfaction = config.list[defaultStar-1];
+            }else if(config.defaultType == 1){
+                _satisfaction = nil;
+                
+            }
+        }else{
+            
+            starCount = 10;            
+            if(config.defaultType == 0){
+                defaultStar = 10;
+            }else if(config.defaultType == 1){
+                defaultStar = 5;
+            }else if(config.defaultType == 2){
+                defaultStar = 1;
+            }else if(config.defaultType == 3){
+                defaultStar = 0;
+                _satisfaction = nil;
+            }
+            if(config.defaultType != 3 && config.list.count >= defaultStar){
+                _satisfaction = config.list[defaultStar];
             }
         }
+        
+        
+        if(config.isDefaultButton==0 && sobotConvertToString(config.buttonDesc).length > 0){
+            [_btnSend setTitle:sobotConvertToString(config.buttonDesc) forState:UIControlStateNormal];
+        }
+        
+        
+    }
+    
+    
+    
+    CGFloat starWith = (starCount/5==1)?180:300;
+    if(starCount == 0){
+        starWith = 180;
+    }
+    _layoutRatingW.constant = starWith;
+    
+    if(config.scoreFlag == 0){
+        _layoutRatingHeight.constant = 60;
+    }else{
+        _layoutRatingHeight.constant = 60 + 29;
     }
     
     // 开启已解决未解决  1开启 0关闭，并且没有评价过
-    if ([message.isQuestionFlag intValue] > 0 ) {
+    if (config.isQuestionFlag > 0 ) {
         _layoutResolveHeight.constant = 36;
         _layoutResolveTop.constant = ZCChatCellItemSpace;
         
@@ -315,14 +377,19 @@
         _btnUnResolved.hidden = NO;
         _labTips.text = [NSString stringWithFormat:@"%@ %@",message.senderName,SobotKitLocalString(@"是否解决了您的问题？")];
         
-        isResolved = message.satisfactionCommtType;
+        isResolved = config.defaultQuestionFlag;
         
-        if(isResolved == 1){
-            [self robotServerButton:_btnResolved];
-        }else if(isResolved == 2){
+        
+        if(config.defaultQuestionFlag == 0){
+            // 未解决
             [self robotServerButton:_btnUnResolved];
+        }else if(config.defaultQuestionFlag == 1){
+            // 已解决
+            [self robotServerButton:_btnResolved];
         }
     }else{
+        _layoutItemTipsT.constant = 0;
+        _labItemTips.text = @"";
         _labTips.text=@"";
         _layoutResolveHeight.constant = 0;
         _layoutResolveTop.constant = 0;
@@ -336,23 +403,47 @@
     
     _labStarTips.text = SobotKitLocalString(@"非常满意");
     
+    _layoutItemTipsT.constant = 0;
+    _labItemTips.text = @"";
+    [_itemStarViews InitDataWithArray:@[]];
     [_bgView layoutIfNeeded];
-    if(_satisfaction!=nil && (_satisfaction.scoreFlag==1 || defaultStar > 0 )){
+    // 没有评价，0 没有评价 1已解决  2未解决，3，评价但没有选择是否评价
+    if(message.satisfactionCommtType == 0){
         [_labStarTips setTextColor:UIColorFromModeColor(SobotColorYellow)];
-        if(sobotConvertToString(_satisfaction.scoreExplain).length > 0){
-            [_labStarTips setText:sobotConvertToString(_satisfaction.scoreExplain)];
+        if(_satisfaction!=nil){
+            if(sobotConvertToString(_satisfaction.scoreExplain).length > 0){
+                [_labStarTips setText:sobotConvertToString(_satisfaction.scoreExplain)];
+            }
+            _itemStarViews.hidden = NO;
+            if(sobotConvertToString(_satisfaction.labelName).length > 0){
+                NSArray *items =  items = [sobotConvertToString(_satisfaction.labelName) componentsSeparatedByString:@"," ];
+                [_bgView layoutIfNeeded];
+                [_itemStarViews InitDataWithArray:items];
+                _layoutStarItemsHeight.constant =[_itemStarViews getHeightWithArray:items];
+            }
+            
+            [_ratingView displayRating:defaultStar];
+            
+            
+            _btnSend.hidden = NO;
+            _layoutSendHeight.constant = 36;
+            
+            if(sobotConvertToString(_satisfaction.tagTips).length > 0){
+                
+                _layoutItemTipsT.constant = ZCChatMarginVSpace;
+                _labItemTips.text = sobotConvertToString(_satisfaction.tagTips);
+                
+            }
+        }else{
+            // 说明已经评价过了
+            _layoutSendHeight.constant = 0;
+            _layoutStarItemsHeight.constant = 0;
+            _itemStarViews.hidden = YES;
+            _labStarTips.text = @"";
+            [_ratingView displayRating:0];
+            [_itemStarViews InitDataWithArray:@[]];
+            _btnSend.hidden = YES;
         }
-        _itemStarViews.hidden = NO;
-        if(sobotConvertToString(_satisfaction.labelName).length > 0){
-            NSArray *items =  items = [sobotConvertToString(_satisfaction.labelName) componentsSeparatedByString:@"," ];
-            [_bgView layoutIfNeeded];
-            [_itemStarViews InitDataWithArray:items];
-            _layoutStarItemsHeight.constant =[_itemStarViews getHeightWithArray:items];
-        }
-        
-        [_ratingView displayRating:defaultStar];
-        _btnSend.hidden = NO;
-        _layoutSendHeight.constant = 36;
     }else{
         // 说明已经评价过了
         _layoutSendHeight.constant = 0;
@@ -363,8 +454,8 @@
         [_ratingView displayRating:0];
         _btnSend.hidden = YES;
     }
-    
-    [self.contentView layoutIfNeeded];
+    [self.bgView setNeedsLayout];
+//    [self.contentView layoutIfNeeded];
 }
 
 -(void)sendButtonClick:(SobotButton *) btn{
@@ -377,6 +468,34 @@
         }
         if(_btnUnResolved.selected){
             isResolved = 0;
+        }
+        ZCSatisfactionConfig *config = [ZCUICore getUICore].satisfactionConfig;
+        // 是否解决必填
+        if(config.isQuestionMust && isResolved == -1){
+            // 提示
+            [[SobotToast shareToast] showToast:SobotKitLocalString(@"是否解决了您的问题？") duration:1.0f position:SobotToastPositionCenter];
+            return;
+        }
+        
+        BOOL _isMustAdd = NO;
+        if(_satisfaction!=nil){
+            if ([@"" isEqual: sobotConvertToString(_satisfaction.labelName)]) {
+                _isMustAdd = NO;
+            }else{
+                if ([_satisfaction.isTagMust intValue] == 1 ) {
+                    _isMustAdd = YES;
+                }else{
+                    _isMustAdd = NO;
+                }
+            }
+        }
+        
+        // 必填项为空
+        if(_isMustAdd && sobotConvertToString([_itemStarViews getSeletedTitle]).length == 0){
+            // 提示
+            [[SobotToast shareToast] showToast:SobotKitLocalString(@"标签必选") duration:1.0f position:SobotToastPositionCenter];
+            
+            return;
         }
         // 提交评价
         [self.delegate cellItemClick:2 isResolved:isResolved rating:_ratingView.rating problem:[_itemStarViews getSeletedTitle] scoreFlag:_satisfaction.scoreFlag];
@@ -408,8 +527,8 @@
     
     
     // 设置默认值
-    self.rating = newRating;
-    [self.ratingView displayRating:newRating];
+    self.rating = defaultStar;
+    [self.ratingView displayRating:defaultStar];
 }
 
 // 提交评价   type 1代表5星以下  2 代表5星提交
@@ -432,7 +551,7 @@
         if(_btnUnResolved.selected){
             isResolved = 0;
         }
-        [self.delegate cellItemClick:type isResolved:isResolved rating:_ratingView.rating problem:[_itemStarViews getSeletedTitle] scoreFlag:_satisfaction.scoreFlag];
+        [self.delegate cellItemClick:type isResolved:isResolved rating:self.rating problem:[_itemStarViews getSeletedTitle] scoreFlag:_satisfaction.scoreFlag];
     }
 }
 
@@ -449,7 +568,6 @@
             }else{
                 _isMustAdd = NO;
             }
-
         }
         // 标签必填直接谈评价
         if([_satisfaction.isInputMust intValue] == 1){

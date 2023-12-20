@@ -21,6 +21,7 @@
 @property (nonatomic,copy) NSString  *robotName;
 
 @property (nonatomic,assign) BOOL      guideFlag; //机器人引导语开关
+@property (nonatomic,assign) int      aiStatus; //机器人引导语开关
 
 @property (nonatomic,copy) NSString * operationRemark; // 业务介绍
 

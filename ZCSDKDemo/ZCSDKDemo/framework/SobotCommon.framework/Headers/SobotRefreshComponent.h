@@ -68,6 +68,8 @@ typedef NS_ENUM(NSInteger, SobotRefreshState) {
 /** 初始化 */
 - (void)prepare NS_REQUIRES_SUPER;
 
+-(void)hideTextView;
+
 /** 创建子视图 */
 - (void)createViews;
 

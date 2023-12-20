@@ -26,6 +26,9 @@
 @property (nonatomic,strong)  SobotButton * btnLookMore;
 @property (nonatomic,strong)  UIView *groupBgView;
 
+@property (nonatomic,strong) UIImageView *logImg;// 换一批图片
+@property (nonatomic,strong) UILabel *tipLab;// 换一批文案
+
 @property (nonatomic,strong)  UIView * bgView;
 @property (nonatomic,strong)  NSLayoutConstraint * layoutLogoWidth;
 @property (nonatomic,strong)  NSLayoutConstraint * layoutLogoBgViewWidth;
@@ -37,7 +40,7 @@
 @property (nonatomic,strong)  NSLayoutConstraint * layoutLookMoreTop;
 @property (nonatomic,strong)  NSLayoutConstraint * layoutCollectionHeight;
 
-
+@property (nonatomic,assign) CGFloat itemSizeHeight;
 @end
 
 @implementation ZCChatHotGuideCell
@@ -54,6 +57,7 @@
         iv.backgroundColor = [ZCUIKitTools zcgetChatBackgroundColor];
         [self.contentView addSubview:iv];
         
+//        iv.backgroundColor = UIColor.redColor;
         iv;
     });
     _bgView = ({
@@ -66,6 +70,7 @@
         iv.layer.borderColor = [UIColor clearColor].CGColor;
         iv.layer.borderWidth = 1.0f;
         [self.contentView addSubview:iv];
+//        iv.backgroundColor = UIColor.blueColor;
         iv;
     });
     
@@ -76,6 +81,7 @@
         iv.backgroundColor =UIColor.clearColor;
         [iv.layer setMasksToBounds:YES];
 //        iv.layer.cornerRadius = 5.0f;
+//        iv.backgroundColor = UIColor.yellowColor;
         iv;
     });
     
@@ -88,6 +94,7 @@
 //        iv.layer.cornerRadius = 2.0f;
         iv.layer.masksToBounds = YES;
         [_logoViewBgView addSubview:iv];
+//        iv.backgroundColor = UIColor.purpleColor;
         iv;
     });
     
@@ -95,6 +102,7 @@
         UIView *iv = [[UIView alloc]init];
         iv.backgroundColor = [ZCUIKitTools zcgetChatBackgroundColor];
         [_bgView addSubview:iv];
+//        iv.backgroundColor = UIColor.grayColor;
         iv;
     });
     
@@ -106,6 +114,7 @@
         iv.backgroundColor = [ZCUIKitTools zcgetChatBackgroundColor];
 //        iv.backgroundColor = [UIColor clearColor];
         [_groupBgView addSubview:iv];
+//        iv.backgroundColor = UIColor.greenColor;
         iv;
     });
         
@@ -119,6 +128,7 @@
         // 12的间隙为 item 到 消息
         UICollectionView *collectionView = [[UICollectionView alloc]initWithFrame:CGRectZero collectionViewLayout:_layout];
 //        collectionView.backgroundColor = [ZCUIKitTools zcgetChatBottomLineColor];
+        collectionView.backgroundColor = UIColor.clearColor;
         collectionView.delegate = self;
         collectionView.dataSource = self;
         collectionView.scrollEnabled = NO;
@@ -127,11 +137,16 @@
         collectionView.clipsToBounds = NO;
         collectionView.showsHorizontalScrollIndicator = NO;
         [collectionView registerClass:[ZCChatHotCollectionCell class] forCellWithReuseIdentifier:@"ZCChatHotCollectionCell"];
-        if(sobotGetSystemVersion()>=11){
-            collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        if(sobotGetSystemDoubleVersion()>=11){
+            if (@available(iOS 11.0, *)) {
+                collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            } else {
+                // Fallback on earlier versions
+            }
         }
         [_bgView addSubview:collectionView];
-        
+    
+//        collectionView.backgroundColor = UIColor.placeholderTextColor;
         collectionView;
     });
     
@@ -148,6 +163,37 @@
         [self.bgView addSubview:iv];
         iv;
     });
+    
+//    _logImg = ({
+//        UIImageView *iv = [[UIImageView alloc]init];
+//        iv.image = SobotKitGetImage(@"zcicon_refresh");
+//        [self.btnLookMore addSubview:iv];
+//        [_btnLookMore addConstraint:sobotLayoutEqualWidth(10, iv, NSLayoutRelationEqual)];
+//        [_btnLookMore addConstraint:sobotLayoutEqualHeight(10, iv, NSLayoutRelationEqual)];
+//        [_btnLookMore addConstraint:sobotLayoutPaddingLeft(16, iv, self.btnLookMore)];
+//        [_btnLookMore addConstraint:sobotLayoutPaddingTop(14, iv, self.btnLookMore)];
+//        iv.hidden = YES;
+//        iv;
+//    });
+//    
+//    _tipLab = ({
+//        UILabel *iv = [[UILabel alloc]init];
+//        [self.btnLookMore addSubview:iv];
+//        iv.font = SobotFont12;
+//        iv.numberOfLines = 2;
+//        iv.lineBreakMode = 4;
+//        iv.textColor = UIColorFromKitModeColor(SobotColorTextSub);
+//        [_btnLookMore addConstraint:sobotLayoutMarginLeft(4, iv, self.btnLookMore)];
+//        [_btnLookMore addConstraint:sobotLayoutPaddingTop(14, iv, self.btnLookMore)];
+//        [_btnLookMore addConstraint:sobotLayoutPaddingRight(-16, iv, self.btnLookMore)];
+//        [_btnLookMore addConstraint:sobotLayoutPaddingBottom(-12, iv, self.btnLookMore)];
+//        iv.hidden = YES;
+//        iv;
+//    });
+    
+    // 换一批需要处理 多行的场景
+    
+    
 }
 
 - (void)awakeFromNib {
@@ -159,14 +205,12 @@
     self=[super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if(self){
         [self createView];
-        
-        
     }
     return self;
 }
 -(void)createView{
     [self setupView];
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateCollectionViewItem) name:@"updatecollectionitem" object:nil];
     // 业务
     [self.contentView addConstraint:sobotLayoutPaddingTop(ZCChatMarginVSpace, self.businessView, self.contentView)];
     [self.contentView addConstraint:sobotLayoutPaddingLeft(ZCChatMarginHSpace, self.businessView, self.contentView)];
@@ -203,6 +247,7 @@
     [self.bgView addConstraint:sobotLayoutPaddingBottom(0, self.logoView, self.logoViewBgView)];
 //    [self.bgView addConstraint:sobotLayoutEqualHeight(100, self.logoView, NSLayoutRelationEqual)];
     _layoutLogoWidth = sobotLayoutEqualWidth(0, self.logoView, NSLayoutRelationEqual);
+//    _layoutLogoWidth.priority = 1;// 调整优先级 解决约束警告 'UIView-Encapsulated-Layout-Width'
     [self.bgView addConstraint:_layoutLogoWidth];
     
     // 分组
@@ -227,9 +272,18 @@
     
     // collectionView
     [self.bgView addConstraint:sobotLayoutMarginTop(1, self.collectionView, self.groupBgView)];
-    [self.bgView addConstraint:sobotLayoutPaddingLeft(0, self.collectionView, self.groupBgView)];
-    [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.collectionView, self.bgView)];
+//    [self.bgView addConstraint:sobotLayoutPaddingLeft(0, self.collectionView, self.groupBgView)];
+//    [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.collectionView, self.bgView)];
+    
+    NSLayoutConstraint *collectionPR = sobotLayoutPaddingRight(0, self.collectionView, self.bgView);
+//    collectionPR.priority = UILayoutPriorityRequired;
+    [self.bgView addConstraint:collectionPR];
+    NSLayoutConstraint *collectionPL = sobotLayoutPaddingLeft(0, self.collectionView, self.groupBgView);
+//    collectionPL.priority = UILayoutPriorityRequired;
+    [self.bgView addConstraint:collectionPL];    
+    
     _layoutCollectionHeight = sobotLayoutEqualHeight(0, self.collectionView, NSLayoutRelationEqual);
+//    _layoutCollectionHeight.priority = 1000;
     [self.bgView addConstraint:_layoutCollectionHeight];
     
     
@@ -270,12 +324,15 @@
     _layoutLookMoreHeight.constant = 44; // 默认展示
     _btnLookMore.enabled = NO;
     [_btnLookMore setTitleColor:[UIColor clearColor] forState:UIControlStateNormal];
-    [_btnLookMore setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+    [_btnLookMore setImage:[SobotUITools getSysImageByName:@""] forState:UIControlStateNormal];
     _layoutBgViewTop.constant = 0;
     if(showType == 1){
         _layoutGroupHeight.constant = 0;
         _layoutBusinessHeight.constant = 0;
         message.robotAnswer.showFaqDocRespVos = message.robotAnswer.faqDocRespVos;
+        if(message.robotAnswer.faqDocRespVos.count <=5){
+            _layoutLookMoreHeight.constant = 0; // 默认展示
+        }        
     }
     else if(showType == 2){
         _layoutBusinessHeight.constant = 0;
@@ -327,10 +384,14 @@
         _layoutLogoWidth.constant = 0;
         _layoutLogoBgViewWidth.constant = 0;
         _layoutGroupLeft.constant = 0;
+//        _layoutLogoWidth.priority = 1;
+//        _layoutLogoBgViewWidth.priority = 1;
     }else{
         _layoutLogoWidth.constant = 80;
         _layoutLogoBgViewWidth.constant = 80;
         _layoutGroupLeft.constant = 0.5+80;
+//        _layoutLogoWidth.priority = 1;
+//        _layoutLogoBgViewWidth.priority = 1;
         [_logoView setUrl:[NSURL URLWithString:sobotConvertToString(message.robotAnswer.imgUrl)] autoLoading:YES];
     }
     
@@ -354,7 +415,11 @@
             [_listArray addObject:message.robotAnswer.showFaqDocRespVos[i]];
         }
     }else{
-        [_listArray addObjectsFromArray:message.robotAnswer.showFaqDocRespVos];
+        if([message.robotAnswer.showFaqDocRespVos isKindOfClass:[NSArray class]]){
+            // 处理异常
+//            *** -[NSMutableArray addObjectsFromArray:]: array argument is not an NSArray
+            [_listArray addObjectsFromArray:message.robotAnswer.showFaqDocRespVos];
+        }
     }
     CGFloat itemHeight = 44;
     if(_listArray.count == 0){
@@ -363,24 +428,24 @@
         
     }else{
 //        _layoutCollectionHeight.constant = itemHeight * _listArray.count + (_listArray.count-1)*1;
-        if(_layoutLogoWidth.constant == 0){
+//        if(_layoutLogoWidth.constant == 0){
             if(allCount > pageSize){
                 _layoutCollectionHeight.constant = itemHeight * pageSize + (pageSize-1)*1;
             }else{
-                
                 _layoutCollectionHeight.constant = itemHeight * _listArray.count + (_listArray.count-1)*1;
             }
-        }else{
-            _layoutCollectionHeight.constant = itemHeight * 5 ; // 默认5个高度 + 换一组按钮的高度 如果后期要改成动态的高度 将上面的代码打开
-        }
+//        }else{
+//            _layoutCollectionHeight.constant = itemHeight * 5 ; // 默认5个高度 + 换一组按钮的高度 如果后期要改成动态的高度 将上面的代码打开
+//        }
     }
     
     // invalidate之前的layout，这个很关键
     [self.collectionView.collectionViewLayout invalidateLayout];
-    // 一定要重新设置，否则尺寸不生效
-    contentWidth = self.viewWidth - ZCChatMarginHSpace*2 -_layoutGroupLeft.constant;
+    // 一定要重新设置，否则尺寸不生效     sobotConvertToString(message.robotAnswer.imgUrl).length == 0
+    // _layoutGroupLeft.constant 替换掉之前的计算方式，直接获取要减去的宽度，防止约束还没有及时刷新导致 宽度计算不及时
+    contentWidth = self.viewWidth - ZCChatMarginHSpace*2 - (sobotConvertToString(message.robotAnswer.imgUrl).length == 0 ? 0 :80.5);
     self.layout.itemSize = CGSizeMake(contentWidth , itemHeight);
-    
+    self.itemSizeHeight = itemHeight;
     // 这里我们使用重写systemLayoutSizeFittingSize的方式
     [self.collectionView layoutIfNeeded];
     
@@ -401,6 +466,17 @@
     self.logoViewBgView.layer.mask = maskLayer1;
 }
 
+-(void)updateCollectionViewItem{
+    // invalidate之前的layout，这个很关键
+    [self.collectionView.collectionViewLayout invalidateLayout];
+    // 一定要重新设置，否则尺寸不生效
+//    contentWidth = ScreenWidth - ZCChatMarginHSpace*2 -_layoutGroupLeft.constant;
+    contentWidth = ScreenWidth - ZCChatMarginHSpace*2 - (sobotConvertToString(self.tempModel.robotAnswer.imgUrl).length == 0 ? 0 :80.5);
+    self.layout.itemSize = CGSizeMake(contentWidth , self.itemSizeHeight);
+    // 这里我们使用重写systemLayoutSizeFittingSize的方式
+    [self.collectionView layoutIfNeeded];
+    [self.bgView layoutIfNeeded];
+}
 
 
 #pragma mark - UICollectionViewDataSource
@@ -423,15 +499,22 @@
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
     //    NSLog(@" 点击水平 item的 事件 %@",indexPath);
-    NSDictionary * model = self.tempModel.robotAnswer.showFaqDocRespVos[indexPath.row];
-    
+//    NSDictionary * model = self.tempModel.robotAnswer.showFaqDocRespVos[indexPath.row];
+    NSDictionary *model = _listArray[indexPath.row];
     if (self.tempModel.isHistory) {
         return;
     }
     NSString * question = sobotConvertToString(model[@"questionName"]);
     // 发送点击消息
+//    内部知识库 fromEnum=4，机器人知识库=3，普通问答=5（机器人知识库结果有顶踩转人工，其他没有）
+    NSString *fromEnum = @"5";
+    if([sobotConvertToString([model objectForKey:@"from"]) intValue]== 1){
+        fromEnum = @"3";
+    }else{
+        fromEnum = @"4";
+    }
     
-    NSDictionary * dict = @{@"question":question,@"docId":sobotConvertToString(model[@"faqDocRelId"]),@"requestText":question,@"title":question,@"ishotguide":@"1"};
+    NSDictionary * dict = @{@"question":question,@"docId":sobotConvertToString(model[@"faqDocRelId"]),@"requestText":question,@"title":question,@"ishotguide":@"1",@"fromEnum":fromEnum};
 
     if (self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]) {
         [self.delegate cellItemClick:nil type:ZCChatCellClickTypeCollectionSendMsg text:@"" obj:dict];
@@ -517,8 +600,8 @@
         [buttons setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 2, 0)];
         [buttons setTitle:SobotKitLocalString(sobotConvertToString(item[@"groupName"])) forState:UIControlStateNormal];
         [buttons setTitleColor:[ZCUIKitTools zcgetLeftChatTextColor] forState:UIControlStateNormal];
-        [buttons setTitleColor:[ZCUIKitTools zcgetRobotBtnBgColor] forState:UIControlStateHighlighted];
-        [buttons setTitleColor:[ZCUIKitTools zcgetRobotBtnBgColor] forState:UIControlStateSelected];
+        [buttons setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateHighlighted];
+        [buttons setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateSelected];
         [buttons.titleLabel setFont:SobotFont14];
         [_groupView addSubview:buttons];
         [_groupView addConstraint:sobotLayoutEqualHeight(44, buttons, NSLayoutRelationEqual)];
@@ -532,7 +615,7 @@
         
         UIView *lineView = [[UIView alloc] init];
         lineView.tag = 1;
-        [lineView setBackgroundColor:[ZCUIKitTools zcgetRobotBtnBgColor]];
+        [lineView setBackgroundColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
         [buttons addSubview:lineView];
         [buttons addConstraint:sobotLayoutEqualHeight(2, lineView, NSLayoutRelationEqual)];
         [buttons addConstraint:sobotLayoutPaddingLeft(0, lineView, buttons)];
@@ -582,6 +665,7 @@
         lineView.hidden = NO;
         btn.selected = YES;
         
+        self.tempModel.robotAnswer.curFaqPage = 0;
         self.tempModel.robotAnswer.showFaqDocRespVos = @[];
         
         [ZCUIKitTools addBottomBorderWithColor:[ZCUIKitTools zcgetButtonThemeBgColor] andWidth:2 withView:btn];
@@ -615,6 +699,7 @@
         self.tempModel.robotAnswer.showFaqDocRespVos = @[];
         self.tempModel.robotAnswer.curBusinessPage = tag;
         self.tempModel.robotAnswer.curGroupPage = 0;
+        self.tempModel.robotAnswer.curFaqPage = 0;
         // 刷新页面
         if(self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]){
             [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeNewDataGroup text:@"" obj:nil];
@@ -640,15 +725,15 @@
     iv.contentMode = UIViewContentModeScaleAspectFit;
     [iv loadWithURL:[NSURL URLWithString:sobotConvertToString(sobotConvertToString(menu[@"titleImgUrl"]))]];
     [buttons addSubview:iv];
-    
+
     UILabel *label = [[UILabel alloc] init];
     [label setTextAlignment:NSTextAlignmentCenter];
     [label setText:sobotConvertToString(menu[@"businessLineName"])];
     [label setFont:SobotFont12];
     [label setTextColor:[ZCUIKitTools zcgetTextNolColor]];
     [buttons addSubview:label];
-    
-    
+
+
     SobotButton * btnClick = (SobotButton*)[SobotUITools createZCButton];
     //        [buttons setFrame:CGRectMake((i-1)*60+(i-1)*30, MoreViewHeight/2-itemH/2, 60, itemH)];
 //    [buttons setFrame:f];
@@ -656,22 +741,18 @@
     btnClick.tag = tag;
     [btnClick addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [buttons addSubview:btnClick];
-    
-    
+
     [buttons addConstraint:sobotLayoutEqualHeight(36, iv, NSLayoutRelationEqual)];
     [buttons addConstraint:sobotLayoutPaddingLeft(14.5, iv, buttons)];
     [buttons addConstraint:sobotLayoutPaddingRight(-14.5, iv, buttons)];
     [buttons addConstraint:sobotLayoutPaddingTop(15, iv, buttons)];
-    
+
     [buttons addConstraint:sobotLayoutMarginTop(10, label, iv)];
     [buttons addConstraint:sobotLayoutPaddingLeft(0, label, buttons)];
     [buttons addConstraint:sobotLayoutPaddingRight(0, label, buttons)];
-    [buttons addConstraint:sobotLayoutEqualHeight(20, label, NSLayoutRelationEqual)];
+//    [buttons addConstraint:sobotLayoutEqualHeight(20, label, NSLayoutRelationEqual)];// 这里不能同时设置高度和底部约束，会有约束⚠️
     [buttons addConstraint:sobotLayoutPaddingBottom(-6, label, buttons)];
-    
-    
     [buttons addConstraints:sobotLayoutPaddingWithAll(0, 0, 0, 0,btnClick, buttons)];
-    
     
     return buttons;
 }

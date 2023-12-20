@@ -13,14 +13,15 @@
 #import <SobotChatClient/SobotChatClient.h>
 
 @interface ZCFastMenuView(){
-    
+
 }
 
 @property(nonatomic,strong)UIScrollView * scrollView;
 @property(nonatomic,strong)NSLayoutConstraint *layoutHeight;
 
 @property(nonatomic,strong)NSMutableArray * listArray;
-
+@property(nonatomic,assign)BOOL isloading;// 正在加载
+@property(nonatomic,copy)NSString *tempOpportunity;// 临时记录上一次请求的数据
 @end
 
 @implementation ZCFastMenuView
@@ -72,11 +73,25 @@
 
 -(void)refreshData{
     [_listArray removeAllObjects];
-    // 添加一个转人工
-    if(![self getZCIMConfig].isArtificial && [self getZCIMConfig].type != 1){
-        ZCLibCusMenu * model = [[ZCLibCusMenu alloc]initWithMyDict:@{@"menuType":@"1",@"imgName":@"icon_fast_transfer",@"menuName":SobotKitLocalString(@"转人工")}];
-        [_listArray addObject:model];
-        [self showViews]; // 先将转人工的按钮显示
+    // 添加一个转人工  仅人工模式也不显示转人工按钮
+    if(![self getZCIMConfig].isArtificial && [self getZCIMConfig].type != 1 && [self getZCIMConfig].type != 2 ){
+        BOOL isShowManualBtn = NO;
+        // 自己配置不显示转人工
+        if(![ZCUICore getUICore].kitInfo.isShowTansfer && ![ZCLibClient getZCLibClient].isShowTurnBtn){
+            // 不显示转人工按钮
+        }else if([ZCLibClient getZCLibClient].isShowTurnBtn){
+            // 自己配置或后端接口配置触发了显示转人工按钮
+            isShowManualBtn = YES;
+        }else if([self getZCIMConfig].showTurnManualBtn && ![self getZCIMConfig].isManualBtnFlag){
+            // 自己配置长显,并且未开启
+            isShowManualBtn = YES;
+        }
+        
+        if(isShowManualBtn){
+            ZCLibCusMenu * model = [[ZCLibCusMenu alloc]initWithMyDict:@{@"menuType":@"1",@"imgName":@"icon_fast_transfer",@"menuName":SobotKitLocalString(@"转人工")}];
+            [_listArray addObject:model];
+            [self showViews]; // 先将转人工的按钮显示
+        }
     }
    
     // 加载快捷入口标签
@@ -93,12 +108,25 @@
         }
         
         if(opportunity.length >0){
+            // 防止相同的数据多次联系请求
+            if(self.isloading && [self.tempOpportunity isEqualToString:opportunity]){
+                return;
+            }
+            __weak ZCFastMenuView *safeView = self;
+            self.isloading = YES;
+            self.tempOpportunity = opportunity;
             [ZCLibServer getLableInfoList:[self getZCIMConfig] opportunity:opportunity start:^(NSString * _Nonnull url) {
             } success:^(NSDictionary *dict, ZCMessageSendCode sendCode) {
+                safeView.isloading = NO;
                 @try{
                     if (dict) {
-                        NSArray * listArr = dict[@"data"][@"menuConfigRespVos"];
-                        if (listArr.count > 0) {
+                        NSArray * listArr ;
+                        if([dict[@"data"] isKindOfClass:[NSDictionary class]] && !sobotIsNull(dict[@"data"])){
+                            if([[dict[@"data"] allKeys] containsObject:@"menuConfigRespVos"]){
+                                listArr =  dict[@"data"][@"menuConfigRespVos"];
+                            }
+                        }
+                        if (!sobotIsNull(listArr) && [listArr isKindOfClass:[NSArray class]] && listArr.count > 0) {
                             for (NSDictionary *Dic in listArr) {
                                 ZCLibCusMenu * model = [[ZCLibCusMenu alloc]initWithMyDict:Dic];
                                 [self->_listArray addObject:model];
@@ -111,6 +139,7 @@
                                 }
                             }else{
                                 [self getZCIMConfig].quickEntryFlag = 0;
+                                [self showViews];
                                 return ;
                             }
                         }
@@ -123,6 +152,7 @@
                 }
             } fail:^(NSString *errorMsg, ZCMessageSendCode errorCode) {
                 [self showViews];
+                safeView.isloading = NO;
             }];
         }else{
             [self showViews];
@@ -130,6 +160,13 @@
 //    }else{
 //        [self showViews];
 //    }
+}
+
+// 新会话键盘显示的时候清理掉数据
+-(void)clearDataUpdateUIForNewSession{
+    [_listArray removeAllObjects];
+    _layoutHeight.constant = 0;
+    [self layoutIfNeeded];
 }
 
 -(void)showViews{
@@ -180,11 +217,19 @@
         [preButton layoutIfNeeded];
         [_scrollView addConstraint:sobotLayoutPaddingRight(-10, preButton, _scrollView)];
     }
+    // 刷新高度，列表的内容偏移量也需要刷新
+    if (_fastMenuRefreshDataBlock) {
+        _fastMenuRefreshDataBlock(_layoutHeight.constant);
+    }
 }
 
 -(void)itemClick:(UIButton *)sender{
 //    UIButton * btn = (UIButton*)sender;
 //    NSLog(@"%@",btn.titleLabel.text);
+    if(_listArray.count == 0 || _listArray == nil){
+        // 解决多次点击转人工按钮异常问题处理
+        return;
+    }
     ZCLibCusMenu *menu = _listArray[sender.tag];
     if(sobotConvertToString(menu.menuid).length > 0){
         [ZCLibServer uploadLableInfoClick:[self getZCIMConfig] menuId:sobotConvertToString(menu.menuid) start:^(NSString * _Nonnull url) {

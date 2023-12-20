@@ -10,6 +10,7 @@
 #import <SobotKit/SobotClientBaseController.h>
 #import <SobotChatClient/SobotChatClient.h>
 #import <SobotCommon/SobotCommon.h>
+#import "SobotSatisfactionView.h"
 // 链接点击类型
 typedef NS_ENUM(NSInteger,ZCLinkClickType) {
     ZCLinkClickTypeURL    = 0,
@@ -20,6 +21,7 @@ typedef NS_ENUM(NSInteger,ZCLinkClickType) {
 typedef NS_ENUM(NSInteger,ZCTurnType) {
     ZCTurnType_KeyWord                 = 1,  // 关键字转人工
     ZCTurnType_KeyWordNoGroup,               // 关键字转人工,直接转
+    ZCTurnType_KeyWordSelGroup,              // 关键字转人工，并且是弹技能组选择框，由用户选择技能组
     ZCTurnType_KeyWordSmart,                // 智能转人工，静默转
     ZCTurnType_CellGroupClick,              // 点击关键字cell 中技能组
     ZCTurnType_BtnClick,                    // 点击转人工按钮
@@ -83,6 +85,8 @@ typedef NS_ENUM(NSInteger,ZCShowStatus) {
     ZCShowStatusLeaveOpenWithClose     = 35,  // 仅人工去留言，然后关闭
     ZCShowStatusOpenAskTable     = 36,  // 训前表单
     ZCShowStatusReConnectClick      = 37,  // 重新接入  新会话
+    ZCShowStatusRefreshFastMenuView = 38, // 会话保持进入人工聊天刷新快捷菜单
+    ZCShowStatusShowReferenceMessage = 39, // 添加引用消息
 };
 
 typedef NS_ENUM(NSInteger,ZCInitStatus) {
@@ -117,7 +121,12 @@ typedef NS_ENUM(NSInteger,ZCInitStatus) {
 
 @end
 
+typedef void (^DetailViewBlock)(SobotChatMessage * _Nonnull model,int type ,id obj);
 @interface ZCUICore : NSObject
+
+@property(nonatomic,copy) void (^PageLoadBlock)(id object,ZCPageStateType type);
+
+@property(nonatomic,copy) DetailViewBlock detailViewBlock;
 
 +(ZCUICore * _Nonnull)getUICore;
 
@@ -128,7 +137,7 @@ typedef NS_ENUM(NSInteger,ZCInitStatus) {
 @property(nonatomic,strong) NSMutableArray * cids;
 @property(nonatomic,strong) NSMutableArray * _Nullable chatMessages;
 @property(nonatomic,weak) id<ZCUICoreDelegate> _Nullable delegate;
-
+@property(nonatomic,copy) void (^ZCClosePageBlock)(ZCPageStateType type);
 // 是否已经执行过转人工，再发送消息的时候使用，YES时，说明已经转过人工了，但是未说过话不做真正的转人工调用
 @property (nonatomic,assign) BOOL isAfterConnectUser;
 @property(nonatomic,strong) SobotChatMessage * _Nullable lineModel;
@@ -138,7 +147,20 @@ typedef NS_ENUM(NSInteger,ZCInitStatus) {
 @property(nonatomic,assign) BOOL isShowRobotHello; // 是否显示机器人欢迎语
 @property(nonatomic,assign) BOOL isShowRobotGuide; // 是否显示机器人常见问题
 @property(nonatomic,strong) ZCKitInfo     *_Nonnull kitInfo;
-@property(nonatomic,strong) NSDictionary *satisfactionDict; // 评价选项
+
+
+// 滑动时，记录已阅读的消息
+@property (nonatomic,strong)NSMutableDictionary * _Nonnull unReadMessageCache;
+
+//defaultQuestionFlag：“问题是否解决”默认选中状态：(0)-未解决 (1)-解决 (-1)-不选中
+//defaultType：默认显示星级  0-5星,1-0星 / 0-10分，1-5分，2-0分，3-不选中
+//isQuestionFlag：人工客服是否解决问题开关  1-开启 0-关闭
+//isQuestionMust：“问题是否解决”是否为必填选项： 0-非必填 1-必填
+//scoreFlag：星级类型 0-旧版5星级评价  1-nps评价
+//status：模板状态开关 0-关闭 1-开启
+@property(nonatomic,strong) ZCSatisfactionConfig *_Nullable satisfactionConfig; // 评价选项
+@property(nonatomic,strong) ZCSatisfactionConfig *satisfactionLeaveConfig; // 留言评价选项
+
 @property(nonatomic,assign) BOOL isOffline;
 @property (nonatomic,assign) BOOL isOfflineBeBlack; // 是否是拉黑
 // 结束会话之前是否为人工模式，方便评价时获取当前状态
@@ -148,6 +170,7 @@ typedef NS_ENUM(NSInteger,ZCInitStatus) {
 
 @property (nonatomic,assign) BOOL isSendToUser;
 @property (nonatomic,assign) BOOL isSendToRobot;
+
 
 @property(nonatomic,copy) BOOL (^AppletClickBlock)(SobotChatMessage *model);
 
@@ -181,8 +204,23 @@ typedef NS_ENUM(NSInteger,ZCInitStatus) {
 
 // 发送商品卡片
 -(void)sendProductInfo:(ZCProductInfo *_Nonnull)productInfo resultBlock:(nonnull void (^)(NSString * _Nonnull, int code))ResultBlock;
--(void)sendMessage:(NSString *_Nonnull) content type:(SobotMessageType) msgType exParams:(NSDictionary * _Nullable) dict duration:(NSString *_Nullable) duration;
+-(void)sendMessage:(NSString *_Nonnull) content type:(SobotMessageType) msgType exParams:(NSDictionary * _Nullable) dict duration:(NSString *_Nullable) duration richType:(SobotMessageRichJsonType )richType;
+
+// 添加一个扩展对象，可以传递添加引用消息
+-(void)sendMessage:(NSString *_Nonnull) content type:(SobotMessageType) msgType exParams:(NSDictionary * _Nullable) dict duration:(NSString *_Nullable) duration richType:(SobotMessageRichJsonType )richType obj:(id _Nullable) obj;
+
 -(void)sendMessage:(ZCLibSendMessageParams *_Nonnull) sendParams type:(SobotMessageType) msgType;
+
+
+/// 发送自定义卡片
+/// - Parameters:
+///   - card: 自定义卡片
+///   - sendType: 0:添加到会话记录，1:发送给机器人/人工
+-(void)sendCusCardMessage:(SobotChatCustomCard *_Nonnull) card type:(int) sendType;
+
+/// 自定义卡片menu点击计数
+/// @param menu 点击的menu
+-(void)addCusCardMenuClick:(SobotChatCustomCardMenu *_Nonnull) menu;
 
 /// 添加本地消息到消息列表
 /// @param action 提示类型
@@ -190,7 +228,7 @@ typedef NS_ENUM(NSInteger,ZCInitStatus) {
 /// @param msgType 消息类型
 /// @param message 消息内容
 -(SobotChatMessage *_Nullable)addMessageToList:(SobotMessageActionType) action content:(NSString * _Nullable) content type:(SobotMessageType )msgType dict:(NSDictionary * _Nullable) message;
--(void)addMessage:(SobotChatMessage *) message reload:(BOOL) isReload;
+-(void)addMessage:(SobotChatMessage * _Nullable) message reload:(BOOL) isReload;
 
 
 /// 移除指定类型消息
@@ -205,7 +243,7 @@ typedef NS_ENUM(NSInteger,ZCInitStatus) {
 -(void)getChatMessages;
 
 
-/// 加载星级内容，成功以后，数据存在satisfactionDict中
+/// 加载星级内容，成功以后，数据存在satisfactionConfig中
 /// @param loadResult 0成功，1失败
 - (void)loadSatisfactionDictlock:(nonnull void (^)(int)) loadResult;
 
@@ -221,9 +259,9 @@ typedef NS_ENUM(NSInteger,ZCInitStatus) {
 -(void)dismissGroupView;
 
 // 评价之前，检查是否可以触发评价
--(BOOL)checkSatisfacetion:(BOOL) isEvalutionAdmin type:(SatisfactionType ) type;
+-(BOOL)checkSatisfacetion:(BOOL) isEvalutionAdmin type:(SobotSatisfactionFromSrouce ) type;
 // 邀请评价是，有值了
--(BOOL)checkSatisfacetion:(BOOL) isEvalutionAdmin type:(SatisfactionType ) type rating:(int) rating resolve:(int) resolve;
+-(BOOL)checkSatisfacetion:(BOOL) isEvalutionAdmin type:(SobotSatisfactionFromSrouce ) type rating:(int) rating resolve:(int) resolve;
 // 邀请评价，提交
 - (void)commitSatisfactionWithIsResolved:(int)isResolved Rating:(int)rating problem:(NSString *) problem scoreFlag:(float)scoreFlag;
 
@@ -243,8 +281,23 @@ typedef NS_ENUM(NSInteger,ZCInitStatus) {
 
 -(void)destoryViewsData;
 
+-(void)parseRobotMessage:(SobotChatMessage *) message;
 
 /// 处理评价事件
 /// @param isBcak 是否是返回触发的评价
 -(void)keyboardOnClickSatisfacetion:(BOOL)isBcak;
+
+// 显示详情页面
+-(void)showDetailViewWiht:(SobotChatMessage *)model;
+
+// 详情页面横竖屏切换事件
+-(void)updateChatDetailView:(CGFloat)y;
+
+// 详情页面点击事件
+-(void)detailViewClikBlock:(void(^)(SobotChatMessage *model,int type,id obj))detailViewBlock;
+
+
+// 添加引用消息到键盘
+-(void)doReferenceMessage:(SobotChatMessage *)model;
+
 @end

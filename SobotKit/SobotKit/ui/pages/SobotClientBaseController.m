@@ -20,6 +20,14 @@
 
 @implementation SobotClientBaseController
 
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+//    [self.navigationController setNavigationBarHidden:YES animated:NO];
+    if([ZCUICore getUICore].PageLoadBlock){
+        [ZCUICore getUICore].PageLoadBlock(self,ZCPageStateViewShow);
+    }
+}
 #pragma mark - 横竖屏
 //是否允许切换
 -(BOOL)shouldAutorotate{
@@ -64,7 +72,7 @@
 
 -(BOOL)orientationChanged{
     BOOL isChange = NO;
-    if ( [SobotUITools getCurScreenDirection] == 0) {
+    if ([SobotUITools getCurScreenDirection] == 0 || [ZCUICore getUICore].kitInfo.isShowPortrait) {
         CGFloat c = viewWidth;
         if(viewWidth > viewHeight){
             viewWidth = viewHeight;
@@ -110,10 +118,18 @@
     [self forceChangeForward];
 }
 
+
+-(void)viewDidDisappear:(BOOL)animated{
+     [self configSupportedInterfaceOrientations:0];
+}
+
 -(void)forceChangeForward{
     if([ZCUICore getUICore].kitInfo.isShowPortrait){
         fromOrientation = [UIApplication sharedApplication].statusBarOrientation;
-        if (fromOrientation != UIInterfaceOrientationPortrait) {
+        [UIApplication sharedApplication].statusBarOrientation = UIInterfaceOrientationPortrait;
+
+        UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+        if (fromOrientation != UIInterfaceOrientationPortrait || deviceOrientation!=UIDeviceOrientationPortrait) {
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientChange:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
             [self interfaceOrientation:UIInterfaceOrientationPortrait];
         }
@@ -137,17 +153,81 @@
         [self viewDidLayoutSubviews];
     }
 }
+/** 控制旋转 */
+- (void)configSupportedInterfaceOrientations:(int)number
+{
+    id appDel = [[UIApplication sharedApplication] delegate];
+    SEL sel_clientstate = NSSelectorFromString(@"setClientstate:");
+    if ([appDel respondsToSelector:sel_clientstate]) {
+        (((void (*)(id, SEL, NSUInteger))[appDel methodForSelector:sel_clientstate])(appDel, sel_clientstate, number));
+    }
+}
 
 #pragma mark - 设置强制横竖屏
 - (void)interfaceOrientation:(UIInterfaceOrientation)orientation {
-    if ([[UIDevice currentDevice] respondsToSelector:@selector(setOrientation:)]) {
-        SEL selector             = NSSelectorFromString(@"setOrientation:");
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[UIDevice instanceMethodSignatureForSelector:selector]];
-        [invocation setSelector:selector];
-        [invocation setTarget:[UIDevice currentDevice]];
-//        int val                  = orientation;
-        [invocation setArgument:&orientation atIndex:2];
-        [invocation invoke];
+    if (sobotGetSystemDoubleVersion()>=16) {
+        @try {
+           
+            UIInterfaceOrientationMask val = UIInterfaceOrientationMaskPortrait;
+            NSLog(@"***************************** val %ld**************************",val);
+            if(orientation == UIInterfaceOrientationPortrait){
+                [self configSupportedInterfaceOrientations:1];
+                val = UIInterfaceOrientationMaskPortrait;
+            }else if(orientation == UIInterfaceOrientationLandscapeLeft){
+                [self configSupportedInterfaceOrientations:2];
+                val = UIInterfaceOrientationMaskLandscapeLeft;
+            }else if(orientation == UIInterfaceOrientationLandscapeRight){
+                [self configSupportedInterfaceOrientations:2];
+                val = UIInterfaceOrientationMaskLandscapeRight;
+            }else if(orientation == UIInterfaceOrientationMaskLandscape){
+                [self configSupportedInterfaceOrientations:2];
+                val = UIInterfaceOrientationMaskLandscape;
+            }else{
+                [self configSupportedInterfaceOrientations:0];
+            }
+            if (@available(iOS 16.0, *)) {
+//                [self setNeedsUpdateOfSupportedInterfaceOrientations];
+//                NSArray *array = [[[UIApplication sharedApplication] connectedScenes] allObjects];
+//                UIWindowScene *ws = (UIWindowScene *)array[0];
+//                UIWindowSceneGeometryPreferencesIOS *geometryPreferences = [[UIWindowSceneGeometryPreferencesIOS alloc] init];
+//                geometryPreferences.interfaceOrientations = val;
+//
+//                [ws requestGeometryUpdateWithPreferences:geometryPreferences
+//                                            errorHandler:^(NSError * _Nonnull error) {
+//                    //业务代码
+//                    SLog(@"调用了Block%@",error);
+//                }];
+                
+//                NSArray *array = [[[UIApplication sharedApplication] connectedScenes] allObjects];
+//                UIWindowScene *ws = (UIWindowScene *)array[0];
+//                Class GeometryPreferences = NSClassFromString(@"UIWindowSceneGeometryPreferencesIOS");
+//                id geometryPreferences = [[GeometryPreferences alloc]init];
+//                [geometryPreferences setValue:@(val) forKey:@"interfaceOrientations"];
+//                SLog(@"调用了requestGeometryUpdateWithPreferences:\n%@\nws:%@",geometryPreferences,ws);
+//                SEL sel_method = NSSelectorFromString(@"requestGeometryUpdateWithPreferences:errorHandler:");
+//                void (^ErrorBlock)(NSError *err) = ^(NSError *err){
+//                    SLog(@"调用了Block%@",err);
+//                };
+//                if ([ws respondsToSelector:sel_method]) {
+//                    (((void (*)(id, SEL,id,id))[ws methodForSelector:sel_method])(ws, sel_method,geometryPreferences,ErrorBlock));
+//                }
+            } else {
+                // Fallback on earlier versions
+            }
+        } @catch (NSException *exception) {
+
+        } @finally {
+            
+        }
+    }else{
+        if ([[UIDevice currentDevice] respondsToSelector:@selector(setOrientation:)]) {
+            SEL selector             = NSSelectorFromString(@"setOrientation:");
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[UIDevice instanceMethodSignatureForSelector:selector]];
+            [invocation setSelector:selector];
+            [invocation setTarget:[UIDevice currentDevice]];
+            [invocation setArgument:&orientation atIndex:2];
+            [invocation invoke];
+        }
     }
 }
 
@@ -155,17 +235,65 @@
 
 
 -(void)updateTopViewBgColor{
+    // 修改背景色的代码放到主线程中操作，防止使用系统导航栏，首次初始化完成之后，刷新不及时问题
+        if (!self.navigationController.navigationBarHidden) {
+            // 设置导航条颜色
+            [self.navigationController.navigationBar setBarTintColor:[ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)]];
+    #pragma mark -- iOS 15.0 导航栏设置
+            if (@available(iOS 15.0, *)) {
+                UINavigationBarAppearance *barApp = [UINavigationBarAppearance new];
+                [barApp configureWithOpaqueBackground];
+                barApp.backgroundColor = [ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)];
+                barApp.shadowColor = [ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)];
+                self.navigationController.navigationBar.scrollEdgeAppearance = barApp;
+                self.navigationController.navigationBar.standardAppearance = barApp;
+                self.titleLabel.textColor = [ZCUIKitTools zcgetTopViewTextColor];
+            }
+        }else{
+            // 更新自定义View
+            [self.topView setBackgroundColor:[ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)]];
+            self.titleLabel.textColor = [ZCUIKitTools zcgetTopViewTextColor];
+        }
+
+    
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        if (!self.navigationController.navigationBarHidden) {
+//            // 设置导航条颜色
+//            [self.navigationController.navigationBar setBarTintColor:[ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)]];
+//    #pragma mark -- iOS 15.0 导航栏设置
+//            if (@available(iOS 15.0, *)) {
+//                UINavigationBarAppearance *barApp = [UINavigationBarAppearance new];
+//                barApp.backgroundColor = [ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)];
+//                barApp.shadowColor = [ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)];
+//                self.navigationController.navigationBar.scrollEdgeAppearance = barApp;
+//                self.navigationController.navigationBar.standardAppearance = barApp;
+//                self.titleLabel.textColor = [ZCUIKitTools zcgetTopViewTextColor];
+//            }
+//        }else{
+//            // 更新自定义View
+//            [self.topView setBackgroundColor:[ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)]];
+//            self.titleLabel.textColor = [ZCUIKitTools zcgetTopViewTextColor];
+//        }
+//    });
+}
+
+#pragma mark - 设置帮助中心导航栏颜色
+-(void)updateCenterViewBgColor{
     if (!self.navigationController.navigationBarHidden) {
         // 设置导航条颜色
         [self.navigationController.navigationBar setBarTintColor:[ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)]];
+        [self.navigationController.navigationBar setTitleTextAttributes: @{NSForegroundColorAttributeName:[ZCUIKitTools zcgetTopViewTextColor]}];
 #pragma mark -- iOS 15.0 导航栏设置
         if (@available(iOS 15.0, *)) {
             UINavigationBarAppearance *barApp = [UINavigationBarAppearance new];
             barApp.backgroundColor = [ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)];
             barApp.shadowColor = [ZCUIKitTools zcgetNavBackGroundColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)];
+            NSDictionary *dic = @{NSForegroundColorAttributeName : [ZCUIKitTools zcgetTopViewTextColor],
+                                              NSFontAttributeName : [UIFont systemFontOfSize:18 weight:UIFontWeightMedium]};
+                    
+            barApp.titleTextAttributes = dic;
             self.navigationController.navigationBar.scrollEdgeAppearance = barApp;
             self.navigationController.navigationBar.standardAppearance = barApp;
-            self.titleLabel.textColor = [ZCUIKitTools zcgetTopViewTextColor];
         }
     }else{
         // 更新自定义View
@@ -174,24 +302,45 @@
     }
 }
 
-#pragma mark - 设置帮助中心导航栏颜色
--(void)updateCenterViewBgColor{
+// 设置导航栏按钮
+-(void)setNavigationBarLeft:(NSArray *__nullable)leftTags right:(NSArray *__nullable)rightTags{
+    [self setNavigationBarLeft:leftTags right:rightTags setBarStyle:NO];
+}
+
+
+
+-(void)createVCTitleView{
+    if(self.navigationController && !self.navigationController.navigationBarHidden){
+        self.navigationController.interactivePopGestureRecognizer.delegate = (id)self;
+        [self updateNavOrTopView];
+    }else{
+        [self createCustomTitleView];
+    }
+}
+
+
+#pragma mark - 更新导航栏
+-(void)updateNavOrTopView{
+    // 统计 系统导航栏上面的按钮
+    NSMutableArray *rightItem = [NSMutableArray array];
+    NSMutableDictionary *navItemSource = [NSMutableDictionary dictionary];
+    [rightItem addObject:@(SobotButtonClickBack)];
+    [navItemSource setObject:@{@"img":@"zcicon_titlebar_back_normal",@"imgsel":sobotConvertToString([ZCUICore getUICore].kitInfo.topBackNolImg)} forKey:@(SobotButtonClickBack)];
+    // 更新系统导航栏的按钮
+    self.navItemsSource = navItemSource;
+    [self setLeftTags:rightItem rightTags:@[] titleView:nil];
     if (!self.navigationController.navigationBarHidden) {
-        // 设置导航条颜色
-        [self.navigationController.navigationBar setBarTintColor:[ZCUIKitTools zcgetscTopBgColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)]];
-#pragma mark -- iOS 15.0 导航栏设置
-        if (@available(iOS 15.0, *)) {
-            UINavigationBarAppearance *barApp = [UINavigationBarAppearance new];
-            barApp.backgroundColor = [ZCUIKitTools zcgetscTopBgColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)];
-            barApp.shadowColor = [ZCUIKitTools zcgetscTopBgColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)];
-            self.navigationController.navigationBar.scrollEdgeAppearance = barApp;
-            self.navigationController.navigationBar.standardAppearance = barApp;
-            self.titleLabel.textColor = [ZCUIKitTools zcgetTopViewTextColor];
+        if([ZCUIKitTools getZCThemeStyle] == SobotThemeMode_Light){
+            if(sobotGetSystemDoubleVersion() >= 13){
+                self.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
+                self.navigationController.toolbar.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
+            }
         }
     }else{
-        // 更新自定义View
-        [self.topView setBackgroundColor:[ZCUIKitTools zcgetscTopBgColorWithSize:CGSizeMake(ScreenWidth, NavBarHeight)]];
-        self.titleLabel.textColor = [ZCUIKitTools zcgetTopViewTextColor];
+        self.moreButton.hidden = YES;
+        self.titleLabel.hidden = NO;
+        self.backButton.hidden = NO;
+        self.bottomLine.hidden = YES;
     }
 }
 

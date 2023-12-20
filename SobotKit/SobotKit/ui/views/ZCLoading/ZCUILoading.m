@@ -41,25 +41,29 @@ static  ZCUILoading *_zcuiLoading = nil;
         }
     }
     
-    _zcuiLoading.frame = CGRectMake(0, 0, SuperView.frame.size.width,SuperView.frame.size.height);
+    // 将ZCUILoading添加到传进来的父视图SuperView
+    [SuperView addSubview:_zcuiLoading];
+    [SuperView addConstraints:sobotLayoutPaddingWithAll(0, 0, 0, 0, _zcuiLoading, SuperView)];
+//    _zcuiLoading.frame = CGRectMake(0, 0, SuperView.frame.size.width,SuperView.frame.size.height);
     [_zcuiLoading setBackgroundColor:[UIColor clearColor]];
-    [_zcuiLoading setAutoresizesSubviews:YES];
-    [_zcuiLoading setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+//    [_zcuiLoading setAutoresizesSubviews:YES];
+//    [_zcuiLoading setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
     if(isLargeWhite){
         activityView=[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     }else{
         activityView=[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     }
-    
-    [activityView setFrame:CGRectMake(0, 0, 40, 40)];
-    [activityView setBackgroundColor:[UIColor clearColor]];
-    [activityView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleTopMargin];
-    [activityView startAnimating];
     [_zcuiLoading addSubview:activityView];
-    [activityView setCenter:CGPointMake(_zcuiLoading.bounds.size.width/2, _zcuiLoading.bounds.size.height/2)];
+    [_zcuiLoading addConstraints:sobotLayoutSize(40, 40, activityView, NSLayoutRelationEqual)];
+    [_zcuiLoading addConstraint:sobotLayoutEqualCenterX(0, activityView, _zcuiLoading)];
+    [_zcuiLoading addConstraint:sobotLayoutEqualCenterY(0, activityView, _zcuiLoading)];
     
-    // 将ZCUILoading添加到传进来的父视图SuperView
-    [SuperView addSubview:self];
+//    [activityView setFrame:CGRectMake(0, 0, 40, 40)];
+    [activityView setBackgroundColor:[UIColor clearColor]];
+//    [activityView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleTopMargin];
+    [activityView startAnimating];
+//    [activityView setCenter:CGPointMake(_zcuiLoading.bounds.size.width/2, _zcuiLoading.bounds.size.height/2)];
+    
     
 }
 
@@ -88,34 +92,40 @@ static  ZCUILoading *_zcuiLoading = nil;
         }
     }
     
-    _zcuiLoading.frame = CGRectMake(0, 0, SuperView.frame.size.width,SuperView.frame.size.height);
+    [SuperView addSubview:_zcuiLoading];
+    [SuperView addConstraints:sobotLayoutPaddingWithAll(0, 0, 0, 0, _zcuiLoading, SuperView)];
     [_zcuiLoading setBackgroundColor:[ZCUIKitTools zcgetChatBackgroundColor]];
-    [_zcuiLoading setAutoresizesSubviews:YES];
-    [_zcuiLoading setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
     
     
     UIImageView *icon = [[UIImageView alloc]initWithImage:[SobotUITools getSysImageByName:@"zcicon_networkfail"]];
     if(image){
         [icon setImage:image];
     }
+    [_zcuiLoading addSubview:icon];
     [icon setContentMode:UIViewContentModeCenter];
-    [icon setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-    icon.frame = CGRectMake(self.frame.size.width/2 - 55/2, CGRectGetMaxY(SuperView.bounds)/2-200, 55, 76);
-    [self addSubview:icon];
+  
+    
+    [_zcuiLoading addConstraints:sobotLayoutSize(55, 76, icon, NSLayoutRelationEqual)];
+    [_zcuiLoading addConstraint:sobotLayoutEqualCenterX(0, icon, _zcuiLoading)];
+    [_zcuiLoading addConstraint:sobotLayoutEqualCenterY(-150, icon, _zcuiLoading)];
     
     CGFloat y= CGRectGetMaxY(icon.frame) + 10;
 
     if(title){
-        UILabel *lblTitle=[[UILabel alloc] initWithFrame:CGRectMake(0, y, self.frame.size.width, 44)];
+        UILabel *lblTitle=[[UILabel alloc] initWithFrame:CGRectZero];
         [lblTitle setText:title];
         [lblTitle setFont:SobotFont14];
+        lblTitle.numberOfLines = 0;
         [lblTitle setTextAlignment:NSTextAlignmentCenter];
-        [lblTitle setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-        [lblTitle setAutoresizesSubviews:YES];
         lblTitle.textColor = UIColorFromKitModeColor(SobotColorTextSub);
         [lblTitle setBackgroundColor:[UIColor clearColor]];
         lblTitle.userInteractionEnabled = YES;
         [self addSubview:lblTitle];
+        
+        [_zcuiLoading addConstraint:sobotLayoutPaddingLeft(10, lblTitle, _zcuiLoading)];
+        [_zcuiLoading addConstraint:sobotLayoutPaddingRight(-10, lblTitle, _zcuiLoading)];
+        [_zcuiLoading addConstraint:sobotLayoutMarginTop(10, lblTitle, icon)];
+         
         y = y+25;
         
         if(clickblock){
@@ -123,17 +133,16 @@ static  ZCUILoading *_zcuiLoading = nil;
             UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
             [btn setTitle:SobotKitLocalString(@"重新加载") forState:0];
             [btn setTitleColor:UIColorFromKitModeColor(SobotColorTextLink) forState:0];
-            [btn setFrame:CGRectMake(0, y, self.frame.size.width, 44)];
             [btn.titleLabel setFont:SobotFont16];
             [btn setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
             [btn addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
             [self addSubview:btn];
             
+            [_zcuiLoading addConstraint:sobotLayoutPaddingLeft(10, btn, _zcuiLoading)];
+            [_zcuiLoading addConstraint:sobotLayoutPaddingRight(-10, btn, _zcuiLoading)];
+            [_zcuiLoading addConstraint:sobotLayoutMarginTop(25, btn, lblTitle)];
+            
         }
-//        UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(refresh)];
-//        gestureRecognizer.numberOfTapsRequired = 1;
-//        gestureRecognizer.cancelsTouchesInView = NO;
-//        [lblTitle addGestureRecognizer:gestureRecognizer];
     }
     
 }

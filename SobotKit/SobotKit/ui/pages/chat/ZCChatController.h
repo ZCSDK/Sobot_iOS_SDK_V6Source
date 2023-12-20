@@ -23,8 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZCChatController : SobotClientBaseController
 
-@property(nonatomic,assign) BOOL isArtificial;
-
 // 留言代理
 @property (nonatomic,assign) id<ZCChatControllerDelegate> chatdelegate;
 

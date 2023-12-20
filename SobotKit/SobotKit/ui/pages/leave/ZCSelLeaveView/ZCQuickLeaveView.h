@@ -55,6 +55,9 @@ typedef void(^ZCQuickLeaveViewBlock)(int code,id obj);
 
 @property (nonatomic,copy) ZCQuickLeaveViewBlock resultBlock;
 
+// code = 0无提交操作，1有提交操作, type = 0 仅关闭，type=1，空白区域关闭，type=2提交关闭
+@property (nonatomic,copy) void(^closeBlock)(int code,int type);
+
 -(ZCQuickLeaveView *)initActionSheet:(UIView *)view withController:(UIViewController *)exController;
 
 - (void)showEditView;

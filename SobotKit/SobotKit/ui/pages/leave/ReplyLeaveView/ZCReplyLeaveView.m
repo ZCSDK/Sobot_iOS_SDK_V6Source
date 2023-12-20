@@ -432,10 +432,10 @@
         }
     }else{
         if (buttonIndex == 2) {
-            buttonIndex = 1; // 相机
+            buttonIndex = 0; // 相机
         }
-        if (buttonIndex == 3) {
-            buttonIndex = 0;// 相册
+        if (buttonIndex == 1) {
+            buttonIndex = 1;// 相册
         }
         if ([self.delegate respondsToSelector:@selector(replyLeaveViewPickImg:)]) {
             [self.delegate replyLeaveViewPickImg:buttonIndex];

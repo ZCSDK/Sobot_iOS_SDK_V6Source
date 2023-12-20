@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <SobotChatClient/SobotChatClient.h>
-
 @class ZCUIChatKeyboard;
 
 /**

@@ -77,15 +77,15 @@
             [titleBT setTitleColor:[ZCUIKitTools zcgetTextNolColor] forState:UIControlStateSelected];
         }else{
             titleBT.layer.borderColor = [UIColor whiteColor].CGColor;
-            [titleBT setTitleColor:[ZCUIKitTools zcgetRobotBtnBgColor] forState:UIControlStateNormal];
+            [titleBT setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateNormal];
             [titleBT setTitleColor:UIColorFromKitModeColor(SobotColorWhite) forState:UIControlStateHighlighted];
             [titleBT setTitleColor:UIColorFromKitModeColor(SobotColorWhite) forState:UIControlStateSelected];
         }
         titleBT.layer.masksToBounds=YES;
         [titleBT.titleLabel setFont:SobotFont14];
         [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetCommentItemButtonBgColor]] forState:UIControlStateNormal];
-        [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetRobotBtnBgColor]] forState:UIControlStateSelected];
-        [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetRobotBtnBgColor]] forState:UIControlStateHighlighted];
+        [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]] forState:UIControlStateSelected];
+        [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]] forState:UIControlStateHighlighted];
         tagI = tagI + 1;
         titleBT.tag = tagI;
         [self  addSubview:titleBT];

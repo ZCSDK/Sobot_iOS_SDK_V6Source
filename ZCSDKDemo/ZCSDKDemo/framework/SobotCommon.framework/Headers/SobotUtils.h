@@ -218,16 +218,4 @@ BOOL sobotIsIPhoneX(void);
 /// 获取当前展示的window
 UIWindow *sobotGetCurWindow(void);
 
-/// 获取时间 几小时前 几天前 几月前
-NSString *SobotIntervalSinceSimpleNow(NSString *theDate);
-
-NSString * SobotLongLongDateTransformString(NSString* fromate,long long longdate);
-
-NSString * SobotShortDateTransformString(NSString* fromate,long long longdate);
-
-NSInteger SobotGetDataDay(NSDate *date);
-
-NSString * SobotDateTransformString(NSString* fromate,NSDate*date);
-
-
 @end

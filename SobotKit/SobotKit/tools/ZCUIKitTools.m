@@ -108,6 +108,14 @@
     return UIColorFromKitModeColor(SobotColorBanner); // UIColorFromRGB(noticBgColor);
 }
 
++(UIColor *)zcgetLeaveTitleTextColor{
+    ZCKitInfo *configModel = [self getZCKitInfo];
+    if (configModel != nil && configModel.leaveTitleTextColor && ![self useDefaultThemeColor]) {
+        return configModel.leaveTitleTextColor;
+    }
+    return UIColorFromKitModeColor(SobotColorWhite); // UIColorFromRGB(noticBgColor);
+}
+
 +(UIColor *)getNotifitionTopViewLabelColor{
     ZCKitInfo *configModel = [self getZCKitInfo];
     if (configModel != nil && configModel.notificationTopViewLabelColor && ![self useDefaultThemeColor]) {
@@ -275,13 +283,26 @@
     if(configModel!=nil && configModel.topViewBgColor!=nil && ![self useDefaultThemeColor]){
         return configModel.topViewBgColor;
     }
+    NSMutableArray *colors = [NSMutableArray array];
+    if(configModel !=nil && configModel.sobotColor_title_bar_left_bg && ![self useDefaultThemeColor]){
+        UIColor *colorItem = [SobotImageTools colorWithHexString:configModel.sobotColor_title_bar_left_bg alpha:1];
+        [colors addObject:(__bridge id)colorItem.CGColor];
+    }
+    
+    if(configModel !=nil && configModel.sobot_color_title_bar_right_bg && ![self useDefaultThemeColor]){
+        UIColor *colorItem = [SobotImageTools colorWithHexString:configModel.sobot_color_title_bar_right_bg alpha:1];
+        [colors addObject:(__bridge id)colorItem.CGColor];
+    }
+    if(colors.count > 0){
+        return [SobotImageTools gradientColorWithSize:size colorArr:colors];
+    }
+    
     // 用户没有设置取 PC端的设置值
     if (sobotConvertToString([[ZCUICore getUICore] getLibConfig].topBarColor).length > 0) {
         NSString *colorStr = [[ZCUICore getUICore] getLibConfig].topBarColor;
 //        colorStr = @"#2DB4F9,#272EDC,#ff33cc,#cc0033";// 测试数据
         NSArray *colorStrArray = [colorStr componentsSeparatedByString:@","];
         if (!sobotIsNull(colorStrArray)) {
-            NSMutableArray *colors = [NSMutableArray array];
             for (NSString *colorName in colorStrArray) {
                 UIColor *colorItem = [SobotImageTools colorWithHexString:colorName alpha:1];
                 [colors addObject:(__bridge id)colorItem.CGColor];
@@ -290,7 +311,13 @@
             return bgColor;
         }
     }
-    return [ZCUIKitTools zcgetTopViewBgColor];
+    
+    UIColor *colorItemLeft = [SobotImageTools colorWithHexString:@"#4ADABE" alpha:1];
+    [colors addObject:(__bridge id)colorItemLeft.CGColor];
+    
+    UIColor *colorItemRight = [SobotImageTools colorWithHexString:@"#0DAEAF" alpha:1];
+    [colors addObject:(__bridge id)colorItemRight.CGColor];
+    return [SobotImageTools gradientColorWithSize:size colorArr:colors];
 }
 
 +(UIColor *)zcgetRobotBackGroundColorWithSize:(CGSize)size{
@@ -312,7 +339,7 @@
 }
 
 #pragma mark - 设置主题按钮的背景颜色
-+(UIColor *)zcgetRobotBtnBgColor{
++(UIColor *)zcgetServerConfigBtnBgColor{
     if (sobotConvertToString([[ZCUICore getUICore] getLibConfig].rebotTheme).length > 0) {
         NSString *colorStr = [[ZCUICore getUICore] getLibConfig].rebotTheme;
         NSArray *colorStrArray = [colorStr componentsSeparatedByString:@","];
@@ -372,7 +399,7 @@
     if(configModel!=nil && configModel.leaveSubmitBtnImgColor!=nil && ![self useDefaultThemeColor]){
         return configModel.leaveSubmitBtnImgColor;
     }
-    return UIColorFromKitModeColor(SobotColorTheme);
+    return [ZCUIKitTools zcgetServerConfigBtnBgColor];// UIColorFromKitModeColor(SobotColorTheme);
 }
 
 +(UIColor *)zcgetLeaveSubmitTextColor{
@@ -447,8 +474,9 @@
     if(configModel!=nil && configModel.goodSendBtnColor!=nil && ![self useDefaultThemeColor]){
         return configModel.goodSendBtnColor;
     }
-    return [ZCUIKitTools zcgetButtonThemeBgColor];
+    return [ZCUIKitTools zcgetServerConfigBtnBgColor];
 }
+
 
 #pragma mark - 设置按钮的主题色
 +(UIColor *)zcgetButtonThemeBgColor{
@@ -465,6 +493,14 @@
         return configModel.scoreExplainTextColor;
     }
     return UIColorFromModeColor(SobotColorYellow); 
+}
+
++(UIColor *)zcgetPricetTagTextColor{
+    ZCKitInfo *configModel = [self getZCKitInfo];
+    if(configModel !=nil && configModel.pricetTagTextColor && ![self useDefaultThemeColor]){
+        return configModel.pricetTagTextColor;
+    }
+    return UIColorFromModeColor(SobotColorTextPricetTag);
 }
 
 +(UIColor *)zcgetSubmitEvaluationButtonColor{
@@ -623,8 +659,44 @@
     if(configModel!=nil && configModel.rightChatColor!=nil && ![self useDefaultThemeColor]){
         return configModel.rightChatColor;
     }
-    return UIColorFromKitModeColor(SobotColorTheme);
+    // 用户没有设置走渐变色
+    if (sobotConvertToString([[ZCUICore getUICore] getLibConfig].rebotTheme).length > 0) {
+        NSString *colorStr = [[ZCUICore getUICore] getLibConfig].rebotTheme;
+        NSArray *colorStrArray = [colorStr componentsSeparatedByString:@","];
+        if (!sobotIsNull(colorStrArray)) {
+            // 只取最后一个颜色值
+            NSString *colorstr = [colorStrArray lastObject];
+            UIColor *colorItem = [SobotImageTools colorWithHexString:colorstr alpha:1];
+            return colorItem;
+        }
+    }
+    return UIColorFromModeColor(SobotColorTheme);// 默认主题色
+//    return UIColorFromKitModeColor(SobotColorTheme);
 }
+
+#pragma mark -- 设置右边气泡颜色
++(UIColor *)zcgetRightChatColorWithSize:(CGSize)size{
+    ZCKitInfo *configModel=[self getZCKitInfo];
+    if(configModel!=nil && configModel.rightChatColor!=nil && ![self useDefaultThemeColor]){
+        return configModel.rightChatColor;
+    }
+    if (sobotConvertToString([[ZCUICore getUICore] getLibConfig].rebotTheme).length > 0) {
+        NSString *colorStr = [[ZCUICore getUICore] getLibConfig].rebotTheme;
+//        colorStr = @"#2DB4F9,#272EDC,#ff33cc,#cc0033";// 测试数据
+        NSArray *colorStrArray = [colorStr componentsSeparatedByString:@","];
+        if (!sobotIsNull(colorStrArray)) {
+            NSMutableArray *colors = [NSMutableArray array];
+            for (NSString *colorName in colorStrArray) {
+                UIColor *colorItem = [SobotImageTools colorWithHexString:colorName alpha:1];
+                [colors addObject:(__bridge id)colorItem.CGColor];
+            }
+            UIColor *bgColor = [SobotImageTools gradientColorWithSize:size colorArr:colors ];
+            return bgColor;
+        }
+    }
+    return UIColorFromModeColor(SobotColorTheme);// 默认主题色
+}
+
 // 复制选中的背景色
 +(UIColor *)zcgetRightChatSelectdeColor{
     ZCKitInfo *configModel=[self getZCKitInfo];
@@ -632,6 +704,22 @@
         return configModel.rightChatSelectedColor;
     }
     return UIColorFromKitModeColor(SobotColorTextSub1);
+}
+
++(UIColor *)zcgetRightChatVoiceTextBgColor{
+    ZCKitInfo *configModel=[self getZCKitInfo];
+    if(configModel!=nil && configModel.videoConversionBgColor!=nil && ![self useDefaultThemeColor]){
+        return configModel.videoConversionBgColor;
+    }
+    return UIColorFromKitModeColor(SobotColorBgSub);
+}
+
++(UIColor *)zcgetRightChatVoiceTextColor{
+    ZCKitInfo *configModel=[self getZCKitInfo];
+    if(configModel!=nil && configModel.videoConversionTextColor!=nil && ![self useDefaultThemeColor]){
+        return configModel.videoConversionTextColor;
+    }
+    return UIColorFromKitModeColor(SobotColorTextMain);
 }
 
 
@@ -776,15 +864,19 @@
         font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
     }
 
-
+    // 解决 CoreText note: Client requested name ".SFUI-Regular" warning
+    NSString *fontName = font.fontName;
+    if([fontName hasSuffix:@"SFUI-Regular"]){
+        fontName = @"TimesNewRomanPSMT";
+    }
 
     html = [html stringByReplacingOccurrencesOfString:@"\n" withString:@"<br/>"];
     if(linkColor && textColor){
         NSString *linkHexColor = [self getHexStringByColor:linkColor];
         NSString *textHexColor = [self getHexStringByColor:textColor];
-        html = [NSString stringWithFormat:@"<html><head><style>body{ font-family:'%@'; font-size:%fpx;color:%@; margin:0px; padding:0px;}a{color:%@} a:hover{color:%@}</style></head><body>%@</body></html>", font.fontName, font.pointSize,textHexColor,linkHexColor,linkHexColor,html];
+        html = [NSString stringWithFormat:@"<html><head><style>body{ font-family:'%@'; font-size:%fpx;color:%@; margin:0px; padding:0px;}a{color:%@} a:hover{color:%@}</style></head><body>%@</body></html>", fontName, font.pointSize,textHexColor,linkHexColor,linkHexColor,html];
     }else{
-        html = [NSString stringWithFormat:@"<html><head><style>body{ font-family:'%@'; font-size:%fpx; margin:0px; padding:0px;}</style></head><body>%@</body></html>", font.fontName, font.pointSize,html];
+        html = [NSString stringWithFormat:@"<html><head><style>body{ font-family:'%@'; font-size:%fpx; margin:0px; padding:0px;}</style></head><body>%@</body></html>", fontName, font.pointSize,html];
     }
     
 //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -856,7 +948,11 @@
                  if ([@"YES" isEqual:[rangeIDict objectForKey:NSStringFromRange(range)]]) {
                     font = [UIFont boldSystemFontOfSize:textFont.pointSize];
                  }
-                 UIFontDescriptor *desc = [UIFontDescriptor fontDescriptorWithName:font.fontName matrix:matrix];
+                 NSString *fontName = font.fontName;
+                 if([fontName hasSuffix:@"SFUI-Regular"]){
+                     fontName = @"TimesNewRomanPSMT";
+                 }
+                 UIFontDescriptor *desc = [UIFontDescriptor fontDescriptorWithName:fontName matrix:matrix];
                  [attributedString addAttribute:NSFontAttributeName value:[UIFont fontWithDescriptor:desc size:textFont.pointSize] range:range];
              }
              
@@ -952,7 +1048,7 @@
         iconName = @"zcicon_file_word";
     }else if( type == 1 || type == 8){
         iconName = @"zcicon_file_ppt";
-    }else if(type == 2){
+    }else if(type == 2 || type == 12){
         iconName = @"zcicon_file_excel";
     }else if(type == 3){
         iconName = @"zcicon_file_pdf";
@@ -1018,4 +1114,42 @@
     border.frame = CGRectMake(view.frame.size.width - borderWidth, 0, borderWidth, view.frame.size.height);
     [view.layer addSublayer:border];
 }
+
++(CGFloat)getHeightContain:(NSString *)string font:(UIFont *)font Width:(CGFloat) width
+{
+    if(string==nil){
+        return 0;
+    }
+    //转化为格式字符串
+    NSAttributedString *astr = [[NSAttributedString alloc]initWithString:string attributes:@{NSFontAttributeName:font}];
+    CGSize contansize=CGSizeMake(width, CGFLOAT_MAX);
+    if(iOS7){
+        CGRect rec = [astr boundingRectWithSize:contansize options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading context:nil];
+        return rec.size.height;
+    }else{
+//        CGSize s=[string sizeWithFont:font constrainedToSize:contansize lineBreakMode:NSLineBreakByCharWrapping];
+        CGSize s=[string boundingRectWithSize:contansize options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:font} context:nil].size;
+        return s.height;
+    }
+}
+
++(CGFloat)getWidthContain:(NSString *)string font:(UIFont *)font Height:(CGFloat) height
+{
+    if(string==nil){
+        return 0;
+    }
+    //转化为格式字符串
+    NSAttributedString *astr = [[NSAttributedString alloc]initWithString:string attributes:@{NSFontAttributeName: font}];
+    CGSize cs=CGSizeMake(CGFLOAT_MAX,height);
+    if(!iOS7){
+        CGSize s=[string sizeWithFont:font constrainedToSize:cs lineBreakMode:NSLineBreakByCharWrapping];
+        return s.width;
+    }else{
+        CGRect rec = [astr boundingRectWithSize:cs options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading context:nil];
+        CGSize size = rec.size;
+        return size.width;
+    }
+}
+
+
 @end

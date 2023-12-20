@@ -14,7 +14,7 @@
 
 #define SobotLayoutidentifierOff @"off"
 
-@interface ZCChatBaseCell()<ZCActionSheetDelegate>
+@interface ZCChatBaseCell()<ZCActionSheetDelegate,SobotEmojiLabelDelegate>
 {
     CGSize tempSize;
     
@@ -44,11 +44,20 @@
 @property(nonatomic,strong) NSLayoutConstraint *layoutSugguestBottom;
 
 @property(nonatomic,strong) NSLayoutConstraint *layoutTurnTop;
+@property(nonatomic,strong) NSLayoutConstraint *layoutTurnLeft;
+@property(nonatomic,strong) NSLayoutConstraint *layoutTurnW;// 转人工按钮的宽度
 @property(nonatomic,strong) NSLayoutConstraint *layoutTurnHeight;
 
 @property(nonatomic,strong) NSLayoutConstraint *layoutTheTopHeight;
 @property(nonatomic,strong) NSLayoutConstraint *layoutSetOnSpace;
 @property(nonatomic,strong) NSLayoutConstraint *layoutSetOnHeight;
+@property(nonatomic,strong) NSLayoutConstraint *layoutSetOnW;
+@property(nonatomic,strong) NSLayoutConstraint *layoutSetTopW;
+@property(nonatomic,strong) NSLayoutConstraint *layoutSetTopLeft;
+
+
+@property(nonatomic,strong) NSLayoutConstraint *layoutSetOnBottom;// 顶
+@property(nonatomic,strong) NSLayoutConstraint *layoutSetOnLeft;// 顶
 
 @property(nonatomic,strong) NSLayoutConstraint *layoutleaveIconPB;
 
@@ -83,7 +92,7 @@
     
     _ivHeader =({
         SobotImageView *iv = [[SobotImageView alloc] init];
-        [iv setContentMode:UIViewContentModeScaleAspectFit];
+        [iv setContentMode:UIViewContentModeScaleAspectFill];
         [iv.layer setMasksToBounds:YES];
 //        [iv setBackgroundColor:[UIColor lightGrayColor]];
         [iv setBackgroundColor:[UIColor clearColor]];
@@ -191,9 +200,27 @@
         
         [iv addTarget:self action:@selector(clickReSend:) forControlEvents:UIControlEventTouchUpInside];
         // 只可能在右边
-        [self.contentView addConstraint:sobotLayoutPaddingTop(ZCChatMarginVSpace, iv, _ivBgView)];
+        [self.contentView addConstraint:sobotLayoutPaddingTop(ZCChatMarginVSpace+4, iv, _ivBgView)];
         [self.contentView addConstraint:sobotLayoutMarginRight(-14, iv, _ivBgView)];
         [self.contentView addConstraints:sobotLayoutSize(20, 20, iv, NSLayoutRelationEqual)];
+        
+        iv;
+    });
+    
+    _btnReadStatus = ({
+        UIButton *iv = [UIButton buttonWithType:UIButtonTypeCustom];
+        [iv setBackgroundColor:[UIColor clearColor]];
+        iv.titleLabel.font = SobotFont12;
+        [iv setTitleColor:[ZCUIKitTools zcgetRightChatColor] forState:0];
+        [iv setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
+        iv.layer.cornerRadius=3;
+        iv.layer.masksToBounds=YES;
+        [self.contentView addSubview:iv];
+        iv.hidden=YES;
+        // 只可能在右边
+        [self.contentView addConstraint:sobotLayoutPaddingBottom(0, iv, _ivBgView)];
+        [self.contentView addConstraint:sobotLayoutMarginRight(-10, iv, _ivBgView)];
+        [self.contentView addConstraint:sobotLayoutEqualHeight(18, iv, NSLayoutRelationEqual)];
         
         iv;
     });
@@ -203,7 +230,7 @@
         UILabel *iv = [[UILabel alloc]init];
     //        _leaveIcon = ZCSTLocalString(@"留言消息");
         iv.text = SobotKitLocalString(@"留言消息");
-        iv.textColor = [ZCUIKitTools zcgetRobotBtnBgColor];
+        iv.textColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
         iv.font = SobotFont12;
         [iv setTextAlignment:NSTextAlignmentRight];
         [self.contentView addSubview:iv];
@@ -222,10 +249,9 @@
         iv.tag = ZCChatCellClickTypeConnectUser;
         if([SobotUITools getSobotThemeMode] != SobotThemeMode_Dark){
 //            iv.layer.borderColor = UIColorFromModeColor(SobotColorYellow).CGColor;
-            
             iv.layer.borderColor = [ZCUIKitTools zcgetCommentButtonLineColor].CGColor;
         }
-        
+        iv.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         iv.layer.cornerRadius = 15.0f;
         iv.layer.borderWidth = 0.75f;
         iv.layer.masksToBounds = YES;
@@ -233,7 +259,7 @@
         [iv setImage:SobotKitGetImage(@"icon_fast_transfer") forState:UIControlStateNormal];
         [iv setImage:SobotKitGetImage(@"icon_fast_transfer") forState:UIControlStateHighlighted];
         iv.imageEdgeInsets = UIEdgeInsetsMake(0,10.0, 0, 0);
-        iv.titleEdgeInsets = UIEdgeInsetsMake(0, 15.0, 0, 0);
+        iv.titleEdgeInsets = UIEdgeInsetsMake(0, 15.0, 0, 5);
         NSString *lan = [ZCLibClient getZCLibClient].libInitInfo.absolute_language;
         if(sobotIsNull(lan)){
             lan = sobotGetLanguagePrefix();
@@ -241,7 +267,7 @@
         
         if ([sobotConvertToString(lan) hasPrefix:@"ar"]) {
             iv.imageEdgeInsets = UIEdgeInsetsMake(0,0, 0, 10);
-            iv.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 15);
+            iv.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 15);
         }
         
         
@@ -255,9 +281,11 @@
         _layoutTurnTop = sobotLayoutMarginTop(ZCChatMarginVSpace, iv, _ivBgView);
         _layoutTurnHeight = sobotLayoutEqualHeight(30, iv, NSLayoutRelationEqual);
         [self.contentView addConstraint:_layoutTurnTop];
-        [self.contentView addConstraint:sobotLayoutPaddingLeft(0, iv, _ivBgView)];
-        [self.contentView addConstraint:sobotLayoutEqualWidth(100, iv, NSLayoutRelationEqual)];
         
+        _layoutTurnLeft = sobotLayoutPaddingLeft(0, iv, _ivBgView);
+        [self.contentView addConstraint:_layoutTurnLeft];
+        _layoutTurnW = sobotLayoutEqualWidth(100, iv, NSLayoutRelationEqual);
+        [self.contentView addConstraint:_layoutTurnW];
         NSLayoutConstraint *layotBottom = sobotLayoutPaddingBottom(-ZCChatMarginVSpace, iv, self.contentView);
         layotBottom.priority = UILayoutPriorityDefaultHigh;
         [self.contentView addConstraint:layotBottom];
@@ -292,9 +320,12 @@
         // 只会在左边
         _layoutSetOnHeight = sobotLayoutEqualHeight(32, iv, NSLayoutRelationEqual);
         [self.contentView addConstraint:_layoutSetOnHeight];
-        [self.contentView addConstraint:sobotLayoutEqualWidth(32,iv, NSLayoutRelationEqual)];
-        [self.contentView addConstraint:sobotLayoutPaddingBottom(0, iv, self.ivBgView)];
-        [self.contentView addConstraint:sobotLayoutMarginLeft(ZCChatMarginVSpace, iv, _ivBgView)];
+        _layoutSetOnW = sobotLayoutEqualWidth(32,iv, NSLayoutRelationEqual);
+        [self.contentView addConstraint:_layoutSetOnW];
+        _layoutSetOnBottom = sobotLayoutPaddingBottom(0, iv, self.ivBgView);
+        [self.contentView addConstraint:_layoutSetOnBottom];
+        _layoutSetOnLeft = sobotLayoutMarginLeft(ZCChatMarginVSpace, iv, _ivBgView);
+        [self.contentView addConstraint:_layoutSetOnLeft];
         iv;
     });
     
@@ -323,9 +354,10 @@
         
         _layoutSetOnSpace = sobotLayoutMarginBottom(-ZCChatMarginVSpace, iv, _btnStepOn);
         [self.contentView addConstraint:_layoutSetOnSpace];
-        [self.contentView addConstraint:sobotLayoutEqualWidth(32,iv, NSLayoutRelationEqual)];
-//        [self.contentView addConstraint:sobotLayoutMarginTop(0, iv, _ivBgView)];
-        [self.contentView addConstraint:sobotLayoutMarginLeft(ZCChatMarginVSpace, iv, _ivBgView)];
+        _layoutSetTopW = sobotLayoutEqualWidth(32,iv, NSLayoutRelationEqual);
+        [self.contentView addConstraint:_layoutSetTopW];
+        _layoutSetTopLeft = sobotLayoutMarginLeft(ZCChatMarginVSpace, iv, _ivBgView);
+        [self.contentView addConstraint: _layoutSetTopLeft];
         iv;
     });
     
@@ -336,12 +368,26 @@
         [self.contentView addConstraint:sobotLayoutEqualCenterY(0, iv, _btnReSend)];
         iv;
     });
+    
+    _sendUpLoadView = ({
+        UIActivityIndicatorView *iv = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        [self.contentView addSubview:iv];
+        [self.contentView addConstraint:sobotLayoutEqualCenterY(0, iv, self.ivBgView)];
+        [self.contentView addConstraint:sobotLayoutMarginRight(-10, iv, _ivBgView)];
+//        [self.contentView addConstraints:sobotLayoutSize(90, 24, iv, NSLayoutRelationEqual)];
+        iv.hidden = YES;
+        iv;
+    });
+    
     _ivLayerView = [[UIImageView alloc] init];
     self.userInteractionEnabled=YES;
     
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(doLongPress:)];
+    longPress.minimumPressDuration = 0.5f; // 设置响应时长
     self.ivBgView.userInteractionEnabled = YES;
-    [self.ivBgView addGestureRecognizer:longPress];
+//    [self.ivBgView addGestureRecognizer:longPress];
+    self.contentView.userInteractionEnabled = YES;
+    [self.contentView addGestureRecognizer:longPress];
 }
 - (void)awakeFromNib {
     [super awakeFromNib];
@@ -356,7 +402,6 @@
     }
     return self;
 }
-
 
 
 -(void)reSetBaseLayoutConstraint{
@@ -436,10 +481,16 @@
         [_lblNickName setText:@""];
         _layoutNameTop.constant = ZCChatMarginVSpace - ZCChatCellItemSpace;
     }
+    if (!self.isRight && ![ZCUICore getUICore].getLibConfig.showFace) {
+        _ivHeader.hidden = YES;// 左边 并且 设置 不显示客服头像 
+    }
 }
 
 
 +(SobotEmojiLabel *) createRichLabel{
+    return [self createRichLabel:nil];
+}
++(SobotEmojiLabel *) createRichLabel:(id) delegate{
     SobotEmojiLabel *tempRichLabel = [[SobotEmojiLabel alloc] initWithFrame:CGRectZero];
     tempRichLabel.numberOfLines = 0;
     tempRichLabel.font = [ZCUIKitTools zcgetKitChatFont];
@@ -451,10 +502,12 @@
     
     tempRichLabel.isNeedAtAndPoundSign = NO;
     tempRichLabel.disableEmoji = NO;
-    
     tempRichLabel.lineSpacing = [ZCUIKitTools zcgetChatLineSpacing];
     
     tempRichLabel.verticalAlignment = SobotAttributedLabelVerticalAlignmentCenter;
+    if(delegate != nil){
+        tempRichLabel.delegate = delegate;
+    }
     return tempRichLabel;
 }
 
@@ -471,6 +524,9 @@
 
 
 -(void)initDataToView:(SobotChatMessage *) message time:(NSString *) showTime{
+    _sendUpLoadView.hidden = YES;
+    [_sendUpLoadView stopAnimating];
+    
     _tempModel = message;
     isBtnClick = NO;
     // 0,自己，1机器人，2客服
@@ -491,7 +547,6 @@
         _layoutTimeTop.constant = ZCChatMarginVSpace;
         _lblTime.hidden=NO;
     }
-    CGFloat headerSpace = 0;
     
     UIImage *placeHoldImage = nil;
     // 0,自己，1机器人，2客服
@@ -502,7 +557,6 @@
         placeHoldImage = SobotKitGetImage(@"zcicon_useravatar_nol");
         [_lblSugguest setTextColor:[ZCUIKitTools zcgetRightChatTextColor]];
         [_lblSugguest setLinkColor:[ZCUIKitTools zcgetChatRightlinkColor]];
-        headerSpace = 0;
     }else{
         _isRight = NO;
         [_lblSugguest setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
@@ -514,12 +568,14 @@
         }else{
             placeHoldImage = SobotKitGetImage(@"zcicon_useravatart_girl");
         }
-       
-        if(!_ivHeader.hidden){
-            headerSpace = 40;
-        }
     }
     [self reSetBaseLayoutConstraint];
+    
+    CGFloat headerSpace = 0;
+    if(!_ivHeader.hidden ||(!self.tempModel.isShowSenderFlag && self.tempModel.senderType != 0)){
+        // 这里需要处理个特殊场景，客服连续发送的第二条消息不展示头像，但是左边间距是一样的，宽度也要保持一样
+        headerSpace = 40;
+    }
     
     // 减去左右
     self.maxWidth = self.viewWidth - 66 - ZCChatMarginHSpace - headerSpace - ZCChatPaddingHSpace*2;
@@ -538,11 +594,11 @@
     if(message.msgType != SobotMessageTypeTipsText){
         NSString *text = [message getModelDisplaySugestionText];
         // 不是多伦的模版4，不是热点问题
-        if((sobotConvertToString(text).length > 0 && message.richModel.type != SobotMessageTypeHotGuide && message.richModel.type !=SobotMessageRichJsonTypeLoop) || (message.richModel.type ==SobotMessageRichJsonTypeLoop && message.richModel.richContent.templateId==4)){
-            
+        if((sobotConvertToString(text).length > 0 && message.richModel.type != SobotMessageTypeHotGuide && message.richModel.type !=SobotMessageRichJsonTypeLoop) || (message.richModel.type ==SobotMessageRichJsonTypeLoop  && !sobotIsNull(message.richModel.richContent) && message.richModel.richContent.templateId == 4)){
+
             _layoutSugguestBottom.constant = -ZCChatPaddingVSpace;
             [ZCChatBaseCell configHtmlText:text label:_lblSugguest right:self.isRight];
-            s = [_lblSugguest preferredSizeWithMaxWidth:self.maxWidth];
+            s = [_lblSugguest preferredSizeWithMaxWidth:self.maxWidth-ZCChatPaddingHSpace*2];
         }else{
             if(message.msgType==SobotMessageTypeVideo || message.msgType== SobotMessageTypePhoto){
                 _layoutSugguestBottom.constant = 0;
@@ -595,6 +651,7 @@
     
     _layoutChatBgWidth.constant = _layoutSugguestWidth.constant;
     
+    _btnReadStatus.hidden = YES;
     _leaveIcon.hidden = YES;
     _btnReSend.hidden = YES;
     _btnTheTop.hidden = YES;
@@ -623,12 +680,39 @@
                 _activityView.center = self.btnReSend.center;
                 [_activityView startAnimating];
             }
+            
+            // 上传音频文件有翻译的回调时间
+            if (self.tempModel.msgType == SobotMessageTypeSound) {
+                [_sendUpLoadView startAnimating];
+                _sendUpLoadView.hidden = NO;
+            }else{
+                [_sendUpLoadView stopAnimating];
+                _sendUpLoadView.hidden = YES;
+            }
+            
+            
         }else if(_tempModel.sendStatus==2){
             [self.btnReSend setHidden:NO];
             [self.btnReSend setBackgroundColor:[UIColor clearColor]];
             [self.btnReSend setImage:SobotKitGetImage(@"zcicon_send_fail") forState:UIControlStateNormal];
             _activityView.hidden=YES;
             [_activityView stopAnimating];
+            
+            [_sendUpLoadView stopAnimating];
+            _sendUpLoadView.hidden = YES;
+        }else{
+            // 无需添加权限，如果没有权限，应该是0(未标记)状态
+//            if(([ZCUICore getUICore].getLibConfig.readFlag == 1 && [ZCUICore getUICore].getLibConfig.isArtificial) || ([ZCUICore getUICore].getLibConfig.adminReadFlag == 1 && ![ZCUICore getUICore].getLibConfig.isArtificial) ){
+                if(_tempModel.readStatus == 1){
+                    _btnReadStatus.hidden = NO;
+                    [_btnReadStatus setTitleColor:[ZCUIKitTools zcgetRightChatColor] forState:0];
+                    [_btnReadStatus setTitle:SobotKitLocalString(@"未读") forState:0];
+                }else if(_tempModel.readStatus == 2){
+                    _btnReadStatus.hidden = NO;
+                    [_btnReadStatus setTitleColor:UIColorFromKitModeColor(SobotColorTextSub1) forState:0];
+                    [_btnReadStatus setTitle:SobotKitLocalString(@"已读") forState:0];
+                }
+//            }
         }
         // 是否是用户发送的 留言转离线消息
         if (_tempModel.leaveMsgFlag == 1) {
@@ -641,46 +725,205 @@
                 _layoutTurnTop.constant = 5;
                 _layoutTurnHeight.constant = 30;
             }
-            
             // 是否显示踩/赞
             if(self.tempModel.senderType == 1){
-                
                 /**
                  机器人评价
                  0，不处理，1新添加(可赞、可踩)，2已赞，3已踩，4 超时下线之后不能在评价
                  */
-                if(self.tempModel.commentType == 4 || self.tempModel.commentType == 1){
-                    _layoutSetOnSpace.constant = -ZCChatMarginVSpace;
-                    _layoutSetOnHeight.constant = 32;
-                    _layoutTheTopHeight.constant = 32;
-                    
-                    _btnTheTop.hidden = NO;
-                    _btnStepOn.hidden = NO;
-                    _btnTheTop.selected = NO;
-                    _btnStepOn.selected = NO;
-                    
-                    
-                    if(size.height < 64 && _layoutSugguestHeight.constant == 0){
-                        _layoutSugguestHeight.constant = 64+ZCChatCellItemSpace - size.height - ZCChatPaddingVSpace*2;
+//                realuateStyle 0 在右侧  1 在下方
+                if([self getZCLibConfig].realuateStyle){
+                    // 只处理中英文的，其他的还只显示图标 不显示文字
+                    if ([[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"zh-"]
+                        || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"zh-"])
+                        || [[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"en"]
+                        || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"en"])) {
+                        self.btnTheTop.imageEdgeInsets = UIEdgeInsetsMake(0,-10.0, 0, 0);
+                        self.btnTheTop.titleEdgeInsets = UIEdgeInsetsMake(0, 15.0, 0, 0);
+                        self.btnStepOn.imageEdgeInsets = UIEdgeInsetsMake(0,-10.0, 0, 0);
+                        self.btnStepOn.titleEdgeInsets = UIEdgeInsetsMake(0, 15.0, 0, 0);
+                        [self.btnTheTop setTitle:SobotLocalString(@"顶") forState:UIControlStateNormal];
+                        [self.btnTheTop setTitle:SobotLocalString(@"顶") forState:UIControlStateHighlighted];
+                        [self.btnStepOn setTitle:SobotLocalString(@"踩") forState:UIControlStateNormal];
+                        [self.btnStepOn setTitle:SobotLocalString(@"踩") forState:UIControlStateHighlighted];
                     }
-                }
-                if(self.tempModel.commentType == 2){
-                    _btnTheTop.hidden = NO;
-                    _layoutSetOnSpace.constant = 0;
-                    _layoutTheTopHeight.constant = 32;
-                    _btnTheTop.selected = YES;
-                }
-                if(self.tempModel.commentType == 3){
-                    _layoutSetOnSpace.constant = 0;
-                    _layoutSetOnHeight.constant = 32;
-                    _btnStepOn.hidden = NO;
-                    _btnStepOn.selected = YES;
+                    
+                    // 在下方
+                    if(self.tempModel.commentType == 4 || self.tempModel.commentType == 1){
+                        _layoutSetOnSpace.constant = -ZCChatMarginVSpace;
+                        _layoutSetOnHeight.constant = 32;
+                        _layoutTheTopHeight.constant = 32;
+                        _btnTheTop.hidden = NO;
+                        _btnStepOn.hidden = NO;
+                        _btnTheTop.selected = NO;
+                        _btnStepOn.selected = NO;
+                        if(size.height < 64 && _layoutSugguestHeight.constant == 0){
+                            _layoutSugguestHeight.constant = 64+ZCChatCellItemSpace - size.height - ZCChatPaddingVSpace*2;
+                        }
+                        
+                        [self.contentView removeConstraint:_layoutSetOnSpace];
+                        [self.contentView removeConstraint:_layoutSetTopW];
+                        [self.contentView removeConstraint:_layoutSetTopLeft];
+                        [self.contentView removeConstraint:_layoutSetOnW];
+                        [self.contentView removeConstraint:_layoutSetOnBottom];
+                        [self.contentView removeConstraint:_layoutSetOnLeft];
+                        [self.contentView removeConstraint:_layoutTurnLeft];
+                        
+                        _layoutSetTopLeft = sobotLayoutPaddingLeft(0, _btnTheTop, _ivBgView);
+                        [self.contentView addConstraint:_layoutSetTopLeft];
+                        _layoutSetOnLeft = sobotLayoutMarginLeft(16, _btnStepOn, _btnTheTop);
+                        [self.contentView addConstraint:_layoutSetOnLeft];
+                        
+                        if ([[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"zh-"]
+                            || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"zh-"])
+                            || [[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"en"]
+                            || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"en"])) {
+                            // 中英文显示 文字，加宽
+                            _layoutSetTopW = sobotLayoutEqualWidth(100,_btnTheTop, NSLayoutRelationEqual);
+                            _layoutSetOnW = sobotLayoutEqualWidth(100, _btnStepOn, NSLayoutRelationEqual);
+                        }else{
+                            _layoutSetTopW = sobotLayoutEqualWidth(32,_btnTheTop, NSLayoutRelationEqual);
+                            _layoutSetOnW = sobotLayoutEqualWidth(32, _btnStepOn, NSLayoutRelationEqual);
+                        }
+                        [self.contentView addConstraint:_layoutSetTopW];
+                        [self.contentView addConstraint:_layoutSetOnW];
+                        
+                        // 顶部约束
+                        _layoutSetOnSpace = sobotLayoutMarginTop(ZCChatMarginVSpace, _btnStepOn, _ivBgView);
+                        _layoutSetOnBottom = sobotLayoutMarginTop(ZCChatMarginVSpace, _btnTheTop, _ivBgView);
+                        [self.contentView addConstraint:_layoutSetOnSpace];
+                        [self.contentView addConstraint:_layoutSetOnBottom];
+                        
+                        // 是否显示转人工按钮 三个按钮都显示 转人工按钮放到最右
+                        _layoutTurnLeft = sobotLayoutMarginLeft(16, _btnTurnUser, _btnStepOn);
+                        [self.contentView addConstraint:_layoutTurnLeft];
+                        _layoutTurnHeight.constant = 30; // 这里只是设置高度
+                    }
+                    if(self.tempModel.commentType == 2){
+                        _btnTheTop.hidden = NO;
+                        _layoutSetOnSpace.constant = 0;
+                        _layoutTheTopHeight.constant = 32;
+                        _btnTheTop.selected = YES;
+                        
+                        // 是否显示转人工按钮
+                        [self.contentView removeConstraint:_layoutSetOnSpace];
+                        [self.contentView removeConstraint:_layoutSetTopW];
+                        [self.contentView removeConstraint:_layoutSetTopLeft];
+                        [self.contentView removeConstraint:_layoutSetOnW];
+                        [self.contentView removeConstraint:_layoutSetOnBottom];
+                        [self.contentView removeConstraint:_layoutSetOnLeft];
+                       
+                        if ([[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"zh-"]
+                            || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"zh-"])
+                            || [[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"en"]
+                            || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"en"])) {
+                            // 中英文显示 文字，加宽
+                            _layoutSetTopW = sobotLayoutEqualWidth(100,_btnTheTop, NSLayoutRelationEqual);
+                            _layoutSetOnW = sobotLayoutEqualWidth(0, _btnStepOn, NSLayoutRelationEqual);
+                        }else{
+                            _layoutSetTopW = sobotLayoutEqualWidth(32,_btnTheTop, NSLayoutRelationEqual);
+                            _layoutSetOnW = sobotLayoutEqualWidth(0, _btnStepOn, NSLayoutRelationEqual);
+                        }
+                        
+                        [self.contentView addConstraint:_layoutSetTopW];
+                        [self.contentView addConstraint:_layoutSetOnW];
+                        
+                        // 顶部约束
+                        _layoutSetOnBottom = sobotLayoutMarginTop(ZCChatMarginVSpace, _btnTheTop, _ivBgView);
+                        [self.contentView addConstraint:_layoutSetOnSpace];
+                  
+                        _layoutSetTopLeft = sobotLayoutPaddingLeft(0, _btnTheTop, _ivBgView);
+                        [self.contentView addConstraint:_layoutSetTopLeft];
+                        _layoutSetOnLeft = sobotLayoutMarginLeft(0, _btnStepOn, _btnTheTop);
+                        [self.contentView addConstraint:_layoutSetOnLeft];
+                        _layoutTurnLeft = sobotLayoutMarginLeft(16, _btnTurnUser, _btnStepOn);
+                        [self.contentView addConstraint:_layoutTurnLeft];
+                        _layoutTurnHeight.constant = 30; // 这里只是设置高度
+                        
+                    }
+                    if(self.tempModel.commentType == 3){
+                        _layoutSetOnSpace.constant = 0;
+                        _layoutSetOnHeight.constant = 32;
+                        _btnStepOn.hidden = NO;
+                        _btnStepOn.selected = YES;
+                        
+                        // 是否显示转人工按钮
+                        [self.contentView removeConstraint:_layoutSetOnSpace];
+                        [self.contentView removeConstraint:_layoutSetTopW];
+                        [self.contentView removeConstraint:_layoutSetTopLeft];
+                        [self.contentView removeConstraint:_layoutSetOnW];
+                        [self.contentView removeConstraint:_layoutSetOnBottom];
+                        [self.contentView removeConstraint:_layoutSetOnLeft];
+                        
+                        if ([[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"zh-"]
+                            || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"zh-"])
+                            || [[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"en"]
+                            || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"en"])) {
+                            // 中英文显示 文字，加宽
+                            _layoutSetTopW = sobotLayoutEqualWidth(0,_btnTheTop, NSLayoutRelationEqual);
+                            _layoutSetOnW = sobotLayoutEqualWidth(100, _btnStepOn, NSLayoutRelationEqual);
+                        }else{
+                            _layoutSetTopW = sobotLayoutEqualWidth(0,_btnTheTop, NSLayoutRelationEqual);
+                            _layoutSetOnW = sobotLayoutEqualWidth(32, _btnStepOn, NSLayoutRelationEqual);
+                        }
+                        
+                        [self.contentView addConstraint:_layoutSetTopW];
+                        [self.contentView addConstraint:_layoutSetOnW];
+                        
+                        // 顶部约束
+                        _layoutSetOnSpace = sobotLayoutMarginTop(ZCChatMarginVSpace, _btnStepOn, _ivBgView);
+                        [self.contentView addConstraint:_layoutSetOnSpace];
+                        
+                        // 是否显示转人工按钮 三个按钮都显示 转人工按钮放到最右
+                        _layoutSetTopLeft = sobotLayoutPaddingLeft(0, _btnTheTop, _ivBgView);
+                        [self.contentView addConstraint:_layoutSetTopLeft];
+                        _layoutSetOnLeft = sobotLayoutMarginLeft(0, _btnStepOn, _btnTheTop);
+                        [self.contentView addConstraint:_layoutSetOnLeft];
+                        _layoutTurnLeft = sobotLayoutMarginLeft(16, _btnTurnUser, _btnStepOn);
+                        [self.contentView addConstraint:_layoutTurnLeft];
+                        _layoutTurnHeight.constant = 30; // 这里只是设置高度
+                    }
+                }else{
+                    // 在右侧
+                    if(self.tempModel.commentType == 4 || self.tempModel.commentType == 1){
+                        _layoutSetOnSpace.constant = -ZCChatMarginVSpace;
+                        _layoutSetOnHeight.constant = 32;
+                        _layoutTheTopHeight.constant = 32;
+                        _btnTheTop.hidden = NO;
+                        _btnStepOn.hidden = NO;
+                        _btnTheTop.selected = NO;
+                        _btnStepOn.selected = NO;
+                        if(size.height < 64 && _layoutSugguestHeight.constant == 0){
+                            _layoutSugguestHeight.constant = 64+ZCChatCellItemSpace - size.height - ZCChatPaddingVSpace*2;
+                        }
+                    }
+                    if(self.tempModel.commentType == 2){
+                        _btnTheTop.hidden = NO;
+                        _layoutSetOnSpace.constant = 0;
+                        _layoutTheTopHeight.constant = 32;
+                        _btnTheTop.selected = YES;
+                    }
+                    if(self.tempModel.commentType == 3){
+                        _layoutSetOnSpace.constant = 0;
+                        _layoutSetOnHeight.constant = 32;
+                        _btnStepOn.hidden = NO;
+                        _btnStepOn.selected = YES;
+                    }
+                    // 这里设置转人工按钮的最大宽度
+                    CGFloat tw = [SobotUITools getWidthContain:SobotKitLocalString(@"转人工") font:SobotFont14 Height:20];
+                    if (tw + 40  > _viewWidth - (_ivHeader.hidden? 0 : 66) - ZCChatMarginHSpace*2 - 18*2) {
+                        tw = _viewWidth - (_ivHeader.hidden? 0 : 66) - ZCChatMarginHSpace*2 - 18*2;
+                    }else{
+                        tw = tw + 40;
+                    }
+                    _layoutTurnW.constant = tw;
                 }
             }
         }
     }
     
-    [self.contentView layoutIfNeeded];
+    [self.ivBgView setNeedsLayout];
+//    [self.contentView layoutIfNeeded];
    
 //    //设置尖角
 //    // 此处设置后，图片的大小与实际frame不一致
@@ -691,10 +934,27 @@
 //    self.ivBgView.layer.mask = layer;
         
     [self layoutIfNeeded];
-
+#pragma mark
     if (self.isRight) {
         // 处理右侧聊天气泡的 渐变色
-        [_ivBgView setBackgroundColor:[ZCUIKitTools zcgetRobotBackGroundColorWithSize:CGSizeMake(self.ivBgView.bounds.size.width, self.ivBgView.bounds.size.height * 2)]];
+//        [_ivBgView setBackgroundColor:[ZCUIKitTools zcgetRobotBackGroundColorWithSize:CGSizeMake(self.ivBgView.bounds.size.width, self.ivBgView.bounds.size.height * 2)]];
+        [_ivBgView setBackgroundColor:[ZCUIKitTools zcgetRightChatColorWithSize:CGSizeMake(self.ivBgView.bounds.size.width, self.ivBgView.bounds.size.height * 2)]];
+    }
+}
+
+-(void)setChatViewBgState:(CGSize)size isSetBgColor:(BOOL)isSetBgColor{
+    [self setChatViewBgState:size];
+    if(!isSetBgColor){
+        [_ivBgView setBackgroundColor:UIColor.clearColor];        
+        self.ivBgView.layer.masksToBounds = YES;
+        self.ivBgView.layer.borderWidth = 1.0f;
+//        self.ivBgView.layer.shadowColor = [ZCUIKitTools zcgetChatBottomLineColor].CGColor;
+//        self.ivBgView.layer.shadowOpacity = 0.9;
+//        self.ivBgView.layer.shadowRadius = 8;
+//        self.ivBgView.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
+        [self.ivBgView setBackgroundColor:[ZCUIKitTools zcgetChatBackgroundColor]];
+        self.ivBgView.layer.cornerRadius = 8.0f;
+        self.ivBgView.layer.borderColor = [ZCUIKitTools zcgetChatBottomLineColor].CGColor;
     }
 }
 
@@ -829,9 +1089,17 @@
             if(self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]){
                 [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeInsterTurn text:@"" obj:@""];
             }
+        }else if([url hasPrefix:@"sobot://resendleavemessage"]){
+            if(self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]){
+                [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeItemResendLeaveMsg text:@"" obj:@""];
+            }
         }else if([url hasPrefix:@"sobot://continueWaiting"]){
             if(self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]){
                 [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeItemContinueWaiting text:@"" obj:@""];
+            }
+        }else if([url hasPrefix:@"sobot://showallsensitive"]){
+            if(self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]){
+                [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeItemShowallsensitive text:@"" obj:@""];
             }
         }else if([url hasPrefix:@"sobot:"]){
             int index = [[url stringByReplacingOccurrencesOfString:@"sobot://" withString:@""] intValue];
@@ -910,8 +1178,14 @@
     if(!sobotIsNull(item) && [item isKindOfClass:[SobotChatRichContent class]]){
         msg = sobotConvertToString(((SobotChatRichContent*)item).msg);
     }
+    NSURL *url = [NSURL URLWithString:msg];
+    // 如果是本地视频，需要使用下面方式创建NSURL
+    if(sobotCheckFileIsExsis(msg)){
+        url = [NSURL fileURLWithPath:msg];
+    }
     
-    ZCVideoPlayer *player = [[ZCVideoPlayer alloc] initWithFrame:sobotGetCurWindow().bounds withShowInView:sobotGetCurWindow() url:[NSURL URLWithString:msg] Image:nil];
+    
+    ZCVideoPlayer *player = [[ZCVideoPlayer alloc] initWithFrame:sobotGetCurWindow().bounds withShowInView:sobotGetCurWindow() url:url Image:nil];
     [player showControlsView];
 }
 
@@ -1054,7 +1328,10 @@
     }];
     
 }
--(void)getLinkValues:(NSString *) link result:(void(^)(NSString *title,NSString *desc,NSString *icon)) block{
+-(void)getLinkValues:(NSString *) link name:(NSString *)name result:(void(^)(NSString *title,NSString *desc,NSString *icon)) block{
+    
+    
+    
     NSDictionary *item = [SobotCache getLocalParamter:[NSString stringWithFormat:@"%@%@",Sobot_CacheURLHeader,sobotConvertToString(link)]];
     if(!sobotIsNull(item) && item.count > 0){
         if(block){
@@ -1072,24 +1349,39 @@
             NSString *desc = sobotConvertToString([data objectForKey:@"desc"]);
             NSString *imgUrl = sobotConvertToString([data objectForKey:@"imgUrl"]);
             if(title.length > 0){
-                [SobotCache addObject:data forKey:[NSString stringWithFormat:@"%@%@",Sobot_CacheURLHeader,sobotConvertToString(link)]];
+                NSDictionary *dataDic = @{@"title":sobotConvertToString(title),
+                                          @"desc":sobotConvertToString(desc),
+                                          @"imgUrl":sobotConvertToString(imgUrl),
+                };
+                [SobotCache addObject:dataDic forKey:[NSString stringWithFormat:@"%@%@",Sobot_CacheURLHeader,sobotConvertToString(link)]];
             }
             
-            if(block){
-                block(title,desc,imgUrl);
-            }
+            [[ZCUICore getUICore] addMessage:nil reload:YES];
+            
+//            if(block){
+//                block(title,desc,imgUrl);
+//            }
         }
     } failed:^(NSString *errorMessage, ZCNetWorkCode errorCode) {
-        [SobotHtmlCore websiteFilter:sobotConvertToString(link) result:^(NSString * _Nonnull url, NSString * _Nonnull iconUrl, NSString * _Nonnull title, NSString * _Nonnull desc, NSDictionary * _Nullable dict) {
-            
-            if(sobotConvertToString(title).length > 0){
-                [SobotCache addObject:@{@"title":title,@"desc":desc,@"imgUrl":iconUrl} forKey:[NSString stringWithFormat:@"%@%@",Sobot_CacheURLHeader,sobotConvertToString(link)]];
-            }
-            
-            if(block){
-                block(sobotConvertToString(item[@"title"]),sobotConvertToString(item[@"desc"]),sobotConvertToString(@""));
-            }
-        }];
+        NSString *title = name;
+        NSString *desc = link;
+        if(name.length == 0){
+            title = link;
+            desc = @"";
+        }
+        NSDictionary *dataDic = @{@"title":sobotConvertToString(title),
+                                  @"desc":sobotConvertToString(desc),
+                                  @"imgUrl":@""
+        };
+        
+        [SobotCache addObject:dataDic forKey:[NSString stringWithFormat:@"%@%@",Sobot_CacheURLHeader,sobotConvertToString(link)]];
+        
+        [[ZCUICore getUICore] addMessage:nil reload:YES];
+//        // 解析失败了
+//        if(block){
+//            block(title,desc,@"");
+//        }
+    
     }];
 }
 
@@ -1137,6 +1429,13 @@
 #pragma mark - gesture delegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
+//    if([gestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]]){
+//        if(![NSStringFromClass([touch.view class]) isEqualToString:@"UITableViewCellContentView"]){
+//            [self showLongMenu:nil];
+//            return NO;
+//        }
+//    }
+    
     if ([NSStringFromClass([touch.view class]) isEqualToString:@"SobotEmojiLabel"]) {
 //        if(![@"" isEqualToString:morelink ] && morelink!= nil && self.delegate && [self.delegate respondsToSelector:@selector(cellItemLinkClick:type:obj:)]){
 //            [self.delegate cellItemLinkClick:self.lookMoreLabel.text type:ZCChatCellClickTypeOpenURL obj:morelink];
@@ -1154,9 +1453,17 @@
     if (recognizer.state != UIGestureRecognizerStateBegan) {
         return;
     }
+    CGPoint p = [recognizer locationInView:self.contentView];
+    CGRect tf     = _ivBgView.frame;
+    if(p.x>tf.origin.x && p.x < (tf.origin.x + tf.size.width) && p.y>tf.origin.y && p.y < (tf.origin.y + tf.size.height)){
+        [self showLongMenu:self.ivBgView];
+    }
+}
+
+-(void)showLongMenu:(UIView *_Nullable)view{
     
-    if(self.tempModel.msgType != SobotMessageTypeText){
-        SobotView *iv = recognizer.view;
+    if(self.tempModel.msgType != SobotMessageTypeText && view!=nil){
+        SobotView *iv = (SobotView*)view;
         if([iv isKindOfClass:[SobotView class]]){
             copyUrl = iv.objTag;
         }
@@ -1164,12 +1471,15 @@
         copyUrl = self.tempModel.richModel.content;
     }
     
-    if(sobotConvertToString(copyUrl).length == 0){
+    // 没有复制内容
+    if(self.tempModel.msgType == SobotMessageTypeText && sobotConvertToString(copyUrl).length == 0){
         [self didChangeBgColorWithsIsSelect:NO];
         return;
     }
     
-    [self didChangeBgColorWithsIsSelect:YES];
+    if(_menuController!=nil && _menuController.isMenuVisible){
+        [self didChangeBgColorWithsIsSelect:NO];
+    }
     
     
     [self becomeFirstResponder];
@@ -1177,12 +1487,50 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuControllerWillHideWithClick) name:UIMenuControllerDidHideMenuNotification object:nil];
     
     _menuController = [UIMenuController sharedMenuController];
-    UIMenuItem *copyItem = [[UIMenuItem alloc]initWithTitle:SobotKitLocalString(@"复制") action:@selector(doCopy)];
-    [_menuController setMenuItems:@[copyItem]];
+    
+    NSMutableArray *menuItems = [[NSMutableArray alloc] init];
+    if(self.tempModel.msgType == SobotMessageTypeText){
+        UIMenuItem *copyItem = [[UIMenuItem alloc]initWithTitle:SobotKitLocalString(@"复制") action:@selector(doCopy)];
+        [menuItems addObject:copyItem];
+        [_menuController setMenuItems:@[copyItem]];
+    }
+    
+    SobotChatCustomCard *card = self.tempModel.richModel.customCard; // 订单不能引用
+    
+    // 没有推荐选项的消息才支持引用
+    NSString *displayText = [self.tempModel getModelDisplaySugestionText];
+    if(sobotConvertToString(displayText).length == 0 && !self.tempModel.isRobotGuide){
+        
+        if([ZCUICore getUICore].getLibConfig.msgAppointFlag == 1){
+            if(self.tempModel.msgType == SobotMessageTypeText||
+               self.tempModel.msgType == SobotMessageTypePhoto||
+               self.tempModel.msgType == SobotMessageTypeVideo||
+               self.tempModel.msgType == SobotMessageTypeFile||
+               self.tempModel.msgType == SobotMessageTypeSound||
+               self.tempModel.richModel.type == SobotMessageRichJsonTypeGoods||
+               self.tempModel.richModel.type == SobotMessageRichJsonTypeApplet||
+               self.tempModel.richModel.type == SobotMessageRichJsonTypeArticle||
+               self.tempModel.richModel.type == SobotMessageRichJsonTypeLocation||
+               self.tempModel.richModel.type == SobotMessageRichJsonTypeText||
+               (self.tempModel.richModel.type == SobotMessageRichJsonTypeCustomCard && card.cardStyle == 1)
+               ){
+                UIMenuItem *Item2 = [[UIMenuItem alloc]initWithTitle:SobotKitLocalString(@"引用") action:@selector(doReferenceMessage)];
+                //            if([ZCUICore getUICore].getLibConfig.isArtificial){
+                [menuItems addObject:Item2];
+                //            }
+            }
+        }
+    }
+    [_menuController setMenuItems:menuItems];
     [_menuController setArrowDirection:(UIMenuControllerArrowDefault)];
+    
+    if(_menuController.menuItems.count >0){
+        [self didChangeBgColorWithsIsSelect:YES];
+    }
+    
     // 设置frame cell的位置
     CGRect tf     = _ivBgView.frame;
-    CGRect rect = CGRectMake(tf.origin.x, tf.origin.y, tf.size.width, 1);
+    CGRect rect = CGRectMake(tf.origin.x, tf.origin.y, tf.size.width, tf.size.height);
     
     [_menuController setTargetRect:rect inView:self];
     
@@ -1198,7 +1546,7 @@
 }
 
 - (void)didChangeBgColorWithsIsSelect:(BOOL)isSelected{
-    
+//    return; //同安卓的一样，不做背景切换，后期需要和V1一样时 在放开
     if (isSelected) {
         if (self.isRight) {
             [self.ivBgView setBackgroundColor:[ZCUIKitTools zcgetRightChatSelectdeColor]];
@@ -1208,14 +1556,30 @@
     }else{
         if (self.isRight) {
             // 右边气泡绿色
-//            [self.ivBgView setBackgroundColor:[ZCUIKitTools zcgetRightChatColor]];
-            [_ivBgView setBackgroundColor:[ZCUIKitTools zcgetRobotBackGroundColorWithSize:CGSizeMake(self.ivBgView.bounds.size.width, self.ivBgView.bounds.size.height * 2)]];
+//            [_ivBgView setBackgroundColor:[ZCUIKitTools zcgetRobotBackGroundColorWithSize:CGSizeMake(self.ivBgView.bounds.size.width, self.ivBgView.bounds.size.height * 2)]];
+            [_ivBgView setBackgroundColor:[ZCUIKitTools zcgetRightChatColorWithSize:CGSizeMake(self.ivBgView.bounds.size.width, self.ivBgView.bounds.size.height * 2)]];
         }else{
             // 左边的气泡颜色
             [self.ivBgView setBackgroundColor:[ZCUIKitTools zcgetLeftChatColor]];
         }
+        
+        // 这里需要区分是否是语音消息，语音消息气泡颜色不设置
+        if(self.tempModel.msgType == SobotMessageTypeSound){
+            if([self.tempModel getModelDisplaySugestionText].length == 0){
+                self.ivBgView.backgroundColor = UIColor.clearColor;
+            }else{
+               // 恢复之前的背景色
+                if(self.isRight){
+                    [_ivBgView setBackgroundColor:[ZCUIKitTools zcgetRightChatColor]];
+                }else{
+                    [_ivBgView setBackgroundColor:[ZCUIKitTools zcgetLeftChatColor]];
+                }
+            }
+        }
+        
         if(_menuController){
-            [_menuController setTargetRect:CGRectMake(0, 0, 0, 0) inView:self];
+//            [_menuController setTargetRect:CGRectMake(0, 0, 0, 0) inView:self];
+            [_menuController setMenuVisible:NO animated:NO];
         }
     }
     [self.ivBgView setNeedsDisplay];
@@ -1230,6 +1594,12 @@
     [self didChangeBgColorWithsIsSelect:NO];
 }
 
+//复制
+-(void)doReferenceMessage{
+    [self didChangeBgColorWithsIsSelect:NO];
+    // 仅调试测试使用
+    [[ZCUICore getUICore] doReferenceMessage:self.tempModel];
+}
 
 #pragma mark - UIMenuController 必须实现的两个方法
 - (BOOL)canBecomeFirstResponder{
@@ -1240,7 +1610,7 @@
  *  根据action,判断UIMenuController是否显示对应aciton的title
  */
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender{
-    if (action == @selector(doCopy) ) {
+    if (action == @selector(doCopy) || action == @selector(doReferenceMessage) ) {
         return YES;
     }
     return NO;

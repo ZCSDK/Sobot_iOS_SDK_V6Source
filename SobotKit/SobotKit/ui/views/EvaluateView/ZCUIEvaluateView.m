@@ -9,7 +9,7 @@
 #import "ZCUIRatingView.h"
 #import "ZCUIPlaceHolderTextView.h"
 #import "ZCItemView.h"
-#import "ZCUIPlaceHolderTextView.h"
+//#import "ZCUIPlaceHolderTextView.h"
 #import "ZCUIRatingView.h"
 #import <SobotCommon/SobotCommon.h>
 #import <SobotChatClient/SobotChatClient.h>
@@ -33,11 +33,16 @@
     // 默认显示 0五星   1  0星
     int defaultStar;
     int scoreFlag;// 0:5星,1:10分
-    BOOL isresolve;
+    int curResolve;//-1未选择，0未解决，1已解决
     CGFloat SCH;// 中间页面的高度 动态获取
     CGFloat minw ;
     CGFloat SSCH;// 临时变量 记录切换人工评价标签前的 item 和满意度标签的高度
+    CGFloat botH;// 底部提交和暂不评价的最终高度
+    CGFloat nickH;// 临时变量，昵称动态高度
+    CGFloat topViewH;//记录顶部的动态高度
+    BOOL isTwoHight;// 已解决 未解决是否是两行高度
     
+    CGFloat MH;// 默认中间部分展示高度
 }
 
 @property(nonatomic,strong) ZCUICustomActionSheetModel *evaluateModel; // 评价参数model
@@ -76,6 +81,7 @@
 @property(nonatomic,strong) NSLayoutConstraint *sheetViewEH;
 //@property(nonatomic,strong) NSLayoutConstraint *sheetViewPT;
 @property(nonatomic,strong) NSLayoutConstraint *textViewEW;
+@property(nonatomic,strong) NSLayoutConstraint *topViewEH;
 @end
 
 @implementation ZCUIEvaluateView
@@ -83,7 +89,9 @@
 -(ZCUIEvaluateView*)initActionSheetWith:(ZCUICustomActionSheetModel *)model Cofig:(ZCLibConfig *)config cView:(UIView *)view{
     self = [super init];
     if (self) {
-        viewWidth = view.frame.size.width;
+        MH = 108;
+        botH = 80;
+        viewWidth = ScreenWidth;// view.frame.size.width;
         viewHeight = ScreenHeight;
         minw = MIN(viewWidth, viewHeight);
         ZCMaxHeight =   ((ScreenHeight>800) ? (ScreenHeight-420 - 59):(ScreenHeight-340 - 59));
@@ -105,7 +113,6 @@
             // 加载人工客服的标签。根据接口的数据进行UI布局
             [self loadDataWithUid:self.evaluateModel.uid];
         }else{
-            
             self.evaluateModel.isOpenProblemSolving = YES;
             // 机器人的模式为固定格式
             [self setupType:self.evaluateModel.type];
@@ -119,8 +126,7 @@
         // 刷新UI
         [self setDisplay];
     }else{
-        NSDictionary *dict = [ZCUICore getUICore].satisfactionDict;
-        if(dict!=nil && dict.count > 0){
+        if([ZCUICore getUICore].satisfactionConfig!=nil && [ZCUICore getUICore].satisfactionConfig.isCreated == 1){
             [self refreshSatisfaction];
         }else{
             [[ZCUICore getUICore] loadSatisfactionDictlock:^(int code) {
@@ -132,30 +138,43 @@
 
 #pragma mark - 刷新评价参数
 -(void)refreshSatisfaction{
-    NSDictionary *dict = [ZCUICore getUICore].satisfactionDict;
-    if(dict && dict.count > 0){
-        NSArray * arr = dict[@"data"];
-        if (arr != nil && arr.count >0 && [arr isKindOfClass:[NSArray class]]) {
-            NSMutableArray * satisfactionArr = [NSMutableArray arrayWithCapacity:0];
-            for (NSDictionary * item in arr) {
-                ZCLibSatisfaction * satisfaction = [[ZCLibSatisfaction alloc]initWithMyDict:item];
-                [satisfactionArr addObject:satisfaction];
+    ZCSatisfactionConfig *config = [ZCUICore getUICore].satisfactionConfig;
+    if(config && config.isCreated == 1){
+        _listArray = config.list;
+        
+        defaultStar = 0;
+        scoreFlag = config.scoreFlag;
+        
+        // 默认选中
+        self.evaluateModel.isResolve = config.defaultQuestionFlag;
+        self.evaluateModel.isOpenDefaultStar = YES;
+        if (config.isQuestionFlag == 1) {
+            self.evaluateModel.isOpenProblemSolving = config.isQuestionFlag;
+        }else{
+            self.evaluateModel.isOpenProblemSolving = NO;
+        }
+        
+        if(config.scoreFlag==0){
+            if(config.defaultType == 0){
+                defaultStar = 5;
+            }else if(config.defaultType == 1){
+                defaultStar = 0;
+                self.evaluateModel.isOpenDefaultStar = NO;
             }
-            if (_listArray == nil) {
-                _listArray = [NSMutableArray arrayWithCapacity:0];
-            }else{
-                [_listArray removeAllObjects];
-            }
-            _listArray = satisfactionArr;
-            ZCLibSatisfaction * model = _listArray[0];// 0五星   1  0星
-            defaultStar = model.defaultStar;
-            scoreFlag = model.scoreFlag;
-            if ([model.isQuestionFlag  intValue] == 1) {
-                self.evaluateModel.isOpenProblemSolving = YES;
-            }else{
-                self.evaluateModel.isOpenProblemSolving = NO;
+        }else{
+            
+            if(config.defaultType == 0){
+                defaultStar = 10;
+            }else if(config.defaultType == 1){
+                defaultStar = 5;
+            }else if(config.defaultType == 2){
+                defaultStar = 0;
+            }else if(config.defaultType == 3){
+                defaultStar = 0;
+                self.evaluateModel.isOpenDefaultStar = NO;
             }
         }
+        
     }
     // 加载成功的布局
     [self setDisplay];
@@ -188,7 +207,9 @@
         [self.sheetView addConstraint:sobotLayoutPaddingTop(0, iv, self.sheetView)];
         [self.sheetView addConstraint:sobotLayoutPaddingLeft(0, iv, self.sheetView)];
         [self.sheetView addConstraint:sobotLayoutPaddingRight(0, iv, self.sheetView)];
-        [self.sheetView addConstraint:sobotLayoutEqualHeight(60, iv, NSLayoutRelationEqual)];
+        self.topViewEH = sobotLayoutEqualHeight(60, iv, NSLayoutRelationEqual);
+        [self.sheetView addConstraint:self.topViewEH];
+        topViewH = 60;
         iv;
     });
     
@@ -209,26 +230,6 @@
         iv;
     });
     
-    _canReturnBtn = ({
-        UIButton *iv = [UIButton buttonWithType:UIButtonTypeCustom];
-        [self.topView addSubview:iv];
-        [iv setTitle:SobotKitLocalString(@"暂不评价") forState:0];
-        [iv.titleLabel setFont:SobotFont14];
-        [iv setTitleColor:[ZCUIKitTools zcgetSatisfactionTextSelectedColor] forState:0];
-        [iv addTarget:self action:@selector(itemMenuClick:) forControlEvents:UIControlEventTouchUpInside];
-        [iv setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-        iv.tag = RobotChangeTag3;
-        [self.topView addConstraint:sobotLayoutPaddingTop(8, iv, self.topView)];
-        [self.topView addConstraint:sobotLayoutEqualWidth(94, iv, NSLayoutRelationEqual)];
-        [self.topView addConstraint:sobotLayoutPaddingLeft(10, iv, self.topView)];
-        [self.topView addConstraint:sobotLayoutEqualHeight(44, iv, NSLayoutRelationEqual)];
-        iv.hidden = YES;
-        iv;
-    });
-    
-    if ((type == SatisfactionTypeBack || type == SatisfactionTypeClose) && [ZCUICore getUICore].kitInfo.canBackWithNotEvaluation) {
-        self.canReturnBtn.hidden = NO;
-    }
     
     // 评价标题
     _titlelab = ({
@@ -237,6 +238,7 @@
         iv.textAlignment = NSTextAlignmentCenter;
         iv.numberOfLines = 0;
         iv.font = SobotFontBold17;
+        iv.lineBreakMode = NSLineBreakByTruncatingTail;
         [self.topView addSubview:iv];
         self.titleLabPT = sobotLayoutPaddingTop(10, iv, self.topView);
         [self.topView addConstraint:self.titleLabPT];
@@ -258,7 +260,7 @@
         [self.topView addConstraint:sobotLayoutMarginTop(6, iv, self.titlelab)];
         [self.topView addConstraint:sobotLayoutPaddingLeft(50, iv, self.topView)];
         [self.topView addConstraint:sobotLayoutPaddingRight(-50, iv, self.topView)];
-        [self.topView addConstraint:sobotLayoutEqualHeight(12, iv, NSLayoutRelationEqual)];
+//        [self.topView addConstraint:sobotLayoutEqualHeight(12, iv, NSLayoutRelationEqual)];
         iv.hidden = YES;
         iv;
     });
@@ -275,6 +277,12 @@
         self.titleLabPT = sobotLayoutPaddingTop(10, self.titlelab, self.topView);
         [self.topView addConstraint:self.titleLabPT];
         self.topTiplab.hidden = NO;
+        // 显示提示 计算高度
+        CGFloat th = [SobotUITools getHeightContain:SobotKitLocalString(@"提交评价后会话将结束") font:SobotFont12 Width:viewWidth-100];
+        if (th > 12) {
+            self.topViewEH.constant = 60 + th -12 +5;
+            topViewH = 60 + th -12 +5;
+        }
     }else{
         self.titleLabEH = sobotLayoutEqualHeight(20, self.titlelab, NSLayoutRelationEqual);
         [self.topView addConstraint:self.titleLabEH];
@@ -287,17 +295,15 @@
             self.titlelab.text = SobotKitLocalString(@"服务评价");
         }
     }
-    
-//    UIView *lineView = ({
-        UIView *iv = [[UIView alloc]init];
-        [self.topView addSubview:iv];
-        iv.backgroundColor = [ZCUIKitTools zcgetCommentButtonLineColor];
-        [self.topView addConstraint:sobotLayoutPaddingLeft(0, iv, self.topView)];
-        [self.topView addConstraint:sobotLayoutPaddingRight(0, iv, self.topView)];
-        [self.topView addConstraint:sobotLayoutPaddingBottom(-0.5, iv, self.topView)];
-        [self.topView addConstraint:sobotLayoutEqualHeight(0.5, iv, NSLayoutRelationEqual)];
-//        iv;
-//    });
+
+    UIView *iv = [[UIView alloc]init];
+    [self.topView addSubview:iv];
+    iv.backgroundColor = [ZCUIKitTools zcgetCommentButtonLineColor];
+    [self.topView addConstraint:sobotLayoutPaddingLeft(0, iv, self.topView)];
+    [self.topView addConstraint:sobotLayoutPaddingRight(0, iv, self.topView)];
+    [self.topView addConstraint:sobotLayoutPaddingBottom(-0.5, iv, self.topView)];
+    [self.topView addConstraint:sobotLayoutEqualHeight(0.5, iv, NSLayoutRelationEqual)];
+
 #pragma mark - 顶部view end
     if (type != !self.evaluateModel.isEvalutionAdmin) {
         self.evaluateModel.isOpenProblemSolving = YES;
@@ -321,6 +327,8 @@
         iv;
     });
     
+
+    
 #pragma mark -- 提交按钮是最下面的位置固定
     _commitBtn = ({
         UIButton *iv = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -328,17 +336,41 @@
         [iv setTitle:SobotKitLocalString(@"提交") forState:UIControlStateNormal];
         iv.titleLabel.font = SobotFontBold17;
         [iv setTitleColor:[ZCUIKitTools zcgetSubmitEvaluationButtonColor] forState:UIControlStateNormal];
-        [iv setBackgroundColor:[ZCUIKitTools zcgetRobotBtnBgColor]];
+        [iv setBackgroundColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
         [iv addTarget:self action:@selector(sendComment:) forControlEvents:UIControlEventTouchUpInside];
         iv.layer.cornerRadius = 22.0f;
         iv.layer.masksToBounds = YES;
         [self.sheetView addSubview:iv];
         [self.sheetView addConstraint:sobotLayoutEqualCenterX(0, iv, self.sheetView)];
-        [self.sheetView addConstraint:sobotLayoutEqualWidth(minw - 40, iv, NSLayoutRelationEqual)];
+//        [self.sheetView addConstraint:sobotLayoutEqualWidth(minw - 40, iv, NSLayoutRelationEqual)];
+        [self.sheetView addConstraint:sobotLayoutPaddingLeft(20, iv, self.sheetView)];
+        [self.sheetView addConstraint:sobotLayoutPaddingRight(-20, iv, self.sheetView)];
         [self.sheetView addConstraint:sobotLayoutEqualHeight(44, iv, NSLayoutRelationEqual)];
         [self.sheetView addConstraint:sobotLayoutMarginTop(30, iv, self.backGroundView)];
         iv;
     });
+    
+#pragma mark -- 有暂不评价 显示到最下方
+    _canReturnBtn = ({
+        UIButton *iv = [UIButton buttonWithType:UIButtonTypeCustom];
+        [self.sheetView addSubview:iv];
+        [iv setTitle:SobotKitLocalString(@"暂不评价") forState:0];
+        [iv.titleLabel setFont:SobotFont14];
+        [iv setTitleColor:[ZCUIKitTools zcgetSatisfactionTextSelectedColor] forState:0];
+        [iv addTarget:self action:@selector(itemMenuClick:) forControlEvents:UIControlEventTouchUpInside];
+        iv.tag = RobotChangeTag3;
+        [self.sheetView addConstraint:sobotLayoutMarginTop(10, iv, self.commitBtn)];
+        [self.sheetView addConstraint:sobotLayoutPaddingRight(-20, iv, self.sheetView)];
+        [self.sheetView addConstraint:sobotLayoutPaddingLeft(20, iv, self.sheetView)];
+        [self.sheetView addConstraint:sobotLayoutEqualHeight(20, iv, NSLayoutRelationEqual)];
+        iv.hidden = YES;
+        iv;
+    });
+    
+    if ((type == SatisfactionTypeBack || type == SatisfactionTypeClose) && [ZCUICore getUICore].kitInfo.canBackWithNotEvaluation) {
+        self.canReturnBtn.hidden = NO;
+        botH = botH + 30;
+    }
     
     
     _nicklab = ({
@@ -352,17 +384,40 @@
         [self.backGroundView addSubview:iv];
         self.nicklabEH = sobotLayoutEqualHeight(21, iv, NSLayoutRelationEqual);
         [self.backGroundView addConstraint:sobotLayoutEqualCenterX(0, iv, self.backGroundView)];
-        [self.backGroundView addConstraint:sobotLayoutEqualWidth(viewWidth, iv, NSLayoutRelationEqual)];
+        [self.backGroundView addConstraint:sobotLayoutEqualWidth(viewWidth-30, iv, NSLayoutRelationEqual)];
         self.nicklabPT = sobotLayoutPaddingTop(30, iv, self.backGroundView);
+        // 计算最终高度
+        CGFloat nicklabH = [SobotUITools getHeightContain:SobotKitLocalString(@"是否解决了您的问题？") font:SobotFont15 Width:viewWidth-30];
+        if (nicklabH <21) {
+            nicklabH = 21;
+        }else{
+            self.nicklabEH.constant = nicklabH;
+        }
+        nickH = nicklabH -21;
         [self.backGroundView addConstraint:self.nicklabEH];
         [self.backGroundView addConstraint:self.nicklabPT];
         iv.hidden = YES;
         iv;
     });
 
+    
     // 是否显示 已解决 和 未解决 按钮
     if (self.evaluateModel.isOpenProblemSolving) {
         self.nicklab.hidden = NO;
+        // 先看已解决和未解决按钮的文案的长度，长度较长 上下排列，默认左右对称排列
+        CGFloat w1 = [SobotUITools getWidthContain:SobotKitLocalString(@"已解决") font:SobotFont14 Height:36];
+        CGFloat w2 = [SobotUITools getWidthContain:SobotKitLocalString(@"未解决") font:SobotFont14 Height:36];
+
+        CGFloat w = w1>w2?w1:w2;
+        
+        if(w > 70){
+            isTwoHight = YES;
+            MH = MH + 62;
+            if(w + 27 > ScreenWidth - 40){
+                w = ScreenWidth - 40 ;
+            }
+        }
+        
         // 已解决 未解决
         for (int i=0; i<2; i++) {
             if(i==0){
@@ -375,7 +430,9 @@
                     [iv setImage:SobotKitGetImage(@"zcicon_useful_sel") forState:UIControlStateSelected];
                     [iv setImage:SobotKitGetImage(@"zcicon_useful_sel") forState:UIControlStateHighlighted];
                     iv.selected=NO;
+                    iv.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
                     [iv setTitle:SobotKitLocalString(@"已解决") forState:UIControlStateNormal];
+                    
                     [iv.titleLabel setFont:[ZCUIKitTools zcgetListKitTitleFont]];
                     [iv setTitleColor:[ZCUIKitTools zcgetNoSatisfactionTextColor] forState:UIControlStateNormal];
                     [iv setTitleColor:[ZCUIKitTools zcgetSatisfactionTextSelectedColor] forState:UIControlStateHighlighted];
@@ -394,10 +451,25 @@
                     if(sobotIsRTLLayout()){
                         [iv setImageEdgeInsets:UIEdgeInsetsMake(0, 3, 0, 3)];
                     }
-                    [self.backGroundView addConstraint:sobotLayoutMarginTop(20, iv, self.nicklab)];
-                    [self.backGroundView addConstraint:sobotLayoutEqualHeight(36, iv, NSLayoutRelationEqual)];
-                    [self.backGroundView addConstraint:sobotLayoutEqualWidth(97, iv, NSLayoutRelationEqual)];
-                    [self.backGroundView addConstraint:sobotLayoutEqualCenterX(- 15 -97/2 , iv, self.backGroundView)];
+                    
+                    if(isTwoHight){
+                        NSString *title = [NSString stringWithFormat:@"%@                                    ",SobotKitLocalString(@"已解决")];
+                        [iv setTitle:title forState:UIControlStateNormal];
+                        iv.imageEdgeInsets = UIEdgeInsetsMake(0, 7, 0, 7);
+                        iv.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 7);
+                        iv.titleLabel.textAlignment = NSTextAlignmentLeft;
+                        [self.backGroundView addConstraint:sobotLayoutMarginTop(20, iv, self.nicklab)];
+                        [self.backGroundView addConstraint:sobotLayoutEqualHeight(36, iv, NSLayoutRelationEqual)];
+                        [self.backGroundView addConstraint:sobotLayoutPaddingLeft(ScreenWidth/2 -w/2, iv, self.backGroundView)];
+//                        [self.backGroundView addConstraint:sobotLayoutPaddingRight(-36, iv, self.backGroundView)];
+                        [self.backGroundView addConstraint:sobotLayoutEqualWidth(w, iv, NSLayoutRelationEqual)];
+                    }else{
+                        [self.backGroundView addConstraint:sobotLayoutMarginTop(20, iv, self.nicklab)];
+                        [self.backGroundView addConstraint:sobotLayoutEqualHeight(36, iv, NSLayoutRelationEqual)];
+                        [self.backGroundView addConstraint:sobotLayoutEqualWidth(97, iv, NSLayoutRelationEqual)];
+                        [self.backGroundView addConstraint:sobotLayoutEqualCenterX(- 15 -97/2 , iv, self.backGroundView)];
+                    }
+                    
                     iv;
                 });
             }else{
@@ -409,6 +481,7 @@
                     [iv setImage:[SobotUITools getSysImageByName:SobotKitLocalString(@"zcicon_useless_nol")] forState:UIControlStateNormal];
                     [iv setImage:[SobotUITools getSysImageByName:SobotKitLocalString(@"zcicon_useless_sel")] forState:UIControlStateSelected];
                     [iv setImage:[SobotUITools getSysImageByName:SobotKitLocalString(@"zcicon_useless_sel")] forState:UIControlStateHighlighted];
+                    iv.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
                     [iv setTitle:SobotKitLocalString(@"未解决") forState:UIControlStateNormal];
                     iv.selected=NO;
                     if(sobotIsRTLLayout()){
@@ -429,22 +502,43 @@
                         iv.layer.shadowRadius = 2;
                     }
                     iv.titleLabel.font = SobotFont14;
-                    [self.backGroundView addConstraint:sobotLayoutMarginTop(20, iv, self.nicklab)];
-                    [self.backGroundView addConstraint:sobotLayoutEqualHeight(36, iv, NSLayoutRelationEqual)];
-                    [self.backGroundView addConstraint:sobotLayoutEqualWidth(97, iv, NSLayoutRelationEqual)];
-                    [self.backGroundView addConstraint:sobotLayoutEqualCenterX( 15 +97/2 , iv, self.backGroundView)];
+                    
+                    if(isTwoHight){
+                        iv.imageEdgeInsets = UIEdgeInsetsMake(0, 7, 0, 7);
+                        iv.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 7);
+                        NSString *title = [NSString stringWithFormat:@"%@                                    ",SobotKitLocalString(@"未解决")];
+                        [iv setTitle:title forState:UIControlStateNormal];
+                        iv.titleLabel.textAlignment = NSTextAlignmentLeft;
+                        [self.backGroundView addConstraint:sobotLayoutMarginTop(7, iv, _robotChangeBtn1)];
+                        [self.backGroundView addConstraint:sobotLayoutEqualHeight(36, iv, NSLayoutRelationEqual)];
+                        [self.backGroundView addConstraint:sobotLayoutPaddingLeft(ScreenWidth/2-w/2, iv, self.backGroundView)];
+//                        [self.backGroundView addConstraint:sobotLayoutPaddingRight(-36, iv, self.backGroundView)];
+                        [self.backGroundView addConstraint:sobotLayoutEqualWidth(w, iv, NSLayoutRelationEqual)];
+                    }else{
+                        [self.backGroundView addConstraint:sobotLayoutMarginTop(20, iv, self.nicklab)];
+                        [self.backGroundView addConstraint:sobotLayoutEqualHeight(36, iv, NSLayoutRelationEqual)];
+                        [self.backGroundView addConstraint:sobotLayoutEqualWidth(97, iv, NSLayoutRelationEqual)];
+                        [self.backGroundView addConstraint:sobotLayoutEqualCenterX( 15 +97/2 , iv, self.backGroundView)];
+                    }
+                    
                     iv;
                 });
             }
-            if (self.evaluateModel.isResolve == 1) {
+            if (self.evaluateModel.isResolve == 0) {
                 self.robotChangeBtn2.selected = YES;
-                isresolve = YES;
-            }else{
+                curResolve = 1;
+            }else if (self.evaluateModel.isResolve == 1) {
                 self.robotChangeBtn1.selected = YES;
-                isresolve=NO;
+                curResolve = 0;
+            }else{
+                curResolve = -1;
+                self.robotChangeBtn2.selected = NO;
+                self.robotChangeBtn1.selected = NO;
+                
             }
         }
-        SCH = 108;// 添加完机器人是否已解决按钮之后的高度
+        SCH = 108 + (isTwoHight? 62 :0);// 添加完机器人是否已解决按钮之后的高度
+        
     }
         
 #pragma mark -- 星星
@@ -495,12 +589,12 @@
             ratingView_margin_top = 10;
         }
         CGFloat ratingWidth = (scoreFlag==0)?250:280;
-       
+        CGFloat ratingHegith = (scoreFlag==0)?40:59+29;
         _ratingView = ({
             ZCUIRatingView *iv = [[ZCUIRatingView alloc]init];
             [self.backGroundView addSubview:iv];
-            iv.frame = CGRectMake(0, 0, ratingWidth, 40);// 先现在默认值 内部子视图使用
-            [self.backGroundView addConstraint:sobotLayoutEqualHeight(40, iv, NSLayoutRelationEqual)];
+            iv.frame = CGRectMake(0, 0, ratingWidth, ratingHegith);// 先现在默认值 内部子视图使用
+            [self.backGroundView addConstraint:sobotLayoutEqualHeight(ratingHegith, iv, NSLayoutRelationEqual)];
             [self.backGroundView addConstraint:sobotLayoutEqualWidth(ratingWidth, iv, NSLayoutRelationEqual)];
 //            if ((type == SatisfactionTypeInvite || type == self.evaluateModel.isEvalutionAdmin) && ) {
 //                [self.backGroundView addConstraint:sobotLayoutMarginTop(ratingView_margin_top, iv, self.robotChangeBtn2)];
@@ -523,16 +617,25 @@
         self.isChangePostion =NO;
         // 设置星评的默认值
         if (self.evaluateModel.type == SatisfactionTypeInvite) {
-            // 默认0星应该选择1
-            if(self.evaluateModel.rating == 0){
-                self.evaluateModel.rating = 1;
+            if(self.evaluateModel.rating > 0){
+                [_ratingView displayRating:self.evaluateModel.rating];
+            }else{
+                
+                // 默认0星应该选择1
+                if(self.evaluateModel.isOpenDefaultStar){
+                    [_ratingView displayRating:(float)(defaultStar)];
+                }else{
+                    self.evaluateModel.rating = 0;
+                }
             }
-            [_ratingView displayRating:(float)(self.evaluateModel.rating)];
         }else{
             [_ratingView displayRating:defaultStar];
         }
+        if(!self.evaluateModel.isOpenDefaultStar){
+            self.isChangePostion = YES;
+        }
         
-        SCH = SCH + ratingView_margin_top + 40;// 添加完星星 或者 1-10之后的高度
+        SCH = SCH + ratingView_margin_top + ratingHegith;// 添加完星星 或者 1-10之后的高度
         
         _tiplab = ({
             UILabel *iv = [[UILabel alloc]init];
@@ -603,29 +706,37 @@
         [self.backGroundView setContentSize:CGSizeMake(minw, SCH)];
         // 更新最后的高度
         [self removeConstraint:self.sheetViewEH];
-        self.sheetViewEH = sobotLayoutEqualHeight(60 + 80 + XBottomBarHeight + SCH, self.sheetView, NSLayoutRelationEqual);
+        self.sheetViewEH = sobotLayoutEqualHeight(topViewH + botH + XBottomBarHeight + SCH + nickH, self.sheetView, NSLayoutRelationEqual);
         [self addConstraint:self.sheetViewEH];
     }else{
         // 人工
-        CGFloat pointH = SCH;
+        CGFloat pointH = SCH ;
         if (SCH > SSCH + 92 + 30 + 20 +74) {
-            pointH = SSCH + 92 + 30 + 20 +74;
+            pointH = SSCH + 92 + 30 + 20 +74 ;
         }
         if (ScreenWidth > ScreenHeight) {
             if (SCH > 45 + SSCH + 30 ) {
                 pointH = 45 + SSCH + 30 ;
             }
+            
         }
         // 更新约束
         [self.sheetView removeConstraint:self.backGroundViewEH];
+        // 中间最大的高度
+        if (pointH  +(topViewH  + botH + XBottomBarHeight)>= ScreenHeight) {
+            pointH = ScreenHeight - (topViewH + botH + XBottomBarHeight);
+        }
         self.backGroundViewEH = sobotLayoutEqualHeight(pointH, self.backGroundView, NSLayoutRelationEqual);
         [self.sheetView addConstraint:self.backGroundViewEH];
         
         [self removeConstraint:self.sheetViewEH];
-        CGFloat shvH = pointH + 60 + 80 + XBottomBarHeight;
+        CGFloat shvH = pointH + topViewH  + botH + XBottomBarHeight;
+        if (shvH >ScreenHeight) {
+            shvH = ScreenHeight;//最大高度
+        }
         self.sheetViewEH = sobotLayoutEqualHeight(shvH, self.sheetView, NSLayoutRelationEqual);
         [self addConstraint:_sheetViewEH];
-        [self.backGroundView setContentSize:CGSizeMake(minw, SCH)];
+        [self.backGroundView setContentSize:CGSizeMake(viewWidth, SCH+nickH)];
     }
 }
 
@@ -657,7 +768,7 @@
             self.stLableMT = sobotLayoutMarginTop(0, iv, self.tiplab);
         }else{
             self.stLableMT = sobotLayoutMarginTop(0, iv, self.robotChangeBtn2);
-            SCH = SCH + 108;// 添加完未解决按钮之后的高度
+            SCH = SCH + MH;// 添加完未解决按钮之后的高度
         }
         [self.backGroundView addConstraint:self.stLableMT];
         iv.hidden = YES;
@@ -666,31 +777,41 @@
     
     // 这里区分是否是人工评价 人工评价是从满意度提示语下面开始布局 、机器人是从 是否已解决的按钮的下方开始布局
     [self.backGroundView removeConstraint:self.stLableMT];
+    
+    // 如果当前是0分，说明未选中任何评分
+    self.titleLabEH.constant = 20;
     if (self.evaluateModel.isEvalutionAdmin) {
-        if ([ZCUICore getUICore].kitInfo.hideManualEvaluationLabels) {
+        if ([ZCUICore getUICore].kitInfo.hideManualEvaluationLabels || _ratingView.rating == 0) {
             // 隐藏星星提示语
             self.tiplab.text = @"";
             //  去掉人工评价5星标签提醒
             self.stLableMT = sobotLayoutMarginTop(-20, self.stLable, self.tiplab);
             SCH = SCH -20;
+            self.titleLabEH.constant = 0;
         }else{
             self.stLableMT = sobotLayoutMarginTop(0, self.stLable, self.tiplab);
         }
     }else{
         self.stLableMT = sobotLayoutMarginTop(0, self.stLable, self.robotChangeBtn2);
-        SCH =  108;// 机器人评价 添加完未解决按钮之后的高度
+        SCH =  MH;// 机器人评价 添加完未解决按钮之后的高度
     }
     [self.backGroundView addConstraint:self.stLableMT];
     _item = ({
         ZCItemView *iv = [[ZCItemView alloc]init];
-        CGFloat minW = MIN(viewWidth, viewHeight);
-        iv.frame = CGRectMake(0, 20, minW, 0); // 先设置默认大小 子视图创建需要
+        iv.exclusiveTouch = YES;
+        iv.multipleTouchEnabled = YES;
+        self.backGroundView.multipleTouchEnabled = YES;
+        self.backGroundView.exclusiveTouch = YES;
+//        CGFloat minW = MIN(viewWidth, viewHeight);
+        iv.frame = CGRectMake(0, 20, viewWidth, 0); // 先设置默认大小 子视图创建需要
 //        iv.backgroundColor = [UIColor purpleColor];
         [self.backGroundView addSubview:iv];
         self.itemEH = sobotLayoutEqualHeight(0, iv, NSLayoutRelationEqual);
         [self.backGroundView addConstraint:self.itemEH];
         [self.backGroundView addConstraint:sobotLayoutEqualCenterX(0, iv, self.backGroundView)];
-        [self.backGroundView addConstraint:sobotLayoutEqualWidth(minW, iv, NSLayoutRelationEqual)];
+        [self.backGroundView addConstraint:sobotLayoutEqualWidth(viewWidth, iv, NSLayoutRelationEqual)];
+//        [self.backGroundView addConstraint:sobotLayoutPaddingLeft(20, iv, self.backGroundView)];
+//        [self.backGroundView addConstraint:sobotLayoutPaddingRight(-20, iv, self.backGroundView)];
         self.itemMT = sobotLayoutMarginTop(30, iv, self.stLable);
         [self.backGroundView addConstraint:self.itemMT];
         iv;
@@ -809,9 +930,11 @@
         [iv setContentInset:UIEdgeInsetsMake(0,5, 0, 5)];
         [self.backGroundView addConstraint:sobotLayoutEqualHeight(74, iv, NSLayoutRelationEqual)];
         [self.backGroundView addConstraint:sobotLayoutEqualCenterX(0, iv, self.backGroundView)];
-        CGFloat minw = MIN(viewWidth, viewHeight);
-        self.textViewEW = sobotLayoutEqualWidth(minw -50, iv, NSLayoutRelationEqual);
+//        CGFloat minw = MIN(viewWidth, viewHeight);
+        self.textViewEW = sobotLayoutEqualWidth(viewWidth -50, iv, NSLayoutRelationEqual);
         [self.backGroundView addConstraint:self.textViewEW];
+//        [self.backGroundView addConstraint:sobotLayoutPaddingLeft(20, iv, self.backGroundView)];
+//        [self.backGroundView addConstraint:sobotLayoutPaddingRight(-20, iv, self.backGroundView)];
         self.textViewMT = sobotLayoutMarginTop(20, iv, self.item);
         [self.backGroundView addConstraint:self.textViewMT];
         iv;
@@ -832,7 +955,11 @@
             }
         }
     }
-    
+    if(_ratingView!=nil && _ratingView.rating == 0){
+        _commitBtn.enabled = NO;
+        _commitBtn.alpha = 0.8;
+        _commitBtn.opaque = YES;
+    }
     // 获取中间部分的最终高度
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyBoardWillShow:) name:UIKeyboardWillShowNotification object:nil];
@@ -845,12 +972,29 @@
     if (self.evaluateModel.type == SatisfactionTypeLeaveReply) {
         NSString * textStr = @"";
         if (_textView.text!=nil && _textView.text.length > 0) {
-            textStr = _textView.text;
+            textStr = [sobotConvertToString(_textView.text) stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         }
-        NSString * source = [NSString stringWithFormat:@"%.0f",_ratingView.rating];
+        self->_commitBtn.enabled = false;
+        
+        NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:@{@"ticketId":sobotConvertToString(self.evaluateModel.ticketld),@"companyId":sobotConvertToString(_config.companyID),@"remark":textStr}];
+        params[@"tag"] = [_item getSeletedTitle];
+        // 0:5星,1:10分
+        if (scoreFlag == 1) {
+            [params setObject:[NSString stringWithFormat:@"%.0f",_ratingView.rating - 1] forKey:@"score"];
+        } else {
+            [params setObject:[NSString stringWithFormat:@"%.0f",_ratingView.rating] forKey:@"score"];
+        }
+        // 注意，isresolve此处的值是反的
+        int curResolve = -1;
+        if(_robotChangeBtn1.selected){
+            curResolve = 0;
+        }else if(_robotChangeBtn1.selected){
+            curResolve = 1;
+        }
+        params[@"defaultQuestionFlag"] = [NSString stringWithFormat:@"%d",curResolve];
         __weak ZCUIEvaluateView * saveSelf = self;
         btn.enabled = false;
-        [ZCLibServer postAddTicketSatisfactionWith:sobotConvertToString(self.evaluateModel.ticketld) Uid:sobotConvertToString(_config.uid) CompanyId:sobotConvertToString(_config.companyID) Score:source Remark:textStr start:^{
+        [ZCLibServer postAddTicketSatisfactionWith:sobotConvertToString(self.evaluateModel.uid) dict:params start:^{
             
         } success:^(NSDictionary *dict, ZCNetWorkCode sendCode) {
             @try{
@@ -877,15 +1021,6 @@
         return;
     }
     
-#pragma mark --- 普通评价提交的逻辑
-    //  此处要做是否评价过人工或者是机器人的区分
-    if ([ZCUICore getUICore].isOffline || [[ZCPlatformTools sharedInstance] getPlatformInfo].config.isArtificial) {
-        // 评价过客服了，下次不能再评价人工了
-        [ZCUICore getUICore].isEvaluationService = YES;
-    }else{
-        // 评价过机器人了，下次不能再评价了
-        [ZCUICore getUICore].isEvaluationRobot = YES;
-    }
     NSString *comment=_item!=nil ? [_item getSeletedTitle] : @"";
     if (self.evaluateModel.isEvalutionAdmin) {
         // 只在人工是做评定
@@ -918,6 +1053,7 @@
         [dict setObject:[NSString stringWithFormat:@"%.0f",_ratingView.rating - 1] forKey:@"source"];
     } else {
         [dict setObject:[NSString stringWithFormat:@"%.0f",_ratingView.rating] forKey:@"source"];
+        [dict setObject:sobotConvertToString(_tiplab.text) forKey:@"scoreExplain"];
     }
     [dict setObject:[NSString stringWithFormat:@"%d",scoreFlag] forKey:@"scoreFlag"];
 
@@ -930,28 +1066,41 @@
     
     [dict setObject:textStr forKey:@"suggest"];
     
-    NSString * solved = @"-1";   // -1 未开启 0 已解决 1未解决
-    if (self.evaluateModel.isOpenProblemSolving && self.evaluateModel.type>2) {// 开启已解决 未解决  人工
-        if (!isresolve) {
-            solved = @"0";
-        }else{
-            solved = @"1";
-        }
-    }else if(!self.evaluateModel.isEvalutionAdmin){
-        if (!isresolve) {
-            solved = @"0";
-        }else{
-            solved = @"1";
-        }
+    
+    ZCSatisfactionConfig *config = [ZCUICore getUICore].satisfactionConfig;
+    // 是否解决必填
+    if(config.isQuestionMust && curResolve == -1){
+        // 提示
+        [[SobotToast shareToast] showToast:SobotKitLocalString(@"请选择是否解决了您的问题") duration:1.0f position:SobotToastPositionCenter];
+        return;
     }
-    [dict setObject:solved forKey:@"isresolve"];
+    // 是否解决必填
+    if(_ratingView!=nil && _ratingView.rating == 0){
+        // 提示
+        [[SobotToast shareToast] showToast:[NSString stringWithFormat:@"%@%@",SobotKitLocalString(@"评分"),SobotKitLocalString(@"不能为空")] duration:1.0f position:SobotToastPositionCenter];
+        return;
+    }
+    
+    [dict setObject:[NSString stringWithFormat:@"%d",curResolve] forKey:@"isresolve"];
     // commentType  评价类型 主动评价 1 邀请评价0
     [dict setObject:[NSString stringWithFormat:@"%d",(self.evaluateModel.type == SatisfactionTypeInvite)] forKey:@"commentType"];
         
     btn.enabled = false;
+    
     [ZCLibServer doComment:dict result:^(ZCNetWorkCode code, int status, NSString *msg) {
         
     }];
+    
+    
+#pragma mark --- 普通评价提交的逻辑
+    //  此处要做是否评价过人工或者是机器人的区分
+    if ([ZCUICore getUICore].isOffline || [[ZCPlatformTools sharedInstance] getPlatformInfo].config.isArtificial) {
+        // 评价过客服了，下次不能再评价人工了
+        [ZCUICore getUICore].isEvaluationService = YES;
+    }else{
+        // 评价过机器人了，下次不能再评价了
+        [ZCUICore getUICore].isEvaluationRobot = YES;
+    }
     
     if(isKeyBoardShow){
         isKeyBoardShow=NO;
@@ -963,15 +1112,17 @@
     [self dismissView:3];
     // 客服主动邀请评价相关
 
-    int resolve = 0;
-    if (isresolve) {
-        resolve = 2;
-    }else{
-        resolve = 1;
-    }
+//    int resolve = 0;
+//    if (curResolve == 0) {
+//        resolve = 2;
+//    }else if(curResolve == 1){
+//        resolve = 1;
+//    }else{
+//        resolve = 3;
+//    }
     
     
-    self.evaluateModel.isResolve = resolve;
+    self.evaluateModel.isResolve = curResolve;
     self.evaluateModel.rating = _ratingView.rating;
     if (_delegate && [_delegate respondsToSelector:@selector(thankFeedBack:)]) {
         [self.delegate thankFeedBack:self.evaluateModel];
@@ -986,15 +1137,15 @@
         [self createItemViewsWithType:2];
         // 设置偏移量
         CGFloat pointH = SCH;
-        if (self.evaluateModel.type <3) {
+        if (!self.evaluateModel.isEvalutionAdmin) {
             // 机器人 item + 已解决 + 输入框
-            if (SCH > 92 + 108 + 30 + 20 +74) {
-                pointH = 92 + 108 + 30 + 20 +74;
+            if (SCH > 92 + MH + 30 + 20 +74) {
+                pointH = 92 + MH + 30 + 20 +74;
             }
             
             if (ScreenWidth > ScreenHeight) {
-                if (SCH > 45 + 108 + 30 ) {
-                    pointH = 45 + 108 + 30 ;
+                if (SCH > 45 + MH + 30 ) {
+                    pointH = 45 + MH + 30 ;
                 }
             }
         }else{
@@ -1008,6 +1159,9 @@
                 if (SCH > 45 + SSCH + 30 ) {
                     pointH = 45 + SSCH + 30 ;
                 }
+                if (pointH +(topViewH + botH + XBottomBarHeight) >= ScreenHeight) {
+                    pointH = ScreenHeight - (topViewH + botH + XBottomBarHeight);
+                }
             }
         }
         // 更新约束
@@ -1015,7 +1169,7 @@
         self.backGroundViewEH = sobotLayoutEqualHeight(pointH, self.backGroundView, NSLayoutRelationEqual);
         [self.sheetView addConstraint:self.backGroundViewEH];
         [self removeConstraint:self.sheetViewEH];
-        CGFloat shvH = pointH + 60 + 80 + XBottomBarHeight;
+        CGFloat shvH = pointH + topViewH + botH + XBottomBarHeight;
         self.sheetViewEH = sobotLayoutEqualHeight(shvH, self.sheetView, NSLayoutRelationEqual);
         [self addConstraint:_sheetViewEH];
         CGFloat minW = MIN(viewWidth, viewHeight);
@@ -1026,13 +1180,13 @@
         [self.item removeFromSuperview];
         [self.textView removeFromSuperview];
         [self.stLable removeFromSuperview];
-        SCH = 108; // 添加完 机器人未解决按钮之后的高度
+        SCH = MH; // 添加完 机器人未解决按钮之后的高度
         // 更新约束
         [self.sheetView removeConstraint:self.backGroundViewEH];
         self.backGroundViewEH = sobotLayoutEqualHeight(SCH, self.backGroundView, NSLayoutRelationEqual);
         [self.sheetView addConstraint:self.backGroundViewEH];
         [self removeConstraint:self.sheetViewEH];
-        CGFloat shvH = SCH + 60 + 80 + XBottomBarHeight;
+        CGFloat shvH = SCH + topViewH + botH + XBottomBarHeight;
         self.sheetViewEH = sobotLayoutEqualHeight(shvH, self.sheetView, NSLayoutRelationEqual);
         [self addConstraint:_sheetViewEH];
         CGFloat minW = MIN(viewWidth, viewHeight);
@@ -1048,16 +1202,17 @@
 -(IBAction)robotServerButton:(UIButton *)sender{
     [sender setSelected:YES];
     if (sender.tag == RobotChangeTag1) {
-        isresolve=NO;
+        curResolve=0;
         UIButton *btn=(UIButton *)[self.backGroundView viewWithTag:RobotChangeTag2];
         [btn setSelected:NO];
         btn.layer.borderColor = UIColorFromModeColor(SobotColorBgLine).CGColor;
-        if (self.evaluateModel.type <3) {
+        // 不是人工
+        if (self.evaluateModel.type <3 && !self.evaluateModel.isEvalutionAdmin) {
             // 机器人模式触发
             [self showMenuItem:NO];// 收起
         }
     }else if(sender.tag == RobotChangeTag2){
-        isresolve=YES;
+        curResolve=1;
         UIButton *btn=(UIButton *)[self.backGroundView viewWithTag:RobotChangeTag1];
         [btn setSelected:NO];
         btn.layer.borderColor = UIColorFromModeColor(SobotColorBgLine).CGColor;
@@ -1183,6 +1338,11 @@
 
 #pragma mark - 1-10分 点击事件
 -(void)ratingChanged:(float)newRating{
+    SLog(@"---rating当前点击：%f", newRating);
+    _commitBtn.enabled = YES;
+    _commitBtn.alpha = 1;
+    _commitBtn.opaque = NO;
+    
     touchRating=YES;
     // 留言评价单独处理
     if (self.evaluateModel.type == SatisfactionTypeLeaveReply) {
@@ -1265,16 +1425,38 @@
 
 #pragma mark -- 手势冲突的代理
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    if ([touch.view isKindOfClass:[UIButton class]]  || [touch.view isKindOfClass:[ZCUIRatingView class]]  || [touch.view isMemberOfClass:[UIImageView class]]){
+    if ([touch.view isKindOfClass:[UIButton class]]  || [touch.view isKindOfClass:[ZCUIRatingView class]]  || [touch.view isMemberOfClass:[UIImageView class]] || [touch.view isMemberOfClass:[UILabel class]]){
         return NO;
     }
     return YES;
+}
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    UIView *view = [super hitTest:point withEvent:event];
+    if (!view && [self.backGroundView pointInside:point withEvent:event]) {
+        view = _backGroundView;
+        CGPoint currentPoint = point;
+        for (UIView *subview in view.subviews) {
+            BOOL res = [subview isKindOfClass:[UIControl class]] || [subview isKindOfClass:[UIButton class]] || [subview isKindOfClass:[UIImageView class]];
+            if (res) {
+                currentPoint = [self convertPoint:point toView:view];
+                res = [subview pointInside:currentPoint withEvent:event];
+            }
+            if (res) {
+                return subview;
+            }
+        }
+    }
+    return view;
 }
 
 #pragma mark - 横竖屏切换
 -(void)layoutSubviews{
     [super layoutSubviews];
+    
+    
     if (viewWidth != ScreenWidth) {
+//        [self dismissView];
+//        return;
         viewWidth = ScreenWidth;
         viewHeight = ScreenHeight;
         minw = MIN(viewWidth, viewHeight);
@@ -1288,12 +1470,12 @@
             if (self.evaluateModel.type <3) {
                 // 设置偏移量
                 CGFloat pointH = SCH;
-                if (SCH > 92 + 108 + 30 + 20 +74) {
-                    pointH = 92 + 108 + 30 + 20 +74;
+                if (SCH > 92 + MH + 30 + 20 +74) {
+                    pointH = 92 + MH + 30 + 20 +74;
                 }
                 if (viewWidth > viewHeight) {
-                    if (SCH > 45 + 108 + 30 ) {
-                        pointH = 45 + 108 + 30 ;
+                    if (SCH > 45 + MH + 30 ) {
+                        pointH = 45 + MH + 30 ;
                     }
                 }
                 // 更新约束
@@ -1309,12 +1491,12 @@
             }else{
                 // 设置偏移量
                 CGFloat pointH = SCH;
-                if (SCH > 92 + 108 + 30 + 20 +74) {
-                    pointH = 92 + 108 + 30 + 20 +74;
+                if (SCH > 92 + MH + 30 + 20 +74) {
+                    pointH = 92 + MH + 30 + 20 +74;
                 }
                 if (viewWidth > viewHeight) {
-                    if (SCH > 45 + 108 + 30 ) {
-                        pointH = 45 + 108 + 30 ;
+                    if (SCH > 45 + MH + 30 ) {
+                        pointH = 45 + MH + 30 ;
                     }
                 }
                 // 人工

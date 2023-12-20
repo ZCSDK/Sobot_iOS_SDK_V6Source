@@ -72,7 +72,7 @@
         [self.view addSubview:iv];
         iv.textColor = [ZCUIKitTools zcgetscTopTextColor];
         iv.numberOfLines = 0;
-        iv.font = SobotFont20;
+        iv.font = SobotFontBold16;
         iv.text = sobotConvertToString(_questionTitle);
         self.titleLabPR = sobotLayoutPaddingRight(-10, iv, self.view);
         self.titleLabPL = sobotLayoutPaddingLeft(10, iv, self.view);
@@ -119,7 +119,12 @@
         if (dict) {
             NSDictionary * dataDic = dict[@"data"];
             if ([dataDic isKindOfClass:[NSDictionary class]] && dataDic != nil) {
-                [self->_webView loadHTMLString:sobotConvertToString(dict[@"data"][@"answerDesc"]) baseURL:nil];
+                NSString *textHtml = sobotConvertToString(dict[@"data"][@"answerDesc"]);
+                textHtml = [textHtml stringByReplacingOccurrencesOfString:@"<p>" withString:@""];
+                textHtml = [textHtml stringByReplacingOccurrencesOfString:@"<P>" withString:@""];
+                textHtml = [textHtml stringByReplacingOccurrencesOfString:@"</P>" withString:@"<br/>"];
+                textHtml = [textHtml stringByReplacingOccurrencesOfString:@"</p>" withString:@"<br/>"];
+                [self->_webView loadHTMLString:textHtml baseURL:nil];
                 //                    [webView loadHTMLString:sobotConvertToString(@"<a href=\"https://www.baidu.com\" >智齿</a>") baseURL:nil];
                 self->_titleLab.text = sobotConvertToString(dict[@"data"][@"questionTitle"]);
             }
@@ -222,6 +227,7 @@
     CGSize size = webView.scrollView.contentSize;
     size.width= webView.scrollView.frame.size.width;
     webView.scrollView.contentSize= size;
+    CGFloat screenW = ScreenWidth>ScreenHeight?ScreenHeight:ScreenWidth;
     NSString *jsStr = [NSString stringWithFormat:@"var script = document.createElement('script');"
                        "script.type = 'text/javascript';"
                        "script.text = \"function ResizeImages() { "
@@ -235,7 +241,7 @@
                        "}"
                        "}"
                        "}\";"
-                       "document.getElementsByTagName('head')[0].appendChild(script);",ScreenWidth-16];// SCREEN_WIDTH是屏幕宽度
+                       "document.getElementsByTagName('head')[0].appendChild(script);",screenW-16];// SCREEN_WIDTH是屏幕宽度
     [webView evaluateJavaScript:jsStr completionHandler:nil];
     [webView evaluateJavaScript:@"ResizeImages();" completionHandler:nil];
     [webView evaluateJavaScript:@"document.getElementsByTagName('body')[0].style.webkitTextSizeAdjust= '100%'" completionHandler:nil];
@@ -365,6 +371,7 @@
     serviceBtn.layer.borderWidth = 0.5f;
     serviceBtn.layer.cornerRadius = 22.0f;
     serviceBtn.layer.masksToBounds = YES;
+    serviceBtn.titleLabel.lineBreakMode = 4;
     [serviceBtn setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark2)];
     [serviceBtn setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 3)];
     [serviceBtn setTitleEdgeInsets:UIEdgeInsetsMake(0, 3, 0, 0)];

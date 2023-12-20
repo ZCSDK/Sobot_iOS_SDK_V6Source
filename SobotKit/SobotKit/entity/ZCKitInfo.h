@@ -86,7 +86,7 @@
 @property (nonatomic,assign) BOOL isShowPortrait;
 
 /**
- *  仅支持竖屏
+ *  仅支持横屏
  *  默认为 NO，如何强制横屏，默认为LandscapeRight
  */
 @property (nonatomic,assign) BOOL isShowLandscape;
@@ -105,7 +105,7 @@
  2、当收到link = sobot://sendlocation 调用智齿接口发送位置信息
  3、当收到link = sobot://openlocation?latitude=xx&longitude=xxx&address=xxx 可根据自己情况处理相关业务】
  **/
-@property (nonatomic,assign) BOOL canSendLocation;
+//@property (nonatomic,assign) BOOL canSendLocation;
 
 /**
  *   聊天页面底部加号中功能：隐藏评价，默认NO(不隐藏)
@@ -213,21 +213,23 @@
 @property (nonatomic,assign) BOOL isShowTansfer;
 
 /**
- *  机器人优先模式，通过记录机器人未知说辞的次数设置是否直接显示转人工按钮
- *  默认 0次。
- */
+// *  机器人优先模式，通过记录机器人未知说辞的次数设置是否直接显示转人工按钮
+// *  默认 0次。
+// */
 @property (nonatomic,strong) NSString *unWordsCount;
 
 /**
- * 是否开启智能转人工,(如输入“转人工”，直接转接人工)
- * 需要隐藏转人工按钮，请参见isShowTansfer和unWordsCount属性
- */
-@property (nonatomic,assign) BOOL isOpenActiveUser;
+ *  V6 请在PC工作台配置该功能
+// * 是否开启智能转人工,(如输入“转人工”，直接转接人工)
+// * 需要隐藏转人工按钮，请参见isShowTansfer和unWordsCount属性
+// */
+//@property (nonatomic,assign) BOOL isOpenActiveUser;
 
 /**
+ V6 请在PC工作台配置该功能
  智能转人工关键字，关键字作为key{@"转人工",@"1",@"R":@"1"}
  */
-@property (nonatomic,strong) NSDictionary *activeKeywords;
+//@property (nonatomic,strong) NSDictionary *activeKeywords;
 
 /**
  *  自定义快捷入口
@@ -308,6 +310,10 @@
  */
 @property(nonatomic,assign) BOOL isEveryTimeAutoSend;
 
+/**
+ *  是否关闭wkwebview 页面暗夜模式   默认NO 支持暗夜模式，YES 关闭默认适配
+ */
+@property(nonatomic,assign)BOOL isCloseWKDarkMode;
 
 #pragma mark -- 自定义字体，（可选）
 //===========================================================  自定义字体 font ========================================
@@ -404,6 +410,15 @@
  */
 @property (nonatomic,strong) UIColor *videoCellBgSelColor;
 
+/**
+ * 语音文字颜色背景色
+ */
+@property (nonatomic,strong) UIColor *videoConversionBgColor;
+/**
+ * 语音文字颜色
+ */
+@property (nonatomic,strong) UIColor *videoConversionTextColor;
+
 
 /**
  *  底部bottom的背景颜色
@@ -452,6 +467,11 @@
  * 导航栏背景色  （系统导航栏 和自定义导航栏View背景色  默认白色）
  */
 @property (nonatomic,strong) UIColor *topViewBgColor;
+
+/**
+ * 留言页面 顶部 ”请您留言“ 标题文字颜色
+ */
+@property (nonatomic,strong) UIColor *leaveTitleTextColor;
 
 /**
  * 文件查看，ImgProgress 图片背景颜色  2.8.0新增
@@ -641,14 +661,14 @@
 @property (nonatomic,strong) UIColor *leaveSubmitBtnTextColor;
 
 /**
- * 帮助中心、导航 标题的文字颜色
+ * 帮助中心 详情页面、 导航栏标题的文字颜色
  */
 @property (nonatomic,strong) UIColor *scTopTextColor;
 
 /**
  * 帮助中心 顶部返回的文字颜色
  */
-@property (nonatomic,strong) UIColor *scTopBackTextColor;
+//@property (nonatomic,strong) UIColor *scTopBackTextColor; 
 
 
 /**
@@ -667,6 +687,9 @@
 
 ///  输入框 点击更多 中 评价 留言 图片等按钮的文字默认颜色
 @property (nonatomic,strong) UIColor *textNolColor;
+
+/// 自定义卡片 商品价格文件颜色
+@property(nonatomic,strong)UIColor *pricetTagTextColor;
 //=======================================================自定义文字颜色 end ==============================================
 
 #pragma Mark -- 图片相关
@@ -859,6 +882,10 @@
 // 是否显示聊天的头像和昵称(仅发送方)：0不显示，1头像+昵称，2仅头像 3仅昵称
 @property (nonatomic,assign) int showChatLeftNameHeader;
 
+
+// 把字典中的属性赋值给对象
+-(id)jsonValueToDict:(NSDictionary *)dict;
+
 @end
 
 
@@ -935,4 +962,5 @@
 
 // 获取状态字符串内容
 +(NSString *)getOrderStatusMsg:(int) status;
+
 @end

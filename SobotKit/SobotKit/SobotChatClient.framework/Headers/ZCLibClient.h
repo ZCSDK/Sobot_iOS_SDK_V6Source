@@ -122,6 +122,11 @@ typedef void(^TurnServiceBlock)(SobotChatMessage *_Nullable model, NSInteger tur
  */
 @property (nonatomic,assign) BOOL autoCloseConnect;
 
+/**
+ *  记录当前是否可以显示转人工按钮（记录机器人未知回复的次数已达到，在一次有效的会话中）
+ */
+@property (nonatomic,assign) BOOL isShowTurnBtn;
+
 
 // 初始化，验证企业配置
 -(void)initSobotSDK:(NSString *_Nonnull) appkey host:(NSString * _Nullable)apiHost;
@@ -178,4 +183,24 @@ typedef void(^TurnServiceBlock)(SobotChatMessage *_Nullable model, NSInteger tur
 -(NSString *)getLastMessage;
 
 +(NSString *) readLogFileDateString:(NSString *) dateString;
+
+
+/// 当前正在使用的语言
+/// 不能获取default_language配置，次配置会在实际使用失败时生效
++(NSString *)getCurUseLanguagePreHeader;
+
+/**
+ 获取未读消息数
+ 
+ @return 未读消息数(进入智齿聊天页面会清空)
+ */
+-(int) getUnReadMessage;
+
+/**
+ 清空用户下的所有未读消息(本地清空)
+
+ @param userId 接入的用户ID
+ */
+-(void) clearUnReadNumber:(NSString *) partnerid;
+
 @end

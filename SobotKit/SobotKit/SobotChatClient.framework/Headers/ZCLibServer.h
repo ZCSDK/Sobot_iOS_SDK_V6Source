@@ -57,6 +57,11 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
 /// @param resultBlock 结果
 +(void)ack:(NSDictionary *) params result:(void (^)(ZCNetWorkCode code,id _Nullable message))resultBlock;
 
+
+/// 生成本地消息Id
+/// @param cid 当前cid
++(NSString *)getLocalMsgId:(NSString *) cid;
+
 /// 轮训消息
 /// @param config 参数
 /// @param resultBlock 结果
@@ -188,6 +193,22 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
                               start:(void (^)(void))startBlock
                             success:(void(^)(NSDictionary *dict,NSMutableArray * typeArr,ZCNetWorkCode sendCode)) successBlock
                              failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
+
+
+/// 获取 选择留言模版
+/// @param config config description
+/// @param uid uid description
+/// @param groupId groupId description
+/// @param startBlock startBlock description
+/// @param successBlock successBlock description
+/// @param failBlock failBlock description
++(void)getWsTemplateList:(ZCLibConfig *)config
+                            uid:(NSString*)uid
+                        groupId:(NSString *)groupId
+                          start:(void (^)(void))startBlock
+                        success:(void(^)(NSDictionary *dict,NSMutableArray *typeArr,ZCNetWorkCode sendCode)) successBlock
+                           fail:(void(^)(NSString *errorMsg,ZCNetWorkCode errorCode)) failBlock;
+
 
 /**
  *   提交询前表单的接口
@@ -331,6 +352,29 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
 /// @param failBlock 失败
 +(void)rbAnswerComment:(ZCLibConfig *)config message:(SobotChatMessage *)commentMessage status:(int)status start:(void (^)(NSString *url))startBlock success:(void (^)(ZCNetWorkCode))successBlock fail:(void (^)(ZCNetWorkCode))failBlock;
 
+
+
+
+/// 多伦触发留言节点，点击关闭和提交留言修改添加提醒消息
+/// @param config 初始化对象
+/// @param title 无用
+/// @param msg 实际内容，iOS不适用
+/// @param updateStatus (0表示插入 1表示更新)
+/// @param msgId 消息id
+/// @param deployId 留言模板id
+/// @param startBlock 开始
+/// @param successBlock 成功
+/// @param failedBlock 失败
++(void)sendLoopTipActionMsg:(ZCLibConfig *) config
+                title:(NSString*)title
+                msg:(NSString*)msg
+               updateStatus:(int) updateStatus // 0表示插入 1表示更新
+                      msgId:(NSString *) msgId
+                   deployId:(NSString *) deployId
+             start:(void (^)(void))startBlock
+           success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
+                     failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
+
 /**
  *
  *   sdk保存发给用户的系统消息 (机器人点踩，触发转人工提示语 并发送给服务端保存)
@@ -342,6 +386,31 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
              start:(void (^)(NSString *url))startBlock
            success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
              failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
+
+
+
+/// 标记用户消息，是否已读
+/// - Parameters:
+///   - config: 当前会话
+///   - msgIdArr: 要标记的msgId
+///   - startBlock: 开始
+///   - successBlock: 成功
+///   - failedBlock: 失败
++(void)realMarkReadToAdmin:(ZCLibConfig *) config
+                msgId:(NSMutableArray *)msgIdArr
+             start:(void (^)(NSString *url))startBlock
+           success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
+                    failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
+    
+/// 点击卡片自定义按钮事件
+/// @param menu 按钮对象
+/// @param config 当前初始化结果对象
+/// @param successBlock 成功
+/// @param failedBlock 失败
++(void)addCusCardMenuClick:(SobotChatCustomCardMenu *)menu
+            config:(ZCLibConfig *)config
+           success:(void (^)(ZCNetWorkCode code))successBlock
+                      fail:(void (^)(NSString *errorMsg, ZCNetWorkCode code))failedBlock;
 
 /// 正在输入接口
 /// @param content 内容
@@ -450,15 +519,11 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
 /**
  *  提交工单评价 （工单详情页面触发评价）
  */
-+(void)postAddTicketSatisfactionWith:(NSString*)ticketId
-                                 Uid:(NSString*)uid
-                           CompanyId:(NSString*)companyId
-                               Score:(NSString*)score
-                              Remark:(NSString*)remark
++(void)postAddTicketSatisfactionWith:(NSString*)uid
+                                dict:(NSDictionary*)inParam
                                start:(void (^)(void))startBlock
                              success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
                               failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
-
 
 /**
  *  评价客户
@@ -540,6 +605,18 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
                        uid:(NSString *)uid
                      error:(void (^)(ZCNetWorkCode status,NSString *errorMessage))errorBlock
                    success:(void(^)(NSString *msgLeaveTxt,NSString *msgLeaveContentTxt,NSString *leaveExplain)) successBlock;
+
+
+
+/// 延迟转人工排队时调用
+/// @param content 发送内容
+/// @param config 当前初始化对象
+/// @param errorBlock 失败
+/// @param successBlock 成功
++ (void)sendAfterModeWithConnectWait:(NSString *)content
+                       uid:(ZCLibConfig *)config
+                     error:(void (^)(ZCNetWorkCode status,NSString *errorMessage))errorBlock
+                             success:(void(^)(NSString *msgLeaveTxt,NSString *msgLeaveContentTxt,NSString *leaveExplain)) successBlock;
 @end
 
 NS_ASSUME_NONNULL_END

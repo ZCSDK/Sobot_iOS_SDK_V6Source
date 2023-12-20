@@ -54,10 +54,16 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
     [_webView setOpaque:NO];
     _webView.backgroundColor = [ZCUIKitTools zcgetLightGrayBackgroundColor];
     [self.view addSubview:_webView];
-    [self.view addConstraint:sobotLayoutPaddingTop(NavBarHeight, _webView, self.view)];
+    CGFloat nah = NavBarHeight;
+    if(self.navigationController && !self.navigationController.navigationBarHidden){
+        nah = 0;
+    }
+    [self.view addConstraint:sobotLayoutPaddingTop(nah, _webView, self.view)];
     [self.view addConstraint:sobotLayoutPaddingLeft(0, _webView, self.view)];
     [self.view addConstraint:sobotLayoutPaddingRight(0, _webView, self.view)];
+//    [self.view addConstraint:sobotLayoutEqualWidth(ScreenWidth, _webView, NSLayoutRelationEqual)];
     [self.view addConstraint:sobotLayoutPaddingBottom(-44 -XBottomBarHeight , _webView, self.view)];
+    
     [self checkTxtEncode];
     [self updateToolbarItems];
 }
@@ -121,7 +127,7 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
                                 "<html>"
                                 "<head>"
                                 "<meta charset=\"utf-8\">"
-                                "<title>详情</title>"
+                                "<title></title>"
                                 "<style>"
                                 "img{"
                                 "width: auto;"
@@ -172,6 +178,7 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
     self=[super init];
     if(self){
         if (sobotIsUrl(url,@"")) {
+            SLog(@"当前加载的链接 %@", url);
             pageURL=url;
         }else{
             self.htmlString = url;
@@ -215,8 +222,13 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
         }
     }];
     //设置颜色
-    if([ZCUIKitTools getZCThemeStyle] == SobotThemeMode_Dark){
-        [webView evaluateJavaScript:@"document.getElementsByTagName('body')[0].style.webkitTextFillColor= '#FFFFFF'" completionHandler:nil];
+    
+    if (![ZCUICore getUICore].kitInfo.isCloseWKDarkMode) {
+        if([ZCUIKitTools getZCThemeStyle] == SobotThemeMode_Dark){
+            [webView evaluateJavaScript:@"document.getElementsByTagName('body')[0].style.webkitTextFillColor= '#D1D1D6'" completionHandler:nil];
+            [webView evaluateJavaScript:@"document.body.style.backgroundColor='#262628'" completionHandler:nil];
+            [webView evaluateJavaScript:@"document.getElementsByTagName('body')[0].style.background='#262628'"completionHandler:nil];
+        }
     }
     [self updateToolbarItems];
 }

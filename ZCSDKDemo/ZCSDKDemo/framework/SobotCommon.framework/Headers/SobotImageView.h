@@ -58,6 +58,10 @@ typedef NS_ENUM(NSInteger, SobotUIImageViewURLDownloadState) {
 
 
 + (void)dataWithContentsOfURL:(NSURL *)url completionBlock:(void (^)(NSURL *, NSData *, NSError *))completion;
+
+
+
+- (void)hideLoadingView;
 @end
 
 NS_ASSUME_NONNULL_END

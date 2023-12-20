@@ -72,8 +72,10 @@ typedef enum _ZCEditLimitType {
         [self.contentView addConstraint:sobotLayoutPaddingTop(0, iv, self.contentView)];
         [self.contentView addConstraint:sobotLayoutPaddingLeft(0, iv, self.contentView)];
         [self.contentView addConstraint:sobotLayoutPaddingRight(0, iv, self.contentView)];
-        [self.contentView addConstraint:sobotLayoutPaddingBottom(0, iv, self.contentView)];
-        [self.contentView addConstraint:sobotLayoutEqualHeight(54, iv, NSLayoutRelationEqual)];
+        [self.contentView addConstraint:sobotLayoutEqualHeight(55, iv, NSLayoutRelationEqual)];
+        NSLayoutConstraint *bgPB = sobotLayoutPaddingBottom(0, iv, self.contentView);
+        bgPB.priority = UILayoutPriorityFittingSizeLevel;
+        [self.contentView addConstraint:bgPB];
         iv;
     });
     
@@ -116,17 +118,9 @@ typedef enum _ZCEditLimitType {
     if(!sobotIsNull(dict[@"dictValue"])){
         [_fieldContent setText:dict[@"dictValue"]];
     }
-    if (!sobotIsNull(self.labelNamePT)) {
-        [self.contentView removeConstraint:self.labelNamePT];
-    }
-    self.labelNamePT = sobotLayoutPaddingTop(17, self.labelName, self.contentView);
-    [self.contentView addConstraint:self.labelNamePT];
-    if (!sobotIsNull(self.labelNameEH)) {
-        [self.contentView removeConstraint:self.labelNameEH];
-    }
-    self.labelNameEH = sobotLayoutEqualHeight(20, self.labelName, NSLayoutRelationEqual);
-    [self.contentView addConstraint:self.labelNamePT];
-    [self.contentView addConstraint:self.labelNameEH];
+    
+    self.labelNamePT.constant = 17;
+    self.labelNameEH.constant = 20;
     self.labelNameStr = dict[@"dictDesc"];
     NSString *string = [NSString stringWithFormat:@"%@  %@",self.labelNameStr,SobotKitLocalString(@"请输入")];
     self.labelName.attributedText = [self getOtherColorString:string colorArray:@[[UIColor redColor],UIColorFromKitModeColor(SobotColorTextSub1)] withStringArray:@[@"*",SobotKitLocalString(@"请输入")]];
@@ -135,27 +129,18 @@ typedef enum _ZCEditLimitType {
 
 -(BOOL)checkLabelState:(BOOL)showSmall{
     BOOL isSmall = [super checkLabelState:showSmall text:_fieldContent.text];
-    if (self.fieldContentPL) {
-        [self.contentView removeConstraint:self.fieldContentPL];
-    }
-    if (self.fieldContentPT) {
-        [self.contentView removeConstraint:self.fieldContentPT];
-    }
+   
     if(!isSmall){
-        self.fieldContentPL = sobotLayoutPaddingLeft(70, self.fieldContent, self.contentView);
-        [self.contentView addConstraint:self.fieldContentPL];
-        self.fieldContentPT = sobotLayoutPaddingTop(17, self.fieldContent, self.contentView);
-        [self.contentView addConstraint:self.fieldContentPT];
+        self.fieldContentPL.constant = 70;
+        self.fieldContentPT.constant = 17;
         NSString *string = self.labelNameStr;
         if (string) {
             NSString *string = [NSString stringWithFormat:@"%@  %@",self.labelNameStr,SobotKitLocalString(@"请输入")];
             self.labelName.attributedText = [self getOtherColorString:string colorArray:@[[UIColor redColor],UIColorFromKitModeColor(SobotColorTextSub1)] withStringArray:@[@"*",SobotKitLocalString(@"请输入")]];
         }
     }else{
-        self.fieldContentPL = sobotLayoutPaddingLeft(20, self.fieldContent, self.contentView);
-        [self.contentView addConstraint:self.fieldContentPL];
-        self.fieldContentPT = sobotLayoutPaddingTop(29, self.fieldContent, self.contentView);
-        [self.contentView addConstraint:self.fieldContentPT];
+        self.fieldContentPL.constant = 20;
+        self.fieldContentPT.constant = 29;
         NSString *string = self.labelNameStr;
         if (string) {
             self.labelName.attributedText = [self getOtherColorString:@"*" Color:[UIColor redColor] withString:string];

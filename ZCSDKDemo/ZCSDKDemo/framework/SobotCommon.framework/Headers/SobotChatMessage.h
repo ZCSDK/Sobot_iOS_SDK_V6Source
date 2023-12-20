@@ -5,7 +5,7 @@
 //  Created by zhangxy on 2022/8/30.
 //
 
-#import "SobotBaseEntity.h"
+#import <SobotCommon/SobotBaseEntity.h>
 
 /**消息体类型*/
 typedef NS_ENUM(NSInteger,SobotMessageType) {
@@ -15,11 +15,12 @@ typedef NS_ENUM(NSInteger,SobotMessageType) {
     SobotMessageTypeVideo = 3, // 视频
     SobotMessageTypeFile  = 4, // 文件
     SobotMessageTypeRichJson = 5, // 对象
-    SobotMessageTypeRichJsonLoop = 9, // 对象
+//    SobotMessageTypeRichJsonLoop = 9, // 对象,4.0.5去掉此定义，msgType=5，SobotMessageRichJsonTypeLoop即可确认
     SobotMessageTypeHotGuide = 7,// 热门引导问题
-    SobotMessageTypeLocation  = 22, // 位置
-    SobotMessageTypeCard = 24,//商品卡片消息
-    SobotMessageTypeOrder= 25,//订单卡片消息
+//    SobotMessageTypeCustomCard  = 20, // 新卡片消息，msgType=5，type=20
+//    SobotMessageTypeLocation  = 22, // 位置
+//    SobotMessageTypeCard = 24,//商品卡片消息
+//    SobotMessageTypeOrder= 25,//订单卡片消息
     SobotMessageTypeTipsText  = -1, //这是一条提示语
     SobotMessageTypeStartSound = -4,//正在录音
     SobotMessageTypeCancelSound = -5,//取消正在闪烁的语音cell
@@ -34,6 +35,7 @@ typedef NS_ENUM(NSInteger,SobotMessageRichJsonType) {
     SobotMessageRichJsonTypeOrder  = 4, // 订单
     SobotMessageRichJsonTypeApplet  = 6, // 小程序卡片
     SobotMessageRichJsonTypeArticle = 17,// 文章
+    SobotMessageRichJsonTypeCustomCard = 21,// 通用卡片
 };
 
 typedef NS_ENUM(NSInteger,SobotMessageFileType) {
@@ -51,9 +53,11 @@ typedef NS_ENUM(NSInteger,SobotMessageFileType) {
 
 /**下推消息类型*/
 typedef NS_ENUM(NSInteger,SobotMessageActionType) {
-    SobotMessageActionTypeSendGoods    = -2,// 未知类型
-    SobotMessageActionTypeUnKonw    = -1,// 未知类型
-    SobotMessageActionTypeEvaluationCompleted                          = 0,
+    /** 已完成评价 */
+    SobotMessageActionTypeEvaluationCompleted              = -3,
+    SobotMessageActionTypeSendGoods                        = -2,// 发送商品卡片，悬浮效果
+    SobotMessageActionTypeUnKonw                           = -1,// 未知类型
+    SobotMessageActionTypeDefault                          = 0,// 默认值，一般为正常的消息体
     /** 转人工成功 */
     SobotMessageActionTypeOnline                           = 1,
     /** 转人工排队 */
@@ -62,8 +66,6 @@ typedef NS_ENUM(NSInteger,SobotMessageActionType) {
     SobotMessageActionTypeUserNoAdmin                      = 3,
     /** 暂时无法评价 */
     SobotMessageActionTypeTemporarilyUnableToEvaluate      = 4,
-    /** 已完成评价 */
-    SobotMessageActionTypeDefault             = -2,
     /** 咨询后才可评价 */
     SobotMessageActionTypeAfterConsultingEvaluation        = 6,
     /** 已下为新消息 */
@@ -116,9 +118,9 @@ typedef NS_ENUM(NSInteger,SobotMessageActionType) {
     SobotMessageActionTypeChatWarning                       = 29,
     /**机器人点踩 触发转人工*/
     SobotMessageActionTypeUnresolvedProblemTurn             = 30,
-    /****** 发送留言转离线消息后，结束会话 *****/
-    SobotMessageActionTypeChatCloseByLeaveMsg               = 99,
     
+    // 点击 自定义卡片的确认按钮 显示menuTip提示消息
+    SobotMessageActionTypeCardMenuTip                      = 31,
     
     /**
          * 用户咨询页授权
@@ -138,19 +140,202 @@ typedef NS_ENUM(NSInteger,SobotMessageActionType) {
      * 用户排队超时离线
      */
     SobotMessageActionTypeChat_WaitingOut = 46,
+    /**多伦未填写留言信息,可点击**/
+    SobotMessageActionTypeChat_UnWriteLeaveMsg               = 47,
+    /**
+     多伦未填写留言信息，不可点击
+     */
+    SobotMessageActionTypeChat_UnWriteLeaveMsgUnDo               = 48,
+    
+    /**
+     自定义卡片中按钮点击记录
+     */
+    SobotMessageActionTypeChat_CustomCardMenuClick               = 49,
+    
+    /**先添加一条提示消息 （显示成该消息由机器人发送）“对不起未能解决您的问题，正在为您转接人工客服”**/
+    SobotMessageActionTypeTransferTips = 50,
+    
+    /****** 发送留言转离线消息后，结束会话 *****/
+    SobotMessageActionTypeChatCloseByLeaveMsg               = 99,
     /**
      * 用户排队超时离线提醒
      */
-    SobotMessageActionTypeChat_WaitingOutTips = 47,
+    SobotMessageActionTypeChat_WaitingOutTips = 100,
+    
     /**
      * 用户排队超时离线提醒,继续排队
      */
-    SobotMessageActionTypeChat_WaitingContinueTips = 48,
-    SobotMessageActionTypeChat_WaitingContinueMsg = 49,
-    SobotMessageActionTypeTransferTips = 50
+    SobotMessageActionTypeChat_WaitingContinueTips = 101,
+    SobotMessageActionTypeChat_WaitingContinueMsg = 102,
 };
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ 通用卡片按钮信息
+ */
+@interface SobotChatCustomCardMenu: SobotBaseEntity
+/**
+     * 按钮类型
+     * 0=跳转，1=确认，2=发送
+     */
+@property(nonatomic,assign) int menuType;
+
+    /**
+     * 按钮名称
+     */
+@property(nonatomic,copy) NSString *menuName;
+
+    /**
+     * 按钮链接 -> 跳转类型
+     */
+@property(nonatomic,copy) NSString *menuLink;
+
+    /**
+     * 跳转链接类型
+     *
+     (0, "通用类型"),
+     (1, "客服跳转类型"),
+     (2, "访客跳转类型"),
+     * @see MenuLinkTypeEnum
+     */
+@property(nonatomic,assign) int menuLinkType;
+
+    /**
+     * 按钮提示语 -> 确认按钮
+     * TODO: 是否是两条消息？确认按钮一条、提示与一条
+     */
+@property(nonatomic,copy) NSString *menuTip;
+
+// 默认可以点击，确认按钮点击一次和历史记录 都不可以点击 置灰
+@property(nonatomic,assign)BOOL isUnEnabled;
+@end
+
+// 通用卡片信息
+@interface SobotChatCustomCardInfo: SobotBaseEntity
+/**
+    * 定制卡片状态: 订单
+    * TODO: 客户传什么我们就用什么
+    */
+@property(nonatomic,copy) NSString *customCardStatus;
+
+   /**
+    * 定制卡片数量: 订单
+    */
+@property(nonatomic,copy) NSString *customCardCount;
+
+   /**
+    * 定制卡片编码: 订单
+    */
+@property(nonatomic,copy) NSString *customCardCode;
+
+   /**
+    * 定制卡片创建时间: 订单
+    */
+@property(nonatomic,copy) NSString *customCardTime;
+
+   /**
+    * 定制卡片id: 包括 订单的Id、商品的Id
+    */
+@property(nonatomic,copy) NSString *customCardId;
+
+   /**
+    * 定制卡片名称: 包括 订单的标题、商品的名称
+    */
+@property(nonatomic,copy) NSString *customCardName;
+
+   /**
+    * 定制卡片的缩略图的URL: 包括 订单的缩略图、商品的缩略图
+    */
+@property(nonatomic,copy) NSString *customCardThumbnail;
+
+   /**
+    * 定制卡片金额: 包括 订单的金额、商品的金额
+    */
+@property(nonatomic,copy) NSString *customCardAmount;
+
+   /**
+    * 定制卡片金额符号: 包括 订单的金额、商品的金额
+    */
+@property(nonatomic,copy) NSString *customCardAmountSymbol;
+
+   /**
+    * 定制卡片的跳转链接: 包括 订单的跳转链接、商品的跳转链接
+    */
+@property(nonatomic,copy) NSString *customCardLink;
+
+   /**
+    * 定制卡片的描述: 包括 订单的描述、商品描述
+    */
+@property(nonatomic,copy) NSString *customCardDesc;
+
+   /**
+    * 发送按钮
+    * TODO: 是否支持自定义？？SobotChatCardMenu
+    */
+@property(nonatomic,copy)NSMutableArray * customMenus;
+
+@property(nonatomic,assign)BOOL isHistory;// 临时变量，记录是否是历史记录
+
+@end
+
+/**
+ 通用卡片
+ */
+@interface SobotChatCustomCard : SobotBaseEntity
+/**
+    * 卡片风格，0=平铺，1=列表
+    *
+    */
+@property(nonatomic,assign) int cardStyle;
+
+   /**
+    * 卡片类型，0=订单卡片，1=商品卡片
+    */
+@property(nonatomic,assign) int cardType;
+
+/**
+ 卡片唯一id，自定义发送时，必须设置唯一，否则会重复发生
+ */
+@property(nonatomic,copy) NSString *cardId;
+
+   /**
+    * 卡片引导语
+    */
+@property(nonatomic,copy) NSString *cardGuide;
+
+   /**
+    * 卡片图片
+    */
+@property(nonatomic,copy) NSString *cardImg;
+
+   /**
+    * 卡片描述
+    */
+@property(nonatomic,copy) NSString *cardDesc;
+
+   /**
+    * 自定义字段
+    * 最多只支持十个自定义字段
+    */
+@property(nonatomic,copy) NSDictionary *customField;
+
+   /**
+    * 卡片跳转链接
+    */
+@property(nonatomic,copy) NSString *cardLink;
+
+   /**
+    * 定制卡片: 订单、商品，SobotChatCustomCardInfo
+    */
+@property(nonatomic,copy)NSMutableArray * customCards;
+
+   /**
+    * 按钮信息，SobotChatCustomCardMenu
+    */
+@property(nonatomic,copy)NSMutableArray * cardMenus;
+
+@end
 
 // richList and loopchat
 @interface SobotChatRichContent : SobotBaseEntity
@@ -233,6 +418,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,copy) NSString *createTime;//": 1664010321113,
 @property(nonatomic,copy) NSString *statusCustom;//": "不一样的烟火",
 @property(nonatomic,copy) NSString *totalFee;//": 881,
+@property(nonatomic,strong)NSArray *extendFields;// 自定义字段
 
 //[{"pictureUrl": "xxx.png","name": "商品名称"}],
 @property(nonatomic,copy) NSArray *goods;//":
@@ -241,9 +427,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 商品卡片，type=3
 @property(nonatomic,copy) NSString *thumbnail;//": "png",
-//@property(nonatomic,copy) NSString *description;//": ",
+@property(nonatomic,copy) NSString *descriptionStr;//": ",
 @property(nonatomic,copy) NSString *label;//": "标签1111",
-//@property(nonatomic,copy) NSString *title;//": "标题标题标题标题标题标题",
+@property(nonatomic,copy) NSString *cardTitle;//": "标题标题标题标题标题标题",
 //@property(nonatomic,copy) NSString *url;//"
 
 
@@ -289,6 +475,8 @@ NS_ASSUME_NONNULL_BEGIN
  *  7 私有寒暄（包括第三方天气、快递接口）,8百科, 9 向导回答,10 业务接口    // 151 152 153 待接口 多轮会话的类型,1525 多轮触发留言
  */
 @property (nonatomic,assign) int answerType; //
+// 3.2.1添加，点踩、点赞回传给接口
+@property (nonatomic,copy) NSString  *gptAnswerType;
 @property (nonatomic,strong  ) NSString     *stripe;//": null,
 @property (nonatomic,strong) NSMutableArray  * suggestionList;//": null,
 @property (nonatomic,strong  ) NSString         *question;//": null,
@@ -378,6 +566,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic,copy) NSString *richmoreurl;
 
+//语音转换状态：-1 未转换，1 成功，0 失败
+@property(nonatomic,assign) int state;
+//语音内容信息
+@property(nonatomic,copy) NSString *voiceText;
+@property(nonatomic,assign) int voiceType;
+
 // 文件
 @property(nonatomic,copy) NSString *coverUrl;//": "",
 //@property(nonatomic,copy) NSString *fileName;//": "\r\n\tces.txt",
@@ -393,6 +587,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 //msgType=5,type!=0
 @property(nonatomic,strong) SobotChatRichContent *richContent;
+
+// msgType=5,type=20
+@property(nonatomic,strong) SobotChatCustomCard *customCard;
+
 // 文件类型,或富文本时，消息类型
 @property(nonatomic,assign) SobotMessageFileType fileType;
 
@@ -413,6 +611,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,strong) SobotChatRobotAnswerContent *robotAnswer;
 
 
+// -1未知，0自己，1对方，2机器人
+@property(nonatomic,assign) int appointType;
+// 引用消息
+@property(nonatomic,strong) SobotChatMessage *appointMessage;
 
 /**
  *  会话时间
@@ -424,6 +626,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic , strong) NSString *msgId;
 @property (nonatomic , strong) NSString *revokeMsgId;
+
+// 存储转入的留言模板id
+@property (nonatomic , strong) NSString *deployId;
 
 
 /**
@@ -506,6 +711,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic , assign) BOOL isRead;
 
+/*
+ * 0-未标记，1-未读，2-已读
+ */
+@property (nonatomic , assign) int readStatus;
+
 /**
  *  上传进度
  */
@@ -542,13 +752,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic , assign) int commentType;
 
-
 /**
  机器人显示转人工按钮
  YES 显示，NO不显示
  */
 @property (nonatomic , assign) BOOL showTurnUser;
-
 
 /**
  *  0 没有评价 1已解决  2未解决
@@ -574,14 +782,12 @@ NS_ASSUME_NONNULL_BEGIN
  **/
 @property (nonatomic,assign) BOOL userOffline;
 
-
 /**
  *
  *   revokeFlag  0    1 撤回 “显示 客服xxx 撤回了一条消息”
  *
  **/
 @property (nonatomic,assign) BOOL revokeFlag;
-
 
 
 /**
@@ -607,8 +813,38 @@ NS_ASSUME_NONNULL_BEGIN
 // 是否显示发送者信息
 @property (nonatomic , assign) BOOL isShowSenderFlag;
 
-@property (nonatomic,strong) NSMutableAttributedString         * _Nullable displayMsgAttr;
-@property (nonatomic,strong) NSMutableAttributedString         * _Nullable displaySugestionattr;
+//========================= 这些字段为了记录重新发送时 调用发送接口传入的之前传入的参数 start =========================
+// 消息内容，文件地址等
+@property (nonatomic,strong) NSString *content;
+
+// 如发送多伦时，发送的是json，实际显示的为单个字符串
+@property (nonatomic,strong) NSString *msgContent;
+@property (nonatomic,strong) NSString *question;
+@property (nonatomic,strong) NSString *requestText;
+
+// 0,普通消息，1，有docId的普通消息，2有docId的多伦消息
+@property (nonatomic,strong) NSString *questionFlag;
+@property (nonatomic,strong) NSString *docId;
+@property (nonatomic,strong) NSString *duration;
+@property (nonatomic,assign) int robotflag;
+
+// 内部知识库 fromEnum=4，机器人知识库=3 ，5快捷问
+@property (nonatomic,strong) NSString *fromEnum;
+
+// 卡片信息时，初始化本地模型
+/**
+ 位置：localName/lat/lng/localLabel/file
+ 视频：conver
+ 卡片：。。。
+ */
+@property (nonatomic,strong) NSDictionary *exParams;
+//========================= 这些字段为了记录重新发送时 调用发送接口传入的之前传入的参数 end =========================
+
+// 发生卡片的方式，0=进入会话记录,1=发送给客服或机器人
+@property (nonatomic,assign) NSInteger sendType; // 重新发送使用，发送自定义卡片类型的消息
+
+@property (nonatomic,strong) NSMutableAttributedString * _Nullable displayMsgAttr;
+@property (nonatomic,strong) NSMutableAttributedString * _Nullable displaySugestionattr;
 
 
 // 保证使用时不创建NSMutableAttributedString属性
@@ -620,6 +856,8 @@ NS_ASSUME_NONNULL_BEGIN
 -(NSString *) getModelDisplaySugestionText:(BOOL) createAttr;
 
 - (NSString *)getHtmlAttrStringWithText:(NSString *)text;
+// 不做html处理 只展示存文本
+-(NSString *)getModelDisplayTextUnHtml;
 @end
 
 

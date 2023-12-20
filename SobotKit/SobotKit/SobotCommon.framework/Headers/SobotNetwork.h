@@ -97,4 +97,15 @@ progress:(SobotProgressBlock) proressBlock;
      finish:(SobotFinishBlock )finishBlock
     progress:(SobotProgressBlock) proressBlock;
 
+
++(void)url:(NSString *) api_url
+     params:(NSDictionary *)paramters
+     header:(NSDictionary *)header
+ paramsMode:(SobotParameterMode )mode
+     mothed:(NSString *)mothed
+      begin:(SobotStartLoadingBlock) beginBlock
+    success:(SobotSuccessBlock) successBlock
+       fail:(SobotFailBlock) failBlock
+     finish:(SobotFinishBlock )finishBlock
+    progress:(SobotProgressBlock) proressBlock;
 @end

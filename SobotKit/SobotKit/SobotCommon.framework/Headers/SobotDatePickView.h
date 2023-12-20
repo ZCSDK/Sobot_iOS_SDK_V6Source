@@ -20,6 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SobotDatePickView : UIView
 
+@property (nonatomic,strong) UIButton * rightBtn;
+
+@property (nonatomic,copy) NSString *serverLocale;
+
+@property (nonatomic,strong) NSTimeZone *timeZone;
+
 @property(nonatomic,assign) id<SobotDatePickViewDelegate> delegate;
 // action:0，取消；1；搜索，2、筛选
 @property (nonatomic,strong) void(^onCommitListner)(NSString *resultText,NSInteger index);
@@ -53,6 +59,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 -(instancetype)initDatePickWithDate:(NSDate *)defaulDate datePickerMode:(UIDatePickerMode)datePickerMode isHaveNavControler:(BOOL)isHaveNavControler;
 
+
+/// 通过时间和语言创建一个DatePicker
+/// @param defaulDate defaulDate description
+/// @param datePickerMode datePickerMode description
+/// @param isHaveNavControler isHaveNavControler description
+/// @param serverLocale serverLocale description
+-(instancetype)initDatePickWithDate:(NSDate *)defaulDate datePickerMode:(UIDatePickerMode)datePickerMode isHaveNavControler:(BOOL)isHaveNavControler serverLocale:(NSString *)serverLocale;
+
+
+-(instancetype)initDatePickWithDate:(NSDate *)defaulDate datePickerMode:(UIDatePickerMode)datePickerMode isHaveNavControler:(BOOL)isHaveNavControler serverLocale:(NSString *)serverLocale timeZone:(NSTimeZone *)timeZone;
 /**
  *   移除本控件
  */
@@ -73,6 +89,10 @@ NS_ASSUME_NONNULL_BEGIN
  *  设置toobar的背景颜色
  */
 -(void)setToolbarTintColor:(UIColor *)color;
+
+
+
+-(void)setPickViewTitle:(NSString *)title;
 
 @end
 

@@ -8,17 +8,18 @@
 #import "ZCUIChatKeyboard.h"
 #import "ZCUIKitTools.h"
 #import "ZCUICore.h"
-#import "ZCUIRecordView.h"
 #import "ZCVideoViewController.h"
 #import "ZCAutoListView.h"
+#import "SobotSatisfactionView.h"
 
 #import "ZCLibCusMenu.h"
 #import "EmojiBoardView.h"
-
+#import "ZCStatusLab.h"
+#import "ZCObjButton.h"
 #define BottomButtonItemHSpace 20
 #define BottomButtonItemVSpace 8
 
-#define MoreViewHeight  170  //  2.8.0  270
+#define MoreViewHeight  241  //  2.8.0  270
 #define EmojiViewHeight 270 //  2.8.0  270
 #define MoreViewHorizontalHeight 120
 #define EmojiViewHorizontalHeight 120
@@ -72,9 +73,10 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
 /** 聊天页中UITableView 用于界面键盘高度处理 */
 @property (nonatomic,strong) UITableView *zc_listTable;
 
+@property (nonatomic,strong) ZCStatusLab *robotVioceTipLabel;
 
-@property (nonatomic,strong) ZCUIRecordView *zc_recordView;
-@property (nonatomic,strong) UILabel *robotVioceTipLabel;
+// 当前引用消息
+@property (nonatomic,strong) SobotChatMessage *referenceMessage;
 
 
 @property (nonatomic,strong) UIScrollView *zc_moreView;
@@ -88,6 +90,13 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
 // 当显示表情或更多键盘时，bottom底部线条
 @property (nonatomic,strong) UIView * bottomLineView;
 @property (nonatomic,strong) UIButton * _Nullable btnVoicePress;
+
+
+@property (nonatomic,strong) UIView * referenceView;
+@property (nonatomic,strong) UILabel *labReferencMessage;
+@property (nonatomic,strong) UIButton *btnClearReferenceMsg;
+@property (nonatomic,strong) NSLayoutConstraint * layoutReferenceH;
+@property (nonatomic,strong) NSLayoutConstraint * layoutReferenceBottom;
 
 
 /** 键盘高度 */
@@ -112,7 +121,8 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
 // 底部输入框父view底部间距
 @property (nonatomic,strong) NSLayoutConstraint *viewBottomConsSpace;
 // 底部输入框父view高度，输入框高度变化时使用
-@property (nonatomic,strong) NSLayoutConstraint *viewBottomConsHeight;
+// 4.1.0版本去除此约束，有chat_textView的高度控制整体高度
+//@property (nonatomic,strong) NSLayoutConstraint *viewBottomConsHeight;
 
 // 输入框高度
 @property (nonatomic,strong) NSLayoutConstraint *chatTextConsHeight;
@@ -126,6 +136,7 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
 // 重建会话/0或104
 @property (nonatomic,strong) NSLayoutConstraint *viewReConnectConsHeight;
 
+@property (nonatomic,strong) ZCVideoViewController *videoVC;// 临时变量 解决没有开启权限 进入拍照页面
 @end
 
 @implementation ZCUIChatKeyboard
@@ -171,24 +182,29 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         [_zc_bottomView addConstraint:sobotLayoutPaddingRight(0, lineView, _zc_bottomView)];
         [_zc_bottomView addConstraint:sobotLayoutPaddingTop(0, lineView, _zc_bottomView)];
         [_zc_bottomView addConstraint:sobotLayoutEqualHeight(1.0f, lineView, NSLayoutRelationEqual)];
-                
-        UIImageView *lineView2=[[UIImageView alloc] init];
-        lineView2.backgroundColor = [ZCUIKitTools zcgetChatBottomLineColor];
-        [_zc_bottomView addSubview:lineView2];
-        [_zc_bottomView addConstraint:sobotLayoutPaddingLeft(0, lineView2, _zc_bottomView)];
-        [_zc_bottomView addConstraint:sobotLayoutPaddingRight(0, lineView2, _zc_bottomView)];
-        [_zc_bottomView addConstraint:sobotLayoutPaddingBottom(-1, lineView2, _zc_bottomView)];
-        [_zc_bottomView addConstraint:sobotLayoutEqualHeight(1.0f, lineView2, NSLayoutRelationEqual)];
-        _bottomlineView = lineView2;
-        lineView2.hidden = YES;
-        _bottomLineView.hidden = YES;
+        
+        _referenceView = [[UIView alloc] init];
+        _referenceView.backgroundColor = UIColorFromKitModeColor(SobotColorBgF5);
+        _referenceView.layer.cornerRadius = 4.0f;
+        [_zc_bottomView addSubview:_referenceView];
+        [_zc_bottomView addConstraint:sobotLayoutPaddingLeft(16, _referenceView, _zc_bottomView)];
+        [_zc_bottomView addConstraint:sobotLayoutPaddingRight(-16, _referenceView, _zc_bottomView)];
+        
+        _layoutReferenceBottom = sobotLayoutPaddingBottom(0, _referenceView, _zc_bottomView);
+        [_zc_bottomView addConstraint:_layoutReferenceBottom];
+        _layoutReferenceH = sobotLayoutEqualHeight(0, _referenceView, NSLayoutRelationEqual);
+        [_zc_bottomView addConstraint:_layoutReferenceH];
+        
         _zc_chatTextView = [[ZCUIPlaceHolderTextView alloc] init];
 //        _zc_chatTextView.layer.cornerRadius                      = 16;
 //        _zc_chatTextView.layer.masksToBounds                     = YES;
 //        _zc_chatTextView.layer.borderColor                       = [ZCUIKitTools zcgetChatBottomLineColor].CGColor;
         if (iOS7) {
             // 关闭UITextView 非连续布局属性
-            _zc_chatTextView.layoutManager.allowsNonContiguousLayout = NO;
+            // 添加如下代码，会有：UITextView 0x7ff34a967c00 is switching to TextKit 1 compatibility mode because its layoutManager was accessed. Break on void _UITextViewEnablingCompatibilityMode(UITextView *__strong, BOOL) to debug.
+            _zc_chatTextView.layoutManager.allowsNonContiguousLayout = false;
+            _zc_chatTextView.layoutManager.usesFontLeading = false;
+
         }
         _zc_chatTextView.font                                    = [ZCUIKitTools zcgetListKitTitleFont];
         _zc_chatTextView.textColor                               = [ZCUIKitTools zcgetChatTextViewColor];
@@ -226,8 +242,9 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         [_btnVoicePress setTitle:SobotKitLocalString(@"按住 说话") forState:UIControlStateNormal];
         [_btnVoicePress setTitleColor:UIColorFromModeColor(SobotColorTextMain) forState:UIControlStateNormal];
         [_btnVoicePress setBackgroundImage:[SobotImageTools sobotImageWithColor:UIColorFromModeColor(SobotColorBgSub)] forState:UIControlStateNormal];
-        [_btnVoicePress setBackgroundImage:[SobotImageTools sobotImageWithColor:UIColorFromModeColor(SobotColorTextSub2)] forState:UIControlStateHighlighted];
+//        [_btnVoicePress setBackgroundImage:[SobotImageTools sobotImageWithColor:UIColorFromModeColor(SobotColorTextSub2)] forState:UIControlStateHighlighted];
         [_zc_bottomView addSubview:_btnVoicePress];
+        _btnVoicePress.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         
         [_btnVoicePress addTarget:self action:@selector(btnTouchDown:) forControlEvents:UIControlEventTouchDown];
         [_btnVoicePress addTarget:self action:@selector(btnTouchDownRepeat:) forControlEvents:UIControlEventTouchDownRepeat];
@@ -255,14 +272,16 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         [_zc_bottomView addConstraint:_btnVoiceConsLeft];
         [_zc_bottomView addConstraint:_btnVoiceConsWidth];
         [_zc_bottomView addConstraint:sobotLayoutEqualHeight(44, _btnVoice, NSLayoutRelationEqual)];
-        [_zc_bottomView addConstraint:sobotLayoutPaddingBottom(-spaceBottom, _btnVoice, _zc_bottomView)];
+//        [_zc_bottomView addConstraint:sobotLayoutPaddingBottom(-spaceBottom, _btnVoice, _zc_bottomView)];
+        [_zc_bottomView addConstraint:sobotLayoutMarginBottom(-spaceBottom, _btnVoice, _referenceView)];
         
         _btnMoreConsWidth = sobotLayoutEqualWidth(44, _btnMore, NSLayoutRelationEqual);
         [_zc_bottomView addConstraint:_btnMoreConsWidth];
         [_zc_bottomView addConstraint:sobotLayoutEqualHeight(44, _btnMore, NSLayoutRelationEqual) ];
         _btnMoreConsRight = sobotLayoutPaddingRight(-hSpace/2, _btnMore, _zc_bottomView) ;
         [_zc_bottomView addConstraint:_btnMoreConsRight];
-        [_zc_bottomView addConstraint:sobotLayoutPaddingBottom(-spaceBottom, _btnMore, _zc_bottomView)];
+//        [_zc_bottomView addConstraint:sobotLayoutPaddingBottom(-spaceBottom, _btnMore, _zc_bottomView)];
+        [_zc_bottomView addConstraint:sobotLayoutMarginBottom(-spaceBottom, _btnMore, _referenceView)];
         
         
         _btnFaceConsRight = sobotLayoutMarginRight(-hSpace, _btnFace, _btnMore) ;
@@ -270,14 +289,17 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         [_zc_bottomView addConstraint:_btnFaceConsWidth];
         [_zc_bottomView addConstraint:sobotLayoutEqualHeight(44, _btnFace, NSLayoutRelationEqual) ];
         [_zc_bottomView addConstraint:_btnFaceConsRight];
-        [_zc_bottomView addConstraint:sobotLayoutPaddingBottom(-spaceBottom, _btnFace, _zc_bottomView)];
+//        [_zc_bottomView addConstraint:sobotLayoutPaddingBottom(-spaceBottom, _btnFace, _zc_bottomView)];
+        [_zc_bottomView addConstraint:sobotLayoutMarginBottom(-spaceBottom, _btnFace, _referenceView)];
         
-        _chatTextConsHeight = sobotLayoutEqualHeight(35, _zc_chatTextView, NSLayoutRelationLessThanOrEqual);
+        _chatTextConsHeight = sobotLayoutEqualHeight(35, _zc_chatTextView, NSLayoutRelationEqual);
+        _chatTextConsHeight.priority = UILayoutPriorityDefaultHigh;
+        [_zc_bottomView addConstraint:_chatTextConsHeight];
+        [_zc_bottomView addConstraint:sobotLayoutPaddingTop(4+spaceBottom, _zc_chatTextView, _zc_bottomView)];
         [_zc_bottomView addConstraint:sobotLayoutMarginLeft(hSpace/2, _zc_chatTextView, _btnVoice)];
         [_zc_bottomView addConstraint:sobotLayoutMarginRight(-hSpace/2, _zc_chatTextView, _btnFace)];
-        [_zc_bottomView addConstraint:_chatTextConsHeight];
-        [_zc_bottomView addConstraint:sobotLayoutPaddingBottom(-4-spaceBottom, _zc_chatTextView, _zc_bottomView)];
-        [_zc_bottomView addConstraint:sobotLayoutPaddingTop(4+spaceBottom, _zc_chatTextView, _zc_bottomView)];
+//        [_zc_bottomView addConstraint:sobotLayoutPaddingBottom(-4-spaceBottom, _zc_chatTextView, _zc_bottomView)];
+        [_zc_bottomView addConstraint:sobotLayoutMarginBottom(-4-spaceBottom, _zc_chatTextView, _referenceView)];
         
         // 设置_btnVoicePress 与 chattext相同坐标
         [_zc_bottomView addConstraint:sobotLayoutPaddingTop(0, _btnVoicePress, _zc_chatTextView)];
@@ -291,7 +313,7 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         _viewMoreConsHeight = sobotLayoutEqualHeight(0, _zc_moreView, NSLayoutRelationEqual);
         [_ppView addConstraint:_viewMoreConsHeight];
         
-        [_ppView addConstraints:sobotLayoutPaddingView(0, -10, 10, -10, _facePageControl, _ppView)];
+//        [_ppView addConstraints:sobotLayoutPaddingView(0, -10, 10, -10, _facePageControl, _ppView)];
         
         [_ppView addConstraint:sobotLayoutPaddingLeft(0, _emojiView, _ppView)];
         [_ppView addConstraint:sobotLayoutPaddingRight(0, _emojiView, _ppView)];
@@ -312,7 +334,7 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         [_ppView addConstraint:sobotLayoutPaddingBottom(0, _zc_reConnectView, _ppView)];
         
         
-        _bottomlineView = [[UIView alloc]init];
+        _bottomlineView = [[UIImageView alloc]init];
         _bottomlineView.backgroundColor = [ZCUIKitTools zcgetChatBottomLineColor];
         [_zc_bottomView addSubview:_bottomlineView];
         
@@ -350,15 +372,15 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         [_ppView addConstraint:sobotLayoutPaddingLeft(0, _zc_bottomView, _ppView)];
         [_ppView addConstraint:sobotLayoutPaddingRight(0, _zc_bottomView, _ppView)];
         [_ppView addConstraint:_viewBottomConsSpace];
-        _viewBottomConsHeight = sobotLayoutEqualHeight(BottomHeight, _zc_bottomView, NSLayoutRelationEqual);
-        [_ppView addConstraint:_viewBottomConsHeight];
+//        _viewBottomConsHeight = sobotLayoutEqualHeight(BottomHeight, _zc_bottomView, NSLayoutRelationEqual);
+//        [_ppView addConstraint:_viewBottomConsHeight];
     }
     return _zc_bottomView;
 }
 
 -(UIView *)createVioceTipLabel{
     if (!_robotVioceTipLabel) {
-        _robotVioceTipLabel = [[UILabel alloc]init];
+        _robotVioceTipLabel = [[ZCStatusLab alloc]init];
 //        _vioceTipLabel.backgroundColor = UIColorFromRGBAlpha(0xa1a6b3, 0.9);
         _robotVioceTipLabel.backgroundColor = UIColorFromModeColorAlpha(SobotColorTextSub, 0.9);
         _robotVioceTipLabel.textColor = UIColorFromModeColor(SobotColorWhite);
@@ -367,8 +389,11 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         _robotVioceTipLabel.text = SobotKitLocalString(@"机器人咨询模式下，语音将自动转化为文字发送");
         [_ppView addSubview:_robotVioceTipLabel];
         _robotVioceTipLabel.hidden = YES;
+        _robotVioceTipLabel.numberOfLines = 0;
+        _robotVioceTipLabel.textInsets = UIEdgeInsetsMake(10.f, 15.0f, 10.f, 15.0f);
         
-        [_ppView addConstraint:sobotLayoutEqualHeight(30, _robotVioceTipLabel, NSLayoutRelationEqual)];
+      CGFloat lh = [SobotUITools getHeightContain:SobotKitLocalString(@"机器人咨询模式下，语音将自动转化为文字发送") font:SobotFont12 Width:_ppView.frame.size.width-30];
+        [_ppView addConstraint:sobotLayoutEqualHeight(lh + 20, _robotVioceTipLabel, NSLayoutRelationEqual)];
         [_ppView addConstraint:sobotLayoutPaddingLeft(0, _robotVioceTipLabel, _ppView)];
         [_ppView addConstraint:sobotLayoutPaddingRight(0, _robotVioceTipLabel, _ppView)];
         [_ppView addConstraint:sobotLayoutMarginBottom(0, _robotVioceTipLabel, _zc_bottomView)];
@@ -397,7 +422,10 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
             if([self getLibConfig].ustatus == -2){
                 [self setKeyboardMenuByStatus:ZCKeyboardStatusWaiting];
             }else{
-                [self setKeyboardMenuByStatus:ZCKeyboardStatusNewSession];
+                if ([self getLibConfig].ustatus != 1) {
+//                    [self setKeyboardMenuByStatus:ZCKeyboardStatusNewSession];
+                    [self setKeyboardMenuByStatus:ZCKeyboardStatusRobot];
+                }
             }
         }else{
             [self setKeyboardMenuByStatus:ZCKeyboardStatusRobot];
@@ -432,6 +460,10 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
 //        if(config.type == 3 || config.type == 4){
 //            _btnConnectUser.hidden = NO;
 //        }
+        
+        // 4.0.5机器人也可以发emoji
+        _btnFace.hidden = NO;
+        
         if([ZCUICore getUICore].kitInfo.isOpenRecord && [ZCUICore getUICore].kitInfo.isOpenRobotVoice){
             _btnVoice.hidden = NO;
         }
@@ -543,7 +575,6 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     [[ZCAutoListView getAutoListView] dissmiss];
     [self textChanged:_zc_chatTextView];
     [self sendMessageOrFile:text type:SobotMessageTypeText duration:@"" dict:nil];
-    
 }
 
 
@@ -553,7 +584,17 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         [[ZCUICore getUICore] addMessageToList:SobotMessageActionTypeOverWord content:@"" type:SobotMessageTypeTipsText dict:nil];
         return;
     }
-    [[ZCUICore getUICore] sendMessage:filePath type:type exParams:dict duration:duration];
+    if(type == SobotMessageTypeText){
+        // 此页面只能发送普通基础类型，所以写死了SobotMessageRichJsonTypeText
+        // 添加引用消息
+        [[ZCUICore getUICore] sendMessage:filePath type:type exParams:dict duration:duration richType:SobotMessageRichJsonTypeText obj:self.referenceMessage];
+        
+        // 发送完，取消引用消息
+        [self hideReferenceView];
+    }else{
+        // 此页面只能发送普通基础类型，所以写死了SobotMessageRichJsonTypeText
+        [[ZCUICore getUICore] sendMessage:filePath type:type exParams:dict duration:duration richType:SobotMessageRichJsonTypeText];
+    }
 }
 
 
@@ -572,6 +613,7 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     if(_curKeyboardStatus == ZCKeyboardStatusWaiting){
         return;
     }
+    [_zc_chatTextView setHidden:NO];
     
     // 执行转人工
     if(btn.tag == BUTTON_CONNECT_USER){
@@ -584,10 +626,11 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         
         [self setItemButtonDefaultStatus];
         if(_btnVoicePress.isHidden){
+            [_zc_chatTextView setHidden:YES];
            _btnVoicePress.hidden = NO;
-            
             _robotVioceTipLabel.hidden = YES;
-            
+            _chatTextConsHeight.constant = 35; // 重置此高度
+//            _viewBottomConsHeight.constant = BottomHeight; // 设置约束
             if([ZCUICore getUICore].kitInfo.isOpenRecord && [ZCUICore getUICore].kitInfo.isOpenRobotVoice && ![ZCUICore getUICore].getLibConfig.isArtificial){
                 _robotVioceTipLabel.hidden = NO;
             }
@@ -595,15 +638,18 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
             [_btnVoice setImage:SobotKitGetImage(@"zcicon_keyboard_normal") forState:UIControlStateNormal];
             [_btnVoice setImage:SobotKitGetImage(@"zcicon_keyboard_pressed") forState:UIControlStateHighlighted];
         }else{
+            // 重新计算输入框的约束，对应显示时的35高度设置
+            [self textViewDidChange:_zc_chatTextView];
             _btnVoicePress.hidden = YES;
             _robotVioceTipLabel.hidden = YES;
+            [_zc_chatTextView setHidden:NO];
         }
         
     }
     
     // 显示表情
     if(btn.tag == BUTTON_ADDFACEVIEW){
-        
+        _facePageControl.hidden = YES;// 查看更多的时候再判断是否显示
         BOOL isShowFaceView = NO;
         // 已经有显示了，判断当前是否显示的表情
         if(_zc_keyBoardHeight > 0){
@@ -620,6 +666,7 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
             _emojiView.hidden = NO;
             _zc_moreView.hidden = YES;
             _bottomlineView.hidden = YES;
+            _btnVoicePress.hidden = YES;
             [_zc_listTable addGestureRecognizer:_tapRecognizer];
             _zc_keyBoardHeight = EmojiViewHeight;
             if (SobotViewHeight(self->_ppView) < SobotViewWidth(self->_ppView)) {
@@ -646,6 +693,7 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     
     // 点击更多
     if(btn.tag == BUTTON_ADDMORE){
+        _facePageControl.hidden = YES;// 查看更多的时候再判断是否显示
         BOOL isShowMoreView = NO;
         // 当前是否显示的更多键盘
         if(_zc_keyBoardHeight > 0){
@@ -665,12 +713,12 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
             [_zc_listTable addGestureRecognizer:_tapRecognizer];
             [self createMoreItems]; // 这里先获取总个数
             _zc_keyBoardHeight = MoreViewHeight;
-            if(allSubMenuSize <= 4){
+            if(allSubMenuSize <= 3){
                 _zc_keyBoardHeight =  110;
             }
-            if (SobotViewHeight(self->_ppView) < SobotViewWidth(self->_ppView)) {
-                _zc_keyBoardHeight = MoreViewHorizontalHeight;
-            }
+//            if (SobotViewHeight(self->_ppView) < SobotViewWidth(self->_ppView)) {
+//                _zc_keyBoardHeight = MoreViewHorizontalHeight;
+//            }
             _viewMoreConsHeight.constant = _zc_keyBoardHeight;
 
             _viewBottomConsSpace.constant = -_zc_keyBoardHeight;
@@ -715,8 +763,12 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         // 所有类型
         //        UIDocumentPickerViewController* docPciter =  [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.data"] inMode:UIDocumentPickerModeImport];
         docPciter.delegate = self;
-        if ([UIDevice currentDevice].systemVersion.floatValue >= 11.0) {
-            docPciter.allowsMultipleSelection = NO;
+        if(sobotGetSystemDoubleVersion()>=11.0){
+            if (@available(iOS 11.0, *)) {
+                docPciter.allowsMultipleSelection = NO;
+            } else {
+                // Fallback on earlier versions
+            }
         } else {
             // Fallback on earlier versions
         }
@@ -751,14 +803,16 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
             isEvalutionAdmin = [ZCUICore getUICore].isAdminServerBeforeCloseSession;
         }
         
-        [[ZCUICore getUICore] checkSatisfacetion:isEvalutionAdmin type:SatisfactionTypeKeyboard];
+        [[ZCUICore getUICore] checkSatisfacetion:isEvalutionAdmin type:SobotSatisfactionFromSrouceNewSession];
+        
+//        SobotSatisfactionView *view = [[SobotSatisfactionView alloc] initActionSheetWith:nil config:nil cView:nil];
+//        [view showSatisfactionView];
     }
     
     // 自定义事件
     if(btn.tag >= 1000){
         ZCLibCusMenu *menu = btn.obj;
         if(![@"" isEqual:menu.url]){
-            
             [[ZCUICore getUICore] dealWithLinkClickWithLick:menu.url viewController:[SobotUITools getCurrentVC]];
         }
     }
@@ -860,26 +914,46 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     [_zc_reConnectView addConstraint:sobotLayoutEqualWidth(1, line1, NSLayoutRelationEqual)];
     [_zc_reConnectView addConstraint:sobotLayoutMarginLeft(10, line1, btn2)];
     
-    UIButton *btn3 = [self addReConnectItems:BUTTON_EVALUATION];
+    UIButton *btn3 ;
+    if(![ZCUICore getUICore].kitInfo.hideBottomEvaluation){
+      btn3 = [self addReConnectItems:BUTTON_EVALUATION];
+    }
+   
     // 开启留言
     if ([self getZCLibConfig].msgFlag == 0 && ![ZCUICore getUICore].kitInfo.hideBottomLeave) {
         if([self getZCLibConfig].isArtificial && [self getZCLibConfig].msgToTicketFlag == 2){
             // 2.8.9人工状态，留言转离线消息，不处理
-            [_zc_reConnectView addConstraints:sobotLayoutEqualWidthSubView(10, btn2,  @[btn2,btn3])];
+            if(![ZCUICore getUICore].kitInfo.hideBottomEvaluation){
+                [_zc_reConnectView addConstraints:sobotLayoutEqualWidthSubView(10, btn2,  @[btn2,btn3])];
+            }else{
+                [_zc_reConnectView addConstraints:sobotLayoutEqualWidthSubView(10, btn2,  @[btn2])];
+            }
             [_zc_reConnectView addConstraint:sobotLayoutPaddingLeft(10, btn2, _zc_reConnectView)];
         }else{
-            [_zc_reConnectView addConstraints:sobotLayoutEqualWidthSubView(10, btn1, @[btn1,btn2,btn3])];
+            if(![ZCUICore getUICore].kitInfo.hideBottomEvaluation){
+                [_zc_reConnectView addConstraints:sobotLayoutEqualWidthSubView(10, btn1, @[btn1,btn2,btn3])];
+            }else{
+                [_zc_reConnectView addConstraints:sobotLayoutEqualWidthSubView(10, btn1, @[btn1,btn2])];
+            }
             [_zc_reConnectView addConstraint:sobotLayoutPaddingLeft(10, btn1, _zc_reConnectView)];
         }
     }else{
-        
-        [_zc_reConnectView addConstraints:sobotLayoutEqualWidthSubView(10, btn2,  @[btn2,btn3])];
+        if(![ZCUICore getUICore].kitInfo.hideBottomEvaluation){
+            [_zc_reConnectView addConstraints:sobotLayoutEqualWidthSubView(10, btn2,  @[btn2,btn3])];
+        }else{
+            [_zc_reConnectView addConstraints:sobotLayoutEqualWidthSubView(10, btn2,  @[btn2])];
+        }
         [_zc_reConnectView addConstraint:sobotLayoutPaddingLeft(10, btn2, _zc_reConnectView)];
     }
-    [_zc_reConnectView addConstraint:sobotLayoutPaddingRight(-10, btn3, _zc_reConnectView)];
-        
+    if(![ZCUICore getUICore].kitInfo.hideBottomEvaluation){
+        [_zc_reConnectView addConstraint:sobotLayoutPaddingRight(-10, btn3, _zc_reConnectView)];
+    }else{
+        [_zc_reConnectView addConstraint:sobotLayoutPaddingRight(-10, btn2, _zc_reConnectView)];
+    }
+    
     _viewReConnectConsHeight.constant = ZCConnectBottomHeight;
-    _viewBottomConsSpace.constant = -(ZCConnectBottomHeight - _viewBottomConsHeight.constant);
+//    _viewBottomConsSpace.constant = -(ZCConnectBottomHeight - _viewBottomConsHeight.constant);
+    _chatTextConsHeight.constant = 35 + (ZCConnectBottomHeight - BottomHeight);
     
     [_zc_reConnectView layoutIfNeeded];
     [_zc_bottomView layoutIfNeeded];
@@ -936,10 +1010,11 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     lab.font = SobotFont13;
     lab.textColor = UIColorFromModeColor(SobotColorTextMain);
     lab.textAlignment = NSTextAlignmentCenter;
+    lab.numberOfLines = 2;
+    lab.lineBreakMode = NSLineBreakByTruncatingTail;
     [btn1 addSubview:lab];
     [btn1 addConstraint:sobotLayoutPaddingLeft(0, lab, btn1)];
     [btn1 addConstraint:sobotLayoutPaddingRight(0, lab, btn1)];
-    [btn1 addConstraint:sobotLayoutEqualHeight(15, lab, NSLayoutRelationEqual)];
     [btn1 addConstraint:sobotLayoutPaddingBottom(0, lab, btn1)];
     
     if(tag == BUTTON_LEAVEMESSAGE){
@@ -956,11 +1031,21 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     }else if(tag == BUTTON_EVALUATION){
 //        [btn1 setTitle:SobotKitLocalString(@"评价") forState:0];
 //        [btn1 setImage:SobotKitGetImage(@"zcicon_bottombar_satisfaction") forState:UIControlStateNormal];
-        lab.text = SobotKitLocalString(@"评价");
+        lab.text = SobotKitLocalString(@"服务评价");
         [imgview setImage:SobotKitGetImage(@"zcicon_bottombar_satisfaction")];
     }
+    
+    CGFloat lh = [SobotUITools getHeightContain:lab.text font:SobotFont10 Width:70];
+    if (lh >=21) {
+        [btn1.titleLabel setFont:SobotFont8];
+        [btn1 addConstraint:sobotLayoutEqualHeight(21, lab, NSLayoutRelationEqual)];
+    }else{
+        [btn1.titleLabel setFont:SobotFont10];
+        [btn1 addConstraint:sobotLayoutEqualHeight(15, lab, NSLayoutRelationEqual)];
+    }
+    
     [btn1 addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
-    [btn1.titleLabel setFont:SobotFont13];
+
     [_zc_reConnectView addSubview:btn1];
     [_zc_reConnectView addConstraint:sobotLayoutPaddingTop(10, btn1,_zc_reConnectView)];
     [_zc_reConnectView addConstraint:sobotLayoutEqualHeight(54, btn1, NSLayoutRelationEqual)];
@@ -1162,7 +1247,7 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
 
 
 -(void)setRecordButtonState:(RecordState) state{
-    [_btnVoicePress setBackgroundColor:UIColorFromModeColor(SobotColorTextSub)];
+//    [_btnVoicePress setBackgroundColor:UIColorFromModeColor(SobotColorTextSub)];
     if(state == RecordCancel){
         [_btnVoicePress setTitle:SobotKitLocalString(@"按住 说话") forState:UIControlStateNormal];
         _btnVoice.enabled = YES;
@@ -1220,7 +1305,19 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     }else if(type == RecordCancel){
         [self sendMessageOrFile:@"" type:SobotMessageTypeCancelSound duration:[NSString stringWithFormat:@"%d",(int)duration] dict:nil];
 //        [[ZCUICore getUICore] sendMessage:@"" questionId:@"" type:ZCMessagetypeCancelSound duration:[NSString stringWithFormat:@"%d",(int)duration]];
+        // 录音结束了，要恢复按钮的状态
+        [self updateBtnVoicePressStatus];
     }
+}
+
+#pragma mark 设置录音按钮为可点击状态
+-(void)updateBtnVoicePressStatus{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        self->_btnVoice.enabled = YES;
+        self->_btnMore.enabled = YES;
+        self->_btnFace.enabled = YES;
+        [self->_btnVoicePress setTitle:SobotKitLocalString(@"按住 说话") forState:UIControlStateNormal];
+    });
 }
 #pragma mark -- 表情键盘代理事件
 /**
@@ -1330,57 +1427,44 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
 
 
 - (void)judgmentAuthority{
-    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    if(authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied){
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSString *aleartMsg = @"";
-            aleartMsg = SobotKitLocalString(@"请在《设置 - 隐私 - 相机》选项中，允许访问您的相机");
-            
-            [SobotUITools showAlert:nil message:aleartMsg cancelTitle:SobotKitLocalString(@"好的") titleArray:nil viewController:[SobotUITools getCurrentVC] confirm:^(NSInteger buttonTag) {
-                if(buttonTag == -1){
-                    NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-                    if ([[UIApplication sharedApplication] canOpenURL:url]) {
-                       [[UIApplication sharedApplication] openURL:url];
-                    }
-                }
-            }];
-        });
-    }
-    //获取访问相机权限时，弹窗的点击事件获取
-    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-        if (granted) {
-            
-            AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
-            if(authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied){
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSString *aleartMsg = @"";
-                    aleartMsg = SobotKitLocalString(@"请在《设置 - 隐私 - 麦克风》选项中，允许访问您的麦克风");
-                    [SobotUITools showAlert:nil message:aleartMsg cancelTitle:SobotKitLocalString(@"好的") titleArray:nil viewController:[SobotUITools getCurrentVC] confirm:^(NSInteger buttonTag) {
+    
+   NSString *authStatustr =  [SobotCache getLocalParamter:@"sobot_AVAuthorizationStatus"];
+    if(sobotConvertToString(authStatustr).length > 0){
+        AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+        if( authStatus == AVAuthorizationStatusNotDetermined || authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSString *aleartMsg = @"";
+                aleartMsg = SobotKitLocalString(@"请在《设置 - 隐私 - 相机》选项中，允许访问您的相机");
+                
+                [SobotUITools showAlert:nil message:aleartMsg cancelTitle:SobotKitLocalString(@"好的") titleArray:nil viewController:[SobotUITools getCurrentVC] confirm:^(NSInteger buttonTag) {
+                    // 没有权限 并且进入了 拍照页面 退出
+                    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+                    if(authStatus == AVAuthorizationStatusNotDetermined || authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied){
+                        if(!sobotIsNull(self.videoVC)){
+                            [self.videoVC dismissViewControllerAnimated:YES completion:nil];
+                        }
+                        // 没有权限才去跳转，有就不跳转了
                         if(buttonTag == -1){
                             NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
                             if ([[UIApplication sharedApplication] canOpenURL:url]) {
                                [[UIApplication sharedApplication] openURL:url];
                             }
                         }
-                    }];
-                });
-            }
-            //获取访问相机权限时，弹窗的点击事件获取
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
-                if (granted) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self openCamera];
-                    });
-                } else {
-                }
-            }];
+                    }
+                }];
+            });
+            return;
         }
-    }];
+        
+    }
+
+    [self openCamera];
 }
 
 - (void)openCamera{
     __weak  ZCUIChatKeyboard *keyboardSelf  = self;
     ZCVideoViewController *vc = [[ZCVideoViewController alloc] init];
+    self.videoVC = vc;
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     [vc setOperationResultBlock:^(id  _Nonnull item) {
         if([item isKindOfClass:[UIImage class]]){
@@ -1416,11 +1500,13 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     
     UIImage *originImage = image;
     if (image.imageOrientation != UIImageOrientationUp){
-        UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
-        [image drawInRect:(CGRect){0, 0, image.size}];
-        originImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        
+        // 这里需要注意iOS17的问题 size 里面不能有为0的场景
+        if(image.size.width >0 && image.size.height >0){
+            UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
+            [image drawInRect:(CGRect){0, 0, image.size}];
+            originImage = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+        }
     }
     
     if (originImage) {
@@ -1487,147 +1573,170 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     menu7.title = SobotKitLocalString(@"视频");
     menu7.extModelType = 8;
     menu7.lableId = BUTTON_AddVideo;
-
     
+    NSString *version= [UIDevice currentDevice].systemVersion;
 //    （1.留言 2 服务评价 3文件 (4表情  5截图  6自定义跳转链接) 7 图片 8 视频 9 拍摄）
     // 初始化接口返回的
-    if(!sobotIsNull([ZCUICore getUICore].getLibConfig.appExtModelList)){
-        for (ZCLibExtModel *extModel in [ZCUICore getUICore].getLibConfig.appExtModelList) {
+    NSMutableArray *modelList = [ZCUICore getUICore].getLibConfig.appExtModelList;
+    if([self getLibConfig].isArtificial){
+        modelList = [ZCUICore getUICore].getLibConfig.appExtModelManList;
+    }
+    if(!sobotIsNull(modelList) && modelList.count > 0){
+        for (ZCLibExtModel *extModel in modelList) {
             if([extModel.extModelType intValue] == 1){
                 menu2.extModelPhoto = extModel.extModelPhoto;
                 menu2.title = SobotKitLocalString(sobotConvertToString(extModel.extModelName));
                 menu2.isSave = YES;
+                if ([self getZCLibConfig].msgFlag == 0) {
+                    [titles addObject:menu2];
+                }
             }else if ([extModel.extModelType intValue] == 2){
                 menu1.extModelPhoto = extModel.extModelPhoto;
                 menu1.title = SobotKitLocalString(sobotConvertToString(extModel.extModelName));
                 menu1.isSave = YES;
+                [titles addObject:menu1];
             }else if ([extModel.extModelType intValue] == 3){
                 menu5.extModelPhoto = extModel.extModelPhoto;
                 menu5.title = SobotKitLocalString(sobotConvertToString(extModel.extModelName));
                 menu5.isSave = YES;
+                // [self getZCLibConfig].isArtificial &&
+                if ( version.doubleValue >= 12.0) {
+                    [titles addObject:menu5];
+                }
             }else if ([extModel.extModelType intValue] == 7){
                 menu3.extModelPhoto = extModel.extModelPhoto;
                 menu3.title = SobotKitLocalString(sobotConvertToString(extModel.extModelName));
                 menu3.isSave = YES;
+//                if ([self getZCLibConfig].isArtificial) {
+                    [titles addObject:menu3];
+//                }
             }else if ([extModel.extModelType intValue] == 8){
                 menu7.extModelPhoto = extModel.extModelPhoto;
                 menu7.title = SobotKitLocalString(sobotConvertToString(extModel.extModelName));
                 menu7.isSave = YES;
+//                if ([self getZCLibConfig].isArtificial) {
+                    [titles addObject:menu7];
+//                }
             }else if ([extModel.extModelType intValue] == 9){
                 menu4.extModelPhoto = extModel.extModelPhoto;
                 menu4.title = SobotKitLocalString(sobotConvertToString(extModel.extModelName));
                 menu4.isSave = YES;
+//                if ([self getZCLibConfig].isArtificial) {
+                    [titles addObject:menu4];
+//                }
             }
         }
     }
     
-    if (![self getZCLibConfig].isArtificial || [ZCUICore getUICore].isAfterConnectUser) {
-        if ([self getZCLibConfig].msgFlag == 0) {
-//            titles = [NSMutableArray arrayWithObjects:menu2,menu1, nil];
-            if(menu2.isSave){
-                [titles addObject:menu2];
-            }
-            if(menu1.isSave){
-                [titles addObject:menu1];
-            }
-        }else{
-//            titles = [NSMutableArray arrayWithObjects:menu1, nil];
-            if(menu1.isSave){
-                [titles addObject:menu1];
-            }
-        }
-    }else{
-        //        titles = [NSMutableArray arrayWithObjects:menu3,menu5,menu4,menu1, nil];
-        
-        NSString *version= [UIDevice currentDevice].systemVersion;
-        if(version.doubleValue >= 12.0) {
-            // 针对 12.0 以上的iOS系统进行处理
-            // 是否开启留言,并且不是留言转离线消息
-           if ([self getZCLibConfig].msgFlag == 0 && [self getZCLibConfig].msgToTicketFlag != 2) {
-//               titles = [NSMutableArray arrayWithObjects:menu3,menu4,menu5,menu2,menu1, nil];
-               if(menu3.isSave){
-                   [titles addObject:menu3];
-               }
-               if(menu4.isSave){
-                   [titles addObject:menu4];
-               }
-               if(menu5.isSave){
-                   [titles addObject:menu5];
-               }
-               if(menu2.isSave){
-                   [titles addObject:menu2];
-               }
-               if(menu1.isSave){
-                   [titles addObject:menu1];
-               }
-               if(menu7.isSave){
-                   [titles addObject:menu7];
-               }
-           }else{
-//               titles = [NSMutableArray arrayWithObjects:menu3,menu4,menu5,menu1, nil];
-               if(menu3.isSave){
-                   [titles addObject:menu3];
-               }
-               if(menu4.isSave){
-                   [titles addObject:menu4];
-               }
-               if(menu5.isSave){
-                   [titles addObject:menu5];
-               }
-               if(menu1.isSave){
-                   [titles addObject:menu1];
-               }
-               if(menu7.isSave){
-                   [titles addObject:menu7];
-               }
-           }
-            
-        }else{
-            // 针对 12.0 以下的iOS系统进行处理
-            if ([self getZCLibConfig].msgFlag == 0 && [self getZCLibConfig].msgToTicketFlag != 2) {
-//                titles = [NSMutableArray arrayWithObjects:menu3,menu4,menu2,menu1, nil];
-                if(menu3.isSave){
-                    [titles addObject:menu3];
-                }
-                if(menu4.isSave){
-                    [titles addObject:menu4];
-                }
-                if(menu2.isSave){
-                    [titles addObject:menu2];
-                }
-                if(menu1.isSave){
-                    [titles addObject:menu1];
-                }
-                if(menu7.isSave){
-                    [titles addObject:menu7];
-                }
-            }else{
-//                titles = [NSMutableArray arrayWithObjects:menu3,menu4,menu1, nil];
-                if(menu3.isSave){
-                    [titles addObject:menu3];
-                }
-                if(menu4.isSave){
-                    [titles addObject:menu4];
-                }
-                if(menu1.isSave){
-                    [titles addObject:menu1];
-                }
-                if(menu7.isSave){
-                    [titles addObject:menu7];
-                }
-            }
-        }
-       
-       // 发送定位
-        if([ZCUICore getUICore].kitInfo.canSendLocation){
-            ZCLibCusMenu *menu6 = [[ZCLibCusMenu alloc] init];
-            menu6.imgName = @"zcicon_location";
-            menu6.imgNamePress = @"zcicon_location";
-            menu6.title = SobotKitLocalString(@"位置");
-            menu6.lableId = BUTTON_AddLocation;
-            [titles addObject:menu6];
-        }
-    }
+    
+    // 机器人的模式
+//    if (![self getZCLibConfig].isArtificial || [ZCUICore getUICore].isAfterConnectUser) {
+//        if ([self getZCLibConfig].msgFlag == 0) {
+////            titles = [NSMutableArray arrayWithObjects:menu2,menu1, nil];
+//            if(menu2.isSave){
+//                [titles addObject:menu2];
+//            }
+//            if(menu1.isSave){
+//                [titles addObject:menu1];
+//            }
+//        }else{
+////            titles = [NSMutableArray arrayWithObjects:menu1, nil];
+//            if(menu1.isSave){
+//                [titles addObject:menu1];
+//            }
+//        }
+//    }else{
+//        //        titles = [NSMutableArray arrayWithObjects:menu3,menu5,menu4,menu1, nil];
+//        //人工的模式
+//        NSString *version= [UIDevice currentDevice].systemVersion;
+//        if(version.doubleValue >= 12.0) {
+//            // 针对 12.0 以上的iOS系统进行处理
+//            // 是否开启留言,并且不是留言转离线消息
+//           if ([self getZCLibConfig].msgFlag == 0 && [self getZCLibConfig].msgToTicketFlag != 2) {
+////               titles = [NSMutableArray arrayWithObjects:menu3,menu4,menu5,menu2,menu1, nil];
+//               if(menu3.isSave){
+//                   [titles addObject:menu3];
+//               }
+//               if(menu4.isSave){
+//                   [titles addObject:menu4];
+//               }
+//               if(menu5.isSave){
+//                   [titles addObject:menu5];
+//               }
+//               if(menu2.isSave){
+//                   [titles addObject:menu2];
+//               }
+//               if(menu1.isSave){
+//                   [titles addObject:menu1];
+//               }
+//               if(menu7.isSave){
+//                   [titles addObject:menu7];
+//               }
+//           }else{
+////               titles = [NSMutableArray arrayWithObjects:menu3,menu4,menu5,menu1, nil];
+//               if(menu3.isSave){
+//                   [titles addObject:menu3];
+//               }
+//               if(menu4.isSave){
+//                   [titles addObject:menu4];
+//               }
+//               if(menu5.isSave){
+//                   [titles addObject:menu5];
+//               }
+//               if(menu1.isSave){
+//                   [titles addObject:menu1];
+//               }
+//               if(menu7.isSave){
+//                   [titles addObject:menu7];
+//               }
+//           }
+//            
+//        }else{
+//            // 针对 12.0 以下的iOS系统进行处理
+//            if ([self getZCLibConfig].msgFlag == 0 && [self getZCLibConfig].msgToTicketFlag != 2) {
+////                titles = [NSMutableArray arrayWithObjects:menu3,menu4,menu2,menu1, nil];
+//                if(menu3.isSave){
+//                    [titles addObject:menu3];
+//                }
+//                if(menu4.isSave){
+//                    [titles addObject:menu4];
+//                }
+//                if(menu2.isSave){
+//                    [titles addObject:menu2];
+//                }
+//                if(menu1.isSave){
+//                    [titles addObject:menu1];
+//                }
+//                if(menu7.isSave){
+//                    [titles addObject:menu7];
+//                }
+//            }else{
+////                titles = [NSMutableArray arrayWithObjects:menu3,menu4,menu1, nil];
+//                if(menu3.isSave){
+//                    [titles addObject:menu3];
+//                }
+//                if(menu4.isSave){
+//                    [titles addObject:menu4];
+//                }
+//                if(menu1.isSave){
+//                    [titles addObject:menu1];
+//                }
+//                if(menu7.isSave){
+//                    [titles addObject:menu7];
+//                }
+//            }
+//        }
+//       
+//       // 发送定位
+//        if([ZCUICore getUICore].kitInfo.canSendLocation){
+//            ZCLibCusMenu *menu6 = [[ZCLibCusMenu alloc] init];
+//            menu6.imgName = @"zcicon_location";
+//            menu6.imgNamePress = @"zcicon_location";
+//            menu6.title = SobotKitLocalString(@"位置");
+//            menu6.lableId = BUTTON_AddLocation;
+//            [titles addObject:menu6];
+//        }
+//    }
     if([ZCUICore getUICore].kitInfo.hideMenuSatisfaction){
         [titles removeObject:menu1];
     }
@@ -1705,9 +1814,10 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     if(titles.count == 0){
         return;
     }
-//    CGFloat itemH = 109;
-    CGFloat itemH = 70;
-    int columns  = 4;
+    CGFloat itemH = 89;
+//    CGFloat itemH = 70;
+    CGFloat itemW = 80;
+    int columns  = 3;
     int allSize  = (int)titles.count;
     allSubMenuSize = allSize;
     // 获取最大行数，确定moreView最大高度
@@ -1717,50 +1827,93 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     }
     // 横屏最多显示一行
     CGFloat moreHeight = MoreViewHeight;
-    if(allSize <= 4){
+    if(allSize <= 3){
         moreHeight = MoreViewHeight/2;
     }
     if ([self getSourceViewHeight] < [self getSourceViewWidth]) {
         moreHeight = MoreViewHorizontalHeight;
         rows = 1;
     }
-    int pageSize = rows * columns;
     
-    int pageNum = (allSize%pageSize==0) ? (allSize/pageSize) : (allSize/pageSize+1);
+    int pages = 0;
+    if (allSize % 6 == 0) {
+        pages = allSize/6;
+    }else{
+        pages = allSize/6 + 1;
+    }
+    int pageNum = 1;
+    pageNum = pages;
+
+    int spec = ([self getSourceViewWidth] - itemW * 3)/4;// 列之间的间隔
+//    if ([self getSourceViewHeight] < [self getSourceViewWidth]) {
+//        spec = ([self getSourceViewHeight] - itemW * 3)/4;
+//    }
     
-    CGFloat sx = ([self getSourceViewHeight] > [self getSourceViewWidth]) ?  25.0f*[self getSourceViewWidth]/375 : 25.0f*[self getSourceViewWidth]/667;
+   
     for (int i= 0 ; i< pageNum ; i++) {
         CGFloat my = 15;
         CGFloat mx = 0;
         
-        for(int j=0;j<pageSize;j++){
-            if((i*pageSize+j)>=allSize){
+//        CGFloat sx = ([self getSourceViewHeight] > [self getSourceViewWidth]) ?  ([self getSourceViewWidth] -3*itemW)/4 : 25.0f*[self getSourceViewWidth]/[self getSourceViewHeight];
+        CGFloat sx =  ([self getSourceViewWidth] -3*itemW)/4 ;
+        
+        // 每次超过6个换一组新的数据
+        int forSize = 0;
+        if (i == 0) {
+            if (allSize - 6 >= 0) {
+                forSize = 6;
+            }else{
+                forSize = allSize;
+            }
+        }else{
+            if (allSize <= 6) {
+                forSize = allSize;
+            }else{
+                forSize = allSize - i*6;
+                if (forSize <= 0) {
+                    forSize = i*6 - allSize;
+                }else{
+                    forSize = 6;
+                }
+            }
+        }
+        
+        
+        for(int j=0;j<forSize;j++){
+            if((i*forSize+j)>=allSize){
                 break;
             }
-            
+
             //计算每一个表情按钮的坐标和在哪一屏
-            mx = i * [self getSourceViewWidth] +  sx + (j%columns)* 60* [self getSourceViewWidth]/375 + (j%columns)*27* [self getSourceViewWidth]/375;
+            mx = i * [self getSourceViewWidth] +  sx + (j%columns)* itemW* [self getSourceViewWidth]/[self getSourceViewWidth] + (j%columns)*spec* [self getSourceViewWidth]/[self getSourceViewWidth];
+            
             if(j >= columns){
                 my = (j / columns) * itemH + 8 + 15;
             }
-            ZCLibCusMenu *item = titles[i*pageSize+j];
+            ZCLibCusMenu *item = titles[i*forSize+j];
 //            CGRectMake(mx, my, 60, itemH)
             UIButton * buttons = [self createItemMenuButton:item];
             [_zc_moreView addSubview:buttons];
-            [_zc_moreView addConstraints:sobotLayoutSize(60, itemH, buttons, NSLayoutRelationEqual)];
+            [_zc_moreView addConstraints:sobotLayoutSize(itemW, itemH, buttons, NSLayoutRelationEqual)];
             [_zc_moreView addConstraints:sobotLayoutPaddingView(my, 0, mx, 0, buttons, _zc_moreView)];
         }
     }
-        
+    
+    moreHeight = 241;//MoreViewHeight;
+    if ([self getSourceViewHeight] < [self getSourceViewWidth]) {
+        moreHeight = MoreViewHorizontalHeight;
+    }
     if(moreHeight < (itemH *rows + (rows-1)*52)){
         moreHeight = itemH *rows + (rows-1)*37 + 15;
     }
-    _zc_moreView.contentSize = CGSizeMake(pageNum * [self getSourceViewWidth], moreHeight);// 原固定高度 190
-    _facePageControl.numberOfPages = pageNum;
-    if(allSize > 8){
+    _zc_moreView.contentSize = CGSizeMake(pages * [self getSourceViewWidth], 0);// 原固定高度 190
+    _facePageControl.numberOfPages = pages;
+    if(allSize > 6){
+        [_facePageControl setFrame:CGRectMake([self getSourceViewWidth]/2-150, [self getSourceViewHeight]-30, 300, 20)];
         _facePageControl.hidden = NO;
+//        _facePageControl.backgroundColor = UIColor.redColor;
     }
-    
+
 }
 
 
@@ -1778,16 +1931,23 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     UILabel *lbl = [[UILabel alloc] init];
     [lbl setText:menu.title];
     [lbl setFont:SobotFont12];
+    lbl.numberOfLines = 2;
     [lbl setTextAlignment:NSTextAlignmentCenter];
-    [lbl setTextColor:[ZCUIKitTools zcgetTextNolColor]];
+//    [lbl setTextColor:[ZCUIKitTools zcgetTextNolColor]];
+    [lbl setTextColor:UIColorFromModeColor(SobotColorTextMain)];
     [lbl setBackgroundColor:[UIColor clearColor]];
     [buttons addSubview:lbl];
-    CGSize s = [sobotConvertToString(menu.title)  sizeWithAttributes:@{NSFontAttributeName:lbl.font}];
-    if(s.width > 60){
+
+    CGFloat lbh = [SobotUITools getHeightContain:sobotConvertToString(menu.title) font:SobotFont12 Width:80];
+    CGFloat lh = 21;
+    if (lbh >= 30) {
+        lh = 30;
         [lbl setFont:SobotFont8];
+    }else if (lbh >= 21){
+        lh = 30;
     }
     
-    [buttons addConstraint:sobotLayoutEqualHeight(21, lbl, NSLayoutRelationEqual)];
+    [buttons addConstraint:sobotLayoutEqualHeight(lh, lbl, NSLayoutRelationEqual)];
     [buttons addConstraints:sobotLayoutPaddingView(0, -5, 1, -1, lbl, buttons)];
     
     SobotImageView *iconView = [[SobotImageView alloc]init];
@@ -1798,9 +1958,9 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     [buttons addConstraint:sobotLayoutEqualCenterX(0, iconView, buttons)];
     iconView.contentMode = 3;
     if(sobotConvertToString(menu.extModelPhoto).length > 0){
-        [iconView loadWithURL:[NSURL URLWithString:sobotConvertToString(menu.extModelPhoto)] placeholer:SobotKitGetImage(sobotConvertToString(menu.imgNamePress))];
+        [iconView loadWithURL:[NSURL URLWithString:sobotConvertToString(menu.extModelPhoto)] placeholer:SobotKitGetImage(sobotConvertToString(menu.imgName))];
     }else{
-        [iconView setImage:SobotKitGetImage(sobotConvertToString(menu.imgNamePress))];
+        [iconView setImage:SobotKitGetImage(sobotConvertToString(menu.imgName))];
     }
     
     return buttons;
@@ -1875,7 +2035,10 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
             textFrame.size.height = 35;
         }
         textContentSizeHeight = textFrame.size.height;
-        textContentSizeHeight = textContentSizeHeight + 10;
+        // 满行以后，会抖动，不加也不影响
+        if(textContentSizeHeight > 35){
+            textContentSizeHeight = textContentSizeHeight + 10;
+        }
     }
     //发送完成重置
     if(_zc_chatTextView.text==nil || [@"" isEqual:_zc_chatTextView.text]){
@@ -1912,23 +2075,16 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     if(lastHeight == textHegiht){
         return;
     }
-    if ((textHegiht + 9 ) <BottomHeight) {
-        self->_viewBottomConsHeight.constant = BottomHeight;
-        self->_chatTextConsHeight.constant = 37;
-    }else{
-        self->_viewBottomConsHeight.constant = textHegiht + 9;
-        self->_chatTextConsHeight.constant = textHegiht;
-    }
-    // 必须是animated YES
-//    [_zc_chatTextView setContentOffset:CGPointMake(0,textContentSizeHeight-textHegiht) animated:YES];
-    [UIView animateWithDuration:0.25 animations:^{
-        self->_viewBottomConsSpace.constant = -self->_zc_keyBoardHeight;
-        [self->_zc_chatTextView updateConstraints];
-        [self->_zc_bottomView updateConstraints];
-        [self->_btnMore updateConstraints];
-        [self->_btnFace updateConstraints];
-        [self showTableFrameByKeyboardChanged];
-    }];
+    
+//    self->_viewBottomConsHeight.constant = textHegiht + 9;
+    self->_chatTextConsHeight.constant = textHegiht;
+    
+    self->_viewBottomConsSpace.constant = -self->_zc_keyBoardHeight;
+    [self->_zc_chatTextView updateConstraints];
+    [self->_zc_bottomView updateConstraints];
+    [self->_btnMore updateConstraints];
+    [self->_btnFace updateConstraints];
+    [self showTableFrameByKeyboardChanged];
 }
 
 -(int)getTextLines{
@@ -2084,9 +2240,7 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
     
     // 设置按钮原本的图标
     [self setItemButtonDefaultStatus];
-    
     self->_viewBottomConsSpace.constant = -self->_zc_keyBoardHeight;
-    
     UIViewAnimationCurve curve = [notification.userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
     UIViewAnimationOptions options = (UIViewAnimationOptions)curve << 16;
     [UIView animateWithDuration:animationDuration delay:0.0 options:options animations:^{
@@ -2094,13 +2248,91 @@ typedef NS_ENUM(NSInteger, BottomButtonClickTag) {
         [self->_zc_listTable layoutIfNeeded];
         [self->_ppView layoutIfNeeded];
     } completion:^(BOOL finished) {
-        
         [self showTableFrameByKeyboardChanged];
     }];
-    
-    
     [_zc_listTable addGestureRecognizer:_tapRecognizer];
 }
+
+
+// 显示引用消息
+-(void)showReferenceMessage:(SobotChatMessage *) rModel{
+    if([self getLibConfig].msgAppointFlag == 0){
+        [self hideReferenceView];
+        return;
+    }
+    _layoutReferenceH.constant = 40;
+    _layoutReferenceBottom.constant = -7;
+    self.referenceMessage = rModel;
+    
+    [self createReferenceSubViews];
+    
+    if(!sobotIsNull(rModel)){
+        NSString *tips = @"";
+        if(rModel.senderType == 0 && rModel.appointType == 0){
+            tips = SobotKitLocalString(@"我");
+        }else if(rModel.senderType == 1){
+//            tips = SobotKitLocalString(@"机器人");// SDK是 用户视角，除了自己都显示客服
+            tips = SobotKitLocalString(@"客服");
+        }else{
+            tips = SobotKitLocalString(@"客服");
+        }
+        _labReferencMessage.text = [SobotHtmlCore removeAllHTMLTag:[NSString stringWithFormat:@"%@:%@",tips, [ZCPlatformTools getLastMessage:rModel urlRegular:[ZCUIKitTools zcgetUrlRegular]]]];
+    }else{
+        _labReferencMessage.text = @"";
+    }
+    
+}
+
+-(void)hideReferenceView{
+    if(_labReferencMessage!=nil){
+        _labReferencMessage.text = @"";
+        _btnClearReferenceMsg.hidden = YES;
+    }
+    self.referenceMessage = nil;
+    _layoutReferenceH.constant = 0;
+    _layoutReferenceBottom.constant = 0;
+}
+
+-(void)createReferenceSubViews{
+    if(_labReferencMessage!=nil){
+        _btnClearReferenceMsg.hidden = NO;
+        return;
+    }
+    
+    _labReferencMessage = ({
+        UILabel *iv = [[UILabel  alloc] init];
+        iv.numberOfLines = 1;
+        iv.textColor = UIColorFromKitModeColor(SobotColorTextSub);
+        iv.font = SobotFont13;
+        [iv setTextAlignment:NSTextAlignmentLeft];
+        [self.referenceView addSubview:iv];
+        iv.text = @"";
+        
+        [_referenceView addConstraint:sobotLayoutPaddingLeft(12, iv, _referenceView)];
+        [_referenceView addConstraint:sobotLayoutPaddingRight(-38, iv, _referenceView)];
+        [_referenceView addConstraint:sobotLayoutEqualCenterY(0, iv, _referenceView)];
+        
+        iv;
+    });
+    
+    _btnClearReferenceMsg = ({
+        UIButton *iv = [UIButton buttonWithType:UIButtonTypeCustom];
+        iv.backgroundColor = UIColor.clearColor;
+        [iv setImage:SobotKitGetImage(@"zcicon_add_clear") forState:UIControlStateNormal];
+        [iv setImage:SobotKitGetImage(@"zcicon_add_clear") forState:UIControlStateHighlighted];
+        [iv setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+        [self.referenceView addSubview:iv];
+        
+        [_referenceView addConstraints:sobotLayoutSize(14, 14, iv, NSLayoutRelationEqual)];
+        [_referenceView addConstraint:sobotLayoutPaddingRight(-12, iv, _referenceView)];
+        [_referenceView addConstraint:sobotLayoutEqualCenterY(0, iv, _referenceView)];
+        
+        [iv addTarget:self action:@selector(hideReferenceView) forControlEvents:UIControlEventTouchUpInside];
+        
+        iv;
+    });
+}
+
 - (void)dealloc{
     [[ZCAutoListView getAutoListView] dissmiss];
     //    NSLog(@"键盘被清理掉了");

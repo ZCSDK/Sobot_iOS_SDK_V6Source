@@ -55,14 +55,12 @@
     [ZCChatBaseCell configHtmlText:text label:_lblTextMsg right:self.isRight];
     _lblTextMsg.textColor = UIColorFromModeColor(SobotColorYellowDark);
     [_lblTextMsg setLinkColor:UIColorFromModeColor(SobotColorYellow)];
-    CGFloat maxw = self.viewWidth - ZCChatMarginHSpace*2 - ZCChatCellItemSpace - ZCChatPaddingVSpace*2 - ZCChatPaddingHSpace -13;
-    NSLog(@"maxw ==== %f",maxw);
+    CGFloat maxw = ScreenWidth - ZCChatMarginHSpace*2 - ZCChatCellItemSpace - ZCChatPaddingVSpace*2 - ZCChatPaddingHSpace -13;
     CGSize size = [_lblTextMsg preferredSizeWithMaxWidth:maxw];
-    NSLog(@"size.height ====%f",size.height);
     
 //    _layoutMessageHeight.constant = size.height;
     // 如果显示，文本最多显示3行
-    if (size.height > 45 && !self.tempModel.isOpenNotice) {
+    if (size.height > 40 && !self.tempModel.isOpenNotice) {
         _lblTextMsg.numberOfLines = 2;
 //        _layoutMessageHeight.constant = 120;
 //        _cAGradientView.frame = CGRectMake(0,ZCChatMarginVSpace + 45 ,ScreenWidth - ZCChatMarginVSpace*2,  20 );
@@ -79,7 +77,7 @@
 //        _cAGradientView.hidden = YES;
     }
    
-    if (size.height >45) {
+    if (size.height >40) {
         _lookBtn.hidden = NO;
     }else{
         _lookBtn.hidden = YES;
@@ -87,7 +85,8 @@
         [self.bgView removeConstraint:self.lblTextMB];
         [self.bgView addConstraint:self.lblTextPB];
     }
-    [self.contentView layoutIfNeeded];
+    
+    [self.bgView setNeedsLayout];
 }
 
 

@@ -146,7 +146,6 @@
 -(void)initDataToView:(SobotChatMessage *)message time:(NSString *)showTime{
     [super initDataToView:message time:showTime];
     
-    
     [_logoView setImage:[ZCUIKitTools getFileIcon:message.richModel.url fileType:(int)message.richModel.fileType]];
     [_labDesc setText:message.richModel.fileSize];
     [_labTitle setText:sobotTrimString(message.richModel.fileName)];
@@ -156,7 +155,6 @@
         _progressView.progress = 1.0;
         _progressView.hidden = YES;
     }else{
-        
         
         if(message.sendStatus == 1){
             _progressView.hidden = NO;
@@ -170,7 +168,7 @@
 
     _layoutBgWidth.constant = self.maxWidth;
     [self.bgView layoutIfNeeded];
-    [self setChatViewBgState:CGSizeMake(self.maxWidth,CGRectGetMaxX(_bgView.frame))];
+    [self setChatViewBgState:CGSizeMake(self.maxWidth,CGRectGetMaxY(_bgView.frame))];
 }
 
 

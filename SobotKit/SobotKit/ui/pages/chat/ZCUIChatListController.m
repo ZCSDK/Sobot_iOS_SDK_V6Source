@@ -58,9 +58,10 @@
 
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    
-    
     [self loadMoreData];
+    if([ZCUICore getUICore].PageLoadBlock){
+        [ZCUICore getUICore].PageLoadBlock(self,ZCPageStateViewShow);
+    }
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
@@ -483,6 +484,7 @@
 //        self.bottomLine.hidden = YES;
     }
 }
+
 
 
 @end

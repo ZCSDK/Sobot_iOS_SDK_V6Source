@@ -25,7 +25,8 @@ typedef NS_ENUM(NSInteger,ZCCusMenuType) {
  **/
 @interface ZCLibCusMenu : SobotBaseEntity
 
-//自定义按钮类型 （1.留言 2 服务评价 3文件 4表情  5截图  6自定义跳转链接 7 图片 8 视频 9 拍摄）
+//自定义按钮类型 （1.留言 2 服务评价 3文件 4表情  5截图  6自定义跳转链接 7 图片 8 视频 9 拍摄，10弹窗）
+// 4.1.0版本新增10，当超链接处理
 @property (nonatomic,assign) int extModelType;
 // 按钮的图片链接   https://img.sobot.com/console/common/res/sobot_leavemsg_normal.png
 @property (nonatomic,copy) NSString *extModelPhoto;

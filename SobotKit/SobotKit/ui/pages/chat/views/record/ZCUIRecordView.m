@@ -28,6 +28,7 @@
     AVAudioRecorder *recorder;
     BOOL            recording;
     AVAudioPlayer   *audioPlayer;
+    UIView *clearView;
 }
 
 /*
@@ -105,8 +106,11 @@
     [tipLabel setFont:SobotFont12];
     tipLabel.layer.cornerRadius  = 3.0f;
     tipLabel.layer.masksToBounds = YES;
+    tipLabel.numberOfLines = 0;
     [tipLabel setTextAlignment:NSTextAlignmentCenter];
     [tipLabel setTextColor:[UIColor whiteColor]];
+    tipLabel.layer.borderColor = [UIColor clearColor].CGColor;
+    tipLabel.layer.borderWidth = 2;
     [self addSubview:tipLabel];
 }
 
@@ -117,6 +121,9 @@
  *  @param view 显示在那个view上
  */
 - (void)showInView:(UIView *)view{
+    clearView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, view.frame.size.width, view.frame.size.height- XBottomBarHeight-49)];
+    [clearView setBackgroundColor:[UIColor clearColor]];
+    [view addSubview:clearView];
     [view addSubview:self];
 }
 
@@ -126,6 +133,10 @@
  *  关闭弹出层
  */
 - (void)dismissRecordView{
+    if (!sobotIsNull(clearView)) {
+        [clearView removeFromSuperview];
+        clearView = nil;
+    }
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     __block ZCUIRecordView *weakSelf = self;
@@ -139,8 +150,11 @@
 }
 
 -(void)didChangeState:(RecordState) state{
+    CGRect SF = self.frame;
+    
     switch (state) {
         case RecordStart:
+        {
             if(voiceTimer==nil){
                 [timeLablel setText:[NSString stringWithFormat:@"0″"]];
                 voiceTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerDiscount) userInfo:nil repeats:YES];
@@ -150,24 +164,47 @@
            
             topView.hidden   = NO;
             pauseView.hidden = YES;
-            [tipLabel setText:SobotKitLocalString(@"手指上滑，取消发送")];
-            [tipLabel setBackgroundColor:UIColorFromModeColorAlpha(SobotColorWhite, 0.1)];
+//            [tipLabel setText:ZCSTLocalString(@"手指上滑，取消发送")];
+            
+            NSMutableParagraphStyle *style =  [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+            style.alignment = NSTextAlignmentCenter;
+//            style.firstLineHeadIndent = 10.0f;
+            style.headIndent = 10.0f;
+            style.tailIndent = -10.0f;
+            NSAttributedString *attrText = [[NSAttributedString alloc] initWithString:SobotKitLocalString(@"手指上滑，取消发送") attributes:@{ NSParagraphStyleAttributeName : style}];
+            tipLabel.attributedText = attrText;
+            tipLabel.layer.borderColor = UIColor.clearColor.CGColor;
+            
+            CGFloat SH = [SobotUITools getHeightContain:tipLabel.text font:SobotFont12 Width:RecordViewWidth-30];
+            SH = SH +16;
+            CGRect TF = tipLabel.frame;
+            TF.size.height = SH;
+            tipLabel.frame = TF;
+            
+            if (SH > 30) {
+                if (SF.size.height != RecordViewHeight + SH -30) {
+                    SF.size.height = RecordViewHeight + SH -30;
+                    SF.origin.y = SF.origin.y - (SH -30)/2;
+                    self.frame = SF;
+                }
+            }
+            
+            [tipLabel setBackgroundColor:[UIColor clearColor]];
             [anniminView startAnimating];
             
             if (!recording) {
                 recording = YES;
-                NSString *fileName=[NSString stringWithFormat:@"%ldtempAudio.wav",(long)[[NSDate date] timeIntervalSince1970]];
-                
-                tmpFile = [NSURL fileURLWithPath:sobotGetTempFilePath(fileName)];
+//                NSString *fileName=[NSString stringWithFormat:@"%ldtempAudio.wav",(long)[[NSDate date] timeIntervalSince1970]];
+//                tmpFile = [NSURL fileURLWithPath:sobotGetTempFilePath(fileName)];
+                NSString * fname = [NSString stringWithFormat:@"/sobot/audio300%ld.wav",(long)[NSDate date].timeIntervalSince1970];
+                sobotCheckPathAndCreate(sobotGetDocumentsFilePath(@"/sobot/"));
+                NSString *filePath=sobotGetDocumentsFilePath(fname);
+                tmpFile = [NSURL fileURLWithPath:filePath];
                 [self startForFilePath:tmpFile];
                 [recorder prepareToRecord];
                 
-//                UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 50, 50)];
-//                view.backgroundColor = [UIColor redColor];
-//                [self addSubview:view];
-                
             }
-            if(!recorder.isRecording){ 
+            if(!recorder.isRecording){
                 [recorder record];
             }
             
@@ -175,22 +212,40 @@
             if(_delegate && [_delegate respondsToSelector:@selector(recordCompleteType:videoDuration:)]){
                 [_delegate recordCompleteType:RecordStart videoDuration:0];
             }
+        }
+           
             break;
 
         case RecordPause:
+        {
             [[NSNotificationCenter defaultCenter] postNotificationName:@"ZCRecordPlayer_stop" object:nil];
             topView.hidden   = YES;
             pauseView.hidden = NO;
-            [tipLabel setText:SobotKitLocalString(@"松开手指，取消发送")];
+//            [tipLabel setText:ZCSTLocalString(@"松开手指，取消发送")];
+            NSMutableParagraphStyle *style =  [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+            style.alignment = NSTextAlignmentCenter;
+//            style.firstLineHeadIndent = 10.0f;
+            style.headIndent = 10.0f;
+            style.tailIndent = -10.0f;
+            NSAttributedString *attrText = [[NSAttributedString alloc] initWithString:SobotKitLocalString(@"松开手指，取消发送") attributes:@{ NSParagraphStyleAttributeName : style}];
+            tipLabel.attributedText = attrText;
+//            tipLabel.layer.borderColor = UIColorFromRGB(BgVoiceRedColor).CGColor;
             [tipLabel setBackgroundColor:UIColorFromModeColor(SobotColorRed)];
+//            [tipLabel setBackgroundColor:UIColorFromRGB(BgVoiceRedColor)];
             
-//            [tipLabel setBackgroundColor:[UIColor redColor]];
-//            if (voiceTimer!=nil && voiceTimer.isValid) {
-//                [voiceTimer setFireDate:[NSDate distantFuture]];
-//            }
-            
-//            [anniminView stopAnimating];
-//            [recorder pause];
+            CGFloat SH2 = [SobotUITools getHeightContain:tipLabel.text font:SobotFont12 Width:RecordViewWidth-55];
+            SH2 = SH2 +16; // 上下间距
+            CGRect TF2 = tipLabel.frame;
+            TF2.size.height = SH2;
+            tipLabel.frame = TF2;
+            if (SH2 > 30) {
+                if (SF.size.height != RecordViewHeight + SH2 -30) {
+                    SF.size.height = RecordViewHeight + SH2 -30;
+                    SF.origin.y = SF.origin.y - (SH2 -30)/2;
+                    self.frame = SF;
+                }
+            }
+        }
             
             break;
         case RecordCancel:
@@ -243,12 +298,29 @@
                     pauseView.image = SobotKitGetImage(@"zcicon_recording_timeshort");
                    // [tipLabel setText:VoiceMinTips];
                     [tipLabel setText:SobotKitLocalString(@"录制时间过短")];
+//                    [tipLabel setBackgroundColor:UIColorFromRGB(BgVoiceRedColor)];
+//                    tipLabel.layer.borderColor = UIColorFromRGB(BgVoiceRedColor).CGColor;
                     [tipLabel setBackgroundColor:UIColorFromModeColor(SobotColorRed)];
                     [timeLablel setText:[NSString stringWithFormat:@"00:00"]];
+                    
+                    CGFloat SH3 = [SobotUITools getHeightContain:tipLabel.text font:SobotFont12 Width:RecordViewWidth-55];
+                    CGRect TF3 = tipLabel.frame;
+                    TF3.size.height = SH3;
+                    tipLabel.frame = TF3;
+                    
+                    if (SH3 > 30) {
+                        if (SF.size.height != RecordViewHeight + SH3 -30) {
+                            SF.size.height = RecordViewHeight + SH3 -30;
+                            SF.origin.y = SF.origin.y - (SH3 -30)/2;
+                            self.frame = SF;
+                        }
+                    }
+                    
                     // 删除发送的空语音
 #pragma mark - 这里加延时的原因  当用户秒点 “按住 说话” 之后秒释放 创建的闪烁语音cell还没有在主线程上UI刷新完成，这时候销毁的事件已经触发，导致语音闪烁cell并没有真正的移除掉
                     if (_delegate && [_delegate respondsToSelector:@selector(recordCompleteType:videoDuration:)]) {
                         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                            SLog(@"触发了取消的代理事件", nil);
                             [self->_delegate recordCompleteType:RecordCancel videoDuration:0];
                         });
                     }

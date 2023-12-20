@@ -87,6 +87,7 @@ typedef NS_ENUM(NSInteger,ZCReceivedMessageType) {
     ZCReceivedMessageTansfer        = 210,// 转接
     ZCReceivedMessageChatLock       = 213,// 会话锁定
     ZCReceivedMessageChatWarning    = 215,// 诈骗词告警
+    ZCReceivedMessageChatReadMsg    = 217,// 客服已读消息
     ZCReceivedMessageChatAdminTipWord    = 2151,// 排队离线提醒
     ZCReceivedMessageChatWartingOutTips    = 2155,// 排队离线提醒
     ZCReceivedMessageOfflineUnknown = 2040,// 未识别原因下线
@@ -102,6 +103,11 @@ typedef NS_ENUM(NSInteger,ZCReceivedMessageType) {
     ZCReceivedMessageLockType_1      = 2131,// 会话锁定
     ZCReceivedMessageLockType_2      = 2132,// 会话解锁
     ZCReceivedMessageTransferTips     = 301,// 转接提示语
+    /**
+     * 用户排队超时离线提醒,继续排队
+     */
+    ZCReceivedMessageWaitingContinueTips = 101,
+    ZCReceivedMessageWaitingContinueMsg = 102
 };
 
 

@@ -91,7 +91,7 @@
         _libInitInfo.app_key = skey;
     }
 
-    NSString *appkey = @"8ece1e81a629404c928e110b31920cbe";  // 体验
+    NSString *appkey = @"e9ecb40006354f36b08d68b0ebbcfee7";  // 测试appkey，使用时替换为自己的
 
     _libInitInfo.app_key = appkey;
     
@@ -100,7 +100,7 @@
     if(sHost!=nil && sHost.length > 5){
         _apiHost = sHost;
     }
-    _apiHost = @"https://www.sobot.com";
+    _apiHost = @"https://www.soboten.com";
     
     [ZCSobotApi setShowDebug:YES];
     

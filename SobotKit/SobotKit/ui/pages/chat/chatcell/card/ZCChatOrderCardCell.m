@@ -23,6 +23,7 @@
 @property(nonatomic,strong) NSLayoutConstraint *layoutImageLeft;
 
 @property(nonatomic,strong) NSLayoutConstraint *layoutLineTop;
+@property(nonatomic,strong) NSLayoutConstraint *layoutItemEH;
 
 @property (strong, nonatomic) UIView *bgView; //
 @property (nonatomic,strong) SobotImageView *logoView;
@@ -32,8 +33,11 @@
 @property (strong, nonatomic) UIView *lineView; //标题
 
 @property (strong, nonatomic) UILabel *labStatus; //标题
+@property (strong,nonatomic) UILabel *labStatusValue;// 状态的值
 @property (strong, nonatomic) UILabel *labCode; //标题
 @property (strong, nonatomic) UILabel *labTime; //标题
+
+@property (strong,nonatomic) UIView *customView;// 自定义字段
 
 @end
 
@@ -55,17 +59,17 @@
         [self.bgView addGestureRecognizer:tapGesturer];
         
         //设置点击事件
-//        _layoutBgWidth = sobotLayoutEqualWidth(ScreenWidth, self.bgView, NSLayoutRelationEqual);
-//        [self.contentView addConstraint:_layoutBgWidth];
+        _layoutBgWidth = sobotLayoutEqualWidth(ScreenWidth, self.bgView, NSLayoutRelationEqual);
+        [self.contentView addConstraint:_layoutBgWidth];
         [self.contentView addConstraint:sobotLayoutPaddingTop(0, self.bgView, self.ivBgView)];
         [self.contentView addConstraint:sobotLayoutPaddingLeft(0, self.bgView, self.ivBgView)];
         [self.contentView addConstraint:sobotLayoutPaddingBottom(0, self.bgView, self.ivBgView)];
-        [self.contentView addConstraint:sobotLayoutPaddingRight(0, self.bgView, self.ivBgView)];
+//        [self.contentView addConstraint:sobotLayoutPaddingRight(0, self.bgView, self.ivBgView)];
         
         _layoutImageHeight = sobotLayoutEqualHeight(48, self.logoView, NSLayoutRelationEqual);
         _layoutImageWidth = sobotLayoutEqualWidth(48, self.logoView, NSLayoutRelationEqual);
         _layoutImageLeft = sobotLayoutPaddingLeft(0, self.logoView, self.bgView);
-        self.logoView.backgroundColor = UIColor.redColor;
+//        self.logoView.backgroundColor = UIColor.redColor;
         [self.bgView addConstraint:_layoutImageWidth];
         [self.bgView addConstraint:_layoutImageHeight];
         [self.bgView addConstraint:_layoutImageLeft];
@@ -90,14 +94,19 @@
         [self.bgView addConstraint:sobotLayoutPaddingLeft(10, self.labStatus, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.labStatus, self.bgView)];
         
-        [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatPaddingVSpace, self.labCode, self.labStatus)];
+        [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatCellItemSpace, self.labCode, self.labStatus)];
         [self.bgView addConstraint:sobotLayoutPaddingLeft(10, self.labCode, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.labCode, self.bgView)];
         
         [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatCellItemSpace, self.labTime, self.labCode)];
         [self.bgView addConstraint:sobotLayoutPaddingLeft(10, self.labTime, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.labTime, self.bgView)];
-        [self.bgView addConstraint:sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, self.labTime, self.bgView)];
+//        [self.bgView addConstraint:sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, self.labTime, self.bgView)];
+        
+        [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace, self.customView, self.labTime)];
+        [self.bgView addConstraint:sobotLayoutPaddingLeft(0, self.customView, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.customView, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingBottom(0, self.customView, self.bgView)];
     }
     return self;
 }
@@ -106,11 +115,11 @@
 -(void)createViews{
     _bgView = ({
         UIView *iv = [[UIView alloc] init];
-        [iv setBackgroundColor:UIColorFromKitModeColor(SobotColorWhite)];
+        [iv setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark1)];
         [self.contentView addSubview:iv];
         iv.layer.masksToBounds = YES;
         iv.layer.cornerRadius = 5;
-        iv.layer.borderColor = [ZCUIKitTools zcgetRobotBtnBgColor].CGColor;
+//        iv.layer.borderColor = [ZCUIKitTools zcgetServerConfigBtnBgColor].CGColor;
         iv.layer.borderWidth = 1;
         iv;
     });
@@ -128,10 +137,11 @@
     _labTitle = ({
         UILabel *iv = [[UILabel alloc] init];
         [iv setTextAlignment:NSTextAlignmentLeft];
-        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
+//        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
+        [iv setTextColor:UIColorFromKitModeColor(SobotColorTextGoods)];
 //        iv.numberOfLines = 0;
-//        [iv setFont:SobotFontBold14];
-        [iv setFont:[ZCUIKitTools  zcgetTitleGoodsFont]];
+        [iv setFont:SobotFontBold14];
+//        [iv setFont:[ZCUIKitTools  zcgetTitleGoodsFont]];
         [self.bgView addSubview:iv];
         iv;
     });
@@ -141,8 +151,8 @@
         UILabel *iv = [[UILabel alloc] init];
 //        iv.numberOfLines = 0;
         [iv setTextAlignment:NSTextAlignmentLeft];
-        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
-//        [iv setFont:SobotFont14];
+//        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
+        [iv setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
         [iv setFont:[ZCUIKitTools zcgetGoodsDetFont]];
         [self.bgView addSubview:iv];
         iv;
@@ -158,9 +168,9 @@
     _labStatus = ({
         UILabel *iv = [[UILabel alloc] init];
         [iv setTextAlignment:NSTextAlignmentLeft];
-        [iv setTextColor:UIColorFromModeColor(SobotColorYellow)];
+        [iv setTextColor:UIColorFromModeColor(SobotColorTextGoods)];
 //        iv.numberOfLines = 0;
-        [iv setFont:SobotFontBold14];
+        [iv setFont:SobotFont14];
         [self.bgView addSubview:iv];
         iv;
     });
@@ -168,9 +178,9 @@
     _labCode = ({
         UILabel *iv = [[UILabel alloc] init];
         [iv setTextAlignment:NSTextAlignmentLeft];
-        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
-//        iv.numberOfLines = 0;
-        [iv setFont:SobotFontBold14];
+//        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
+        [iv setTextColor:UIColorFromModeColor(SobotColorTextGoods)];
+        [iv setFont:SobotFont14];
         [self.bgView addSubview:iv];
         iv;
     });
@@ -178,10 +188,18 @@
     _labTime = ({
         UILabel *iv = [[UILabel alloc] init];
         [iv setTextAlignment:NSTextAlignmentLeft];
-        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
-//        iv.numberOfLines = 0;
-        [iv setFont:SobotFontBold14];
+//        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
+        [iv setTextColor:UIColorFromModeColor(SobotColorTextGoods)];
+        [iv setFont:SobotFont14];
         [self.bgView addSubview:iv];
+        iv;
+    });
+    
+    _customView = ({
+        UIView *iv = [[UIView alloc] init];
+        iv.backgroundColor = [UIColor clearColor];
+        [self.bgView addSubview:iv];
+//        _customView.backgroundColor = [UIColor redColor];
         iv;
     });
     
@@ -191,6 +209,13 @@
 
 -(void)initDataToView:(SobotChatMessage *)message time:(NSString *)showTime{
     [super initDataToView:message time:showTime];
+    
+    if(self.isRight){
+        self.bgView.layer.borderColor = [ZCUIKitTools zcgetRightChatColor].CGColor;
+    }else{
+        self.bgView.layer.borderColor = [ZCUIKitTools zcgetLeftChatColor].CGColor;
+    }
+    
     NSArray *goods = message.richModel.richContent.goods;
     NSString *goodsDesc = @"";
     _logoView.hidden = YES;
@@ -267,10 +292,93 @@
        _labTime.hidden = NO;
        [_labTime setText:[NSString stringWithFormat:@"%@%@：%@",giveOrderStr,timeStr,createTime]];
     }
+   
+    #pragma mark - 403 新增自定义字段和查看详情
+    [_customView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [_bgView removeConstraint:self.layoutItemEH]; // 先移除掉高度的约束，高度是动态添加的
+    
+    UIView *lastView;
+    UIView *btnlineView = [[UIView alloc]init];
+    // && ([self.tempModel.richModel.richContent.extendFields isKindOfClass:[NSArray class]]  && self.tempModel.richModel.richContent.extendFields.count > 0)
+    if (sobotConvertToString(self.tempModel.richModel.richContent.orderUrl).length > 0 ) {
+        if (sobotConvertToString(self.tempModel.richModel.richContent.orderUrl).length > 0) {
+            UIButton *lookBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+            [lookBtn setTitle:SobotKitLocalString(@"查看详情") forState:UIControlStateNormal];
+            [lookBtn setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateNormal];
+            lookBtn.titleLabel.font = SobotFont14;
+            [lookBtn addTarget:self action:@selector(lookAction:) forControlEvents:UIControlEventTouchUpInside];
+            [_customView addSubview:lookBtn];
+            [_customView addConstraint:sobotLayoutPaddingBottom(0, lookBtn, _customView)];
+            [_customView addConstraint:sobotLayoutPaddingRight(0, lookBtn, _customView)];
+            [_customView addConstraint:sobotLayoutPaddingLeft(0, lookBtn, _customView)];
+            [_customView addConstraint:sobotLayoutEqualHeight(40, lookBtn, NSLayoutRelationEqual)];
+            
+            btnlineView.backgroundColor = UIColorFromKitModeColor(SobotColorBgLine);
+            [_customView addSubview:btnlineView];
+            [_customView addConstraint:sobotLayoutMarginBottom(0, btnlineView, lookBtn)];
+            [_customView addConstraint:sobotLayoutPaddingLeft(10, btnlineView, _customView)];
+            [_customView addConstraint:sobotLayoutPaddingRight(-10, btnlineView, _customView)];
+            [_customView addConstraint:sobotLayoutEqualHeight(1, btnlineView, NSLayoutRelationEqual)];
+            
+            lastView = btnlineView;
+        }
+    }
+        
+    if ([self.tempModel.richModel.richContent.extendFields isKindOfClass:[NSArray class]]  && self.tempModel.richModel.richContent.extendFields.count > 0) {
+        UILabel *lastLab;
+        for (int i = 0; i<self.tempModel.richModel.richContent.extendFields.count ; i++) {
+            NSDictionary *item = self.tempModel.richModel.richContent.extendFields[i];
+            if ([item isKindOfClass:[NSDictionary class]] && !sobotIsNull(item)) {
+                NSString *tipStr = sobotConvertToString([item objectForKey:@"fieldName"]);
+                NSString *tipValue = sobotConvertToString([item objectForKey:@"fieldValue"]);
+                UILabel *tipLab = [[UILabel alloc]init];
+                tipLab.text = [[NSString alloc]initWithFormat:@"%@: %@",tipStr,tipValue];
+                tipLab.textColor = [ZCUIKitTools zcgetLeftChatTextColor];
+                tipLab.numberOfLines = 0;
+                [tipLab setFont:SobotFontBold14];
+                [_customView addSubview:tipLab];
+                if (!sobotIsNull(lastLab)) {
+                    [_customView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace, tipLab, lastLab)];
+                }else{
+                    [_customView addConstraint:sobotLayoutPaddingTop(0, tipLab, _customView)];
+                }
+                [_customView addConstraint:sobotLayoutPaddingLeft(10, tipLab, _customView)];
+                [_customView addConstraint:sobotLayoutPaddingRight(-10, tipLab, _customView)];
+                lastLab = tipLab;
+                if (i == self.tempModel.richModel.richContent.extendFields.count -1) {
+                    // 最后一个  计算最底部的约束
+                    if (!sobotIsNull(lastView)) {
+                        // 有查看详情，并且有自定义字段
+//                        [_customView addConstraint:sobotLayoutMarginTop(ZCChatPaddingVSpace,btnlineView,lastLab)];
+                        [_customView addConstraint:sobotLayoutPaddingBottom(-ZCChatPaddingVSpace,tipLab,btnlineView)];
+                    }else{
+                        // 没有查看详情
+                        [_customView addConstraint:sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, tipLab, _customView)];
+                    }
+                }
+            }
+        }
+    }else{
+        // 没有自定义字段
+        if (!sobotIsNull(lastView)) {
+            // 有查看详情 没有自定义字段
+//            [_bgView addConstraint:sobotLayoutEqualHeight(41, _customView, NSLayoutRelationEqual)];
+            self.layoutItemEH = sobotLayoutEqualHeight(41, _customView, NSLayoutRelationEqual);
+            [_bgView addConstraint:self.layoutItemEH];
 
-//    _layoutBgWidth.constant = self.maxWidth;
+        }else{
+            // 没有查看详情 没有自定义字段
+//            [_bgView addConstraint:sobotLayoutEqualHeight(0, _customView, NSLayoutRelationEqual)];
+            self.layoutItemEH = sobotLayoutEqualHeight(0, _customView, NSLayoutRelationEqual);
+            [_bgView addConstraint:self.layoutItemEH];
+
+        }
+    }
+    [_customView setNeedsUpdateConstraints];
+    _layoutBgWidth.constant = self.maxWidth + ZCChatPaddingHSpace*2;
     [self.bgView layoutIfNeeded];
     [self setChatViewBgState:CGSizeMake(self.maxWidth,CGRectGetMaxX(_bgView.frame))];
+    
 }
 
 -(NSMutableAttributedString *)getOtherColorString:(NSString *)string Color:(UIColor *)Color withString:(NSString *)originalString
@@ -288,6 +396,17 @@
     return str;
     
 }
+
+-(void)lookAction:(UIButton*)sender{
+    NSString *link = sobotConvertToString(self.tempModel.richModel.richContent.orderUrl);
+    if(sobotConvertToString(link).length  == 0){
+        return;
+    }
+    if(self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]){
+        [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeOpenURL text:sobotConvertToString(link)  obj:sobotConvertToString(link)];
+    }
+}
+
 -(void)bgViewClick:(UITapGestureRecognizer *) tap{
     NSString *link = sobotConvertToString(self.tempModel.richModel.richContent.orderUrl);
     if(sobotConvertToString(link).length  == 0){

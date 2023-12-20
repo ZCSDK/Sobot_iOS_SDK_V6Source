@@ -30,6 +30,7 @@
 @property (strong, nonatomic) UILabel *labDesc; //标题
 @property (strong, nonatomic) UILabel *labTag; //标题
 
+@property (nonatomic,copy) NSString *jumpUrl;
 @end
 
 @implementation ZCChatGoodsCardCell
@@ -50,39 +51,38 @@
         [self.bgView addGestureRecognizer:tapGesturer];
         
         //设置点击事件
-//        _layoutBgWidth = sobotLayoutEqualWidth(ScreenWidth, self.bgView, NSLayoutRelationEqual);
+        _layoutBgWidth = sobotLayoutEqualWidth(ScreenWidth, self.bgView, NSLayoutRelationEqual);
+        [self.contentView addConstraint:_layoutBgWidth];
         [self.contentView addConstraint:sobotLayoutPaddingTop(0, self.bgView, self.ivBgView)];
-//        [self.contentView addConstraint:_layoutBgWidth];
-        [self.contentView addConstraint:sobotLayoutPaddingRight(0, self.bgView, self.ivBgView)];
         [self.contentView addConstraint:sobotLayoutPaddingLeft(0, self.bgView, self.ivBgView)];
         [self.contentView addConstraint:sobotLayoutPaddingBottom(0, self.bgView, self.ivBgView)];
         
         _layoutTitleHeight =sobotLayoutEqualHeight(0, self.labTitle, NSLayoutRelationEqual);
-        [self.bgView addConstraint: sobotLayoutPaddingTop(10, self.labTitle, self.bgView)];
-        [self.bgView addConstraint:sobotLayoutPaddingLeft(15, self.labTitle, self.bgView)];
-        [self.bgView addConstraint:sobotLayoutPaddingRight(-10, self.labTitle, self.bgView)];
+        [self.bgView addConstraint: sobotLayoutPaddingTop(ZCChatMarginHSpace, self.labTitle, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatMarginVSpace, self.labTitle, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginVSpace, self.labTitle, self.bgView)];
         
         
         _layoutImageHeight = sobotLayoutEqualHeight(62, self.logoView, NSLayoutRelationEqual);
         _layoutImageWidth = sobotLayoutEqualWidth(62, self.logoView, NSLayoutRelationEqual);
-        _layoutImageLeft = sobotLayoutPaddingLeft(10, self.logoView, self.bgView);
+        _layoutImageLeft = sobotLayoutPaddingLeft(ZCChatMarginVSpace, self.logoView, self.bgView);
         [self.bgView addConstraint:_layoutImageWidth];
         [self.bgView addConstraint:_layoutImageHeight];
         [self.bgView addConstraint:_layoutImageLeft];
         [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace, self.logoView, self.labTitle)];
-        _layoutImageBottom = sobotLayoutPaddingBottom(-ZCChatCellItemSpace, self.logoView, self.bgView);
+        _layoutImageBottom = sobotLayoutPaddingBottom(-ZCChatMarginHSpace, self.logoView, self.bgView);
         _layoutImageBottom.priority = UILayoutPriorityDefaultHigh;
         [self.bgView addConstraint:_layoutImageBottom];
         
         [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatCellItemSpace, self.labDesc, self.labTitle)];
         [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labDesc, self.logoView)];
-        [self.bgView addConstraint:sobotLayoutPaddingRight(-10, self.labDesc, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginVSpace, self.labDesc, self.bgView)];
         
         [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatPaddingVSpace, self.labTag, self.labDesc)];
         [self.bgView addConstraint:sobotLayoutEqualHeight(30, self.labTag, NSLayoutRelationEqual)];
         [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labTag, self.logoView)];
-        [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.labTag, self.bgView)];
-        _layoutLabelBottom = sobotLayoutPaddingBottom(-ZCChatCellItemSpace, self.labTag, self.bgView);
+        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginVSpace, self.labTag, self.bgView)];
+        _layoutLabelBottom = sobotLayoutPaddingBottom(-ZCChatMarginHSpace, self.labTag, self.bgView);
         _layoutLabelBottom.priority = UILayoutPriorityDefaultLow;
         [self.bgView addConstraint:_layoutLabelBottom];
     }
@@ -93,10 +93,10 @@
 -(void)createViews{
     _bgView = ({
         UIView *iv = [[UIView alloc] init];
-        [iv setBackgroundColor:UIColorFromKitModeColor(SobotColorWhite)];
+        [iv setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark1)];
         iv.layer.cornerRadius = 5;
         iv.layer.borderWidth = 1;
-        iv.layer.borderColor = [ZCUIKitTools zcgetRobotBtnBgColor].CGColor;
+        iv.layer.borderColor = [ZCUIKitTools zcgetServerConfigBtnBgColor].CGColor;
         [self.contentView addSubview:iv];
         iv;
     });
@@ -114,7 +114,8 @@
     _labTitle = ({
         UILabel *iv = [[UILabel alloc] init];
         [iv setTextAlignment:NSTextAlignmentLeft];
-        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
+//        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
+        [iv setTextColor:UIColorFromModeColor(SobotColorTextGoods)];
         iv.numberOfLines = 0;
 //        [iv setFont:SobotFontBold14];
         [iv setFont:[ZCUIKitTools  zcgetTitleGoodsFont]];
@@ -139,7 +140,7 @@
         UILabel *iv = [[UILabel alloc] init];
         [iv setTextAlignment:NSTextAlignmentLeft];
         iv.backgroundColor = UIColor.clearColor;
-        [iv setTextColor:[ZCUIKitTools zcgetRobotBtnBgColor]];
+        [iv setTextColor:[ZCUIKitTools zcgetPricetTagTextColor]];
 //        iv.numberOfLines = 0;
         [iv setFont:SobotFontBold14];
         [self.bgView addSubview:iv];
@@ -148,53 +149,68 @@
     
 }
 
-- (ZCProductInfo *)getZCproductInfo{
-    ZCProductInfo * productInfo = [ZCUICore getUICore].kitInfo.productInfo;
-    //    productInfo.desc = @"";
-    return productInfo;
-}
+
 -(void)initDataToView:(SobotChatMessage *)message time:(NSString *)showTime{
     [super initDataToView:message time:showTime];
     
-    ZCProductInfo *info = [self getZCproductInfo];
+    if(self.isRight){
+        self.bgView.layer.borderColor = [ZCUIKitTools zcgetRightChatColor].CGColor;
+    }else{
+        self.bgView.layer.borderColor = [ZCUIKitTools zcgetLeftChatColor].CGColor;
+    }
+    
+    NSString *titleStr = @"";
+    NSString *descStr = @"";
+    NSString *labelStr = @"";
+    NSString *urlStr = @"";
+    NSString *link = @"";
+ 
+    if(message.richModel.richContent){
+        titleStr = sobotConvertToString(message.richModel.richContent.cardTitle);
+        descStr = sobotConvertToString(message.richModel.richContent.descriptionStr);
+        labelStr = sobotConvertToString(message.richModel.richContent.label);
+        urlStr = sobotConvertToString(message.richModel.richContent.thumbnail);
+        link = sobotConvertToString(message.richModel.richContent.url);
+    }
+    
     if(self.isRight){
         [_labTitle setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
-        [_labTag setTextColor:[ZCUIKitTools zcgetRobotBtnBgColor]];
+        [_labTag setTextColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
         [_labDesc setTextColor:UIColorFromModeColor(SobotColorTextSub)];
     }else{
         [_labTitle setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
-        [_labTag setTextColor:[ZCUIKitTools zcgetRobotBtnBgColor]];
+        [_labTag setTextColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
         [_labDesc setTextColor:UIColorFromModeColor(SobotColorTextSub)];
     }
     
-    _labTitle.text = sobotConvertToString(info.title);
-    _labDesc.text = sobotConvertToString(info.desc);
-    _labTag.text = sobotConvertToString(info.label);
-    if(sobotConvertToString(info.thumbUrl).length > 0){
-        _layoutImageLeft.constant = ZCChatPaddingHSpace;
+    _labTitle.text = sobotConvertToString(titleStr);
+    _labDesc.text = sobotConvertToString(descStr);
+    _labTag.text = sobotConvertToString(labelStr);
+    if(sobotConvertToString(urlStr).length > 0){
+        _layoutImageLeft.constant = ZCChatMarginVSpace;
         _layoutImageWidth.constant = 62;
         _layoutImageWidth.constant = 62;
-        [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(info.thumbUrl)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:YES];
+        [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(urlStr)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:YES];
         _layoutImageBottom.priority = UILayoutPriorityDefaultHigh;
         _layoutLabelBottom.priority = UILayoutPriorityDefaultLow;
     }else{
         _logoView.hidden = YES;
-        _layoutImageLeft.constant = ZCChatPaddingHSpace - ZCChatCellItemSpace;
+        _layoutImageLeft.constant = ZCChatMarginVSpace - ZCChatCellItemSpace;
         _layoutImageWidth.constant = 0;
         _layoutImageWidth.constant = 0;
         _layoutImageBottom.priority = UILayoutPriorityDefaultLow;
         _layoutLabelBottom.priority = UILayoutPriorityDefaultHigh;
     }
     
-
-//    _layoutBgWidth.constant = self.maxWidth;
+    _jumpUrl = link;
+    _layoutBgWidth.constant = self.maxWidth + ZCChatPaddingHSpace*2;
     [self.bgView layoutIfNeeded];
     [self setChatViewBgState:CGSizeMake(self.maxWidth,CGRectGetMaxX(_bgView.frame))];
 }
 
 -(void)bgViewClick:(UITapGestureRecognizer *) tap{
     if(self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]){
-        [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeOpenURL text:sobotConvertToString([self getZCproductInfo].link)  obj:sobotConvertToString([self getZCproductInfo].link)];
+        [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeOpenURL text:sobotConvertToString(_jumpUrl)  obj:sobotConvertToString(_jumpUrl)];
     }
 }
 

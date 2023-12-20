@@ -17,12 +17,12 @@
 }
 
 // 聊天气泡里面的内容
-@property (nonatomic,strong) UIView         *chatConentView;
-@property (nonatomic,strong) NSLayoutConstraint         *layoutBottom;
-@property (nonatomic,strong) NSLayoutConstraint         *layoutHeight;
-@property (nonatomic,strong) NSLayoutConstraint         *layoutWidth;
-@property (nonatomic,strong) UIView         *lastView;
-@property(nonatomic,strong) NSLayoutConstraint *linkBgViewEH;
+@property(nonatomic,strong) UIView *chatConentView;
+@property(nonatomic,strong) NSLayoutConstraint *layoutBottom;
+@property(nonatomic,strong) NSLayoutConstraint *layoutHeight;
+@property(nonatomic,strong) NSLayoutConstraint *layoutWidth;
+@property(nonatomic,strong) UIView *lastView;
+@property(nonatomic,strong) NSLayoutConstraint *linkLayoutHeight;
 @end
 @implementation ZCChatRichCell
 
@@ -63,7 +63,6 @@
         [_chatConentView layoutIfNeeded];
         s.height = CGRectGetMaxY(_lastView.frame);
     }
-
     if(s.width > (self.maxWidth)){
         s.width = self.maxWidth;
     }else{
@@ -74,7 +73,6 @@
     _layoutWidth.constant = s.width;
     
     [_chatConentView layoutIfNeeded];
-    
     [self setChatViewBgState:s];
 }
 
@@ -107,23 +105,36 @@
     
     // 记录实际最大宽度
     CGFloat contentWidth = 0;
-    if(model==nil || model.richModel.richList==nil || [model.richModel.richList isKindOfClass:[NSNull class]] || model.richModel.richList.count == 0){
+    if(model==nil || model.richModel.richList==nil || [model.richModel.richList isKindOfClass:[NSNull class]] ||![model.richModel.richList isKindOfClass:[NSMutableArray class]] || (model.richModel.richList !=nil && [model.richModel.richList isKindOfClass:[NSMutableArray class]] && model.richModel.richList.count == 0)){
         #pragma mark 标题+内容
         NSString *text = @"";
-        if (model.richModel.richContent.templateId == 4 && model.displayMsgAttr==nil) {
-            text = sobotConvertToString([model getModelDisplayText:YES]);
+        if(!self.isRight){
+            if (!sobotIsNull(model)&& !sobotIsNull(model.richModel) && !sobotIsNull(model.richModel.richContent) && model.richModel.richContent.templateId == 4 && model.displayMsgAttr==nil) {
+                text = sobotConvertToString([model getModelDisplayText:YES]);
+            }else{
+                text = sobotConvertToString([model getModelDisplayText]);
+            }
+            // 3.0.9兼容旧版本机器人语音显示空白问题
+            if(sobotConvertToString(text).length == 0 && sobotConvertToString(model.richModel.msgtranslation).length > 0){
+                text = sobotConvertToString(model.richModel.msgtranslation);
+            }
         }else{
-            text = sobotConvertToString([model getModelDisplayText]);
+            text = sobotConvertToString(model.richModel.content);
         }
-        // 3.0.9兼容旧版本机器人语音显示空白问题
-        if(sobotConvertToString(text).length == 0 && sobotConvertToString(model.richModel.msgtranslation).length > 0){
-            text = sobotConvertToString(model.richModel.msgtranslation);
-        }
+        
         if(text.length > 0){
             SobotChatRichContent *content = [[SobotChatRichContent alloc] init];
-            content.msg = text;
-            content.attr = model.displayMsgAttr;
-            contentWidth = [self addText:content view:_chatConentView maxWidth:contentWidth showType:1 lastMsg:YES];
+            // 这里不再过滤html标签，展示纯文本的数据  也就是用户侧发送内容都是纯文本的消息展示 有html标签展示html标签
+            if(self.isRight){
+                // 如果是人机问答接口的
+                content.msg = text;
+//                content.attr = nil; // 不再做html格式转换
+            }else{
+                content.msg = text;
+                content.attr = model.displayMsgAttr;
+            }
+            // 这里需要处理 最大宽度 maxWidth
+            contentWidth = [self addText:content view:_chatConentView maxWidth:maxWidth showType:1 lastMsg:YES];
         }
     }else{
         // {type:0,1,2,3,msg:}
@@ -146,12 +157,11 @@
                     continue;
                 }
                 
-                if(i==model.richModel.richList.count-1){
-                    
-                }
-                
                 if(type == 0){
-                    
+                    if(self.isRight && model.richModel.richList.count == 1){
+                        item.msg = sobotConvertToString(model.richModel.content);
+                        item.attr = nil;
+                    }
                     int showType = [sobotConvertToString(item.showType) intValue];
                     CGFloat contentWidth1 = [self addText:item view:_chatConentView maxWidth:maxWidth showType:showType lastMsg:i == (model.richModel.richList.count-1)];
                     if(contentWidth < contentWidth1){
@@ -168,7 +178,6 @@
                     if(contentWidth < maxWidth){
                         contentWidth = maxWidth;
                     }
-                    
                     
                     SobotImageView *imgView = [[SobotImageView alloc] init];
                     [imgView setContentMode:UIViewContentModeScaleAspectFill];
@@ -567,10 +576,13 @@
     [superView addSubview:tipLabel];
     
     if(!sobotIsNull(item.name) && sobotConvertToString(item.name).length > 0 && sobotIsUrl(text,[ZCUIKitTools zcgetUrlRegular])){
+//        if(sobotIsUrl(item.name, [ZCUIKitTools zcgetUrlRegular])){
+//            item.name = [[NSString stringWithFormat:@"\%@",item.name] uppercaseString];
+//        }
         [tipLabel setText:[SobotHtmlCore filterHTMLTag:sobotConvertToString(item.name)]];
         [tipLabel addLinkToURL:[NSURL URLWithString:sobotConvertToString(text)] withRange:NSMakeRange(0, [SobotHtmlCore filterHTMLTag:sobotConvertToString(item.name)].length)];
     }else{
-        if(!sobotIsNull(attrString)){
+        if(!sobotIsNull(attrString) && !self.isRight){
             [self setDisplayAttributedString:attrString label:tipLabel guide:NO];
         }else{
             // 最后一行过滤所有换行，不是最后一行过滤一个换行
@@ -580,7 +592,9 @@
                 }
             }
             text = [SobotHtmlCore filterHTMLTag:text];
-            text = [ZCUIKitTools removeAllHTMLTag:text];
+            if(!self.isRight){
+                text = [ZCUIKitTools removeAllHTMLTag:text];
+            }
             tipLabel.text = text;
         }
     }
@@ -615,9 +629,9 @@
 //        [superView addConstraint:sobotLayoutMarginTop([ZCUIKitTools zcgetChatLineSpacing], linkBgView, tipLabel)];
         [superView addConstraint:sobotLayoutPaddingLeft(0,linkBgView, superView)];
         
-        NSLayoutConstraint *linkLayoutHeight = sobotLayoutEqualHeight(78, linkBgView, NSLayoutRelationEqual);
+        _linkLayoutHeight = sobotLayoutEqualHeight(78, linkBgView, NSLayoutRelationEqual);
         [superView addConstraint:sobotLayoutEqualWidth(links.width, linkBgView, NSLayoutRelationEqual)];
-        [superView addConstraint:linkLayoutHeight];
+        [superView addConstraint:_linkLayoutHeight];
         
         SobotButton *btn = [SobotButton buttonWithType:UIButtonTypeCustom];
         [btn setBackgroundColor:[UIColor clearColor]];
@@ -646,7 +660,7 @@
         
         NSLayoutConstraint *iconTop = sobotLayoutMarginTop(ZCChatCellItemSpace, icon, linktitleLab);
         [linkBgView addConstraint:iconTop];
-        [linkBgView addConstraint:sobotLayoutPaddingBottom(-12, icon, linkBgView)];
+//        [linkBgView addConstraint:sobotLayoutPaddingBottom(-12, icon, linkBgView)];// 去掉多余约束
         
         // 超链链接
         UILabel *linkdescLab = [[UILabel alloc]init];
@@ -664,18 +678,17 @@
         [self setLinkValues:text titleLabel:linktitleLab desc:linkdescLab imgView:icon superView:superView linkBgView:linkBgView name:sobotConvertToString(item.name)];
 //        [self setLinkValues:text titleLabel:linktitleLab desc:linkdescLab imgView:icon];
         
-        [self getLinkValues:text result:^(NSString * _Nonnull title, NSString * _Nonnull desc, NSString * _Nonnull iconUrl) {
+        [self getLinkValues:text name:sobotConvertToString(item.name) result:^(NSString * _Nonnull title, NSString * _Nonnull desc, NSString * _Nonnull iconUrl) {
             if(title.length > 0){
                 linktitleLab.text = sobotConvertToString(title);
                 linkdescLab.text = sobotConvertToString(desc);
-
+                self->_linkLayoutHeight.constant = 78;
                 [icon loadWithURL:[NSURL URLWithString:sobotConvertToString(iconUrl)] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
             }else{
                 linktitleLab.text = sobotConvertToString(text);
                 linkdescLab.hidden = YES;
                 descTop.constant = 0;
-                
-                linkLayoutHeight.constant = 60;
+                self->_linkLayoutHeight.constant = 60;
                 [linkBgView removeConstraint:iconTop];
                 [linkBgView addConstraint:sobotLayoutPaddingTop(0, icon, linktitleLab)];
                 
@@ -749,18 +762,18 @@
 //            }
         }
     } failed:^(NSString *errorMessage, ZCNetWorkCode errorCode) {
-        [SobotHtmlCore websiteFilter:sobotConvertToString(urlMsg) result:^(NSString * _Nonnull url, NSString * _Nonnull iconUrl, NSString * _Nonnull title, NSString * _Nonnull desc, NSDictionary * _Nullable dict) {
-            titleLab.text = sobotConvertToString(title);
-            linkLab.text = sobotConvertToString(desc);
-            
-            if (sobotConvertToString(desc).length == 0) {
-                linkLab.text = sobotConvertToString(urlMsg);
-            }
-            
-            if(sobotConvertToString(title).length > 0){
-                [SobotCache addObject:@{@"title":title,@"desc":desc,@"imgUrl":iconUrl} forKey:[NSString stringWithFormat:@"%@%@",Sobot_CacheURLHeader,sobotConvertToString(urlMsg)]];
-            }
-        }];
+//        [SobotHtmlCore websiteFilter:sobotConvertToString(urlMsg) result:^(NSString * _Nonnull url, NSString * _Nonnull iconUrl, NSString * _Nonnull title, NSString * _Nonnull desc, NSDictionary * _Nullable dict) {
+//            titleLab.text = sobotConvertToString(title);
+//            linkLab.text = sobotConvertToString(desc);
+//
+//            if (sobotConvertToString(desc).length == 0) {
+//                linkLab.text = sobotConvertToString(urlMsg);
+//            }
+//
+//            if(sobotConvertToString(title).length > 0){
+//                [SobotCache addObject:@{@"title":title,@"desc":desc,@"imgUrl":iconUrl} forKey:[NSString stringWithFormat:@"%@%@",Sobot_CacheURLHeader,sobotConvertToString(urlMsg)]];
+//            }
+//        }];
     }];
 }
 
@@ -826,7 +839,12 @@
                  if ([@"YES" isEqual:[rangeIDict objectForKey:NSStringFromRange(range)]]) {
                     font = [UIFont boldSystemFontOfSize:textFont.pointSize];
                  }
-                 UIFontDescriptor *desc = [UIFontDescriptor fontDescriptorWithName:font.fontName matrix:matrix];
+                 
+                 NSString *fontName = font.fontName;
+                 if([fontName hasSuffix:@"SFUI-Regular"]){
+                     fontName = @"TimesNewRomanPSMT";
+                 }
+                 UIFontDescriptor *desc = [UIFontDescriptor fontDescriptorWithName:fontName matrix:matrix];
                  [attributedString addAttribute:NSFontAttributeName value:[UIFont fontWithDescriptor:desc size:textFont.pointSize] range:range];
              }
              
@@ -852,3 +870,4 @@
     label.text = [attributedString copy];
 }
 @end
+

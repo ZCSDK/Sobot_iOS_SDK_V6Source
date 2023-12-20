@@ -8,7 +8,6 @@
 
 #import "EmojiBoardView.h"
 #import <SobotChatClient/SobotChatClient.h>
-
 #import "ZCUIKitTools.h"
 
 @interface EmojiBoardView()
@@ -53,6 +52,11 @@
                   forControlEvents:UIControlEventValueChanged];
         facePageControl.pageIndicatorTintColor=[UIColor lightGrayColor];
         facePageControl.currentPageIndicatorTintColor=[UIColor darkGrayColor];
+        
+//        facePageControl.pageIndicatorTintColor=[UIColor clearColor];
+//        facePageControl.currentPageIndicatorTintColor=[UIColor clearColor];
+        
+        
         facePageControl.currentPage = 0;
         [self addSubview:facePageControl];
         
@@ -106,7 +110,7 @@
         [item removeFromSuperview];
     }
     
-    CGFloat width=SobotViewWidth(self);
+    CGFloat width = SobotViewWidth(self);
     CGFloat EmojiWidth  = 44;
     CGFloat EmojiHeight = 48; // 2.8.4以前版本高度为44
     int columns         = width/EmojiWidth;
@@ -134,8 +138,6 @@
         [back setImage:SobotKitGetImage(@"zcicon_emoji_del_press") forState:UIControlStateSelected];
         [back setImage:SobotKitGetImage(@"zcicon_emoji_del_press") forState:UIControlStateHighlighted];
         [back setBackgroundColor:[UIColor clearColor]];
-        //        [back setImage:[UIImage imageNamed:@"del_emoji_normal"] forState:UIControlStateNormal];
-        //        [back setImage:[UIImage imageNamed:@"del_emoji_select"] forState:UIControlStateSelected];
         [back addTarget:self action:@selector(backFace) forControlEvents:UIControlEventTouchUpInside];
         back.frame = CGRectMake(itemX+i*width + (columns-2)*EmojiWidth, EmojiHeight * (rows-1)+8, EmojiWidth, EmojiHeight);
         [back setImageEdgeInsets:UIEdgeInsetsMake(3, 3, 3, 3)];
@@ -144,24 +146,22 @@
         
         //发送键
         UIButton *sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [sendButton setTitle:SobotKitLocalString(@"发送") forState:UIControlStateNormal];
+//        [sendButton setTitle:SobotKitLocalString(@"发送") forState:UIControlStateNormal];
         [sendButton.titleLabel setFont:SobotFont14];
         [sendButton.layer setCornerRadius:4.0f];
         [sendButton.layer setMasksToBounds:YES];
-//        [sendButton setImage:[ZCUITools zcuiGetBundleImage:@"zcicon_emoji_send"] forState:UIControlStateNormal];
-//        [sendButton setImage:[ZCUITools zcuiGetBundleImage:@"zcicon_emoji_send_press"] forState:UIControlStateSelected];
-//        [sendButton setImage:[ZCUITools zcuiGetBundleImage:@"zcicon_emoji_send_press"] forState:UIControlStateHighlighted];
-//        [sendButton setBackgroundColor:[UIColor clearColor]];
+        [sendButton setImage: SobotKitGetImage(@"zcicon_emoji_send") forState:UIControlStateNormal];
         // 更改更随主题色
-        [sendButton setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetLeaveSubmitImgColor]] forState:UIControlStateNormal];
-        [sendButton setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetLeaveSubmitImgColor]] forState:UIControlStateHighlighted];
+        [sendButton setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]] forState:UIControlStateNormal];
+        [sendButton setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]] forState:UIControlStateHighlighted];
         [sendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [sendButton setImageEdgeInsets:UIEdgeInsetsMake(3, 3, 3, 3)];
-        //        [back setImage:[UIImage imageNamed:@"del_emoji_normal"] forState:UIControlStateNormal];
-        //        [back setImage:[UIImage imageNamed:@"del_emoji_select"] forState:UIControlStateSelected];
         [sendButton addTarget:self action:@selector(sendEmoji) forControlEvents:UIControlEventTouchUpInside];
         [sendButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        sendButton.frame = CGRectMake(itemX+i*width + (columns-1)*EmojiWidth+1, EmojiHeight * (rows-1)+8+7, 42, 30);
+        sendButton.frame = CGRectMake(itemX+i*width + (columns-1)*EmojiWidth+7, EmojiHeight * (rows-1)+8+9, 30, 30);
+        sendButton.layer.masksToBounds = YES;
+        sendButton.layer.cornerRadius = 15;
+        
         [faceView addSubview:sendButton];
         
         for (int j=0; j<pageSize; j++) {

@@ -56,7 +56,6 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    self.navigationController.navigationBarHidden = NO;
     if ([ZCUICore getUICore].kitInfo.navcBarHidden) {
         self.navigationController.navigationBarHidden = YES;
         [self.titleLabel setText:SobotKitLocalString(@"客户服务中心")];
@@ -67,14 +66,12 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [ZCUICore getUICore].kitInfo.navcBarHidden = YES;// 测试代码
     self.view.backgroundColor = UIColorFromKitModeColor(SobotColorBgSub2Dark1);
-    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.automaticallyAdjustsScrollViewInsets = YES;
     if ([ZCUICore getUICore].kitInfo.navcBarHidden) {
         self.navigationController.navigationBarHidden = YES;
     }
     [self createVCTitleView];
-    [self updateNavOrTopView];
     [self createSubviews];
     [self loadData];
 }
@@ -90,15 +87,20 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
     [self.view addConstraint:sobotLayoutPaddingLeft(0, serviceBtnBgView, self.view)];
     [self.view addConstraint:sobotLayoutEqualHeight(80, serviceBtnBgView, NSLayoutRelationEqual)];
     [self.view addConstraint:sobotLayoutPaddingRight(0, serviceBtnBgView, self.view)];
+    CGFloat navh = NavBarHeight;
+    if (self.topView == nil || ![ZCUICore getUICore].kitInfo.navcBarHidden) {
+        navh = 0;
+    }
     _scrollView = ({
         UIScrollView *iv = [[UIScrollView alloc]init];
         [self.view addSubview:iv];
         iv.alwaysBounceVertical = YES;
         iv.alwaysBounceHorizontal = NO;
         iv.bounces = NO;
-        iv.frame = CGRectMake(0, NavBarHeight, ScreenWidth, ScreenHeight - NavBarHeight- 80);
+        iv.frame = CGRectMake(0, navh, ScreenWidth, self.view.frame.size.height - navh- 80);
         iv;
     });
+    
 }
 
 #pragma mark - 联系客服 和 联系电话点击事件
@@ -158,7 +160,7 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
             if ([dataArr isKindOfClass:[NSArray class]] && dataArr.count > 0) {
                 
                 for (NSDictionary *item in dataArr) {
-                    ZCSCListModel * listModel = [[ZCSCListModel alloc]initWithMyDict:item];
+                    ZCSCListModel * listModel = [[ZCSCListModel alloc]initWithMyDict:item];                    
                     [weakself.listArray addObject:listModel];
                 }
                 if (weakself.listArray.count > 0) {
@@ -178,11 +180,13 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
     CGFloat bw= _scrollView.frame.size.width;
     CGFloat x= 12;
     CGFloat y= 11;
-    CGFloat itemH = 76;
     CGFloat itemW = (bw-0.25 - 30)/2.0f;
+    
     int index = _listArray.count%2==0?round(_listArray.count/2):round(_listArray.count/2)+1;
+    UIView *lastView;
+    UIButton *lastBtn;
     for (int i =0; i<_listArray.count; i++) {
-        UIView * itemView = [self addItemView:_listArray[i] withX:x withY:y withW:itemW withH:itemH Tag:i];
+        UIView * itemView = [self addItemView:_listArray[i] withX:x withY:y withW:itemW Tag:i];
         itemView.layer.borderColor = UIColorFromKitModeColor(SobotColorBgLine).CGColor;
         itemView.layer.borderWidth = 1.0f;
         itemView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin |UIViewAutoresizingFlexibleWidth;
@@ -191,28 +195,66 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
         itemView.userInteractionEnabled = YES;
         itemView.tag = i;
         if(i%2==1){
+            // 右边的按钮,与上一个左边按钮对比，那个高度高，就使用那个高度
             x = 12;
-            y = y + itemH + 6;
+//            y = y + itemH + 6;
+
+            if (itemView.frame.size.height >= lastView.frame.size.height) {
+                CGRect lastF = lastView.frame;
+                lastF.size.height = itemView.frame.size.height;
+                lastView.frame = lastF;
+                CGRect btnF = lastBtn.frame;
+                btnF.size = lastF.size ;
+                lastBtn.frame = btnF;
+                y = y + 6 + lastF.size.height;
+            }else{
+                CGRect itemF = itemView.frame;
+                itemF.size.height = lastView.frame.size.height;
+                itemView.frame = itemF;
+                CGRect btnF = lastBtn.frame;
+                btnF.size = itemF.size ;
+                lastBtn.frame = btnF;
+                y = y + 6 + itemF.size.height;
+            }
+            lastView = itemView;
+            UIButton * btn = [UIButton buttonWithType:UIButtonTypeCustom];
+            btn.tag = i;
+            btn.frame = CGRectMake(0, 0, CGRectGetWidth(itemView.frame),CGRectGetHeight(itemView.frame));
+            btn.backgroundColor = [UIColor clearColor];
+            [btn addTarget:self action:@selector(tapItemAction:) forControlEvents:UIControlEventTouchUpInside];
+            [itemView addSubview:btn];
+            lastBtn = btn;
+            
         }else if(i%2==0){
             x = itemW + 12 + 6;
+            lastView = itemView;
+            UIButton * btn = [UIButton buttonWithType:UIButtonTypeCustom];
+            btn.tag = i;
+            btn.frame = CGRectMake(0, 0, CGRectGetWidth(itemView.frame),CGRectGetHeight(itemView.frame));
+            btn.backgroundColor = [UIColor clearColor];
+            [btn addTarget:self action:@selector(tapItemAction:) forControlEvents:UIControlEventTouchUpInside];
+            [itemView addSubview:btn];
+            lastBtn = btn;
         }
         [_scrollView addSubview:itemView];
     }
-    [_scrollView setContentSize:CGSizeMake(bw, index*itemH + index*6 + 10)];
-//    [_scrollView setContentInset:UIEdgeInsetsZero];
+    [_scrollView setContentSize:CGSizeMake(bw, CGRectGetMaxY(lastView.frame)+10)];
+//    [scrollView setContentInset:UIEdgeInsetsZero];
+
 }
 
--(UIView *)addItemView:(ZCSCListModel *) model withX:(CGFloat )x withY:(CGFloat) y withW:(CGFloat) w withH:(CGFloat) h Tag:(int)i{
-    UIView *itemView = [[UIView alloc] initWithFrame:CGRectMake(x, y, w,h)];
-    [itemView setFrame:CGRectMake(x, y, w, h)];
+#pragma mark - 创建单个的itemView
+-(UIView *)addItemView:(ZCSCListModel *) model withX:(CGFloat )x withY:(CGFloat) y withW:(CGFloat) w Tag:(int)i{
+    
+    UIView *itemView = [[UIView alloc] initWithFrame:CGRectMake(x, y, w,0)];
+    [itemView setFrame:CGRectMake(x, y, w, 0)];
     [itemView setBackgroundColor:UIColorFromKitModeColor(SobotColorWhite)];
+    
     SobotImageView *img = [[SobotImageView alloc]initWithFrame:CGRectMake(14, 18, 40, 40)];
-    __weak ZCServiceCentreVC *weakSelf = self;
     [img loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model.categoryUrl)] placeholer:nil showActivityIndicatorView:NO completionBlock:^(UIImage *image, NSURL *url, NSError *error) {
         if(image){
             dispatch_async(dispatch_get_main_queue(), ^{
-//                img.image = [weakSelf grayImage:image];
-                img.image = image;
+                img.image = [self grayImage:image];
             });
         }
     }];
@@ -221,34 +263,35 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
     [img setBackgroundColor:UIColorFromKitModeColor(SobotColorBgSub)];
     [itemView addSubview:img];
     
-    UILabel *titlelab = [[UILabel alloc]initWithFrame:CGRectMake(CGRectGetMaxX(img.frame) + 10, 20, w - 60, 20)];
-    titlelab.numberOfLines = 1;
+    CGFloat maxW = w-70;
+    CGFloat titleH = [ZCUIKitTools getHeightContain:sobotConvertToString(model.categoryName) font:SobotFontBold14 Width:maxW];
+    CGFloat detailH = [ZCUIKitTools getHeightContain:sobotConvertToString(model.categoryDetail) font:SobotFont12 Width:maxW];
+    
+    
+    UILabel *titlelab = [[UILabel alloc]initWithFrame:CGRectMake(CGRectGetMaxX(img.frame) + 10, 20, maxW, titleH)];
+    titlelab.numberOfLines = 0;
     [titlelab setTextAlignment:NSTextAlignmentLeft];
     [titlelab setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
     [titlelab setText:sobotConvertToString(model.categoryName)];
     [titlelab setFont:SobotFontBold14];
     [itemView addSubview:titlelab];
-    [titlelab sizeToFit];
     
-    UILabel *detailLab = [[UILabel alloc] initWithFrame:CGRectZero];
-    detailLab.frame = CGRectMake(CGRectGetMaxX(img.frame) +10, CGRectGetMaxY(titlelab.frame) +2, w - 60, 40);
+    
+    UILabel *detailLab = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(img.frame) +10, CGRectGetMaxY(titlelab.frame) +2, maxW, detailH)];
     [detailLab setTextAlignment:NSTextAlignmentLeft];
-    detailLab.numberOfLines = 2;
+    detailLab.numberOfLines = 0;
     [detailLab setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
     [detailLab setText:sobotConvertToString(model.categoryDetail)];
     [detailLab setFont:SobotFont12];
     [itemView addSubview:detailLab];
-    CGSize s = [detailLab sizeThatFits:CGSizeMake(w - 70, 40)];
-    [titlelab setFrame:CGRectMake(CGRectGetMaxX(img.frame) + 6, (h - 20 - s.height - 2)/2, w - 70, 20)];
-    detailLab.frame = CGRectMake(CGRectGetMaxX(img.frame) +6, CGRectGetMaxY(titlelab.frame) +2, w - 70, s.height);
-    UIButton * btn = [UIButton buttonWithType:UIButtonTypeCustom];
-    btn.tag = i;
-    btn.frame = CGRectMake(0, 0, CGRectGetWidth(itemView.frame),CGRectGetHeight(itemView.frame));
-    btn.backgroundColor = [UIColor clearColor];
-    [btn addTarget:self action:@selector(tapItemAction:) forControlEvents:UIControlEventTouchUpInside];
-    [itemView addSubview:btn];
+    
+    CGRect vf = itemView.frame;
+    vf.size.height = CGRectGetMaxY(detailLab.frame) + 15;
+    itemView.frame = vf;
+
     return itemView;
 }
+
 
 #pragma mark - 跳转到条目列表页面
 -(void)tapItemAction:(UIButton *)sender{
@@ -269,6 +312,9 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
 
 -(UIImage *)grayImage:(UIImage *) image{
     if([SobotUITools getSobotThemeMode] == SobotThemeMode_Dark){
+        return image;
+    }
+    if(image.size.width == 0 || image.size.height == 0){
         return image;
     }
     UIGraphicsBeginImageContextWithOptions(image.size, NO, [UIScreen mainScreen].scale);
@@ -328,6 +374,7 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
     serviceBtn.layer.borderWidth = 0.5f;
     serviceBtn.layer.cornerRadius = 22.0f;
     serviceBtn.layer.masksToBounds = YES;
+    serviceBtn.titleLabel.lineBreakMode = 4;
     [serviceBtn setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark2)];
     [serviceBtn setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 3)];
     [serviceBtn setTitleEdgeInsets:UIEdgeInsetsMake(0, 3, 0, 0)];
@@ -336,40 +383,20 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
     return serviceBtn;
 }
 
-#pragma mark - 更新导航栏
--(void)updateNavOrTopView{
-    // 统计 系统导航栏上面的按钮
-    NSMutableArray *rightItem = [NSMutableArray array];
-    NSMutableDictionary *navItemSource = [NSMutableDictionary dictionary];
-    [rightItem addObject:@(SobotButtonClickBack)];
-    [navItemSource setObject:@{@"img":@"zcicon_titlebar_back_normal",@"imgsel":sobotConvertToString([ZCUICore getUICore].kitInfo.topBackNolImg)} forKey:@(SobotButtonClickBack)];
-    // 更新系统导航栏的按钮
-    self.navItemsSource = navItemSource;
-    [self setLeftTags:rightItem rightTags:@[] titleView:nil];
-    if (!self.navigationController.navigationBarHidden) {
-        if([ZCUIKitTools getZCThemeStyle] == SobotThemeMode_Light){
-            if(sobotGetSystemDoubleVersion() >= 13){
-                self.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
-                self.navigationController.toolbar.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
-            }
-        }
-    }else{
-        self.moreButton.hidden = YES;
-        self.titleLabel.hidden = NO;
-        self.backButton.hidden = NO;
-        self.bottomLine.hidden = YES;
-    }
-}
-
 // 适配iOS 13以上的横竖屏切换
 -(void)viewSafeAreaInsetsDidChange{
     [super viewSafeAreaInsetsDidChange];
     UIEdgeInsets e = self.view.safeAreaInsets;
     // 横竖屏更新导航栏渐变色
     [self updateCenterViewBgColor];
+    [self updateNavOrTopView];
+    CGFloat navh = NavBarHeight;
+    if (self.topView == nil || ![ZCUICore getUICore].kitInfo.navcBarHidden) {
+        navh = 0;
+    }
     // 中间部分
     if (self.scrollView) {
-        self.scrollView.frame = CGRectMake(e.left, NavBarHeight, ScreenWidth-e.left*2, ScreenHeight - NavBarHeight- 80);
+        self.scrollView.frame = CGRectMake(e.left, navh, ScreenWidth-e.left*2, self.view.frame.size.height - navh- 80);
         if (_listArray.count > 0) {
             [self removePlaceholderView];
             [_scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
@@ -383,6 +410,10 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
         self.telBtnEW = sobotLayoutEqualWidth(itemW, self.telButton, NSLayoutRelationEqual);
         [serviceBtnBgView addConstraint:self.telBtnEW];
     }
+}
+
+-(void)dealloc{
+    SLog(@"zcservicecentevc dealloc", nil);
 }
 
 @end

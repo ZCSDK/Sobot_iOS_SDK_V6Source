@@ -92,11 +92,12 @@ NS_ASSUME_NONNULL_BEGIN
 +(UIColor *)zcgetRobotBackGroundColorWithSize:(CGSize)size;
 
 /// 设置帮助中心的导航栏颜色
-/// @param size 导航栏的大小
+/// @param size 导航栏的大小，
+/// 已废弃，统一使用zcgetNavBackGroundColorWithSize
 +(UIColor *)zcgetscTopBgColorWithSize:(CGSize)size;
 
 /// 设置主题按钮的背景颜色
-+(UIColor *)zcgetRobotBtnBgColor;
++(UIColor *)zcgetServerConfigBtnBgColor;
 
 /// 设置按钮的文字颜色
 +(UIColor *)zcgetRobotBtnTitleColor;
@@ -116,6 +117,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 留言提交按钮的背景颜色
 +(UIColor *)zcgetLeaveSubmitImgColor;
+
+/// 自定义卡片商品价格标签的文字颜色
++(UIColor *)zcgetPricetTagTextColor;
 /**
  *   留言页面 中 提交按钮的文字颜色
  */
@@ -134,6 +138,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 +(UIColor *)zcgetRightChatColor;
 
+// 设置右边气泡颜色
++(UIColor *)zcgetRightChatColorWithSize:(CGSize)size;
+
 /// 右边气泡选中的颜色
 +(UIColor *)zcgetChatRightSelBgColor;
 
@@ -150,6 +157,13 @@ NS_ASSUME_NONNULL_BEGIN
  *  聊天语音cell选中的背景色
  */
 +(UIColor *)zcgetChatRightVideoSelBgColor;
+
+
+/// 聊天语音翻译背景颜色
++(UIColor *)zcgetRightChatVoiceTextBgColor;
+
+/// 聊天语音翻译文字颜色
++(UIColor *)zcgetRightChatVoiceTextColor;
 
 /**
  *  聊天气泡中左边链接的颜色
@@ -333,6 +347,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 +(UIColor *)zcgetTopViewBgColor;
 
+/**
+ *    请您留言 和留言记录 以及选中的线条颜色
+ */
++(UIColor *)zcgetLeaveTitleTextColor;
+
 /// 引导语行间距，3.0.3新增
 +(CGFloat )zcgetChatGuideLineSpacing;
 
@@ -366,6 +385,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)addTopBorderWithColor: (UIColor *) color andWidth:(CGFloat) borderWidth withView:(UIView *) view;
 + (void)addTopBorderWithColor: (UIColor *) color andWidth:(CGFloat) borderWidth andViewWidth:(CGFloat) viewWidth withView:(UIView *) view;
 
++(CGFloat)getHeightContain:(NSString *)string font:(UIFont *)font Width:(CGFloat) width;
++(CGFloat)getWidthContain:(NSString *)string font:(UIFont *)font Height:(CGFloat) height;
 @end
 
 NS_ASSUME_NONNULL_END

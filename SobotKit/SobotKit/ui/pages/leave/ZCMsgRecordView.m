@@ -79,8 +79,11 @@
                 [weakSelf.listArray removeAllObjects];
                 weakSelf.listArray = itemArray;
                 [weakSelf.listView reloadData];
+                if (itemArray.count == 0) {
+                    [weakSelf createPlaceholderView:SobotKitLocalString(@"暂无相关信息") message:@"" image:nil withView:self.listView action:nil];
+                }
             }else{
-                [weakSelf createPlaceholderView:SobotKitLocalString(@"暂无相关信息") message:@"" image:nil withView:self action:nil];
+                [weakSelf createPlaceholderView:SobotKitLocalString(@"暂无相关信息") message:@"" image:nil withView:self.listView action:nil];
             }
             
         } @catch (NSException *exception) {
@@ -89,7 +92,7 @@
             
         }
     } failed:^(NSString * _Nonnull errorMessage, ZCNetWorkCode errorCode) {
-            
+        [weakSelf createPlaceholderView:SobotKitLocalString(@"暂无相关信息") message:@"" image:nil withView:self.listView action:nil];
     }];
 }
 
@@ -160,7 +163,7 @@
     [_placeholderView setBackgroundColor:[UIColor clearColor]];
     [superView addSubview:_placeholderView];
     CGRect pf = CGRectMake(0, 0, superView.bounds.size.width, 0);
-    UIImageView *icon = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"robot_default"]];
+    UIImageView *icon = [[UIImageView alloc]initWithImage: [SobotUITools getSysImageByName:@"robot_default"]];
     if(image){
         [icon setImage:image];
     }

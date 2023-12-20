@@ -43,7 +43,10 @@ typedef void(^SobotNetworkProgressBlock)(CGFloat progress);
 
 
 @interface SobotHttps : NSObject
-
++(SobotHttps *) getZCHttpManager;
+-(void)cancelConnectMsgId:(NSString *)msgid;
+// 如果是国内添加/text,呼叫和其它环境不加/text
++(NSString *)adapteUrlHost:(NSString *) url;
 
 +(void)get:(NSString *)stringURL header:(NSDictionary *) header start:(SobotNetworkStartBlock)startBlock finish:(SobotNetworkFinishBlock)finishBlock result:(SobotNetworkResultBlock)resultBlock progress:(SobotNetworkProgressBlock)progressBlock;
 
@@ -74,6 +77,9 @@ typedef void(^SobotNetworkProgressBlock)(CGFloat progress);
 //};
 +(void)post:(NSString *)stringURL params:(NSDictionary *)dict header:(NSDictionary *) header timeOut:(CGFloat)timeOut mode:(NSInteger )mode start:(SobotNetworkStartBlock)startBlock finish:(SobotNetworkFinishBlock)finishBlock result:(SobotNetworkResultBlock)resultBlock progress:(SobotNetworkProgressBlock)progressBlock;
 
+
+// 可以设置请求方式
++(void)url:(NSString *)stringURL params:(NSDictionary *)dict header:(NSDictionary *) header timeOut:(CGFloat)timeOut mode:(NSInteger )mode method:(NSString *)method start:(SobotNetworkStartBlock)startBlock finish:(SobotNetworkFinishBlock)finishBlock result:(SobotNetworkResultBlock)resultBlock progress:(SobotNetworkProgressBlock)progressBlock;
 @end
 
 NS_ASSUME_NONNULL_END

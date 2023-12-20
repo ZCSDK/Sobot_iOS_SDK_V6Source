@@ -6,17 +6,23 @@
 //
 
 #import "ZCChatTextCell.h"
+#import "ZCChatReferenceCell.h"
 
-@interface ZCChatTextCell(){
+@interface ZCChatTextCell()<ZCChatReferenceCellDelegate>{
     NSLayoutConstraint *layoutWidth;
-    NSLayoutConstraint *layoutHeight;
     NSLayoutConstraint *layoutBgWidth;
     UIView *_lastView;
 }
 
+@property(nonatomic,strong) UIView *refrenceView;
 @property(nonatomic,strong) SobotEmojiLabel *lblMessage;
 @property(nonatomic,strong) UIView *linkBgView;
 @property(nonatomic,strong) NSLayoutConstraint *linkBgViewEH;
+@property(nonatomic,strong) NSLayoutConstraint *layoutHeight;
+
+@property(nonatomic,strong) NSLayoutConstraint *layoutReferenceW;
+@property(nonatomic,strong) NSLayoutConstraint *layoutMessageTop;
+
 @end
 
 @implementation ZCChatTextCell
@@ -36,14 +42,30 @@
 }
 
 -(void)createItemViews{
-    _lblMessage = [ZCChatBaseCell createRichLabel];
+    _refrenceView = [[UIView alloc] init];
+    [self.contentView addSubview:_refrenceView];
+    // 不设置优先级，会有警告
+//    NSLayoutConstraint *layoutRR = sobotLayoutPaddingRight(-ZCChatPaddingHSpace, _refrenceView, self.ivBgView);
+//    layoutRR.priority = UILayoutPriorityDefaultLow;
+    
+    _layoutReferenceW = sobotLayoutEqualWidth(240, self.refrenceView, NSLayoutRelationEqual);
+    _layoutReferenceW.priority = UILayoutPriorityDefaultHigh;
+    [self.contentView addConstraint:_layoutReferenceW];
+    [self.contentView addConstraints:sobotLayoutPaddingView(ZCChatPaddingVSpace, 0, ZCChatPaddingHSpace, 0, _refrenceView, self.ivBgView)];
+    
+    _lblMessage = [ZCChatBaseCell createRichLabel:self];
+//    _lblMessage.delegate = self;
     [self.contentView addSubview:_lblMessage];
     layoutWidth = sobotLayoutEqualWidth(0, _lblMessage, NSLayoutRelationEqual);
-    layoutHeight = sobotLayoutEqualHeight(0, _lblMessage, NSLayoutRelationEqual);
+    _layoutHeight = sobotLayoutEqualHeight(0, _lblMessage, NSLayoutRelationEqual);
     [self.contentView addConstraint:layoutWidth];
-    [self.contentView addConstraint:layoutHeight];
+    [self.contentView addConstraint:_layoutHeight];
     [self.contentView addConstraint:sobotLayoutMarginBottom(-ZCChatCellItemSpace, _lblMessage, self.lblSugguest)];
-    [self.contentView addConstraints:sobotLayoutPaddingView(ZCChatPaddingVSpace, 0, ZCChatPaddingHSpace, 0, _lblMessage, self.ivBgView)];
+    // 修改原有代码，顶部约束添加到refrenceView上
+//    [self.contentView addConstraints:sobotLayoutPaddingView(ZCChatPaddingVSpace, 0, ZCChatPaddingHSpace, 0, _lblMessage, self.ivBgView)];
+    [self.contentView addConstraints:sobotLayoutPaddingView(0, 0, ZCChatPaddingHSpace, 0, _lblMessage, self.ivBgView)];
+    _layoutMessageTop = sobotLayoutMarginTop(0, _lblMessage, self.refrenceView);
+    [self.contentView addConstraint:_layoutMessageTop];
     
     _linkBgView = [[UIView alloc]init];
     _linkBgView.layer.cornerRadius = 4;
@@ -57,6 +79,7 @@
     self.linkBgViewEH = sobotLayoutEqualHeight(78, _linkBgView, NSLayoutRelationEqual);
     [self.contentView addConstraint:self.linkBgViewEH];
     [self.contentView addConstraint:sobotLayoutPaddingLeft(0,_linkBgView, _lblMessage)];
+    _linkBgView.hidden = YES;
     
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(doLongPress:)];
     self.lblMessage.userInteractionEnabled = YES;
@@ -64,23 +87,24 @@
     
     self.linkBgView.userInteractionEnabled = YES;
     [self.linkBgView addGestureRecognizer:longPress];
-    
+
 }
+
 
 -(void)initDataToView:(SobotChatMessage *) message time:(NSString *) showTime{
     [super initDataToView:message time:showTime];
-    NSLog(@"isShowSenderFlag=== %d",message.isShowSenderFlag);
-    NSLog(@"富文本消息的内容 %@",message.displayMsgAttr);
     _lblMessage.text = @"";
     
-    #pragma mark 标题+内容
+#pragma mark 标题+内容
     NSString *text = @"";
-    
-    if (message.displayMsgAttr==nil) {
-        text = sobotConvertToString([message getModelDisplayText:YES]);
-    }else{
+    _linkBgViewEH.constant = 0;
+    self->_layoutHeight.constant = 0;
+    if(self.isRight){
         text = sobotConvertToString([message getModelDisplayText]);
+    }else{
+        text = sobotConvertToString([message getModelDisplayText:YES]);
     }
+    
     // 3.0.9兼容旧版本机器人语音显示空白问题
     if(sobotConvertToString(text).length == 0 && sobotConvertToString(message.richModel.msgtranslation).length > 0){
         text = sobotConvertToString(message.richModel.msgtranslation);
@@ -97,8 +121,10 @@
             [_lblMessage setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
             [_lblMessage setLinkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
         }
-        if(!sobotIsNull(message.displayMsgAttr)){
-            [self setDisplayAttributedString:message.displayMsgAttr label:_lblMessage model:message guide:NO];
+        
+        // 4.0.4版本去掉使用displayMsgAttr，直接使用setText，否则url，手机号不能根据正则识别
+        if(!sobotIsNull(message.displayMsgAttr) && [text containsString:@"<"] && !self.isRight){
+            [self setDisplayAttributedString:message.displayMsgAttr label:_lblMessage guide:NO];
         }else{
             // 最后一行过滤所有换行，不是最后一行过滤一个换行
             [_lblMessage setText:text];
@@ -106,24 +132,84 @@
         s = [_lblMessage preferredSizeWithMaxWidth:maxContentWidth];
     }
     layoutWidth.constant = s.width;
-    layoutHeight.constant = s.height;
+    _layoutHeight.constant = s.height;
     
     CGFloat w = [self addText:text maxWidth:maxContentWidth];
     if(s.width < w){
         s.width = w;
     }
-    if(s.height > 24){
-        s.width = self.maxWidth;
-    }
-    if(message.includeSensitive > 0 && message.senderType == 0){
-        [_linkBgView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-        CGSize s = [self getAuthSensitiveView:message width:self.maxWidth with:_linkBgView msgLabel:_lblMessage];
-        [_linkBgView addConstraint:sobotLayoutPaddingBottom(-ZCChatCellItemSpace, _lastView, _linkBgView)];
-        layoutHeight.constant = s.height;
+    _layoutMessageTop.constant = 0;
+    // 开通了消息引用功能，并且有引用消息，显示
+    if([[ZCUICore getUICore] getLibConfig].msgAppointFlag == 1 && self.tempModel.appointMessage!=nil && [self.tempModel.appointMessage isKindOfClass:[SobotChatMessage class]]){
+        [self.refrenceView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        _layoutMessageTop.constant = 10;
+        // 添加引用消息
+        ZCChatReferenceCell *rview = [ZCChatReferenceCell createViewUseFactory:self.tempModel.appointMessage mainModel:self.tempModel maxWidth:self.maxWidth];
+        rview.maxWidth = self.maxWidth;
+        rview.delegate = self;
+        // 未实现消息不展示
+        if(!sobotIsNull(rview)){
+            // 有引用消息时，显示最大宽度
+//            s.width = maxContentWidth;
+            CGFloat tempWidth = [rview getContenMaxWidth];
+            if(tempWidth >s.width){
+                s.width = tempWidth;
+            }
+            if(s.width > maxContentWidth){
+                s.width = maxContentWidth;
+            }
+            
+            _layoutReferenceW.constant = s.width;
+            [self.refrenceView addSubview:rview];
+//            [self.refrenceView addConstraints:sobotLayoutPaddingWithAll(0, 0, 0, 0, rview, self.refrenceView)];
+            [self.refrenceView addConstraint:sobotLayoutPaddingTop(0, rview, self.refrenceView)];
+            [self.refrenceView addConstraint:sobotLayoutPaddingLeft(0, rview, self.refrenceView)];
+//            [self.refrenceView addConstraint:sobotLayoutPaddingRight(0, rview, self.refrenceView)];
+            [self.refrenceView addConstraint:sobotLayoutEqualWidth(s.width, rview, NSLayoutRelationEqual)];
+            [self.refrenceView addConstraint:sobotLayoutPaddingBottom(0, rview, self.refrenceView)];
+            [self.refrenceView layoutIfNeeded];
+        }
+    }else{
+        [self.refrenceView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     }
     
-//    [_lblMessage layoutIfNeeded];
+    if(message.includeSensitive > 0 && message.senderType == 0){
+        s = [self getAuthSensitiveView:message width:self.maxWidth with:_linkBgView];
+        //        [_linkBgView addConstraint:sobotLayoutPaddingBottom(-ZCChatCellItemSpace, _lastView, _linkBgView)];
+        _layoutHeight.constant = s.height;
+    }
+    
     [self setChatViewBgState:CGSizeMake(s.width, s.height)];
+}
+
+#pragma mark -- 引用cell的代理事件
+-(void)onReferenceCellEvent:(SobotChatMessage * _Nullable) model type:(ZCChatReferenceCellEvent) type state:(int) state obj:(id _Nullable) obj{
+    if(self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]){
+        
+        int index = 0;
+        // 点击事件键盘都回收
+        if(type == ZCChatReferenceCellEventCloseKeyboard){
+            index = ZCChatCellClickTypeItemCloseKeyboard;
+            [self.delegate cellItemClick:model type:index text:@"" obj:nil];
+        }
+        
+        if(type == ZCChatReferenceCellEventOpenFileToDocment){
+            index = ZCChatCellClickTypeOpenFile; // 打开文件
+        }
+        if(type == ZCChatReferenceCellEventPlayVoice){
+            index = ZCChatCellClickTypePlayVoice;
+        }
+        if(type == ZCChatReferenceCellEventOpenLocation){
+            index = ZCChatCellClickTypeItemOpenLocation;
+        }
+        if(type == ZCChatReferenceCellEventAppletAction){
+            index = ZCChatCellClickTypeAppletAction;
+        }
+        if(type == ZCChatReferenceCellEventOpenURL){
+            index = ZCChatCellClickTypeOpenURL;
+        }
+        [self.delegate cellItemClick:model type:index text:@"" obj:obj];
+    }
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -132,13 +218,19 @@
     // Configure the view for the selected state
 }
 
+//- (void)SobotEmojiLabel:(SobotEmojiLabel*)emojiLabel didSelectLink:(NSString*)link withType:(SobotEmojiLabelLinkType)type{
+//    [self doClickURL:link text:@""];
+//}
 
 -(CGFloat )addText:(NSString *)text maxWidth:(CGFloat ) cMaxWidth{
+    _linkBgViewEH.constant = 0;
     _linkBgView.hidden = YES;
+   
     if (sobotIsUrl(text, [ZCUIKitTools zcgetUrlRegular])) {
+        _linkBgView.backgroundColor = UIColorFromModeColor(SobotColorBgMainDark3);
         _lblMessage.text = @"";
         layoutBgWidth.constant = cMaxWidth;
-        layoutHeight.constant = 78;
+        _layoutHeight.constant = 78;
         _linkBgView.hidden = NO;
         [_linkBgView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
         
@@ -153,7 +245,7 @@
         UILabel *linktitleLab = [[UILabel alloc]init];
         linktitleLab.font = SobotFontBold14;
         linktitleLab.text = SobotKitLocalString(@"解析中...");
-        linktitleLab.textColor = UIColorFromModeColor(SobotColorTextMain);;
+        linktitleLab.textColor = UIColorFromModeColor(SobotColorTextMain);
         [self.linkBgView addSubview:linktitleLab];
         linktitleLab.numberOfLines = 1;
         [self.linkBgView addConstraint:sobotLayoutEqualHeight(20, linktitleLab, NSLayoutRelationEqual)];
@@ -169,7 +261,10 @@
         [self.linkBgView addConstraint:sobotLayoutPaddingRight(-15, icon, self.linkBgView)];
         NSLayoutConstraint *iconTop = sobotLayoutMarginTop(ZCChatCellItemSpace, icon, linktitleLab);
         [self.linkBgView addConstraint:iconTop];
-        [self.linkBgView addConstraint:sobotLayoutPaddingBottom(-12, icon, self.linkBgView)];
+        NSLayoutConstraint *iocnMT = sobotLayoutMarginTop(1, icon, linktitleLab);
+        iocnMT.priority = UILayoutPriorityDefaultHigh;
+        [self.linkBgView addConstraint:iocnMT];// 处理约束警告
+//        [self.linkBgView addConstraint:sobotLayoutPaddingBottom(-12, icon, self.linkBgView)];
         
         // 超链链接
         UILabel *linkdescLab = [[UILabel alloc]init];
@@ -181,11 +276,16 @@
         NSLayoutConstraint *descTop = sobotLayoutMarginTop(ZCChatCellItemSpace, linkdescLab, linktitleLab);
         [self.linkBgView addConstraint:descTop];
         [self.linkBgView addConstraint:sobotLayoutMarginRight(-ZCChatCellItemSpace, linkdescLab, icon)];
-        
+
 //        [self setLinkValues:text titleLabel:linktitleLab desc:linkdescLab imgView:icon];
+
+        SobotWeakSelf(self);
         
-        [self getLinkValues:text result:^(NSString * _Nonnull title, NSString * _Nonnull desc, NSString * _Nonnull iconUrl) {
+        [self getLinkValues:text name:@"" result:^(NSString * _Nonnull title, NSString * _Nonnull desc, NSString * _Nonnull iconUrl) {
+            SobotStrogSelf(self);
             if(title.length > 0){
+               self.linkBgViewEH.constant = 78;
+               self.layoutHeight.constant = 78;
                 linktitleLab.text = sobotConvertToString(title);
                 linkdescLab.text = sobotConvertToString(desc);
 
@@ -194,76 +294,21 @@
                 linktitleLab.text = sobotConvertToString(text);
                 linkdescLab.hidden = YES;
                 descTop.constant = 0;
+                self->_linkBgViewEH.constant = 60;
+                self->_layoutHeight.constant = 60;
+                [self->_linkBgView removeConstraint:iconTop];
+                [self->_linkBgView addConstraint:sobotLayoutPaddingTop(0, icon, linktitleLab)];
                 
-                layoutHeight.constant = 60;
-                [_linkBgView removeConstraint:iconTop];
-                [_linkBgView addConstraint:sobotLayoutPaddingTop(0, icon, linktitleLab)];
-                
-                [_linkBgView removeConstraint:rightTitle];
-                [_linkBgView addConstraint:sobotLayoutMarginRight(-15, linktitleLab, icon)];
+                [self->_linkBgView removeConstraint:rightTitle];
+                [self->_linkBgView addConstraint:sobotLayoutMarginRight(-15, linktitleLab, icon)];
                 
                 [icon loadWithURL:[NSURL URLWithString:sobotConvertToString(iconUrl)] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
+                
             }
         }];
-        
-        
         return cMaxWidth;
     }
     return 0;
-}
-
--(void)setLinkValues:(NSString *) urlMsg titleLabel:(UILabel *)titleLab desc:(UILabel *) linkLab imgView:(SobotImageView *) icon{
-    NSDictionary *item = [SobotCache getLocalParamter:[NSString stringWithFormat:@"%@%@",Sobot_CacheURLHeader,sobotConvertToString(urlMsg)]];
-    if(!sobotIsNull(item) && item.count > 0){
-        titleLab.text = sobotConvertToString(item[@"title"]);
-        linkLab.text = sobotConvertToString(item[@"desc"]);
-
-        NSString *imgUrl = sobotConvertToString([item objectForKey:@"imgUrl"]);
-        if (sobotConvertToString(linkLab.text).length == 0) {
-            linkLab.text = sobotConvertToString(urlMsg);
-        }
-        [icon loadWithURL:[NSURL URLWithString:sobotConvertToString(imgUrl)] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
-        return;
-    }
-    
-    [ZCLibServer getHtmlAnalysisWithURL:sobotConvertToString(urlMsg) start:^(NSString *url){
-        
-    } success:^(NSDictionary *dict, ZCNetWorkCode sendCode) {
-        if (!sobotIsNull(dict)) {
-            NSDictionary *data = [dict objectForKey:@"data"];
-            NSString *title = sobotConvertToString([data objectForKey:@"title"]);
-            NSString *desc = sobotConvertToString([data objectForKey:@"desc"]);
-            NSString *imgUrl = sobotConvertToString([data objectForKey:@"imgUrl"]);
-            [SobotCache addObject:data forKey:[NSString stringWithFormat:@"%@%@",Sobot_CacheURLHeader,sobotConvertToString(urlMsg)]];
-            
-            titleLab.text = sobotConvertToString(title);
-            linkLab.text = sobotConvertToString(desc);
-            if (sobotConvertToString(desc).length == 0) {
-                linkLab.text = sobotConvertToString(urlMsg);
-            }
-            [icon loadWithURL:[NSURL URLWithString:imgUrl] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
-            
-            if (sobotConvertToString(title).length == 0 &&
-                sobotConvertToString(desc).length == 0 &&
-                sobotConvertToString(imgUrl).length == 0) {
-                [self.contentView removeConstraint:self->_linkBgViewEH];
-                self->_linkBgViewEH = sobotLayoutEqualHeight(0,self->_linkBgView, NSLayoutRelationEqual);
-                [self.contentView addConstraint:self->_linkBgViewEH];
-            }
-        }
-    } failed:^(NSString *errorMessage, ZCNetWorkCode errorCode) {
-        [SobotHtmlCore websiteFilter:sobotConvertToString(urlMsg) result:^(NSString * _Nonnull url, NSString * _Nonnull iconUrl, NSString * _Nonnull title, NSString * _Nonnull desc, NSDictionary * _Nullable dict) {
-            titleLab.text = sobotConvertToString(title);
-            linkLab.text = sobotConvertToString(desc);
-            
-            if (sobotConvertToString(desc).length == 0) {
-                linkLab.text = sobotConvertToString(urlMsg);
-            }
-            if(sobotConvertToString(title).length > 0){
-                [SobotCache addObject:@{@"title":title,@"desc":desc,@"imgUrl":iconUrl} forKey:[NSString stringWithFormat:@"%@%@",Sobot_CacheURLHeader,sobotConvertToString(urlMsg)]];
-            }
-        }];
-    }];
 }
 
 #pragma mark - 超链的点击
@@ -284,68 +329,75 @@
 /// @param message  当前消息体
 /// @param maxWidth  最大宽度
 /// @param superView  要添加的父类
-/// @param richLabel  要展示的label
--(CGSize ) getAuthSensitiveView:(SobotChatMessage *) message width:(CGFloat ) maxWidth with:(UIView *) superView msgLabel:(SobotEmojiLabel *) richLabel{
+-(CGSize ) getAuthSensitiveView:(SobotChatMessage *) message width:(CGFloat ) maxWidth with:(UIView *) superView{
     CGFloat h = 10;
     CGFloat lineSpace = [ZCUIKitTools zcgetChatLineSpacing];
     NSString *text = sobotConvertToString([message getModelDisplayText]);
-    CGFloat contentWidth = maxWidth - 20;
-    if(!richLabel){
-        richLabel = [ZCChatBaseCell createRichLabel];
+    if(self.isRight){
+        text = sobotConvertToString([message getModelDisplayTextUnHtml]);
     }
-    [superView addSubview:richLabel];
-    [richLabel setTextColor:UIColorFromModeColor(SobotColorTextSub)];
-    if(!sobotIsNull(message.displayMsgAttr)){
-        [self setDisplayAttributedString:message.displayMsgAttr label:richLabel model:message guide:NO];
-    }else{
-        // 最后一行过滤所有换行，不是最后一行过滤一个换行
-        [richLabel setText:text];
-    }
-    CGSize s = [richLabel preferredSizeWithMaxWidth:contentWidth];
-    BOOL isShowExport = NO;
-    if(s.height > 60 && !message.showAllMessage){
-        isShowExport = YES;
-        s.height = 60;
-    }
-    h = h + s.height + 10 + lineSpace;
-    if(contentWidth < s.width){
-        contentWidth = s.width;
-    }
-    _lastView = richLabel;
+    
+    _lblMessage.text = @"";
+    layoutBgWidth.constant = maxWidth;
+    _layoutHeight.constant = h;
+    _linkBgView.hidden = NO;
+    [_linkBgView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     
     NSString *warningTips = sobotConvertToString(message.sentisiveExplain);
     if(superView){
+        CGFloat contentWidth = maxWidth - 20;
+        _linkBgView.backgroundColor = UIColor.clearColor;
+       
+        
         UIImageView *ivBg = [[UIImageView alloc] init];
         ivBg.layer.cornerRadius = 2.0f;
         ivBg.layer.masksToBounds = YES;
-        ivBg.backgroundColor = UIColorFromModeColor(SobotColorBgSub2Dark1);
+        ivBg.backgroundColor = UIColorFromModeColor(SobotColorBgMainDark1);
+//        ivBg.backgroundColor = UIColorFromModeColor(SobotColorBgSub2Dark1);
+//        ivBg.backgroundColor = UIColor.greenColor;
         [superView addSubview:ivBg];
-        [superView addConstraints:sobotLayoutSize(contentWidth, h+26, ivBg, NSLayoutRelationEqual)];
-        [superView addConstraint:sobotLayoutPaddingTop(0, ivBg, superView)];
-        [superView addConstraint:sobotLayoutPaddingLeft(10, ivBg, superView)];
         
-        [superView addSubview:richLabel];
-        [superView addConstraints:sobotLayoutSize(s.width, s.height, richLabel, NSLayoutRelationEqual)];
-        [superView addConstraint:sobotLayoutPaddingTop(10, richLabel, superView)];
-        [superView addConstraint:sobotLayoutPaddingLeft(10, richLabel, superView)];
+        SobotEmojiLabel *msgLabel = [ZCChatBaseCell createRichLabel];
+//        msgLabel.backgroundColor = UIColor.yellowColor;
+        msgLabel.textColor = UIColorFromModeColor(SobotColorTextSub);
+        [superView addSubview:msgLabel];
+        
+//        if(!sobotIsNull(message.displayMsgAttr)){
+//            [self setDisplayAttributedString:message.displayMsgAttr label:msgLabel model:message guide:NO];
+//        }else{
+//            // 最后一行过滤所有换行，不是最后一行过滤一个换行
+            [msgLabel setText:text];
+//        }
+        CGSize s = [msgLabel preferredSizeWithMaxWidth:contentWidth];
+        BOOL isShowExport = NO;
+        if(s.height > 60 && !message.showAllMessage){
+            isShowExport = YES;
+            s.height = 60;
+        }
+        
+        [superView addConstraints:sobotLayoutSize(s.width, s.height, msgLabel, NSLayoutRelationEqual)];
+        [superView addConstraint:sobotLayoutPaddingTop(10, msgLabel, superView)];
+        [superView addConstraint:sobotLayoutPaddingLeft(10, msgLabel, superView)];
+        
+        [superView addConstraints:sobotLayoutSize(maxWidth, s.height+20, ivBg, NSLayoutRelationEqual)];
+        [superView addConstraint:sobotLayoutPaddingTop(0, ivBg, superView)];
+        [superView addConstraint:sobotLayoutPaddingLeft(0, ivBg, superView)];
         
         CGFloat space = 20;
+        h = h + s.height + space;
         // 显示展示更多
         if(isShowExport){
-            UIImageView *ivBg = [[UIImageView alloc] init];
-            [superView addSubview:ivBg];
-            
+            UIImageView *tipBg = [[UIImageView alloc] init];
+            [superView addSubview:tipBg];
+
             SobotEmojiLabel *tipLabel = [ZCChatBaseCell createRichLabel];
             [superView addSubview:tipLabel];
-            
-            [superView addConstraints:sobotLayoutSize(contentWidth, 56, richLabel, NSLayoutRelationEqual)];
-            [superView addConstraint:sobotLayoutMarginTop(-20, tipLabel, richLabel)];
-            [superView addConstraint:sobotLayoutPaddingLeft(0, richLabel, superView)];
-            
-            // 设置和tipLabel相同
-            [superView addConstraints:sobotLayoutPaddingWithAll(0, 0, 0, 0, ivBg, tipLabel)];
-            [tipLabel layoutIfNeeded];
-            
+
+            [superView addConstraints:sobotLayoutSize(maxWidth, 56, tipLabel, NSLayoutRelationEqual)];
+            [superView addConstraint:sobotLayoutPaddingBottom(0, tipLabel, ivBg)];
+            [superView addConstraint:sobotLayoutPaddingLeft(0, tipLabel, superView)];
+
+
             tipLabel.textAlignment = NSTextAlignmentCenter;
             [tipLabel setLinkColor:UIColorFromModeColor(SobotColorTheme)];
             [tipLabel setText:SobotKitLocalString(@"展开消息")];
@@ -353,7 +405,7 @@
 //            [tipLabel preferredSizeWithMaxWidth:contentWidth];
             [self viewBeizerRect:tipLabel.bounds view:tipLabel corner:UIRectCornerBottomLeft|UIRectCornerBottomRight cornerRadii:CGSizeMake(2, 2)];
 
-            [self viewBeizerRect:ivBg.bounds view:ivBg corner:UIRectCornerBottomLeft|UIRectCornerBottomRight cornerRadii:CGSizeMake(2, 2)];
+            [self viewBeizerRect:tipBg.bounds view:tipBg corner:UIRectCornerBottomLeft|UIRectCornerBottomRight cornerRadii:CGSizeMake(2, 2)];
 
             CAGradientLayer *gradientLayer = [CAGradientLayer layer];
             gradientLayer.frame = tipLabel.bounds;
@@ -365,21 +417,30 @@
              gradientLayer.startPoint = CGPointMake(0, 0);
             // 结束位置
              gradientLayer.endPoint = CGPointMake(0, 1);
-            [ivBg.layer addSublayer:gradientLayer];
-            
+            [tipBg.layer addSublayer:gradientLayer];
+
             space = space + 26;
         }
+
+        SobotEmojiLabel *tipWLabel = [ZCChatBaseCell createRichLabel];
+        [tipWLabel setTextColor:UIColorFromModeColor(SobotColorTextMain)];
+        [tipWLabel setText:warningTips];
+        [superView addSubview:tipWLabel];
+        CGSize s1 = [tipWLabel preferredSizeWithMaxWidth:maxWidth];
+
+
+        [superView addConstraints:sobotLayoutSize(s1.width, s1.height, tipWLabel, NSLayoutRelationEqual)];
+        [superView addConstraint:sobotLayoutMarginTop(lineSpace, tipWLabel, ivBg)];
+        [superView addConstraint:sobotLayoutPaddingLeft(0, tipWLabel, superView)];
         
-        SobotEmojiLabel *tipLabel = [ZCChatBaseCell createRichLabel];
-        [tipLabel setTextColor:UIColorFromModeColor(SobotColorTextMain)];
-        [tipLabel setText:warningTips];
-        [superView addSubview:tipLabel];
-        CGSize s1 = [tipLabel preferredSizeWithMaxWidth:contentWidth];
-     
-        [superView addConstraints:sobotLayoutSize(s1.width, s1.height, tipLabel, NSLayoutRelationEqual)];
-        [superView addConstraint:sobotLayoutMarginTop(space, tipLabel, richLabel)];
-        [superView addConstraint:sobotLayoutPaddingLeft(0, tipLabel, superView)];
+        h = h + s1.height + lineSpace;
         
+        UIButton *btn2 = [self createAuthButton:SobotKitLocalString(@"继续发送") type:2];
+        [superView addSubview:btn2];
+
+        [superView addConstraints:sobotLayoutSize(90, 30, btn2, NSLayoutRelationEqual)];
+        [superView addConstraint:sobotLayoutMarginTop(lineSpace, btn2, tipWLabel)];
+        [superView addConstraint:sobotLayoutPaddingRight(0, btn2, superView)];
         // 按钮
         if(message.includeSensitive == 2){
             SobotEmojiLabel *tipLabel2 = [ZCChatBaseCell createRichLabel];
@@ -391,32 +452,29 @@
                 s2.width = contentWidth - 120;
             }
             [superView addSubview:tipLabel2];
-            
+
            [superView addConstraints:sobotLayoutSize(s2.width, 30, tipLabel2, NSLayoutRelationEqual)];
-           [superView addConstraint:sobotLayoutMarginTop(lineSpace, tipLabel2, tipLabel)];
+           [superView addConstraint:sobotLayoutMarginTop(lineSpace, tipLabel2, tipWLabel)];
            [superView addConstraint:sobotLayoutPaddingLeft(0, tipLabel2, superView)];
-               
+
+
+
         }else{
             UIButton *btn1 = [self createAuthButton:SobotKitLocalString(@"拒绝") type:1];
             btn1.frame = CGRectMake(contentWidth - 120 - 60, h, 60, 30);
             [superView addSubview:btn1];
             [superView addConstraints:sobotLayoutSize(60, 30, btn1, NSLayoutRelationEqual)];
-            [superView addConstraint:sobotLayoutMarginTop(lineSpace, btn1, tipLabel)];
-            [superView addConstraint:sobotLayoutPaddingLeft(contentWidth - 120 - 60, btn1, superView)];
+            [superView addConstraint:sobotLayoutMarginTop(lineSpace, btn1, tipWLabel)];
+            [superView addConstraint:sobotLayoutMarginRight(-20, btn1, btn2)];
         }
-        UIButton *btn2 = [self createAuthButton:SobotKitLocalString(@"继续发送") type:2];
-        btn2.frame = CGRectMake(contentWidth - 90, h, 90, 30);
-        [superView addSubview:btn2];
-        
-        [superView addConstraints:sobotLayoutSize(90, 30, btn2, NSLayoutRelationEqual)];
-        [superView addConstraint:sobotLayoutMarginTop(lineSpace, btn2, tipLabel)];
-        [superView addConstraint:sobotLayoutPaddingLeft(contentWidth - 90, btn2, superView)];
-        
-        [btn2 layoutIfNeeded];
-        
-        _lastView = btn2;
+
+
+        h = h + 30 + lineSpace;
+        self.linkBgViewEH.constant = h;
+        _layoutHeight.constant = h;
+        _lastView = tipWLabel;
     }
-    return CGSizeMake(contentWidth, h - lineSpace);
+    return CGSizeMake(maxWidth, h - lineSpace);
 }
 
 
@@ -440,15 +498,18 @@
     [_btnTurnUser.titleLabel setFont:SobotFont14];
     _btnTurnUser.tag = type;
     if(type == 1){
+        _btnTurnUser.tag = 1;
         [_btnTurnUser setBackgroundColor:UIColorFromModeColor(SobotColorBgMainDark2)];
         _btnTurnUser.layer.borderColor = UIColorFromModeColor(SobotColorBgLine).CGColor;
         [_btnTurnUser setTitleColor:UIColorFromModeColor(SobotColorTextMain) forState:UIControlStateNormal];
     }else{
+        _btnTurnUser.tag = 2;
         [_btnTurnUser setBackgroundColor:UIColorFromModeColor(SobotColorTheme)];
         _btnTurnUser.layer.borderColor = UIColorFromModeColor(SobotColorTheme).CGColor;
         [_btnTurnUser setTitleColor:UIColorFromModeColor(SobotColorTextWhite) forState:UIControlStateNormal];
         
     }
+    [_btnTurnUser addTarget:self action:@selector(authSensitive:) forControlEvents:UIControlEventTouchUpInside];
     return _btnTurnUser;
 }
 
@@ -467,22 +528,109 @@
 }
 
 
--(void)setDisplayAttributedString:(NSMutableAttributedString *) attr label:(UILabel *) label model:(SobotChatMessage *)curModel guide:(BOOL)isGuide{
+//-(void)setDisplayAttributedString:(NSMutableAttributedString *) attr label:(UILabel *) label model:(SobotChatMessage *)curModel guide:(BOOL)isGuide{
+//    UIColor *textColor = [ZCUIKitTools zcgetLeftChatTextColor];
+//    UIColor *linkColor = [ZCUIKitTools zcgetChatLeftLinkColor];
+//    if([self isRight]){
+//        textColor = [ZCUIKitTools zcgetRightChatTextColor];
+//        linkColor = [ZCUIKitTools zcgetChatRightlinkColor];
+//    }
+//    CGFloat lineSpace = [ZCUIKitTools zcgetChatLineSpacing]; // 调整行间距
+//    if (isGuide) {
+//        lineSpace = [ZCUIKitTools zcgetChatGuideLineSpacing]; // 调整行间距
+//    }
+//    label.attributedText = [ZCUIKitTools parseStringArtribute:attr linespace:lineSpace font:label.font textColor:textColor linkColr:linkColor];
+//}
+-(void)setDisplayAttributedString:(NSMutableAttributedString *) attr label:(UILabel *) label guide:(BOOL)isGuide{
     UIColor *textColor = [ZCUIKitTools zcgetLeftChatTextColor];
     UIColor *linkColor = [ZCUIKitTools zcgetChatLeftLinkColor];
-    if([self isRight]){
+    if(self.isRight){
         textColor = [ZCUIKitTools zcgetRightChatTextColor];
         linkColor = [ZCUIKitTools zcgetChatRightlinkColor];
     }
+    NSMutableAttributedString* attributedString = [attr mutableCopy];
+     
+    [attributedString beginEditing];
+    [attributedString enumerateAttribute:NSFontAttributeName inRange:NSMakeRange(0,attributedString.length) options:0 usingBlock:^(id value,NSRange range,BOOL *stop) {
+        UIFont *font = value;
+        // 替换固定默认文字大小
+        if(font.pointSize == 15){
+//            NSLog(@"----替换了字体");
+            [attributedString removeAttribute:NSFontAttributeName range:range];
+            [attributedString addAttribute:NSFontAttributeName value:label.font range:range];
+        }
+    }];
+    [attributedString enumerateAttribute:NSForegroundColorAttributeName inRange:NSMakeRange(0,attributedString.length) options:0 usingBlock:^(id value,NSRange range,BOOL *stop) {
+        UIColor *color = value;
+        NSString *hexColor = [ZCUIKitTools getHexStringByColor:color];
+//                                NSLog(@"***\n%@",hexColor);
+        // 替换固定整体文字颜色
+        if([@"ff0001" isEqual:hexColor]){
+            [attributedString removeAttribute:NSForegroundColorAttributeName range:range];
+            [attributedString addAttribute:NSForegroundColorAttributeName value:textColor range:range];
+        }
+        // 替换固定连接颜色
+        if([@"ff0002" isEqual:hexColor]){
+            [attributedString removeAttribute:NSForegroundColorAttributeName range:range];
+            [attributedString addAttribute:NSForegroundColorAttributeName value:linkColor range:range];
+        }
+    }];
     
-    CGFloat lineSpace = [ZCUIKitTools zcgetChatLineSpacing]; // 调整行间距
+    //Hack for italic/skew effect to custom fonts
+    __block NSMutableDictionary *rangeIDict = [[NSMutableDictionary alloc] init];
+    [attributedString enumerateAttribute:NSParagraphStyleAttributeName inRange:NSMakeRange(0,attributedString.length) options:0 usingBlock:^(id value,NSRange range,BOOL *stop) {
+         if (value) {
+             NSMutableParagraphStyle *myStyle = (NSMutableParagraphStyle *)value;
+             if (myStyle.minimumLineHeight == 101) {
+                 // 保存加粗的标签位置，如果相同位置有斜体，需要设置为斜体加粗
+                 [rangeIDict setObject:@"YES" forKey:NSStringFromRange(range)];
+                 [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:label.font.pointSize weight:UIFontWeightBold] range:range];
+             }
+         }
+     }];
+    
+    [attributedString enumerateAttribute:NSParagraphStyleAttributeName inRange:NSMakeRange(0,attributedString.length) options:0 usingBlock:^(id value,NSRange range,BOOL *stop) {
+      
+         if (value) {
+      
+             NSMutableParagraphStyle *myStyle = (NSMutableParagraphStyle *)value;
+             if (myStyle.minimumLineHeight == 99) {
+                 UIFont *textFont = label.font;
+                 CGAffineTransform matrix =  CGAffineTransformMake(1, 0, tanf(10 * (CGFloat)M_PI / 180), 1, 0, 0);
+                 UIFont *font = [UIFont systemFontOfSize:textFont.pointSize];
+                 // 相同的位置，有加粗
+                 if ([@"YES" isEqual:[rangeIDict objectForKey:NSStringFromRange(range)]]) {
+                    font = [UIFont boldSystemFontOfSize:textFont.pointSize];
+                 }
+                 
+                 NSString *fontName = font.fontName;
+                 if([fontName hasSuffix:@"SFUI-Regular"]){
+                     fontName = @"TimesNewRomanPSMT";
+                 }
+                 UIFontDescriptor *desc = [UIFontDescriptor fontDescriptorWithName:fontName matrix:matrix];
+                 [attributedString addAttribute:NSFontAttributeName value:[UIFont fontWithDescriptor:desc size:textFont.pointSize] range:range];
+             }
+             
+      
+         }
+     }];
+    
+    // 文本段落排版格式
+    NSMutableParagraphStyle *textStyle = [[NSMutableParagraphStyle alloc] init];
+    textStyle.lineBreakMode = NSLineBreakByWordWrapping; // 结尾部分的内容以……方式省略
     if (isGuide) {
-        lineSpace = [ZCUIKitTools zcgetChatGuideLineSpacing]; // 调整行间距
+        textStyle.lineSpacing = [ZCUIKitTools zcgetChatGuideLineSpacing]; // 调整行间距
+    }else{
+        textStyle.lineSpacing = [ZCUIKitTools zcgetChatLineSpacing]; // 调整行间距
     }
+    NSMutableDictionary *textAttributes = [[NSMutableDictionary alloc] init];
+    // NSParagraphStyleAttributeName 文本段落排版格式
+    [textAttributes setValue:textStyle forKey:NSParagraphStyleAttributeName];
+    // 设置段落样式
+    [attributedString addAttributes:textAttributes range:NSMakeRange(0, attributedString.length)];
+    [attributedString endEditing];
     
-    
-    label.attributedText = [ZCUIKitTools parseStringArtribute:attr linespace:lineSpace font:label.font textColor:textColor linkColr:linkColor];
-
+    label.text = [attributedString copy];
 }
 
 @end

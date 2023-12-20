@@ -68,6 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 是否存在以下问题评价
 @property (nonatomic,strong) NSString  *tagTips;
+@property (nonatomic,strong) NSArray *tags;
 
 -(id)initWithMyDict:(NSDictionary *)dict;
 @end

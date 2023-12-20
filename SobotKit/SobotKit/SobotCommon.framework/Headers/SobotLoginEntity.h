@@ -5,7 +5,7 @@
 //  Created by zhangxy on 2022/11/22.
 //
 
-#import "SobotBaseEntity.h"
+#import <SobotCommon/SobotBaseEntity.h>
 
 extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CHAT; // 对话
 extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_ORDER; // 工单
@@ -26,6 +26,94 @@ extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_ORDER_EDIT;// 工单编
 extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_ORDER_DELETE;// 工单删除的权限
 extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_ORDER_REPLYDELETE;// 工单详情页面删除回复的权限
 
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_ORDER_CLOSE;// 关闭工单
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_ORDER_ACTIVATION;// 激活工单
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_ORDER_SEARCH;// 全局搜索工单
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_ORDER_OPERATE;// 工单操作记录
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_ORDER_STATUS;// 工单操作状态
+
+/**呼叫模块权限定义**/
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thjl;      //通话记录
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq;      // 通话详情
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_thxx; //通话信息
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_fwzj; //服务总结
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_khxx; //客户信息
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_ywjl; //业务记录
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_lybf; //录音播放
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_lyxz; //录音下载
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_bcfwzj;   //保存服务总结
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_xzkh; //新增客户
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_glkh; //关联客户
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_bjkh;    //编辑客户 ???与保存服务总结相同，需要调整
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_thxq_dhhb;  //电话回拨
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_dht;        //电话条
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_dht_xgbddhhm;   //修改绑定电话号码
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_dht_xgfjzh; //修改分机账号
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_dht_lxhzdjb;    //离线后自动解绑
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_dht_bchbcqx;//保持和保持取消
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_dht_jyhjyqx;//静音和静音取消
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_dht_fsmyd;  //发送满意度
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_dht_yczlsc; //延长整理时长
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_dht_jszlbzm; //结束整理并置忙
+//extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_dht_czlx;   //重置离线
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_whrw;//呼叫任务
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_whrw_rwxxbj;//呼叫任务信息编辑
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_CALL_cccv6_whrw_rwzjbj;//呼叫任务总结编辑
+
+
+// ************************** 电销项目的权限 start v6**********************************
+//电话条
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_TM_sccv6_dht;
+//修改绑定电话号
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_TM_scc_dht_xgbddhhm;
+//修改分机账号    scc-dht-xgfjzh
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_TM_scc_dht_xgfjzh;
+//离线后自动解绑    scc-dht-lxhzdjb
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_TM_scc_dht_lxhzdjb;
+//保持和保持取消    scc-dht-bchbcqx
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_TM_scc_dht_bchbcqx;
+//静音和静音取消    scc-dht-jyhjyqx
+extern NSString * _Nullable const SOBOT_LOGIN_MODULE_KEY_TM_scc_dht_jyhjyqx;
+//延长整理时长    scc-dht-yczlsc
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_dht_yczlsc;
+//结束整理并置忙    scc-dht-jszlbzm
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_dht_jszlbzm;
+
+//电销    scc
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM;
+//通话记录    scc-thjl
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thjl;
+//通话详情    scc-thxq
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thxq ;
+//通话信息    scc-thxq-thxx
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thxq_thxx;
+//跟进记录    scc-thxq-gjjl
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thxq_gjjl;
+//客户信息    scc-thxq-khxx
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thxq_khxx;
+//录音播放    scc-thxq-lybf
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thxq_lybf;
+//录音下载    scc-thxq-lyxz
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thxq_lyxz;
+//新增客户    scc-thxq-xzkh
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thxq_xzkh;
+//关联客户    scc-thxq-glkh
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thxq_glkh;
+//编辑客户    scc-thxq-bjkh
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thxq_bjkh;
+//电话回拨    scc-thxq-dhhb
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_thxq_dhhb;
+//电销任务    scc-dxrw
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_dxrw;
+//任务信息-编辑    scc-dxrw-rwxxbj
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_dxrw_rwxxbj;
+//任务总结-编辑    scc-dxrw-rwzjbj
+extern NSString * _Nullable  const SOBOT_LOGIN_MODULE_KEY_TM_scc_dxrw_rwzjbj;
+
+// ************************** 电销项目的权限 end**********************************
+
+
+
 typedef NSString *SobotLoginModuleType NS_STRING_ENUM;
 
 static SobotLoginModuleType _Nullable const SobotLoginModuleType1222  = @"1222";// 可删除工单
@@ -45,6 +133,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,assign) int code;
 
 
+@property(nonatomic,copy) NSString * language;
+
 // 是否开通呼叫线路
 @property (nonatomic,strong) NSString * centerNumber;
 
@@ -60,6 +150,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 最大接待数量
 @property (nonatomic,assign) int        maxServiceCount;
+// 3.2.5修改，与maxServiceCount分开
+@property (nonatomic,assign) int        maxcount;
 
 // 用户状态，2忙碌、1在线,-1在线(有在线会话数据需要同步)  2.6.0新增 1-在线，2-忙碌 statusCode:3-小休，4-培训，5-会议，6-用餐，7-活动
 @property (nonatomic,assign) int        status;
@@ -133,6 +225,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,strong) NSString *wslink_default;
 @property (nonatomic,strong) NSArray  *wslink_bak;
+@property (nonatomic,strong) NSString *timezone; // "+08:00"
+@property (nonatomic,strong) NSString *timezoneId;// 时区 "Asia/Shanghai"
 
 // 是否有拉黑的权限  0无 1有
 @property (nonatomic,assign) int blackFunction;
@@ -230,6 +324,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,strong)NSArray *globalPermissions;// 权限 是否显示密文，V6使用
 
 @property (nonatomic,assign) BOOL isHiddenNumber;// 是否显示 密文  9999
+
+
+@property (nonatomic,assign) int region;
+@property(nonatomic,copy) NSString *kbVersion;//v1,v6
+
+@property (nonatomic,strong) NSDictionary * authMenu;
 
 // key : SOBOT_LOGIN_MODULE_KEY_
 -(BOOL)checkModule:(NSString *) key;

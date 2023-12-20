@@ -142,11 +142,14 @@
         UILabel *iv = [[UILabel alloc]init];
         [self.contentView addSubview:iv];
         iv.font = SobotFont14;
+        _statusLab.numberOfLines = 0;
+        _statusLab.lineBreakMode = NSLineBreakByTruncatingTail;
         [self.contentView addConstraint:sobotLayoutPaddingLeft(92, iv, self.contentView)];
         self.statusLabPT = sobotLayoutPaddingTop(10, iv, self.contentView);
         [self.contentView addConstraint:self.statusLabPT];
-        [self.contentView addConstraint:sobotLayoutEqualWidth(160, iv, NSLayoutRelationEqual)];
+//        [self.contentView addConstraint:sobotLayoutEqualWidth(160, iv, NSLayoutRelationEqual)];
         [self.contentView addConstraint:sobotLayoutEqualHeight(20, iv, NSLayoutRelationEqual)];
+        [self.contentView addConstraint:sobotLayoutPaddingRight(-20, iv, self.contentView)];
         iv;
     });
     
@@ -536,9 +539,10 @@
                 
             [fileBgView setClickBlock:^(NSDictionary * _Nonnull modelDic, UIImageView * _Nonnull imgView) {
                NSString *fileType = modelDic[@"fileType"];
-               NSString *fileUrlStr = modelDic[@"fileUrl"];
+               NSString *fileUrlStr = sobotUrlEncodedString(modelDic[@"fileUrl"]);
 //                NSArray *imgArray = [[NSArray alloc]initWithObjects:fileUrlStr, nil];
                 if ([fileType isEqualToString:@"jpg"] ||
+                    [fileType isEqualToString:@"jpeg"] ||
                     [fileType isEqualToString:@"png"] ||
                     [fileType isEqualToString:@"gif"] ) {
                     //     图片预览

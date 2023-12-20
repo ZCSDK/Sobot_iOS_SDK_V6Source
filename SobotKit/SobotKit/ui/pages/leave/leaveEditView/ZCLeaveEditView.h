@@ -49,6 +49,8 @@ typedef void(^ZCLeaveEditViewBlock)(id _Nonnull object,int code);
 
 @property (nonatomic,copy) NSString *ticketFrom;
 
+@property(nonatomic,strong)UIView *successView;
+
 -(id)initWithFrame:(CGRect) frame withController:(UIViewController *) vc;
 
 //数据刷新
@@ -56,6 +58,9 @@ typedef void(^ZCLeaveEditViewBlock)(id _Nonnull object,int code);
 -(void)refreshViewData;
 -(void) hideKeyboard;
 -(void)destoryViews;
+
+-(void)addLeaveMsgSuccessView;
+-(void)removeAddLeaveMsgSuccessView;
 @end
 
 NS_ASSUME_NONNULL_END

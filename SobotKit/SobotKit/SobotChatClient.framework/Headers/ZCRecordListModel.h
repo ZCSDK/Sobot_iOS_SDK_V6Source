@@ -43,11 +43,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,assign) int isOpen;// isOpen（是否开启满意度评价  0 未开启  1 开启）
 @property (nonatomic,assign) int isEvalution; // isEvalution
 @property (nonatomic,copy) NSString * score;// 评价得分
+@property (nonatomic,copy) NSString * tag;// 评价标签
+@property (nonatomic,assign) int  defaultQuestionFlag;// 是否解决
+
 @property (nonatomic,copy) NSString * remark;// 反馈意见
+
 @property (nonatomic,assign) int txtFlag ; //评价文本框开关  0 关闭  1 开启
 @property (nonatomic,strong) NSMutableArray * ticketScoreInfooList;// （星级内容
 // 2.8.2
 @property (nonatomic,strong) NSMutableArray * fileList; // 文件
+
+@property (nonatomic,strong) NSDictionary * cusNewSatisfactionVO;// 评价配置
 
 -(id)initWithMyDict:(NSDictionary *)dict;
 @end

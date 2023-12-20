@@ -165,7 +165,6 @@
     _companyLab.hidden = YES;
     _nickLab.hidden = YES;
     _imgSizeType = topBarType;
-    NSLog(@"topBarType ==== %d",topBarType);
     // 头像
     if (sobotConvertToString(imageUrl).length > 0) {
         _imgAvatar.hidden = NO;

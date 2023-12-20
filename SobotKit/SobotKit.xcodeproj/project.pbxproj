@@ -21,6 +21,76 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		7B056CCE2B32DF050040CA69 /* SobotRatingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CC82B32DF050040CA69 /* SobotRatingView.m */; };
+		7B056CCF2B32DF050040CA69 /* SobotRatingView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CC92B32DF050040CA69 /* SobotRatingView.h */; };
+		7B056CD02B32DF050040CA69 /* SobotSatisfactionItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CCA2B32DF050040CA69 /* SobotSatisfactionItemView.m */; };
+		7B056CD12B32DF050040CA69 /* SobotSatisfactionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CCB2B32DF050040CA69 /* SobotSatisfactionView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7B056CD22B32DF050040CA69 /* SobotSatisfactionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CCC2B32DF050040CA69 /* SobotSatisfactionView.m */; };
+		7B056CD32B32DF050040CA69 /* SobotSatisfactionItemView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CCD2B32DF050040CA69 /* SobotSatisfactionItemView.h */; };
+		7B056CD72B32DFE00040CA69 /* ZCStatusLab.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CD52B32DFE00040CA69 /* ZCStatusLab.m */; };
+		7B056CD82B32DFE00040CA69 /* ZCStatusLab.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CD62B32DFE00040CA69 /* ZCStatusLab.h */; };
+		7B056CEE2B32E0020040CA69 /* ZCChatReferenceGoodCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CDA2B32E0020040CA69 /* ZCChatReferenceGoodCell.m */; };
+		7B056CEF2B32E0020040CA69 /* ZCChatReferenceCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CDB2B32E0020040CA69 /* ZCChatReferenceCell.h */; };
+		7B056CF02B32E0020040CA69 /* ZCChatReferenceAppletCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CDC2B32E0020040CA69 /* ZCChatReferenceAppletCell.h */; };
+		7B056CF12B32E0020040CA69 /* ZCChatReferenceTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CDD2B32E0020040CA69 /* ZCChatReferenceTextCell.m */; };
+		7B056CF22B32E0020040CA69 /* ZCChatReferenceCustomCardCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CDE2B32E0020040CA69 /* ZCChatReferenceCustomCardCell.m */; };
+		7B056CF32B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CDF2B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.h */; };
+		7B056CF42B32E0020040CA69 /* ZCChatReferenceFileCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CE02B32E0020040CA69 /* ZCChatReferenceFileCell.m */; };
+		7B056CF52B32E0020040CA69 /* ZCChatReferenceImageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CE12B32E0020040CA69 /* ZCChatReferenceImageCell.m */; };
+		7B056CF62B32E0020040CA69 /* ZCChatReferenceSoundCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CE22B32E0020040CA69 /* ZCChatReferenceSoundCell.h */; };
+		7B056CF72B32E0020040CA69 /* ZCChatReferenceRichCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CE32B32E0020040CA69 /* ZCChatReferenceRichCell.m */; };
+		7B056CF82B32E0020040CA69 /* ZCChatReferenceAppletCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CE42B32E0020040CA69 /* ZCChatReferenceAppletCell.m */; };
+		7B056CF92B32E0020040CA69 /* ZCChatReferenceCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CE52B32E0020040CA69 /* ZCChatReferenceCell.m */; };
+		7B056CFA2B32E0020040CA69 /* ZCChatReferenceGoodCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CE62B32E0020040CA69 /* ZCChatReferenceGoodCell.h */; };
+		7B056CFB2B32E0020040CA69 /* ZCChatReferenceCustomCardCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CE72B32E0020040CA69 /* ZCChatReferenceCustomCardCell.h */; };
+		7B056CFC2B32E0020040CA69 /* ZCChatReferenceTextCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CE82B32E0020040CA69 /* ZCChatReferenceTextCell.h */; };
+		7B056CFD2B32E0020040CA69 /* ZCChatReferenceImageCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CE92B32E0020040CA69 /* ZCChatReferenceImageCell.h */; };
+		7B056CFE2B32E0020040CA69 /* ZCChatReferenceFileCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CEA2B32E0020040CA69 /* ZCChatReferenceFileCell.h */; };
+		7B056CFF2B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CEB2B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.m */; };
+		7B056D002B32E0020040CA69 /* ZCChatReferenceRichCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056CEC2B32E0020040CA69 /* ZCChatReferenceRichCell.h */; };
+		7B056D012B32E0020040CA69 /* ZCChatReferenceSoundCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056CED2B32E0020040CA69 /* ZCChatReferenceSoundCell.m */; };
+		7B056D052B32E01A0040CA69 /* ZCObjButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D032B32E01A0040CA69 /* ZCObjButton.m */; };
+		7B056D062B32E01A0040CA69 /* ZCObjButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D042B32E01A0040CA69 /* ZCObjButton.h */; };
+		7B056D1C2B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D082B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.h */; };
+		7B056D1D2B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D092B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.m */; };
+		7B056D1E2B32E0370040CA69 /* ZCChatCustomCardCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D0A2B32E0370040CA69 /* ZCChatCustomCardCell.m */; };
+		7B056D1F2B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D0B2B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.h */; };
+		7B056D202B32E0370040CA69 /* ZCChatCustomCardBaseCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D0C2B32E0370040CA69 /* ZCChatCustomCardBaseCell.h */; };
+		7B056D212B32E0370040CA69 /* ZCChatCustomCardVerticalCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D0D2B32E0370040CA69 /* ZCChatCustomCardVerticalCell.h */; };
+		7B056D222B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D0E2B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.m */; };
+		7B056D232B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D0F2B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.h */; };
+		7B056D242B32E0370040CA69 /* ZCChatCustomCardSingleCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D102B32E0370040CA69 /* ZCChatCustomCardSingleCell.m */; };
+		7B056D252B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D112B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.h */; };
+		7B056D262B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D122B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.h */; };
+		7B056D272B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D132B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.m */; };
+		7B056D282B32E0370040CA69 /* ZCChatCustomCardCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D142B32E0370040CA69 /* ZCChatCustomCardCell.h */; };
+		7B056D292B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D152B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.m */; };
+		7B056D2A2B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D162B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.h */; };
+		7B056D2B2B32E0370040CA69 /* ZCChatCustomCardVerticalCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D172B32E0370040CA69 /* ZCChatCustomCardVerticalCell.m */; };
+		7B056D2C2B32E0370040CA69 /* ZCChatCustomCardBaseCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D182B32E0370040CA69 /* ZCChatCustomCardBaseCell.m */; };
+		7B056D2D2B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D192B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.m */; };
+		7B056D2E2B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D1A2B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.m */; };
+		7B056D2F2B32E0370040CA69 /* ZCChatCustomCardSingleCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D1B2B32E0370040CA69 /* ZCChatCustomCardSingleCell.h */; };
+		7B056D452B32E0540040CA69 /* ZCChatMessageInfoRichTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D312B32E0540040CA69 /* ZCChatMessageInfoRichTextView.m */; };
+		7B056D462B32E0540040CA69 /* ZCChatDetailView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D322B32E0540040CA69 /* ZCChatDetailView.h */; };
+		7B056D472B32E0540040CA69 /* SobotFileButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D332B32E0540040CA69 /* SobotFileButton.h */; };
+		7B056D482B32E0540040CA69 /* ZCChatMessageInfoFileView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D342B32E0540040CA69 /* ZCChatMessageInfoFileView.h */; };
+		7B056D492B32E0540040CA69 /* ZCChatMessageInfoTextView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D352B32E0540040CA69 /* ZCChatMessageInfoTextView.h */; };
+		7B056D4A2B32E0540040CA69 /* ZCChatMessageInfoImgView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D362B32E0540040CA69 /* ZCChatMessageInfoImgView.m */; };
+		7B056D4B2B32E0540040CA69 /* ZCChatDetailViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D372B32E0540040CA69 /* ZCChatDetailViewCell.m */; };
+		7B056D4C2B32E0540040CA69 /* ZCChatMessageInfoArticleView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D382B32E0540040CA69 /* ZCChatMessageInfoArticleView.h */; };
+		7B056D4D2B32E0540040CA69 /* ZCChatShowDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D392B32E0540040CA69 /* ZCChatShowDetailView.m */; };
+		7B056D4E2B32E0540040CA69 /* ZCChatMessageInfoView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D3A2B32E0540040CA69 /* ZCChatMessageInfoView.m */; };
+		7B056D4F2B32E0540040CA69 /* ZCChatMessageInfoRichTextView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D3B2B32E0540040CA69 /* ZCChatMessageInfoRichTextView.h */; };
+		7B056D502B32E0540040CA69 /* ZCChatMessageInfoFileView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D3C2B32E0540040CA69 /* ZCChatMessageInfoFileView.m */; };
+		7B056D512B32E0540040CA69 /* SobotFileButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D3D2B32E0540040CA69 /* SobotFileButton.m */; };
+		7B056D522B32E0540040CA69 /* ZCChatDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D3E2B32E0540040CA69 /* ZCChatDetailView.m */; };
+		7B056D532B32E0540040CA69 /* ZCChatMessageInfoArticleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D3F2B32E0540040CA69 /* ZCChatMessageInfoArticleView.m */; };
+		7B056D542B32E0540040CA69 /* ZCChatDetailViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D402B32E0540040CA69 /* ZCChatDetailViewCell.h */; };
+		7B056D552B32E0540040CA69 /* ZCChatMessageInfoImgView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D412B32E0540040CA69 /* ZCChatMessageInfoImgView.h */; };
+		7B056D562B32E0540040CA69 /* ZCChatMessageInfoTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D422B32E0540040CA69 /* ZCChatMessageInfoTextView.m */; };
+		7B056D572B32E0540040CA69 /* ZCChatMessageInfoView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D432B32E0540040CA69 /* ZCChatMessageInfoView.h */; };
+		7B056D582B32E0540040CA69 /* ZCChatShowDetailView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D442B32E0540040CA69 /* ZCChatShowDetailView.h */; };
 		7B1CC49828FFB787004B856B /* ZCChatOnlineTipsCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B1CC49628FFB787004B856B /* ZCChatOnlineTipsCell.h */; };
 		7B1CC49928FFB787004B856B /* ZCChatOnlineTipsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B1CC49728FFB787004B856B /* ZCChatOnlineTipsCell.m */; };
 		7B2360CD28BE301400A445CD /* SobotClientBaseController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B2360C828BE301400A445CD /* SobotClientBaseController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -124,8 +194,6 @@
 		ED409AE328C8B9F400690A24 /* ZCReplyFileView.m in Sources */ = {isa = PBXBuildFile; fileRef = ED409AE128C8B9F400690A24 /* ZCReplyFileView.m */; };
 		ED409AEB28C9834D00690A24 /* ZCUIRatingView.h in Headers */ = {isa = PBXBuildFile; fileRef = ED409AE928C9834D00690A24 /* ZCUIRatingView.h */; };
 		ED409AEC28C9834D00690A24 /* ZCUIRatingView.m in Sources */ = {isa = PBXBuildFile; fileRef = ED409AEA28C9834D00690A24 /* ZCUIRatingView.m */; };
-		ED409AF028C9897900690A24 /* ZCVideoPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = ED409AEE28C9897900690A24 /* ZCVideoPlayer.h */; };
-		ED409AF128C9897900690A24 /* ZCVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED409AEF28C9897900690A24 /* ZCVideoPlayer.m */; };
 		ED409AF528C98CE200690A24 /* ZCDocumentLookController.m in Sources */ = {isa = PBXBuildFile; fileRef = ED409AF328C98CE200690A24 /* ZCDocumentLookController.m */; };
 		ED409AF628C98CE200690A24 /* ZCDocumentLookController.h in Headers */ = {isa = PBXBuildFile; fileRef = ED409AF428C98CE200690A24 /* ZCDocumentLookController.h */; };
 		ED409AFA28C9BADD00690A24 /* ZCUILoading.m in Sources */ = {isa = PBXBuildFile; fileRef = ED409AF828C9BADC00690A24 /* ZCUILoading.m */; };
@@ -195,6 +263,76 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7B056CC82B32DF050040CA69 /* SobotRatingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SobotRatingView.m; sourceTree = "<group>"; };
+		7B056CC92B32DF050040CA69 /* SobotRatingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SobotRatingView.h; sourceTree = "<group>"; };
+		7B056CCA2B32DF050040CA69 /* SobotSatisfactionItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SobotSatisfactionItemView.m; sourceTree = "<group>"; };
+		7B056CCB2B32DF050040CA69 /* SobotSatisfactionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SobotSatisfactionView.h; sourceTree = "<group>"; };
+		7B056CCC2B32DF050040CA69 /* SobotSatisfactionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SobotSatisfactionView.m; sourceTree = "<group>"; };
+		7B056CCD2B32DF050040CA69 /* SobotSatisfactionItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SobotSatisfactionItemView.h; sourceTree = "<group>"; };
+		7B056CD52B32DFE00040CA69 /* ZCStatusLab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCStatusLab.m; sourceTree = "<group>"; };
+		7B056CD62B32DFE00040CA69 /* ZCStatusLab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCStatusLab.h; sourceTree = "<group>"; };
+		7B056CDA2B32E0020040CA69 /* ZCChatReferenceGoodCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatReferenceGoodCell.m; sourceTree = "<group>"; };
+		7B056CDB2B32E0020040CA69 /* ZCChatReferenceCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatReferenceCell.h; sourceTree = "<group>"; };
+		7B056CDC2B32E0020040CA69 /* ZCChatReferenceAppletCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatReferenceAppletCell.h; sourceTree = "<group>"; };
+		7B056CDD2B32E0020040CA69 /* ZCChatReferenceTextCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatReferenceTextCell.m; sourceTree = "<group>"; };
+		7B056CDE2B32E0020040CA69 /* ZCChatReferenceCustomCardCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatReferenceCustomCardCell.m; sourceTree = "<group>"; };
+		7B056CDF2B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatReferenceCustomVerticalCell.h; sourceTree = "<group>"; };
+		7B056CE02B32E0020040CA69 /* ZCChatReferenceFileCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatReferenceFileCell.m; sourceTree = "<group>"; };
+		7B056CE12B32E0020040CA69 /* ZCChatReferenceImageCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatReferenceImageCell.m; sourceTree = "<group>"; };
+		7B056CE22B32E0020040CA69 /* ZCChatReferenceSoundCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatReferenceSoundCell.h; sourceTree = "<group>"; };
+		7B056CE32B32E0020040CA69 /* ZCChatReferenceRichCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatReferenceRichCell.m; sourceTree = "<group>"; };
+		7B056CE42B32E0020040CA69 /* ZCChatReferenceAppletCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatReferenceAppletCell.m; sourceTree = "<group>"; };
+		7B056CE52B32E0020040CA69 /* ZCChatReferenceCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatReferenceCell.m; sourceTree = "<group>"; };
+		7B056CE62B32E0020040CA69 /* ZCChatReferenceGoodCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatReferenceGoodCell.h; sourceTree = "<group>"; };
+		7B056CE72B32E0020040CA69 /* ZCChatReferenceCustomCardCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatReferenceCustomCardCell.h; sourceTree = "<group>"; };
+		7B056CE82B32E0020040CA69 /* ZCChatReferenceTextCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatReferenceTextCell.h; sourceTree = "<group>"; };
+		7B056CE92B32E0020040CA69 /* ZCChatReferenceImageCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatReferenceImageCell.h; sourceTree = "<group>"; };
+		7B056CEA2B32E0020040CA69 /* ZCChatReferenceFileCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatReferenceFileCell.h; sourceTree = "<group>"; };
+		7B056CEB2B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatReferenceCustomVerticalCell.m; sourceTree = "<group>"; };
+		7B056CEC2B32E0020040CA69 /* ZCChatReferenceRichCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatReferenceRichCell.h; sourceTree = "<group>"; };
+		7B056CED2B32E0020040CA69 /* ZCChatReferenceSoundCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatReferenceSoundCell.m; sourceTree = "<group>"; };
+		7B056D032B32E01A0040CA69 /* ZCObjButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCObjButton.m; sourceTree = "<group>"; };
+		7B056D042B32E01A0040CA69 /* ZCObjButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCObjButton.h; sourceTree = "<group>"; };
+		7B056D082B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardHorizontalCell.h; sourceTree = "<group>"; };
+		7B056D092B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardInfoBaseCell.m; sourceTree = "<group>"; };
+		7B056D0A2B32E0370040CA69 /* ZCChatCustomCardCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardCell.m; sourceTree = "<group>"; };
+		7B056D0B2B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardHCollectionCell.h; sourceTree = "<group>"; };
+		7B056D0C2B32E0370040CA69 /* ZCChatCustomCardBaseCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardBaseCell.h; sourceTree = "<group>"; };
+		7B056D0D2B32E0370040CA69 /* ZCChatCustomCardVerticalCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardVerticalCell.h; sourceTree = "<group>"; };
+		7B056D0E2B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardVCollectionCell.m; sourceTree = "<group>"; };
+		7B056D0F2B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardVNoSendCollectionCell.h; sourceTree = "<group>"; };
+		7B056D102B32E0370040CA69 /* ZCChatCustomCardSingleCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardSingleCell.m; sourceTree = "<group>"; };
+		7B056D112B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardSingleSendCell.h; sourceTree = "<group>"; };
+		7B056D122B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardInfoBaseCell.h; sourceTree = "<group>"; };
+		7B056D132B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardHorizontalCell.m; sourceTree = "<group>"; };
+		7B056D142B32E0370040CA69 /* ZCChatCustomCardCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardCell.h; sourceTree = "<group>"; };
+		7B056D152B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardVNoSendCollectionCell.m; sourceTree = "<group>"; };
+		7B056D162B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardVCollectionCell.h; sourceTree = "<group>"; };
+		7B056D172B32E0370040CA69 /* ZCChatCustomCardVerticalCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardVerticalCell.m; sourceTree = "<group>"; };
+		7B056D182B32E0370040CA69 /* ZCChatCustomCardBaseCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardBaseCell.m; sourceTree = "<group>"; };
+		7B056D192B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardHCollectionCell.m; sourceTree = "<group>"; };
+		7B056D1A2B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardSingleSendCell.m; sourceTree = "<group>"; };
+		7B056D1B2B32E0370040CA69 /* ZCChatCustomCardSingleCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardSingleCell.h; sourceTree = "<group>"; };
+		7B056D312B32E0540040CA69 /* ZCChatMessageInfoRichTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoRichTextView.m; sourceTree = "<group>"; };
+		7B056D322B32E0540040CA69 /* ZCChatDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatDetailView.h; sourceTree = "<group>"; };
+		7B056D332B32E0540040CA69 /* SobotFileButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SobotFileButton.h; sourceTree = "<group>"; };
+		7B056D342B32E0540040CA69 /* ZCChatMessageInfoFileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoFileView.h; sourceTree = "<group>"; };
+		7B056D352B32E0540040CA69 /* ZCChatMessageInfoTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoTextView.h; sourceTree = "<group>"; };
+		7B056D362B32E0540040CA69 /* ZCChatMessageInfoImgView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoImgView.m; sourceTree = "<group>"; };
+		7B056D372B32E0540040CA69 /* ZCChatDetailViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatDetailViewCell.m; sourceTree = "<group>"; };
+		7B056D382B32E0540040CA69 /* ZCChatMessageInfoArticleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoArticleView.h; sourceTree = "<group>"; };
+		7B056D392B32E0540040CA69 /* ZCChatShowDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatShowDetailView.m; sourceTree = "<group>"; };
+		7B056D3A2B32E0540040CA69 /* ZCChatMessageInfoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoView.m; sourceTree = "<group>"; };
+		7B056D3B2B32E0540040CA69 /* ZCChatMessageInfoRichTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoRichTextView.h; sourceTree = "<group>"; };
+		7B056D3C2B32E0540040CA69 /* ZCChatMessageInfoFileView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoFileView.m; sourceTree = "<group>"; };
+		7B056D3D2B32E0540040CA69 /* SobotFileButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SobotFileButton.m; sourceTree = "<group>"; };
+		7B056D3E2B32E0540040CA69 /* ZCChatDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatDetailView.m; sourceTree = "<group>"; };
+		7B056D3F2B32E0540040CA69 /* ZCChatMessageInfoArticleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoArticleView.m; sourceTree = "<group>"; };
+		7B056D402B32E0540040CA69 /* ZCChatDetailViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatDetailViewCell.h; sourceTree = "<group>"; };
+		7B056D412B32E0540040CA69 /* ZCChatMessageInfoImgView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoImgView.h; sourceTree = "<group>"; };
+		7B056D422B32E0540040CA69 /* ZCChatMessageInfoTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoTextView.m; sourceTree = "<group>"; };
+		7B056D432B32E0540040CA69 /* ZCChatMessageInfoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoView.h; sourceTree = "<group>"; };
+		7B056D442B32E0540040CA69 /* ZCChatShowDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatShowDetailView.h; sourceTree = "<group>"; };
 		7B1CC49628FFB787004B856B /* ZCChatOnlineTipsCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatOnlineTipsCell.h; sourceTree = "<group>"; };
 		7B1CC49728FFB787004B856B /* ZCChatOnlineTipsCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatOnlineTipsCell.m; sourceTree = "<group>"; };
 		7B2360C828BE301400A445CD /* SobotClientBaseController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SobotClientBaseController.h; sourceTree = "<group>"; };
@@ -299,8 +437,6 @@
 		ED409AE128C8B9F400690A24 /* ZCReplyFileView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCReplyFileView.m; sourceTree = "<group>"; };
 		ED409AE928C9834D00690A24 /* ZCUIRatingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCUIRatingView.h; sourceTree = "<group>"; };
 		ED409AEA28C9834D00690A24 /* ZCUIRatingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCUIRatingView.m; sourceTree = "<group>"; };
-		ED409AEE28C9897900690A24 /* ZCVideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCVideoPlayer.h; sourceTree = "<group>"; };
-		ED409AEF28C9897900690A24 /* ZCVideoPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCVideoPlayer.m; sourceTree = "<group>"; };
 		ED409AF328C98CE200690A24 /* ZCDocumentLookController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCDocumentLookController.m; sourceTree = "<group>"; };
 		ED409AF428C98CE200690A24 /* ZCDocumentLookController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCDocumentLookController.h; sourceTree = "<group>"; };
 		ED409AF828C9BADC00690A24 /* ZCUILoading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCUILoading.m; sourceTree = "<group>"; };
@@ -382,6 +518,105 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7B056CD42B32DFE00040CA69 /* ZCStatusLab */ = {
+			isa = PBXGroup;
+			children = (
+				7B056CD52B32DFE00040CA69 /* ZCStatusLab.m */,
+				7B056CD62B32DFE00040CA69 /* ZCStatusLab.h */,
+			);
+			path = ZCStatusLab;
+			sourceTree = "<group>";
+		};
+		7B056CD92B32E0020040CA69 /* referencecell */ = {
+			isa = PBXGroup;
+			children = (
+				7B056CDA2B32E0020040CA69 /* ZCChatReferenceGoodCell.m */,
+				7B056CDB2B32E0020040CA69 /* ZCChatReferenceCell.h */,
+				7B056CDC2B32E0020040CA69 /* ZCChatReferenceAppletCell.h */,
+				7B056CDD2B32E0020040CA69 /* ZCChatReferenceTextCell.m */,
+				7B056CDE2B32E0020040CA69 /* ZCChatReferenceCustomCardCell.m */,
+				7B056CDF2B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.h */,
+				7B056CE02B32E0020040CA69 /* ZCChatReferenceFileCell.m */,
+				7B056CE12B32E0020040CA69 /* ZCChatReferenceImageCell.m */,
+				7B056CE22B32E0020040CA69 /* ZCChatReferenceSoundCell.h */,
+				7B056CE32B32E0020040CA69 /* ZCChatReferenceRichCell.m */,
+				7B056CE42B32E0020040CA69 /* ZCChatReferenceAppletCell.m */,
+				7B056CE52B32E0020040CA69 /* ZCChatReferenceCell.m */,
+				7B056CE62B32E0020040CA69 /* ZCChatReferenceGoodCell.h */,
+				7B056CE72B32E0020040CA69 /* ZCChatReferenceCustomCardCell.h */,
+				7B056CE82B32E0020040CA69 /* ZCChatReferenceTextCell.h */,
+				7B056CE92B32E0020040CA69 /* ZCChatReferenceImageCell.h */,
+				7B056CEA2B32E0020040CA69 /* ZCChatReferenceFileCell.h */,
+				7B056CEB2B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.m */,
+				7B056CEC2B32E0020040CA69 /* ZCChatReferenceRichCell.h */,
+				7B056CED2B32E0020040CA69 /* ZCChatReferenceSoundCell.m */,
+			);
+			path = referencecell;
+			sourceTree = "<group>";
+		};
+		7B056D022B32E01A0040CA69 /* ZCButton */ = {
+			isa = PBXGroup;
+			children = (
+				7B056D032B32E01A0040CA69 /* ZCObjButton.m */,
+				7B056D042B32E01A0040CA69 /* ZCObjButton.h */,
+			);
+			path = ZCButton;
+			sourceTree = "<group>";
+		};
+		7B056D072B32E0370040CA69 /* customcard */ = {
+			isa = PBXGroup;
+			children = (
+				7B056D082B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.h */,
+				7B056D092B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.m */,
+				7B056D0A2B32E0370040CA69 /* ZCChatCustomCardCell.m */,
+				7B056D0B2B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.h */,
+				7B056D0C2B32E0370040CA69 /* ZCChatCustomCardBaseCell.h */,
+				7B056D0D2B32E0370040CA69 /* ZCChatCustomCardVerticalCell.h */,
+				7B056D0E2B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.m */,
+				7B056D0F2B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.h */,
+				7B056D102B32E0370040CA69 /* ZCChatCustomCardSingleCell.m */,
+				7B056D112B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.h */,
+				7B056D122B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.h */,
+				7B056D132B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.m */,
+				7B056D142B32E0370040CA69 /* ZCChatCustomCardCell.h */,
+				7B056D152B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.m */,
+				7B056D162B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.h */,
+				7B056D172B32E0370040CA69 /* ZCChatCustomCardVerticalCell.m */,
+				7B056D182B32E0370040CA69 /* ZCChatCustomCardBaseCell.m */,
+				7B056D192B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.m */,
+				7B056D1A2B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.m */,
+				7B056D1B2B32E0370040CA69 /* ZCChatCustomCardSingleCell.h */,
+			);
+			path = customcard;
+			sourceTree = "<group>";
+		};
+		7B056D302B32E0540040CA69 /* ZCChatDetailView */ = {
+			isa = PBXGroup;
+			children = (
+				7B056D312B32E0540040CA69 /* ZCChatMessageInfoRichTextView.m */,
+				7B056D322B32E0540040CA69 /* ZCChatDetailView.h */,
+				7B056D332B32E0540040CA69 /* SobotFileButton.h */,
+				7B056D342B32E0540040CA69 /* ZCChatMessageInfoFileView.h */,
+				7B056D352B32E0540040CA69 /* ZCChatMessageInfoTextView.h */,
+				7B056D362B32E0540040CA69 /* ZCChatMessageInfoImgView.m */,
+				7B056D372B32E0540040CA69 /* ZCChatDetailViewCell.m */,
+				7B056D382B32E0540040CA69 /* ZCChatMessageInfoArticleView.h */,
+				7B056D392B32E0540040CA69 /* ZCChatShowDetailView.m */,
+				7B056D3A2B32E0540040CA69 /* ZCChatMessageInfoView.m */,
+				7B056D3B2B32E0540040CA69 /* ZCChatMessageInfoRichTextView.h */,
+				7B056D3C2B32E0540040CA69 /* ZCChatMessageInfoFileView.m */,
+				7B056D3D2B32E0540040CA69 /* SobotFileButton.m */,
+				7B056D3E2B32E0540040CA69 /* ZCChatDetailView.m */,
+				7B056D3F2B32E0540040CA69 /* ZCChatMessageInfoArticleView.m */,
+				7B056D402B32E0540040CA69 /* ZCChatDetailViewCell.h */,
+				7B056D412B32E0540040CA69 /* ZCChatMessageInfoImgView.h */,
+				7B056D422B32E0540040CA69 /* ZCChatMessageInfoTextView.m */,
+				7B056D432B32E0540040CA69 /* ZCChatMessageInfoView.h */,
+				7B056D442B32E0540040CA69 /* ZCChatShowDetailView.h */,
+			);
+			path = ZCChatDetailView;
+			sourceTree = "<group>";
+		};
 		7B2360C628BE301400A445CD /* ui */ = {
 			isa = PBXGroup;
 			children = (
@@ -409,6 +644,7 @@
 		7B2360C928BE301400A445CD /* chat */ = {
 			isa = PBXGroup;
 			children = (
+				7B056CD92B32E0020040CA69 /* referencecell */,
 				7BDDE19A28D1D7BF006E7006 /* camera */,
 				7BAC4D9228C09ABA00B8EBDA /* chatcell */,
 				7BAC4D7B28BE35B600B8EBDA /* views */,
@@ -486,6 +722,7 @@
 		7BAC4D7B28BE35B600B8EBDA /* views */ = {
 			isa = PBXGroup;
 			children = (
+				7B056D302B32E0540040CA69 /* ZCChatDetailView */,
 				7B8333F828D1C026006BDFFA /* record */,
 				7B8333F128D06EBC006BDFFA /* EmojiBoardView.h */,
 				7B8333F228D06EBC006BDFFA /* EmojiBoardView.m */,
@@ -504,6 +741,7 @@
 		7BAC4D9228C09ABA00B8EBDA /* chatcell */ = {
 			isa = PBXGroup;
 			children = (
+				7B056D072B32E0370040CA69 /* customcard */,
 				7B71AEEA28E52A11003A49EB /* listcell */,
 				7BCFFDA528DD8EFB00FF9002 /* operation */,
 				7B49DCDE28DC603400360945 /* card */,
@@ -701,6 +939,8 @@
 		ED409AED28C9894F00690A24 /* views */ = {
 			isa = PBXGroup;
 			children = (
+				7B056D022B32E01A0040CA69 /* ZCButton */,
+				7B056CD42B32DFE00040CA69 /* ZCStatusLab */,
 				ED47500428DB0E3200353157 /* ZCTitleView */,
 				ED474FFF28D83E7400353157 /* ZCItemView.h */,
 				ED47500028D83E7400353157 /* ZCItemView.m */,
@@ -722,8 +962,6 @@
 				EDCEA79928D1A27300355DBD /* ZCCheckTypeView.m */,
 				ED409B1B28D078F900690A24 /* ZCActionSheetView */,
 				ED409AF728C9BADC00690A24 /* ZCLoading */,
-				ED409AEE28C9897900690A24 /* ZCVideoPlayer.h */,
-				ED409AEF28C9897900690A24 /* ZCVideoPlayer.m */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -882,6 +1120,12 @@
 		EDCEA7FA28D81D5B00355DBD /* EvaluateView */ = {
 			isa = PBXGroup;
 			children = (
+				7B056CC92B32DF050040CA69 /* SobotRatingView.h */,
+				7B056CC82B32DF050040CA69 /* SobotRatingView.m */,
+				7B056CCD2B32DF050040CA69 /* SobotSatisfactionItemView.h */,
+				7B056CCA2B32DF050040CA69 /* SobotSatisfactionItemView.m */,
+				7B056CCB2B32DF050040CA69 /* SobotSatisfactionView.h */,
+				7B056CCC2B32DF050040CA69 /* SobotSatisfactionView.m */,
 				ED474FFA28D81E7900353157 /* ZCUIEvaluateView.h */,
 				ED474FFB28D81E7900353157 /* ZCUIEvaluateView.m */,
 			);
@@ -895,13 +1139,17 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B056CD12B32DF050040CA69 /* SobotSatisfactionView.h in Headers */,
+				7B056D472B32E0540040CA69 /* SobotFileButton.h in Headers */,
 				ED47500728DB0E6200353157 /* ZCTitleView.h in Headers */,
 				ED409B0428CA09A900690A24 /* ZCUIWebController.h in Headers */,
+				7B056D252B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.h in Headers */,
 				7B8333EE28D05707006BDFFA /* ZCLibCusMenu.h in Headers */,
 				ED409B1228D04F6000690A24 /* ZCOrderCreateCell.h in Headers */,
 				7BF7EEAA28DC89B50006D117 /* ZCChatLocationCell.h in Headers */,
 				EDCEA7C728D311BF00355DBD /* ZCUIAskTableController.h in Headers */,
 				7BAC4D9028C0927900B8EBDA /* ZCUIKitTools.h in Headers */,
+				7B056D282B32E0370040CA69 /* ZCChatCustomCardCell.h in Headers */,
 				7BAC4D7428BE34CA00B8EBDA /* ZCUICore.h in Headers */,
 				7BCFFDB028DD8F4100FF9002 /* ZCChatEvaluationCell.h in Headers */,
 				7B49DCE128DC608300360945 /* ZCChatArticleCell.h in Headers */,
@@ -911,9 +1159,11 @@
 				7BC73A8528D9E01B004E1CE8 /* ZCChatWheel4Cell.h in Headers */,
 				EDCEA7DD28D41BC700355DBD /* ZCTurnRobotView.h in Headers */,
 				EDCEA7BC28D2F31500355DBD /* ZCQuickLeaveView.h in Headers */,
+				7B056CF62B32E0020040CA69 /* ZCChatReferenceSoundCell.h in Headers */,
 				7BC73A8128D9DFAA004E1CE8 /* ZCChatWheel123Cell.h in Headers */,
 				EDCEA7D428D40B4300355DBD /* ZCUISkillSetView.h in Headers */,
 				ED409AFB28C9BADD00690A24 /* ZCUILoading.h in Headers */,
+				7B056D1F2B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.h in Headers */,
 				EDB3C9B928E2F97900261D9B /* ZCServiceListCell.h in Headers */,
 				7BE5D5D628D706D4002BCF26 /* ZCChatVoiceCell.h in Headers */,
 				7BCFFDAC28DD8F2500FF9002 /* ZCChatNoticeLeaveCell.h in Headers */,
@@ -921,51 +1171,75 @@
 				7BD9DEBA28BCAC6000D38511 /* ZCSobotApi.h in Headers */,
 				EDCEA7EC28D444BF00355DBD /* ZCPieChartView.h in Headers */,
 				7BC73AA228DB2ACB004E1CE8 /* ZCChatHotCollectionCell.h in Headers */,
+				7B056CD82B32DFE00040CA69 /* ZCStatusLab.h in Headers */,
 				7B71AEF128E5C018003A49EB /* ZCChatWheelCollection2Cell.h in Headers */,
 				7BDDE1A628D1DA5F006E7006 /* ZCVideoPlayer.h in Headers */,
 				ED409AD428C83D4300690A24 /* ZCMsgRecordCell.h in Headers */,
+				7B056D1C2B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.h in Headers */,
 				EDCEA7B028D1B45600355DBD /* ZCZHPickView.h in Headers */,
 				7B49DCDC28DC593C00360945 /* ZCChatAppletCell.h in Headers */,
 				7B8333FC28D1C027006BDFFA /* ZCUIRecordView.h in Headers */,
 				ED409B1628D0564E00690A24 /* ZCOrderContentCell.h in Headers */,
 				ED409AF628C98CE200690A24 /* ZCDocumentLookController.h in Headers */,
-				ED409AF028C9897900690A24 /* ZCVideoPlayer.h in Headers */,
+				7B056D492B32E0540040CA69 /* ZCChatMessageInfoTextView.h in Headers */,
+				7B056D482B32E0540040CA69 /* ZCChatMessageInfoFileView.h in Headers */,
 				EDB3C9AB28E1BEE000261D9B /* ZCServiceCentreVC.h in Headers */,
 				EDCEA7B328D1B97B00355DBD /* ZCCheckCusFieldView.h in Headers */,
+				7B056D462B32E0540040CA69 /* ZCChatDetailView.h in Headers */,
 				7BC73A9E28DB2A5B004E1CE8 /* ZCChatHotGuideCell.h in Headers */,
 				7BE5D5DE28D94649002BCF26 /* ZCChatPhotoVideoCell.h in Headers */,
+				7B056D002B32E0020040CA69 /* ZCChatReferenceRichCell.h in Headers */,
 				ED409AEB28C9834D00690A24 /* ZCUIRatingView.h in Headers */,
 				ED409AE228C8B9F400690A24 /* ZCReplyFileView.h in Headers */,
 				EDCEA7F028D44A1300355DBD /* ZCServiceDetailVC.h in Headers */,
+				7B056CD32B32DF050040CA69 /* SobotSatisfactionItemView.h in Headers */,
 				7BCDE77528DC87B70048D82D /* ZCChatSendGoodsCell.h in Headers */,
+				7B056CFE2B32E0020040CA69 /* ZCChatReferenceFileCell.h in Headers */,
 				7B8333F528D06EBC006BDFFA /* EmojiBoardView.h in Headers */,
 				ED409AC328C7746100690A24 /* SobotHtmlFilter.h in Headers */,
 				ED409B1E28D078F900690A24 /* ZCActionSheet.h in Headers */,
 				7B71AEE828E529B8003A49EB /* ZCUIChatListController.h in Headers */,
 				ED47500D28E1540800353157 /* ZCLeaveMsgVC.h in Headers */,
 				7B2360CE28BE301400A445CD /* ZCChatController.h in Headers */,
+				7B056D572B32E0540040CA69 /* ZCChatMessageInfoView.h in Headers */,
+				7B056D582B32E0540040CA69 /* ZCChatShowDetailView.h in Headers */,
+				7B056CFA2B32E0020040CA69 /* ZCChatReferenceGoodCell.h in Headers */,
+				7B056D212B32E0370040CA69 /* ZCChatCustomCardVerticalCell.h in Headers */,
+				7B056CF02B32E0020040CA69 /* ZCChatReferenceAppletCell.h in Headers */,
 				ED409AAD28C5E2BA00690A24 /* ZCLeaveEditView.h in Headers */,
+				7B056D202B32E0370040CA69 /* ZCChatCustomCardBaseCell.h in Headers */,
 				ED409AD928C8848C00690A24 /* ZCMsgDetailsVC.h in Headers */,
 				7BDDE19D28D1D7BF006E7006 /* ZCVideoViewController.h in Headers */,
 				EDB3C9B428E2F0F600261D9B /* ZCServiceListVC.h in Headers */,
 				7BAC4D9528C09ADF00B8EBDA /* ZCChatBaseCell.h in Headers */,
+				7B056CCF2B32DF050040CA69 /* SobotRatingView.h in Headers */,
 				7BE5D5DA28D86C47002BCF26 /* ZCChatTipsCell.h in Headers */,
+				7B056D2A2B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.h in Headers */,
 				EDCEA79628D182A100355DBD /* ZCOrderCheckCell.h in Headers */,
 				EDCEA7A628D1AC6100355DBD /* ZCCheckMulCusFieldView.h in Headers */,
 				EDCEA7A228D1A40400355DBD /* ZCPageSheetView.h in Headers */,
 				7BDDE1A928D32DF2006E7006 /* ZCChatTextCell.h in Headers */,
 				7B1CC49828FFB787004B856B /* ZCChatOnlineTipsCell.h in Headers */,
+				7B056D232B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.h in Headers */,
 				ED409AC728C82C1600690A24 /* ZCMsgRecordView.h in Headers */,
+				7B056CEF2B32E0020040CA69 /* ZCChatReferenceCell.h in Headers */,
+				7B056D552B32E0540040CA69 /* ZCChatMessageInfoImgView.h in Headers */,
+				7B056D4F2B32E0540040CA69 /* ZCChatMessageInfoRichTextView.h in Headers */,
 				7BDDE1A328D1DA5F006E7006 /* ZCCircleProgressView.h in Headers */,
 				7B71AEED28E52A27003A49EB /* ZCUIChatListCell.h in Headers */,
 				7BC73A8928DAA609004E1CE8 /* ZCChatWheelCollectionCell.h in Headers */,
 				7BAC4D9928C09BF500B8EBDA /* ZCUIChatKeyboard.h in Headers */,
+				7B056D542B32E0540040CA69 /* ZCChatDetailViewCell.h in Headers */,
+				7B056CFB2B32E0020040CA69 /* ZCChatReferenceCustomCardCell.h in Headers */,
+				7B056D4C2B32E0540040CA69 /* ZCChatMessageInfoArticleView.h in Headers */,
+				7B056D262B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.h in Headers */,
 				EDCEA79A28D1A27300355DBD /* ZCCheckTypeView.h in Headers */,
 				EDCEA7D028D3241100355DBD /* ZCCheckCityView.h in Headers */,
 				EDCEA79228D16FDD00355DBD /* ZCOrderEditCell.h in Headers */,
 				ED409B2328D0A27B00690A24 /* ZCOrderOnlyEditCell.h in Headers */,
 				7B2360CD28BE301400A445CD /* SobotClientBaseController.h in Headers */,
 				7BDDE1AD28D32E03006E7006 /* ZCChatRichCell.h in Headers */,
+				7B056D062B32E01A0040CA69 /* ZCObjButton.h in Headers */,
 				ED409AFE28C9BFD500690A24 /* ZCLeaveDetailCell.h in Headers */,
 				7BE5D5E228D959C0002BCF26 /* ZCFastMenuView.h in Headers */,
 				ED409B0E28CB1E7E00690A24 /* ZCUIPlaceHolderTextView.h in Headers */,
@@ -980,6 +1254,10 @@
 				7BF7EEA228DC89910006D117 /* ZCChatOrderCardCell.h in Headers */,
 				7BCDE77928DC87C80048D82D /* ZCChatGoodsCardCell.h in Headers */,
 				EDCEA7BF28D2F31500355DBD /* ZCSelLeaveView.h in Headers */,
+				7B056CF32B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.h in Headers */,
+				7B056CFC2B32E0020040CA69 /* ZCChatReferenceTextCell.h in Headers */,
+				7B056CFD2B32E0020040CA69 /* ZCChatReferenceImageCell.h in Headers */,
+				7B056D2F2B32E0370040CA69 /* ZCChatCustomCardSingleCell.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1076,16 +1354,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDCEA7E728D4225200355DBD /* ZCAutoListView.m in Sources */,
+				7B056D4A2B32E0540040CA69 /* ZCChatMessageInfoImgView.m in Sources */,
+				7B056CEE2B32E0020040CA69 /* ZCChatReferenceGoodCell.m in Sources */,
 				ED409ADA28C8848C00690A24 /* ZCMsgDetailsVC.m in Sources */,
 				7BCFFDA928DD8F0F00FF9002 /* ZCChatNoticeCell.m in Sources */,
 				EDCEA7B428D1B97B00355DBD /* ZCCheckCusFieldView.m in Sources */,
 				7BE5D5D728D706D4002BCF26 /* ZCChatVoiceCell.m in Sources */,
 				7BC73A8A28DAA609004E1CE8 /* ZCChatWheelCollectionCell.m in Sources */,
+				7B056D012B32E0020040CA69 /* ZCChatReferenceSoundCell.m in Sources */,
 				7BC73A8E28DAA6ED004E1CE8 /* ZCChatWheelFlowLayout.m in Sources */,
 				EDCEA7D528D40B4300355DBD /* ZCUISkillSetView.m in Sources */,
 				ED47500228D83E7400353157 /* ZCItemView.m in Sources */,
 				EDCEA7DE28D41BC700355DBD /* ZCTurnRobotView.m in Sources */,
 				ED409AC828C82C1600690A24 /* ZCMsgRecordView.m in Sources */,
+				7B056D4B2B32E0540040CA69 /* ZCChatDetailViewCell.m in Sources */,
 				7BE5D5DF28D94649002BCF26 /* ZCChatPhotoVideoCell.m in Sources */,
 				7B71AEE928E529B8003A49EB /* ZCUIChatListController.m in Sources */,
 				7B2360CF28BE301400A445CD /* ZCChatController.m in Sources */,
@@ -1093,58 +1375,83 @@
 				7BDDE1A528D1DA5F006E7006 /* ZCCircleProgressView.m in Sources */,
 				EDB3C9B528E2F0F600261D9B /* ZCServiceListVC.m in Sources */,
 				ED409B0328CA09A900690A24 /* ZCUIWebController.m in Sources */,
+				7B056D532B32E0540040CA69 /* ZCChatMessageInfoArticleView.m in Sources */,
 				7BAC4D7528BE34CA00B8EBDA /* ZCUICore.m in Sources */,
 				7B1CC49928FFB787004B856B /* ZCChatOnlineTipsCell.m in Sources */,
 				ED409AAE28C5E2BA00690A24 /* ZCLeaveEditView.m in Sources */,
+				7B056CD02B32DF050040CA69 /* SobotSatisfactionItemView.m in Sources */,
+				7B056CFF2B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.m in Sources */,
+				7B056CF42B32E0020040CA69 /* ZCChatReferenceFileCell.m in Sources */,
+				7B056CF52B32E0020040CA69 /* ZCChatReferenceImageCell.m in Sources */,
+				7B056D4D2B32E0540040CA69 /* ZCChatShowDetailView.m in Sources */,
 				7BF7EEAB28DC89B50006D117 /* ZCChatLocationCell.m in Sources */,
 				7B71AEF228E5C018003A49EB /* ZCChatWheelCollection2Cell.m in Sources */,
 				7B8333FB28D1C027006BDFFA /* ZCUIRecordView.m in Sources */,
-				ED409AF128C9897900690A24 /* ZCVideoPlayer.m in Sources */,
+				7B056CD72B32DFE00040CA69 /* ZCStatusLab.m in Sources */,
+				7B056D2D2B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.m in Sources */,
 				ED409B1728D0564E00690A24 /* ZCOrderContentCell.m in Sources */,
+				7B056D1D2B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.m in Sources */,
 				ED409AFF28C9BFD500690A24 /* ZCLeaveDetailCell.m in Sources */,
 				7BC73A8628D9E01B004E1CE8 /* ZCChatWheel4Cell.m in Sources */,
+				7B056CF82B32E0020040CA69 /* ZCChatReferenceAppletCell.m in Sources */,
 				7BDDE19E28D1D7BF006E7006 /* ZCVideoViewController.m in Sources */,
 				ED474FFD28D81E7900353157 /* ZCUIEvaluateView.m in Sources */,
 				7B2360D028BE301400A445CD /* SobotClientBaseController.m in Sources */,
 				EDCEA7BE28D2F31500355DBD /* ZCQuickLeaveView.m in Sources */,
 				ED409AD528C83D4300690A24 /* ZCMsgRecordCell.m in Sources */,
 				ED409AEC28C9834D00690A24 /* ZCUIRatingView.m in Sources */,
+				7B056CF72B32E0020040CA69 /* ZCChatReferenceRichCell.m in Sources */,
 				7BAC4D9628C09ADF00B8EBDA /* ZCChatBaseCell.m in Sources */,
 				EDCEA7A728D1AC6100355DBD /* ZCCheckMulCusFieldView.m in Sources */,
 				EDCEA7A328D1A40400355DBD /* ZCPageSheetView.m in Sources */,
+				7B056CF12B32E0020040CA69 /* ZCChatReferenceTextCell.m in Sources */,
+				7B056D502B32E0540040CA69 /* ZCChatMessageInfoFileView.m in Sources */,
 				ED409B1F28D078F900690A24 /* ZCActionSheet.m in Sources */,
+				7B056CD22B32DF050040CA69 /* SobotSatisfactionView.m in Sources */,
 				ED409AA428C58E5A00690A24 /* ZCLeaveMsgController.m in Sources */,
 				EDCEA7F128D44A1300355DBD /* ZCServiceDetailVC.m in Sources */,
 				EDCEA7EB28D444BF00355DBD /* ZCPieChartView.m in Sources */,
+				7B056D562B32E0540040CA69 /* ZCChatMessageInfoTextView.m in Sources */,
 				7BCDE77628DC87B70048D82D /* ZCChatSendGoodsCell.m in Sources */,
 				ED409B0D28CB1E7E00690A24 /* ZCUIPlaceHolderTextView.m in Sources */,
 				7BE5D5E328D959C1002BCF26 /* ZCFastMenuView.m in Sources */,
 				ED409B2428D0A27B00690A24 /* ZCOrderOnlyEditCell.m in Sources */,
 				7BC73AA328DB2ACB004E1CE8 /* ZCChatHotCollectionCell.m in Sources */,
+				7B056D452B32E0540040CA69 /* ZCChatMessageInfoRichTextView.m in Sources */,
 				7B49DCE228DC608300360945 /* ZCChatArticleCell.m in Sources */,
 				ED47500E28E1540800353157 /* ZCLeaveMsgVC.m in Sources */,
 				7BF7EEA728DC89A40006D117 /* ZCChatFileCell.m in Sources */,
+				7B056D222B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.m in Sources */,
 				EDCEA7AF28D1B45600355DBD /* ZCZHPickView.m in Sources */,
+				7B056D512B32E0540040CA69 /* SobotFileButton.m in Sources */,
 				ED47500828DB0E6200353157 /* ZCTitleView.m in Sources */,
+				7B056CF92B32E0020040CA69 /* ZCChatReferenceCell.m in Sources */,
+				7B056D1E2B32E0370040CA69 /* ZCChatCustomCardCell.m in Sources */,
 				7B8333F428D06EBC006BDFFA /* EmojiButton.m in Sources */,
 				7B71AEEE28E52A27003A49EB /* ZCUIChatListCell.m in Sources */,
 				7BCFFDB128DD8F4100FF9002 /* ZCChatEvaluationCell.m in Sources */,
 				7BC73A8228D9DFAA004E1CE8 /* ZCChatWheel123Cell.m in Sources */,
+				7B056D522B32E0540040CA69 /* ZCChatDetailView.m in Sources */,
+				7B056D052B32E01A0040CA69 /* ZCObjButton.m in Sources */,
 				7B8333ED28D05707006BDFFA /* ZCLibCusMenu.m in Sources */,
 				EDCEA79B28D1A27300355DBD /* ZCCheckTypeView.m in Sources */,
 				7BDDE1AA28D32DF2006E7006 /* ZCChatTextCell.m in Sources */,
 				ED409B0828CB18FA00690A24 /* ZCReplyLeaveView.m in Sources */,
 				ED409AC428C7746100690A24 /* SobotHtmlFilter.m in Sources */,
+				7B056D2B2B32E0370040CA69 /* ZCChatCustomCardVerticalCell.m in Sources */,
 				7BAC4D9A28C09BF500B8EBDA /* ZCUIChatKeyboard.m in Sources */,
 				7B49DCDD28DC593C00360945 /* ZCChatAppletCell.m in Sources */,
 				EDCEA79328D16FDD00355DBD /* ZCOrderEditCell.m in Sources */,
+				7B056CCE2B32DF050040CA69 /* SobotRatingView.m in Sources */,
 				ED409AF528C98CE200690A24 /* ZCDocumentLookController.m in Sources */,
+				7B056D2E2B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.m in Sources */,
 				7BE5D5DB28D86C47002BCF26 /* ZCChatTipsCell.m in Sources */,
 				7BCFFDAD28DD8F2500FF9002 /* ZCChatNoticeLeaveCell.m in Sources */,
 				7BDDE1A428D1DA5F006E7006 /* ZCVideoPlayer.m in Sources */,
 				EDB3C9AC28E1BEE000261D9B /* ZCServiceCentreVC.m in Sources */,
 				ED409B1328D04F6000690A24 /* ZCOrderCreateCell.m in Sources */,
 				ED409AFA28C9BADD00690A24 /* ZCUILoading.m in Sources */,
+				7B056D4E2B32E0540040CA69 /* ZCChatMessageInfoView.m in Sources */,
 				EDCEA7BD28D2F31500355DBD /* ZCSelLeaveView.m in Sources */,
 				7BAC4D9128C0927900B8EBDA /* ZCUIKitTools.m in Sources */,
 				EDB3C9BA28E2F97900261D9B /* ZCServiceListCell.m in Sources */,
@@ -1152,13 +1459,18 @@
 				EDCEA7CF28D3241100355DBD /* ZCCheckCityView.m in Sources */,
 				7BCDE77A28DC87C80048D82D /* ZCChatGoodsCardCell.m in Sources */,
 				7BAC4D7928BE350900B8EBDA /* ZCKitInfo.m in Sources */,
+				7B056D2C2B32E0370040CA69 /* ZCChatCustomCardBaseCell.m in Sources */,
+				7B056D292B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.m in Sources */,
 				EDCEA7C828D311BF00355DBD /* ZCUIAskTableController.m in Sources */,
+				7B056D272B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.m in Sources */,
 				7BDDE1AE28D32E03006E7006 /* ZCChatRichCell.m in Sources */,
 				7BF7EEA328DC89910006D117 /* ZCChatOrderCardCell.m in Sources */,
+				7B056CF22B32E0020040CA69 /* ZCChatReferenceCustomCardCell.m in Sources */,
 				7B8333F628D06EBC006BDFFA /* EmojiBoardView.m in Sources */,
 				7BC73A9F28DB2A5B004E1CE8 /* ZCChatHotGuideCell.m in Sources */,
 				EDCEA79728D182A100355DBD /* ZCOrderCheckCell.m in Sources */,
 				7BD9DEBB28BCAC6000D38511 /* ZCSobotApi.m in Sources */,
+				7B056D242B32E0370040CA69 /* ZCChatCustomCardSingleCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

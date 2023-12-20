@@ -106,6 +106,15 @@ typedef NS_ENUM(NSInteger ,SobotParameterMode) {
                     andSuccess:(void (^)(NSData *_Nullable data ,NSURLSessionDataTask *task,NSURLResponse *response))success
                     andFailure:(void (^)(NSError *error ,NSURLSessionDataTask *task))failure
                    andProgress:(void (^)(NSProgress *progress))uploadProgress;
+
+
+- (NSURLSessionDataTask *)request:(NSString *)URLString
+              andParameterMode:(SobotParameterMode )parameterMode
+              andParameterMode:(NSString *)method
+                 andParameters:(NSDictionary *)parameters
+                    andHeaders:(NSDictionary<NSString *,NSString *> *)headers
+                    andSuccess:(nonnull void (^)(NSData * _Nullable, NSURLSessionDataTask * _Nonnull,NSURLResponse *response))success
+                       andFailure:(nonnull void (^)(NSError * _Nonnull, NSURLSessionDataTask * _Nonnull))failure andProgress:(nonnull void (^)(NSProgress * _Nonnull))uploadProgress;
 @end
 
 NS_ASSUME_NONNULL_END

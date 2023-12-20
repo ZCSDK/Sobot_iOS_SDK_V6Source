@@ -23,10 +23,11 @@
 #import <SobotChatClient/ZCAddressModel.h>
 #import <SobotChatClient/ZCLibSkillSet.h>
 #import <SobotChatClient/ZCLibRobotSet.h>
-#import <SobotChatClient/ZCUICustomActionSheetModel.h>
 #import <SobotChatClient/ZCIMChat.h>
 #import <SobotChatClient/ZCSCListModel.h>
 #import <SobotChatClient/ZCLibHttpManager.h>
+#import <SobotChatClient/ZCSatisfactionConfig.h>
+
 //! Project version number for SobotChatClient.
 FOUNDATION_EXPORT double SobotChatClientVersionNumber;
 

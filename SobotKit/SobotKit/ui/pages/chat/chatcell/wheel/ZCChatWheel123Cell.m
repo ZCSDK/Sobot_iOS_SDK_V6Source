@@ -348,9 +348,7 @@
 }
 
 - (void)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout cellCenteredAtIndexPath:(NSIndexPath *)indexPath page:(int)page{
-    self.pageControl.currentPage = page; // 分页控制器当前显示的页数
-    NSLog(@"sssssssssssssss %d",page);
-    
+    self.pageControl.currentPage = page; // 分页控制器当前显示的页数    
 //    if(page > 0){
 //        self.btnPre.enabled = true;
 //    }

@@ -59,10 +59,13 @@ typedef NSString *SobotTypeColor NS_STRING_ENUM;
 static SobotTypeColor const SobotColorBanner  = @"SobotColorBanner";// 导航"#1B1B1C";
 static SobotTypeColor const SobotColorTheme   = @"SobotColorTheme";// 主题色，固定"#0DAEAF";
 static SobotTypeColor const SobotColorBgMain  = @"SobotColorBgMain";// 新增默认背景"#000000";
-static SobotTypeColor const SobotColorBgSubToMain  = @"SobotBgSub2MainColor";// 搜索等次级背景"#353538";
+static SobotTypeColor const SobotColorBgSubToMain  = @"SobotColorBgSub2Main";// 搜索等次级背景"#353538";
 static SobotTypeColor const SobotColorBgSub   = @"SobotColorBgSub";// 普通页面浅色背景"#262628";
 static SobotTypeColor const SobotColorBgSub2  = @"SobotColorBgSub2";// 搜索等次级背景" 搜索栏背景颜色 附件背景色
-static SobotTypeColor const SobotColorBgSub3  = @"SobotBgSub3Color";// 搜索等次级背景"#FFFFFF";
+static SobotTypeColor const SobotColorBgSub3  = @"SobotColorBgSub3";// 搜索等次级背景"#FFFFFF";
+static SobotTypeColor const SobotColorBgSub5  = @"SobotColorBgSub5";
+static SobotTypeColor const SobotColorBgSub6  = @"SobotColorBgSub6";// 外呼软键盘按钮默认的背景色
+static SobotTypeColor const SobotColorBgSub7  = @"SobotColorBgSub7";// 外呼软键盘按钮选中的背景色
 static SobotTypeColor const SobotColorBlack = @"SobotColorBlack";//纯黑色"#000000";
 static SobotTypeColor const SobotColorWhite = @"SobotColorWhite";//纯白色"#FFFFFF";
 static SobotTypeColor const SobotColorYellow = @"SobotColorYellow";//黄色"#F8C46E";
@@ -82,12 +85,16 @@ static SobotTypeColor const SobotColorTextSub1 = @"SobotColorTextSub1";//次级1
 static SobotTypeColor const SobotColorTextSub2 = @"SobotColorTextSub2";//次级2文本颜色"#7B7B7B";
 static SobotTypeColor const SobotColorTextSub3 = @"SobotColorTextSub3";//次级3文本颜色#BDC3D1
 static SobotTypeColor const SobotColorTextSub4 = @"SobotColorTextSub4"; //次级4文字颜色  8B98AD
+static SobotTypeColor const SobotColorTextSub5 = @"SobotColorTextSub5";
 static SobotTypeColor const SobotColorTextSection = @"SobotColorTextSection"; // 首页homecell中title文字颜色 #3D4966
 static SobotTypeColor const SobotColorTextMenuSelected = @"SobotColorTextMenuSelected";// 上一个 下一个 按钮不可点击的文字颜色
 static SobotTypeColor const SobotColorTextActionSheet = @"SobotColorTextActionSheet";// 排序弹窗文字颜色
 static SobotTypeColor const SobotColorTextCancel = @"SobotColorTextCancel"; // 搜索取消按钮的文字颜色
 static SobotTypeColor const SobotColorTextNav = @"SobotColorTextNav";// 导航栏文字颜色
 static SobotTypeColor const SobotColorTextWhite = @"SobotColorTextWhite";// 白色文字颜色
+static SobotTypeColor const SobotColorTextGoods = @"SobotColorTextGoods";// 商品卡片和订单卡片的文字颜色
+static SobotTypeColor const SobotColorTextPricetTag = @"SobotColorTextPricetTag";// 商品卡片价格标签的文字颜色
+static SobotTypeColor const SobotColorBgF5 = @"SobotColorBgF5";// 新增背景颜色
 
 // 线条颜色
 static SobotTypeColor const SobotColorBgLine  = @"SobotColorBgLine";// 线条颜色"#2C2C2C";分割线
@@ -113,7 +120,8 @@ static SobotTypeColor const SobotTextOrderStatus5 = @"SobotTextOrderStatus5"; //
 // 呼叫任务状态背景色
 static SobotTypeColor const SobotTextCallStatus1 = @"SobotTextCallStatus1"; // 呼叫状态文字颜色
 static SobotTypeColor const SobotTextCallStatus3 = @"SobotTextCallStatus3"; // 呼叫状态文字颜色
-
+static SobotTypeColor const SobotTextCallStatus4 = @"SobotTextCallStatus4"; // 呼叫状态文字颜色
+static SobotTypeColor const SobotTextCallStatus5 = @"SobotTextCallStatus5"; // 拨号页面不可点颜色
 
 // 颜色
 #define UIColorFromModeColor(themeColorKey) [SobotUITools getSobotThemeModeColor:themeColorKey  bundleName:@""]

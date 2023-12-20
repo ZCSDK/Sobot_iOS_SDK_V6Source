@@ -86,7 +86,7 @@
     });
   
     _pieChartView = ({
-        ZCPieChartView *iv = [[ZCPieChartView alloc] initWithFrame:_ivPicture.bounds];
+        ZCPieChartView *iv = [[ZCPieChartView alloc] initWithFrame:CGRectMake(0, 0, 45, 45)];
         [iv setBackgroundColor:UIColorFromModeColorAlpha(SobotColorBlack, 0.6)];
         [self.contentView addSubview:iv];
         iv.hidden = YES;
@@ -121,7 +121,11 @@
     if(message.msgType == SobotMessageTypeVideo){
         // 视频
         _btnPlay.hidden = NO;
-        _btnPlay.obj = @{@"msg":self.tempModel.richModel.content};
+        if(sobotConvertToString(self.tempModel.richModel.url).length > 0){
+            _btnPlay.obj = @{@"msg":sobotConvertToString(self.tempModel.richModel.url)};
+        }else{
+            _btnPlay.obj = @{@"msg":sobotConvertToString(self.tempModel.richModel.content)};
+        }
     }
     
     if(sobotConvertToString(self.lblSugguest.text).length > 0){
@@ -133,6 +137,7 @@
         _layoutPicLeft.constant = 0;
         _layoutPicBottom.constant = 0;
     }
+    _ivPicture.userInteractionEnabled = YES;
     // 判断图片来源，本地或网络
     if(sobotCheckFileIsExsis(message.richModel.content)){
         NSString *path = message.richModel.content;
@@ -164,7 +169,10 @@
 //    CALayer *layer              = self.ivLayerView.layer;
 //    layer.frame                 = (CGRect){{0,0},self.ivLayerView.layer.frame.size};
 //    _ivPicture.layer.mask = layer;
-    self.ivBgView.backgroundColor = UIColor.clearColor;
+    // 如果有引导语，不能设置背景颜色为空
+    if([message getModelDisplaySugestionText].length == 0){
+        self.ivBgView.backgroundColor = UIColor.clearColor;
+    }
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

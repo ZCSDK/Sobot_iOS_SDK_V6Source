@@ -76,6 +76,8 @@
         self.fileScrollViewPR = sobotLayoutPaddingRight(-20, iv, self.contentView);
         self.fileScrollViewMT = sobotLayoutMarginTop(10, iv, self.textDesc);
         self.fileScrollViewEH = sobotLayoutEqualHeight(80, iv, NSLayoutRelationEqual);
+        self.fileScrollViewPB = sobotLayoutPaddingBottom(0, iv, self.contentView);
+        [self.contentView addConstraint:self.fileScrollViewPB];
         [self.contentView addConstraint:self.fileScrollViewPL];
         [self.contentView addConstraint:self.fileScrollViewPR];
         [self.contentView addConstraint:self.fileScrollViewMT];
@@ -109,26 +111,14 @@
     
     if (DH > 102) {
         if (self.textViewEH) {
-            [self.contentView removeConstraint:self.textViewEH];
-            self.textViewEH = sobotLayoutEqualHeight(DH+20, self.textDesc, NSLayoutRelationEqual);
-            [self.contentView addConstraint:self.textViewEH];
+            self.textViewEH.constant = DH +20;
         }
     }
     [_textDesc setText:sobotConvertToString(self.tempModel.ticketDesc)];
-    if (self.textDescPB) {
-        [self.contentView removeConstraint:self.textDescPB];
-    }
-    if (self.fileScrollViewPB) {
-        [self.contentView removeConstraint:self.fileScrollViewPB];
-    }
+
     if (_enclosureShowFlag) {
         _fileScrollView.frame = CGRectMake(20, CGRectGetMaxY(_textDesc.frame) + 10, self.tableWidth - 40, 80);
         [self reloadScrollView];
-        self.fileScrollViewPB = sobotLayoutPaddingBottom(0, self.fileScrollView, self.contentView);
-        [self.contentView addConstraint:self.fileScrollViewPB];
-    }else{
-        self.textDescPB = sobotLayoutPaddingBottom(-20, self.textDesc, self.contentView);
-        [self.contentView addConstraint:self.textDescPB];
     }
     if(sobotIsRTLLayout()){
         [_textDesc setTextAlignment:NSTextAlignmentRight];

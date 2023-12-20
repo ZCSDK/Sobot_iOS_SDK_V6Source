@@ -90,6 +90,9 @@ NS_ASSUME_NONNULL_BEGIN
 // 打开留言记录详情页面
 +(void)openRecordDetail:(NSString *)ticketId viewController:(UIViewController *) byController;
 
+// 打开webview页面
+//+(void)openWebView:(NSString*)url viewController:(UIViewController *)byController;
+
 // 获取当前企业id
 +(NSString *)getCommanyId;
 
@@ -102,8 +105,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 发送消息给人工
 /// @param textMsg  消息内如，如果是视频、图片、音频、文件时，请传本地图片路径
 /// @param msgType  0, //文本   1, //图片  4, // 文件   3, // 视频
+/// @param richType
+///   0,//-富文本 1, //多轮 2, // 位置 3, // 商品卡片 4, // 订单 6, // 小程序卡片 17,// 文章 20,// 通用卡片
 /// @param ResultBlock 发送结果 code == 0表示已发送
-+ (void)sendMessageToUser:(NSString *)textMsg type:(NSInteger ) msgType resultBlock:(nonnull void (^)(NSString *, int code))ResultBlock;
++ (void)sendMessageToUser:(NSString *)textMsg type:(NSInteger ) msgType richType:(NSInteger) richType resultBlock:(nonnull void (^)(NSString *, int code))ResultBlock;
 
 
 //// 发送订单卡片
@@ -114,6 +119,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 给机器人发送消息
 + (void)sendTextToRobot:(NSString *)textMsg;
+
+
+
+/// 发送自定义卡片到会话记录，以系统的方式推荐给客户
+/// - Parameters:
+///   - customCard: 要发送的卡片对象
+///   - ResultBlock: 结果
++ (void)sendCustomCardToRecord:(SobotChatCustomCard *)customCard resultBlock:(nonnull void (^)(NSString * _Nonnull, int))ResultBlock;
+
+
+/// 发送自定义卡片给聊天对象， 正常聊天消息
+/// @param customCard 要发送的卡片对象
+/// @param ResultBlock 结果
++ (void)sendCustomCardToChat:(SobotChatCustomCard *)customCard resultBlock:(nonnull void (^)(NSString * _Nonnull, int))ResultBlock;
 
 
 ///同步用户信息，如果没有建立会话，会默认建立一个新会话（同openZCChat）

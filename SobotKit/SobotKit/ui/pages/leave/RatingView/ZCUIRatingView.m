@@ -51,11 +51,16 @@
     }
     
     width=  self.frame.size.width/count;
+    int n = 0;
+    
+    if(count > 6){
+        width = self.frame.size.width / 6;
+    }
     for (int i=1; i<=count; i++) {
         UIView *ss = nil;
         if(count > 5){
             ss = [self createLabel:(i-1)*width title:[NSString stringWithFormat:@"%d",i - 1]];
-            [ss setFrame:CGRectMake((i-1)*width, y, width-5, height)];
+            [ss setFrame:CGRectMake((i-1)*width-n*width + (n>0?width/2:0), y, width-10, height)];
             [ss setBackgroundColor:UIColorFromKitModeColor(SobotColorWhite)];
             [(UILabel *)ss setTextColor:[ZCUIKitTools getNotifitionTopViewLabelColor]];
             ((UILabel *)ss).layer.cornerRadius = 4;
@@ -64,6 +69,10 @@
             ((UILabel *)ss).textAlignment = NSTextAlignmentCenter;
             ((UILabel *)ss).layer.masksToBounds = YES;
             ((UILabel *)ss).font = [ZCUIKitTools zcgetKitChatFont];
+            if(i == 6){
+                y = y + 10+height;
+                n = 6;
+            }
         }else{
             ss = [[UIImageView alloc] initWithImage:unselectedImage];
             [ss setContentMode:UIViewContentModeScaleAspectFit];

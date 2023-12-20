@@ -54,6 +54,8 @@
 - (void)loadLayer:(CAShapeLayer *)layer WithColor:(UIColor *)color {
     CGFloat layerWidth = self.pathWidth;
     CGFloat layerX = (self.bounds.size.width - layerWidth)/2;
+    // 4.0.5 版本修改，解决不居中问题
+    CGFloat layerY = (self.bounds.size.height - layerWidth)/2;
     layer.frame = CGRectMake(layerX, layerX, layerWidth, layerWidth);
     layer.fillColor = [UIColor clearColor].CGColor;
     layer.strokeColor = color.CGColor;
@@ -139,7 +141,7 @@
 - (UIImageView *)shadowImageView {
     if (!_shadowImageView) {
         _shadowImageView = [[UIImageView alloc]initWithFrame:self.bounds];
-        _shadowImageView.image = [UIImage imageNamed:@"shadow"];
+        _shadowImageView.image = [SobotUITools getSysImageByName:@"shadow"];
         [self addSubview:_shadowImageView];
     }
     return _shadowImageView;

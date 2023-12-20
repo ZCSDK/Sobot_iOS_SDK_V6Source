@@ -42,6 +42,7 @@
 @property (readwrite, nonatomic, weak) id target;
 @property (readwrite, nonatomic) SEL action;
 @property (readwrite, nonatomic, strong) UIColor *foreColor;
+@property (readwrite, nonatomic, strong) UIFont *titleFont;
 @property (readwrite, nonatomic) NSTextAlignment alignment;
 
 + (instancetype) menuItem:(NSString *) title
@@ -63,17 +64,29 @@
                fromRect:(CGRect)rect
               menuItems:(NSArray *)menuItems;
 
+
 + (void) showMenuInView:(UIView *)view
                fromRect:(CGRect)rect
               menuItems:(NSArray *)menuItems
        currentItemTitle:(NSString *)currentTitle;
 
++ (void) showMenuInView:(UIView *)view
+               fromRect:(CGRect)rect
+              menuItems:(NSArray *)menuItems
+              slideable:(BOOL)isSlideable;
 
 
 + (void) dismissMenu;
 
 + (UIColor *) tintColor;
 + (void) setTintColor: (UIColor *) tintColor;
+
++(UIColor *)lineColor;
++ (void) setLineColor: (UIColor *) lineColor;
+
+// 隐藏箭头
++ (BOOL ) hiddenArrow;
++ (void) setHideArrow: (BOOL) isHidden;
 
 + (UIFont *) titleFont;
 + (void) setTitleFont: (UIFont *) titleFont;

@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <SobotChatClient/ZCLibInitInfo.h>
+#import <SobotCommon/SobotCommon.h>
 
 /**
  *  配置信息
@@ -33,6 +34,7 @@
  */
 @property (nonatomic , strong) NSString *app_key;
 
+@property(nonatomic,assign) BOOL realuateStyle;// realuateStyle 0-右侧展示 1-下方展示！机器人点踩按钮
 
 /**
  *  客服不在线标题
@@ -56,6 +58,9 @@
 
 //客服欢迎语规则，1-只显示一次，0-默认值
 @property (nonatomic , assign) int      adminHelloWordCountRule;
+
+// 是否为新用户，4.0.3新增属性，新用户首次咨询
+@property (nonatomic , assign) int      isNew;
 
 /**
  *  用户无应答提示时间
@@ -278,6 +283,10 @@
 @property (nonatomic, assign) int      robotFlag;
 
 
+/// 4.0.3新增，=1时机器人启用chatgpt，超时时间增加
+@property (nonatomic, assign) int      aiStatus;
+
+
 /*
  *  通告是否置顶
  */
@@ -426,7 +435,8 @@
 /// 延迟转人工，1:开; 0:关
 @property (nonatomic,assign) BOOL invalidSessionFlag;
 
-
+/// 会话结束是否推送评价开关：1-开启，0-关闭
+@property(nonatomic,assign) BOOL commentFlag;
 
 /// *******************************************  v4.0.0 主题相关参数 千人千面 *******************************************
 @property(nonatomic,copy) NSDictionary *visitorScheme;
@@ -485,14 +495,44 @@
 // 超链点击颜色
 @property(nonatomic,copy) NSString *msgClickColor;
 
-// app渠道  对话框 拓展功能
+// app渠道  机器人对话框 拓展功能
 @property(nonatomic,strong)NSMutableArray *appExtModelList;
+
+
+// app渠道  人工对话框 拓展功能
+@property(nonatomic,strong)NSMutableArray *appExtModelManList;
 
 // 快捷菜单  menuSessionPhase 有 0 1 2 三种值组合 ，0 进入会话 1 机器人 2 转人工成功后  opportunity 调用规则
 @property(nonatomic,strong)NSArray *menuSessionPhase;
 
 // 是触发阶段 0.进入会话时、1.进入机器人会话时、2.进入人工会话时
 @property(nonatomic,copy)NSString *opportunity;
+
+// 是否显示转人工开关   0-否  1-是
+@property(nonatomic,assign) BOOL showTurnManualBtn;
+// 仅在客户消息累计触发n次机器人未知回答后，常驻显示 0-关闭 1-开启
+@property(nonatomic,assign) BOOL isManualBtnFlag;
+// 多少次后显示转人工按钮
+@property(nonatomic,assign) int manualBtnCount;
+
+// 访客端消息引用 1-开启，0-关闭。
+@property (nonatomic,assign) int msgAppointFlag;
+
+
+/**
+ 人工消息是否开启已读未读，1开启，0未开启
+ --当readFlag=1时，人工发送接口（文字、图片、视频、文件等）新增readStatus=0
+ --当readFlag=0，不处理
+ */
+@property (nonatomic,assign) int readFlag;
+
+/**
+ 机器人消息是否开启已读未读，1开启，0未开启;
+ adminReadFlag = 1时，发送机器人消息(文字、图片、视频等)成功以后，调用标记接口
+ adminReadFlag = 0时，不处理
+ */
+@property (nonatomic,assign) int adminReadFlag;
+
 
 /// *******************************************  v4.0.0 主题相关参数 千人千面  end*******************************************
 
@@ -538,6 +578,8 @@
 
 // 智能路由
 @property (nonatomic,strong) NSArray *transferAction;
+
+
 // 指定客户优先
 //  同PC端 设置-在线客服分配-排队优先设置-指定客户优先   开启传1 默认不设置
 @property (nonatomic,assign) int queueFirst;
@@ -565,8 +607,20 @@
 
 @interface ZCLibSendMessageParams : NSObject
 
+// 引用消息，仅当msgType是纯文本时有效
+@property (nonatomic,strong) SobotChatMessage *referenceMessage;
+
 // 消息内容，文件地址等
 @property (nonatomic,strong) NSString *content;
+
+// 发送卡片时的卡片id
+@property (nonatomic,strong) NSString *cardId;
+
+// 发生卡片的方式，0=进入会话记录,1=发送给客服或机器人
+@property (nonatomic,assign) NSInteger sendType;
+
+
+@property (nonatomic,assign) SobotMessageRichJsonType richType;
 
 // 如发送多伦时，发送的是json，实际显示的为单个字符串
 @property (nonatomic,strong) NSString *msgContent;
@@ -590,7 +644,10 @@
  */
 @property (nonatomic,strong) NSDictionary *exParams;
 
-
+@property(nonatomic,copy)NSString *fileSize;
+@property(nonatomic,copy)NSString *fileName;
+@property(nonatomic,copy)NSString *fileType;
+@property(nonatomic,assign)int msgType;
 @end
 
 // 对话框 拓展功能

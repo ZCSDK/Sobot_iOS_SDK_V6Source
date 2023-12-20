@@ -8,7 +8,7 @@
 #import "ZCChatSendGoodsCell.h"
 #import "ZCUICore.h"
 
-@interface ZCChatSendGoodsCell(){
+@interface ZCChatSendGoodsCell()<UIGestureRecognizerDelegate>{
     NSString *morelink;
     
 }
@@ -29,7 +29,8 @@
 @property (strong, nonatomic) UILabel *labDesc; //标题
 @property (strong, nonatomic) UILabel *labTag; //标题
 @property (strong, nonatomic) SobotButton *btnSend;
-
+@property (strong, nonatomic) UIButton *tapBtn;
+@property (copy,nonatomic)NSString *linkUrl;
 
 @end
 
@@ -56,6 +57,10 @@
         [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingHSpace, self.labTitle, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.labTitle, self.bgView)];
         
+        [self.bgView addConstraint:sobotLayoutPaddingLeft(0, self.tapBtn, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.tapBtn, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingBottom(0, self.tapBtn, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingTop(0, self.tapBtn, self.bgView)];
         
         _layoutImageBottom = sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, self.logoView, self.bgView);
         _layoutImageBottom.priority = UILayoutPriorityDefaultHigh;
@@ -88,6 +93,24 @@
         
     }
     return self;
+}
+
+//- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+//    if ([touch.view isKindOfClass:[UIButton class]]  || [touch.view isKindOfClass:[UITableView class]]  ||[NSStringFromClass([touch.view class]) isEqualToString:@"UITableViewCellContentView"]) {
+//        //判断如果点击的是tableView的cell，就把手势给关闭了
+//        return NO;//关闭手势
+//    }
+//    //否则手势存在
+//    return YES;
+//}
+
+
+-(void)tapAction{
+    if (sobotConvertToString(self.linkUrl).length > 0) {
+        if(self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]){
+            [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeOpenURL text:sobotConvertToString(self.linkUrl)  obj:sobotConvertToString(self.linkUrl)];
+        }
+    }
 }
 
 
@@ -131,15 +154,27 @@
         [self.bgView addSubview:iv];
         iv;
     });
+    
+    _tapBtn = ({
+        UIButton *iv = [UIButton buttonWithType:UIButtonTypeCustom];
+        [iv setBackgroundColor:UIColor.clearColor];
+        [iv setTitle:@"" forState:UIControlStateNormal];
+        [self.bgView addSubview:iv];
+        [iv addTarget:self action:@selector(tapAction) forControlEvents:UIControlEventTouchUpInside];
+        iv;
+    });
+    
     _btnSend = ({
         SobotButton *iv = [SobotButton buttonWithType:UIButtonTypeCustom];
 //        [iv setBackgroundColor:[ZCUIKitTools zcgetBgBannerColor]];
-        [iv setBackgroundColor:[ZCUIKitTools zcgetGoodSendBtnColor]];
+        [iv setBackgroundColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
         [iv setTitleColor:[ZCUIKitTools zcgetGoodsSendColor] forState:0];
         [iv.titleLabel setFont:SobotFont14];
         iv.layer.cornerRadius = 15;
         iv.layer.masksToBounds = YES;
         [iv setTitle:SobotKitLocalString(@"发送") forState:0];
+        iv.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+        iv.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5);
         [iv addTarget:self action:@selector(sendButtonClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.bgView addSubview:iv];
         iv;
@@ -148,13 +183,13 @@
     _labTag = ({
         UILabel *iv = [[UILabel alloc] init];
         [iv setTextAlignment:NSTextAlignmentLeft];
-        [iv setTextColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
+        [iv setTextColor:[ZCUIKitTools zcgetPricetTagTextColor]];
 //        iv.numberOfLines = 0;
         [iv setFont:SobotFontBold14];
         [self.bgView addSubview:iv];
         iv;
     });
-    
+
 }
 
 - (ZCProductInfo *)getZCproductInfo{
@@ -170,6 +205,7 @@
     _labTitle.text = sobotConvertToString(info.title);
     _labDesc.text = sobotConvertToString(info.desc);
     _labTag.text = sobotConvertToString(info.label);
+    _linkUrl = sobotConvertToString(info.link);
     if(sobotConvertToString(info.thumbUrl).length > 0){
         _layoutImageLeft.constant = ZCChatPaddingVSpace;
         _layoutImageWidth.constant = 72;

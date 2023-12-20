@@ -235,6 +235,7 @@
         [self.topView addConstraint:sobotLayoutPaddingLeft(64, btnBgView, self.topView)];
         [self.topView addConstraint:sobotLayoutPaddingRight(-64, btnBgView, self.topView)];
         [self.topView addConstraint:sobotLayoutEqualHeight(44, btnBgView, NSLayoutRelationEqual)];
+//        [self.topView addConstraint:sobotLayoutEqualCenterY(0, btnBgView, self.topView)];
     }else{
          self.navigationItem.titleView = btnBgView;
     }
@@ -280,20 +281,23 @@
         [btn addTarget:self action:@selector(itemsClick:) forControlEvents:UIControlEventTouchUpInside];
         btn.titleLabel.textAlignment = NSTextAlignmentCenter;
         btn.titleLabel.font = [ZCUIKitTools zcgetSubTitleFont];;
-        [btn setTitleColor:UIColorFromKitModeColor(SobotColorTextSub) forState:UIControlStateNormal];
-        [btn setTitleColor:UIColorFromKitModeColor(SobotColorTextMain) forState:UIControlStateHighlighted];
-        [btn setTitleColor:UIColorFromKitModeColor(SobotColorTextMain) forState:UIControlStateSelected];
+        [btn setTitleColor:[ZCUIKitTools zcgetLeaveTitleTextColor] forState:UIControlStateNormal];
+        [btn setTitleColor:[ZCUIKitTools zcgetLeaveTitleTextColor] forState:UIControlStateHighlighted];
+        [btn setTitleColor:[ZCUIKitTools zcgetLeaveTitleTextColor] forState:UIControlStateSelected];
+        btn.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         [btnBgView addSubview:btn];
         if(i == 0 ){
-            [btnBgView addConstraint:sobotLayoutPaddingBottom(-5, btn, btnBgView)];
-            [btnBgView addConstraint:sobotLayoutEqualWidth(BW, btn, NSLayoutRelationEqual)];
+//            [btnBgView addConstraint:sobotLayoutPaddingBottom(-5, btn, btnBgView)];
+            [btnBgView addConstraint:sobotLayoutEqualWidth(BW-8, btn, NSLayoutRelationEqual)];
             [btnBgView addConstraint:sobotLayoutEqualHeight(BH, btn, NSLayoutRelationEqual)];
             [btnBgView addConstraint:sobotLayoutEqualCenterX(-BW/2, btn, btnBgView)];
+            [btnBgView addConstraint:sobotLayoutEqualCenterY(0, btn, btnBgView)];
         }else{
-            [btnBgView addConstraint:sobotLayoutPaddingBottom(-5, btn, btnBgView)];
-            [btnBgView addConstraint:sobotLayoutEqualWidth(BW, btn, NSLayoutRelationEqual)];
+//            [btnBgView addConstraint:sobotLayoutPaddingBottom(-5, btn, btnBgView)];
+            [btnBgView addConstraint:sobotLayoutEqualWidth(BW -8, btn, NSLayoutRelationEqual)];
             [btnBgView addConstraint:sobotLayoutEqualHeight(BH, btn, NSLayoutRelationEqual)];
-            [btnBgView addConstraint:sobotLayoutEqualCenterX(BW/2, btn, btnBgView)];
+            [btnBgView addConstraint:sobotLayoutEqualCenterX(BW/2 +8, btn, btnBgView)];
+            [btnBgView addConstraint:sobotLayoutEqualCenterY(0, btn, btnBgView)];
         }
         
         if (i == 0) {
@@ -309,8 +313,8 @@
 //        [SobotUITools setRTLFrame:btn];
     }
     btnTag = [[tagArr firstObject] intValue];
-    lineView = [[UIView alloc]initWithFrame:CGRectMake(SobotNumber(11), SobotNumber(41)-5, 20, 3)];
-    lineView.backgroundColor = [ZCUIKitTools zcgetRobotBtnBgColor];
+    lineView = [[UIView alloc]initWithFrame:CGRectMake(11, 41-5, 20, 3)];
+    lineView.backgroundColor = [ZCUIKitTools zcgetLeaveTitleTextColor];//[ZCUIKitTools zcgetServerConfigBtnBgColor];
     lineView.layer.cornerRadius = 1.5f;
     lineView.layer.masksToBounds = YES;
     [btnBgView addSubview:lineView];
@@ -321,6 +325,7 @@
 }
 #pragma mark - 留言记录和留言编辑点击事件页面切换
 -(void) itemsClick:(UIButton *)sender{
+    [self hideKeyBoard];
     if(lmsView!=nil){
         lmsView.hidden = YES;
     }
@@ -356,6 +361,8 @@
 -(void)buttonClick:(UIButton *)sender{
     if(sender){
         if(sender.tag == SobotButtonClickBack){
+            [self.leaveEditView destoryViews];
+            self.leaveEditView = nil;
             [self goBack];
         }
     }
@@ -411,6 +418,10 @@
             [self itemsClick:self.rightBtn];
         }
     });
+    
+//    if (self.leaveEditView.successView != nil) {
+//        [self.leaveEditView removeAddLeaveMsgSuccessView];
+//    }
 }
 
 
@@ -440,5 +451,39 @@
         [self createTabbarItemView];
     }
 }
+
+#pragma mark -- 全局回收键盘
+- (void)hideKeyBoard
+{
+    for (UIWindow* window in [UIApplication sharedApplication].windows)
+    {
+        for (UIView* view in window.subviews)
+        {
+            [self dismissAllKeyBoardInView:view];
+        }
+    }
+}
+
+-(BOOL) dismissAllKeyBoardInView:(UIView *)view
+{
+    if([view isFirstResponder])
+    {
+        [view resignFirstResponder];
+        return YES;
+    }
+    for(UIView *subView in view.subviews)
+    {
+        if([self dismissAllKeyBoardInView:subView])
+        {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+-(void)dealloc{
+    NSLog(@" 留言页面 dealloc ----");
+}
+
 
 @end

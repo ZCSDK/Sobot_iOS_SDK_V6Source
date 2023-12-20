@@ -74,7 +74,7 @@
     cannelButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
     [cannelButton setImage:[SobotUITools getSysImageByName:@"zcicon_sf_close"] forState:UIControlStateNormal];
     cannelButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-    [cannelButton addTarget:self action:@selector(tappedCancel) forControlEvents:UIControlEventTouchUpInside];
+    [cannelButton addTarget:self action:@selector(closePage) forControlEvents:UIControlEventTouchUpInside];
     [self.backGroundView addSubview:cannelButton];
     
     self.leaveEditView = [[ZCLeaveEditView alloc] initWithFrame:CGRectMake(0, 61, bw, viewHeight- 200 - 60) withController:_controller];
@@ -113,6 +113,11 @@
         if(code == 3001 || code == 3002){
             [safeSelf tappedCancel];
         }
+        
+        if(_closeBlock){
+            _closeBlock(1,2);
+        }
+        
         if(safeSelf.resultBlock){
             safeSelf.resultBlock(code,safeSelf.leaveEditView.uploadMessage);
         }
@@ -128,9 +133,21 @@
     CGRect f=self.backGroundView.frame;
     if(point.x<f.origin.x || point.x>(f.origin.x+f.size.width) ||
        point.y<f.origin.y || point.y>(f.origin.y+f.size.height)){
+        if(_closeBlock){
+            _closeBlock(0,1);
+        }
+        
         [self tappedCancel:YES];
     }
 }
+-(void)closePage{
+    if(_closeBlock){
+        _closeBlock(0,0);
+    }
+    [self tappedCancel];
+}
+
+
 
 - (void)tappedCancel{
     [self tappedCancel:YES];

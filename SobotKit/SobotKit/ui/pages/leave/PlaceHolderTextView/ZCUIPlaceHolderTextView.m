@@ -82,6 +82,7 @@
             _placeHolderLabel.backgroundColor = [UIColor clearColor];
             _placeHolderLabel.textColor = self.placeholderColor;
             _placeHolderLabel.alpha = 0;
+            _placeHolderLabel.numberOfLines = 0;
             _placeHolderLabel.tag = 999;
             if (self.placeholderLinkColor) {
                 [_placeHolderLabel setLinkColor:self.placeholderLinkColor];
@@ -103,6 +104,10 @@
             if(sobotIsRTLLayout()){
                 [_placeHolderLabel setTextAlignment:NSTextAlignmentRight];
             }
+            
+            if(self.contentSize.height < optimalSize.height){
+                self.contentSize = CGSizeMake(self.bounds.size.width, optimalSize.height + 20);
+            }
         }
         
         [self sendSubviewToBack:_placeHolderLabel];
@@ -123,6 +128,16 @@
     _placeholder = textPlaceholder;
     if(!sobotIsNull(self.placeHolderLabel)){
         self.placeHolderLabel.text = _placeholder;
+        
+        CGRect phlab = _placeHolderLabel.frame;
+
+        CGSize optimalSize = [self.placeHolderLabel preferredSizeWithMaxWidth:self.bounds.size.width-20];
+        phlab.size.height = optimalSize.height;
+        _placeHolderLabel.frame = CGRectMake(10, 10, self.bounds.size.width - 20, phlab.size.height);
+        
+        if(self.contentSize.height < optimalSize.height){
+            self.contentSize = CGSizeMake(self.bounds.size.width, optimalSize.height + 20);
+        }
     }
     [self setNeedsDisplay];
 }

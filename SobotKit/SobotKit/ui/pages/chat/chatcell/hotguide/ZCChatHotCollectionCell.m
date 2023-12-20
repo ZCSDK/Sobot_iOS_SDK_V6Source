@@ -27,11 +27,11 @@
         [self createViews];
 
         [self.contentView addConstraints:sobotLayoutPaddingWithAll(0, 0, 0, 0, self.bgView, self.contentView)];
-        
+
         [self.bgView addConstraints:sobotLayoutSize(34, 42, self.posterView, NSLayoutRelationEqual)];
         [self.bgView addConstraint:sobotLayoutEqualCenterY(0, self.posterView, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatCellItemSpace, self.posterView, self.bgView)];
-        
+
         [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingHSpace, self.labTitle, self.bgView)];
         [self.bgView addConstraint:sobotLayoutMarginRight(0, self.labTitle, self.posterView)];
         _layoutTitleHeight = sobotLayoutEqualHeight(34, self.labTitle, NSLayoutRelationEqual);
@@ -74,7 +74,6 @@
 - (void)configureCellWithPostURL:(NSDictionary *)model message:(SobotChatMessage *)message{
     
     [_posterView setImage:SobotKitGetImage(@"zcicon_arrow_right_record")];
-//    [_posterView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model[@"thumbnail"])] placeholer:SobotKitGetImage(@"zcicon_default_goods") showActivityIndicatorView:YES];
     [_labTitle setText:sobotConvertToString(model[@"title"])];
 }
 

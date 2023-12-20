@@ -81,6 +81,20 @@ typedef NS_ENUM(NSInteger,ZCChatCellClickType) {
     ZCChatCellClickTypeOpenAudio         = 33,
     // 继续排队
     ZCChatCellClickTypeItemContinueWaiting = 34,
+    // 展示所有敏感词
+    ZCChatCellClickTypeItemShowallsensitive = 35,
+    // 多伦触发留言，重新发送留言
+    ZCChatCellClickTypeItemResendLeaveMsg = 36,
+    // 刷新页面消息，比如展开，状态切换等
+    ZCChatCellClickTypeItemRefreshData = 37,
+    // 自定义卡片按钮点击
+    ZCChatCellClickTypeItemClickCusCardButoon = 38,
+    // 自定义卡片中商品按钮点击
+    ZCChatCellClickTypeItemClickCusCardInfoButoon = 39,
+    // 点击查看cell详情
+    ZCChatCellClickTypeItemClickCellDetail = 40,
+    // 关闭键盘
+    ZCChatCellClickTypeItemCloseKeyboard = 41,
 };
 
 /**
@@ -151,10 +165,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic,strong) UIActivityIndicatorView  *activityView;
 
+@property (nonatomic,strong) UIActivityIndicatorView *sendUpLoadView;// 语音文件上传动画
+
 /**
  *  重新发送
  */
 @property (nonatomic,strong) UIButton                 *btnReSend;
+
+@property (nonatomic,strong) UIButton                 *btnReadStatus;
 
 /**
  *  转人工
@@ -230,11 +248,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 +(SobotEmojiLabel *) createRichLabel;
 
+// 如果要添加点击事件，需要设置代理，否则点击事件不起效
++(SobotEmojiLabel *) createRichLabel:(id) delegate;
+
 +(BOOL) isRightChat:(SobotChatMessage *) model;
 +(void)configHtmlText:(NSString *) text label:(SobotEmojiLabel *)label right:(BOOL) isRight;
 
 // 查询链接信息
--(void)getLinkValues:(NSString *) link result:(void(^)(NSString *title,NSString *desc,NSString *icon)) block;
+-(void)getLinkValues:(NSString *) link name:(NSString *)name result:(void(^)(NSString *title,NSString *desc,NSString *icon)) block;
 
 +(void)configHtmlText:(NSString *) text label:(SobotEmojiLabel *)label right:(BOOL) isRight isTip:(BOOL)isTip;
 
@@ -242,6 +263,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)setChatViewBgState:(CGSize) size;
 
+-(void)setChatViewBgState:(CGSize)size isSetBgColor:(BOOL)isSetBgColor;
 
 -(void)doClickURL:(NSString *)url text:(NSString * )htmlText;
 

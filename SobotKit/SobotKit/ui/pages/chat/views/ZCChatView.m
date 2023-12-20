@@ -35,11 +35,19 @@
 #import "ZCChatSendGoodsCell.h"
 #import "ZCChatArticleCell.h"
 #import "ZCChatAppletCell.h"
+
+#import "ZCChatCustomCardSingleCell.h"
+#import "ZCChatCustomCardHorizontalCell.h"
+#import "ZCChatCustomCardVerticalCell.h"
+#import "ZCChatCustomCardSingleSendCell.h"
+
+
 #import "ZCQuickLeaveView.h"
 #import "ZCUIAskTableController.h"
 #import "ZCDocumentLookController.h"
 #import "ZCTurnRobotView.h"
 #import "ZCUILoading.h"
+
 
 @interface ZCChatView()<UITableViewDelegate,UITableViewDataSource,ZCUICoreDelegate,ZCChatCellDelegate>{
     NSInteger lastMsgCount;
@@ -50,6 +58,9 @@
 
     // 是否已经打开了表单
     BOOL isOpenNewPage;
+    
+    // 正在发送已读标记，防止重复发送
+    BOOL isSendReadState;
 }
 
 /** 声音播放对象 */
@@ -79,6 +90,7 @@
 
 @property (nonatomic,strong)UIButton *changeRobotBtn_btn1;
 @property (nonatomic,strong)UIButton *changeRobotBtn_btn2;
+
 @end
 
 @implementation ZCChatView
@@ -93,34 +105,51 @@
 
 -(void)loadDataToView{
     [self createChatUI];
-    
+    [ZCLibClient getZCLibClient].libInitInfo.isFirstEntry = 1;// 要开验证加密相关的参数
     [self doSDKConfig];
+    
+    [ZCUICore getUICore].detailViewBlock = ^(SobotChatMessage * _Nonnull model, int type, id obj) {
+        if(type == ZCChatCellClickTypeOpenFile){
+            [self cellItemClick:model type:ZCChatCellClickTypeOpenFile text:@"" obj:nil];
+        }
+        if(type == ZCChatCellClickTypeOpenURL){
+            NSString *url = sobotConvertToString(obj);
+            [self cellItemClick:nil type:ZCChatCellClickTypeOpenURL text:url obj:url];
+        }
+    };
 }
 -(void)doSDKConfig{
+    __weak ZCChatView *weakSelf = self;
+    
     [[ZCUICore getUICore] doInitSDK:self block:^(ZCInitStatus status, NSString * _Nullable message, ZCLibConfig * _Nullable confg) {
         if(status == ZCInitStatusLoading){
             [[ZCUILoading shareZCUILoading] showAddToSuperView:self style:NO];
         }
         if(status == ZCInitStatusLoadSuc){
+            [[ZCIMChat getZCIMChat] setChatPageState:YES];
             [[ZCUILoading shareZCUILoading] dismiss];
             [self->_keyboardTools setInitConfig:confg];
 //            [self->_fastMenuView refreshData]; // 这里去掉 和键盘设置刷新快捷菜单的时间太相近了，导致数据重复
-            [self updateTopViewBgColor];
-            
+            [self updateTopViewBgColor];//
             [self notifitionTopViewWithisShowTopView];
             
             // 是否显示 多机器人按钮
             if ([self getZCIMConfig].robotSwitchFlag == 1) {
                 if ([self getZCIMConfig].type != 2 && ![self getZCIMConfig].isArtificial) {
                     self->_changeRobotBtn.hidden = NO;
-                    [self->_changeRobotBtn_btn2 setTitleColor:[ZCUIKitTools zcgetRobotBtnBgColor] forState:UIControlStateNormal];
+                    [self->_changeRobotBtn_btn2 setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateNormal];
                     UIImage *robotimg = SobotKitGetImage(@"zcicon_changerobot");
-                    [self->_changeRobotBtn_btn1 setImage:[self imageChangeColor:[ZCUIKitTools zcgetRobotBtnBgColor] chageImg:robotimg] forState:UIControlStateNormal];
+                    [self->_changeRobotBtn_btn1 setImage:[self imageChangeColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] chageImg:robotimg] forState:UIControlStateNormal];
                 }else{
                     self->_changeRobotBtn.hidden = YES;
                 }
             }else{
                 self->_changeRobotBtn.hidden = YES;
+            }
+            // 初始化成功，添加回调事件
+            if([[ZCUICore getUICore] PageLoadBlock]){
+                // 通知外部可以更新UI
+                [ZCUICore getUICore].PageLoadBlock(weakSelf,ZCPageStateTypeChatLoadFinish);
             }
         }
         
@@ -164,6 +193,10 @@
     [_listTable registerClass:[ZCChatArticleCell class] forCellReuseIdentifier:@"ZCChatArticleCell"];
     [_listTable registerClass:[ZCChatAppletCell class] forCellReuseIdentifier:@"ZCChatAppletCell"];
     [_listTable registerClass:[ZCChatOnlineTipsCell class] forCellReuseIdentifier:@"ZCChatOnlineTipsCell"];
+    [_listTable registerClass:[ZCChatCustomCardSingleCell class] forCellReuseIdentifier:@"ZCChatCustomCardSingleCell"];
+    [_listTable registerClass:[ZCChatCustomCardHorizontalCell class] forCellReuseIdentifier:@"ZCChatCustomCardHorizontalCell"];
+    [_listTable registerClass:[ZCChatCustomCardVerticalCell class] forCellReuseIdentifier:@"ZCChatCustomCardVerticalCell"];
+    [_listTable registerClass:[ZCChatCustomCardSingleSendCell class] forCellReuseIdentifier:@"ZCChatCustomCardSingleSendCell"];
     
     // 分割线的隐藏
 //    _listTable.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
@@ -192,7 +225,7 @@
         
         if(menu.menuType == ZCCusMenuTypeConnectUser){
 //            [[ZCUICore getUICore] doConnectUserService:nil connectType:ZCTurnType_BtnClick];
-            [self->_keyboardTools hideKeyboard];
+            [safeSelf.keyboardTools hideKeyboard];
             [[ZCUICore getUICore] checkUserServiceWithType:ZCTurnType_BtnClick model:nil];
         }else if(menu.menuType == ZCCusMenuTypeOpenUrl){
             [[ZCUICore getUICore] dealWithLinkClickWithLick:menu.labelLink viewController:[SobotUITools getCurrentVC]];
@@ -205,8 +238,8 @@
             if(self.keyboardTools.curKeyboardStatus == ZCKeyboardStatusNewSession){
                 isEvalutionAdmin = [ZCUICore getUICore].isAdminServerBeforeCloseSession;
             }
-            
-            [[ZCUICore getUICore] checkSatisfacetion:isEvalutionAdmin type:SatisfactionTypeKeyboard];
+            [safeSelf.keyboardTools hideKeyboard];
+            [[ZCUICore getUICore] checkSatisfacetion:isEvalutionAdmin type:SobotSatisfactionFromSrouceAdd];
         }else if(menu.menuType == ZCCusMenuTypeCloseChat){
             // 结束会话
 //            [ZCLibClient closeAndoutZCServer:NO];
@@ -227,10 +260,13 @@
                 }
             }
             
-            [[ZCUICore getUICore] sendMessage:menu.menuName type:SobotMessageTypeText exParams:@{@"fromEnum":fromEnum,@"question":menu.menuid,@"requestText":menu.menuName,@"docId":menu.menuid,@"questionFlag":@"1"} duration:@""];
+            [[ZCUICore getUICore] sendMessage:menu.menuName type:SobotMessageTypeText exParams:@{@"fromEnum":fromEnum,@"question":menu.menuid,@"requestText":menu.menuName,@"docId":menu.menuid,@"questionFlag":@"1"} duration:@"" richType:SobotMessageRichJsonTypeText];
         }
     }];
-    
+    [_fastMenuView setFastMenuRefreshDataBlock:^(CGFloat height) {
+        // 高度发生变化的时候 重新刷新列表内容的偏移量
+        [safeSelf tableScrollToBottom];
+    }];
     _tableLayoutTop = sobotLayoutPaddingTop(0, _listTable, self);
     [self addConstraint:_tableLayoutTop];
     [self addConstraint:sobotLayoutPaddingLeft(0, _listTable, self)];
@@ -250,14 +286,19 @@
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didChangeRotate:) name:UIApplicationDidChangeStatusBarFrameNotification object:nil];
 }
 
+-(void)beginAniantions{
+    if (_notifitionTopView != nil) {
+        [_notifitionTopView removeFromSuperview];
+        _notifitionTopView = nil;
+        [self notifitionTopViewWithisShowTopView];
+    }
+}
+
 -(UIButton *)changeRobotBtn{
     if (!_changeRobotBtn) {
         _changeRobotBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [self addSubview:_changeRobotBtn];
         _changeRobotBtn.hidden = YES;
-        [self addConstraints:sobotLayoutSize(70, 80, _changeRobotBtn, NSLayoutRelationEqual)];
-        [self addConstraint:sobotLayoutPaddingBottom(-106, _changeRobotBtn, self.listTable)];
-        [self addConstraint:sobotLayoutPaddingRight(-2, _changeRobotBtn, self.listTable)];
         
         _changeRobotBtn_btn1 = [[UIButton alloc]init];
         UIImage *robotimg = SobotKitGetImage(@"zcicon_changerobot");
@@ -265,6 +306,17 @@
         [_changeRobotBtn_btn1 addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
         _changeRobotBtn_btn1.tag = BUTTON_TURNROBOT;
         [_changeRobotBtn addSubview:_changeRobotBtn_btn1];
+
+//        [_changeRobotBtn_btn1 setBackgroundColor:UIColorFromKitModeColor(SobotColorWhite)];
+        _changeRobotBtn_btn1.backgroundColor = UIColorFromModeColor(SobotColorBgMainDark2);
+//        _changeRobotBtn_btn1.layer.borderWidth = 0.15;
+//        _changeRobotBtn_btn1.layer.masksToBounds = YES;
+        _changeRobotBtn_btn1.layer.cornerRadius = 25;
+        
+        _changeRobotBtn_btn1.layer.shadowOpacity= 1;
+        _changeRobotBtn_btn1.layer.shadowColor = UIColorFromModeColorAlpha(SobotColorTextMain, 0.15).CGColor;
+        _changeRobotBtn_btn1.layer.shadowOffset = CGSizeMake(4,4);//投影偏移
+        _changeRobotBtn_btn1.layer.shadowRadius = 25;
         
         _changeRobotBtn_btn2 = [[UIButton alloc]init];
         _changeRobotBtn_btn2.backgroundColor = UIColorFromModeColor(SobotColorBgMainDark2);
@@ -273,28 +325,69 @@
         _changeRobotBtn_btn2.layer.shadowColor = UIColorFromModeColorAlpha(SobotColorTextMain, 0.15).CGColor;
         _changeRobotBtn_btn2.layer.shadowOffset = CGSizeZero;//投影偏移
         _changeRobotBtn_btn2.layer.shadowRadius = 4;
+        _changeRobotBtn_btn2.titleEdgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
+        _changeRobotBtn_btn2.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         
         [_changeRobotBtn_btn2 addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
         _changeRobotBtn_btn2.tag = BUTTON_TURNROBOT;
         
         NSString *titleStr = [ZCUICore getUICore].kitInfo.changeBusinessStr.length > 0?[ZCUICore getUICore].kitInfo.changeBusinessStr:SobotKitLocalString(@"换业务");
-        
+        _changeRobotBtn_btn2.titleLabel.numberOfLines = 2;
+        _changeRobotBtn_btn2.titleLabel.textAlignment = NSTextAlignmentCenter;
         [_changeRobotBtn_btn2 setTitle:titleStr forState:UIControlStateNormal];
         [_changeRobotBtn_btn2.titleLabel setFont:SobotFontBold10];
         
-        [_changeRobotBtn_btn2 setTitleColor:[ZCUIKitTools zcgetRobotBtnBgColor] forState:UIControlStateNormal];
+        [_changeRobotBtn_btn2 setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateNormal];
         [_changeRobotBtn addSubview:_changeRobotBtn_btn2];
         
         CGSize s = [titleStr sizeWithAttributes:@{NSFontAttributeName:SobotFontBold10}];
-        if(s.width > 72){
-            s.width = 72-5;
+//        if(s.width > 72){
+//            s.width = 72-5;
+//        }
+        if (s.width > 120) {
+            s.width = 120;
+            _changeRobotBtn_btn2.layer.cornerRadius = 16;
+            [self.changeRobotBtn addConstraints:sobotLayoutSize(50, 50, _changeRobotBtn_btn1, NSLayoutRelationEqual)];
+            [self.changeRobotBtn addConstraint:sobotLayoutPaddingTop(0, _changeRobotBtn_btn1, self.changeRobotBtn)];
+            [self.changeRobotBtn addConstraint:sobotLayoutEqualCenterX(0, _changeRobotBtn_btn1, self.changeRobotBtn)];
+            [self.changeRobotBtn addConstraints:sobotLayoutSize(s.width, 32, _changeRobotBtn_btn2, NSLayoutRelationEqual)];
+            [self.changeRobotBtn addConstraint:sobotLayoutPaddingBottom(0, _changeRobotBtn_btn2, self.changeRobotBtn)];
+            [self.changeRobotBtn addConstraint:sobotLayoutEqualCenterX(0, _changeRobotBtn_btn2, self.changeRobotBtn)];
+
+            [self addConstraints:sobotLayoutSize(120, 80+6, _changeRobotBtn, NSLayoutRelationEqual)];
+            [self addConstraint:sobotLayoutPaddingBottom(-10, _changeRobotBtn, self.listTable)];
+            [self addConstraint:sobotLayoutPaddingRight(-6, _changeRobotBtn, self.listTable)];
+        }else{
+            CGFloat sp = s.width;
+            if (s.width <= 60) {
+                sp = 70;
+            }
+            if ([[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"zh-"]
+                || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"zh-"])) {
+               
+            }else if ([[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"en"]
+                      || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"en"])){
+                if (s.width <= 80) {
+                    sp = 90;
+                }
+            }else{
+                
+            }
+            _changeRobotBtn_btn2.layer.cornerRadius = 11;
+            [self.changeRobotBtn addConstraints:sobotLayoutSize(50, 50, _changeRobotBtn_btn1, NSLayoutRelationEqual)];
+            [self.changeRobotBtn addConstraint:sobotLayoutPaddingTop(0, _changeRobotBtn_btn1, self.changeRobotBtn)];
+            [self.changeRobotBtn addConstraint:sobotLayoutEqualCenterX(0, _changeRobotBtn_btn1, self.changeRobotBtn)];
+            [self.changeRobotBtn addConstraints:sobotLayoutSize(sp, 22, _changeRobotBtn_btn2, NSLayoutRelationEqual)];
+            [self.changeRobotBtn addConstraint:sobotLayoutPaddingBottom(0, _changeRobotBtn_btn2, self.changeRobotBtn)];
+            [self.changeRobotBtn addConstraint:sobotLayoutEqualCenterX(0, _changeRobotBtn_btn2, self.changeRobotBtn)];
+            
+            [self addConstraints:sobotLayoutSize(sp, 80, _changeRobotBtn, NSLayoutRelationEqual)];
+            [self addConstraint:sobotLayoutPaddingBottom(-10, _changeRobotBtn, self.listTable)];
+            [self addConstraint:sobotLayoutPaddingRight(-6, _changeRobotBtn, self.listTable)];
         }
-        [self.changeRobotBtn addConstraints:sobotLayoutSize(60, 60, _changeRobotBtn_btn1, NSLayoutRelationEqual)];
-        [self.changeRobotBtn addConstraint:sobotLayoutPaddingTop(0, _changeRobotBtn_btn1, self.changeRobotBtn)];
-        [self.changeRobotBtn addConstraint:sobotLayoutEqualCenterX(0, _changeRobotBtn_btn1, self.changeRobotBtn)];
-        [self.changeRobotBtn addConstraints:sobotLayoutSize(s.width, 16, _changeRobotBtn_btn2, NSLayoutRelationEqual)];
-        [self.changeRobotBtn addConstraint:sobotLayoutPaddingBottom(0, _changeRobotBtn_btn2, self.changeRobotBtn)];
-        [self.changeRobotBtn addConstraint:sobotLayoutEqualCenterX(0, _changeRobotBtn_btn2, self.changeRobotBtn)];
+        
+        
+       
         _changeRobotBtn.tag = BUTTON_TURNROBOT;
         [_changeRobotBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     }
@@ -390,6 +483,7 @@
                         [safeView getZCIMConfig].robotName = itemModel.robotName;
                         [safeView getZCIMConfig].robotLogo = itemModel.robotLog;
                         [safeView getZCIMConfig].robotFlag = [itemModel.robotFlag intValue];
+                        [safeView getZCIMConfig].aiStatus = itemModel.aiStatus;
                         
                         [self getPlatformInfo].config.robotName = itemModel.robotName;
                         // 自定义喜欢有有，不设置
@@ -408,6 +502,8 @@
                         [ZCUICore getUICore].isShowRobotGuide = NO;
                         [[ZCUICore getUICore] sendMessageWithConnectStatus:ZCServerConnectRobot];
                         [self.fastMenuView refreshData];
+                    // 切换机器人之后顶部的标题也要切换
+                        [self setTitleName:itemModel.robotName];
                     }
                     
                 };
@@ -490,12 +586,20 @@
 
 #pragma mark -- 通告栏 eg: “国庆大酬宾。
 
-- (void)openNoticeWebView:(UITapGestureRecognizer*)tap{
-      [_keyboardTools hideKeyboard];
-    if (sobotConvertToString([self getZCIMConfig].announceClickUrl).length >0 && [self getZCIMConfig].announceClickFlag == 1) {
-        [self cellItemClick:nil type:ZCChatCellClickTypeOpenURL text:@"" obj:[self getZCIMConfig].announceClickUrl];
-    }
+//- (void)openNoticeWebView:(UITapGestureRecognizer*)tap{
+//      [_keyboardTools hideKeyboard];
+//    if (sobotConvertToString([self getZCIMConfig].announceClickUrl).length >0 && [self getZCIMConfig].announceClickFlag == 1) {
+//        [self cellItemClick:nil type:ZCChatCellClickTypeOpenURL text:@"" obj:[self getZCIMConfig].announceClickUrl];
+//    }
+//}
+
+- (void)openNoticeWebView:(UIButton *)sender{
+    [_keyboardTools hideKeyboard];
+  if (sobotConvertToString([self getZCIMConfig].announceClickUrl).length >0) {
+      [self cellItemClick:nil type:ZCChatCellClickTypeOpenURL text:@"" obj:[self getZCIMConfig].announceClickUrl];
+  }
 }
+
 - (UIView *)notifitionTopViewWithisShowTopView{
     if ([[ZCUICore getUICore] getLibConfig].announceMsgFlag == 1 && [[ZCUICore getUICore] getLibConfig].announceTopFlag == 1) {
         NSString *title = [self getPlatformInfo].config.announceMsg;
@@ -505,8 +609,8 @@
             _notifitionTopView.backgroundColor = [ZCUIKitTools getNotifitionTopViewBgColor];
             _notifitionTopView.alpha = 0.8;
       
-            UITapGestureRecognizer * tapAction = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(openNoticeWebView:)];
-            [_notifitionTopView addGestureRecognizer:tapAction];
+//            UITapGestureRecognizer * tapAction = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(openNoticeWebView:)];
+//            [_notifitionTopView addGestureRecognizer:tapAction];
             [self addSubview:_notifitionTopView];
             _notifitionTopView.hidden = NO;
             
@@ -526,7 +630,7 @@
             
             icon.contentMode = UIViewContentModeScaleAspectFill;
             [icon setBackgroundColor:[UIColor clearColor]];
-            [icon addGestureRecognizer:tapAction];
+//            [icon addGestureRecognizer:tapAction];
             [_notifitionTopView addSubview:icon];
             [_notifitionTopView addConstraint:sobotLayoutEqualCenterY(0, icon, self.notifitionTopView)];
             [_notifitionTopView addConstraint:sobotLayoutPaddingLeft(10, icon, self.notifitionTopView)];
@@ -546,17 +650,15 @@
             UILabel *titleLab = [[UILabel alloc]init];
             titleLab.font = SobotFont14;
             titleLab.textColor = [ZCUIKitTools getNotifitionTopViewLabelColor];
-            [titleLab addGestureRecognizer:tapAction];
+//            [titleLab addGestureRecognizer:tapAction];
             [bgView addSubview:titleLab];
-            
-            [bgView addConstraint:sobotLayoutPaddingTop(0, titleLab, bgView)];
-            [bgView addConstraint:sobotLayoutPaddingLeft(10, titleLab, bgView)];
-            [bgView addConstraint:sobotLayoutEqualHeight(20, titleLab, NSLayoutRelationEqual)];
-
-            
-            
+            titleLab.frame = CGRectMake(24, 2, self.frame.size.width - 30 - 10, 20);
+//            [bgView addConstraint:sobotLayoutPaddingTop(0, titleLab, bgView)];
+//            [bgView addConstraint:sobotLayoutPaddingLeft(10, titleLab, bgView)];
+//            [bgView addConstraint:sobotLayoutEqualHeight(20, titleLab, NSLayoutRelationEqual)];
             // 过滤 html标签
             NSString * text = [SobotHtmlCore filterHTMLTag:title];
+
             titleLab.text = text;
             [titleLab sizeToFit];
 //            [titleLab layoutIfNeeded];
@@ -569,7 +671,6 @@
         
             if (sobotConvertToString([self getZCIMConfig].announceClickUrl).length >0 && [self getZCIMConfig].announceClickFlag == 1) {
                 titleLab.textColor = UIColorFromModeColor(SobotColorYellow);
-
             }else{
                 titleLab.textColor = [ZCUIKitTools getNotifitionTopViewLabelColor];
             }
@@ -577,6 +678,11 @@
             // table置顶添加40的高度
             _tableLayoutTop.constant = 36;
             
+            UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+            [btn setBackgroundColor:UIColor.clearColor];
+            [btn addTarget:self action:@selector(openNoticeWebView:) forControlEvents:UIControlEventTouchUpInside];
+            [_notifitionTopView addSubview:btn];
+            btn.frame = CGRectMake(0, 0, ScreenWidth, 36);
             [self layoutIfNeeded];
             
         }
@@ -724,6 +830,10 @@
     // 当延迟转人工没有头像时，设置默认头像
     if([self getZCIMConfig].invalidSessionFlag && sobotConvertToString(imageUrl).length == 0 && sobotConvertToString(titleName).length == 0 && [self getZCIMConfig].type == 2){
         imageUrl = @"zcicon_useravatart_girl";
+        if([[ZCUICore getUICore] getLibConfig].topBarStaffPhotoFlag == 0){
+            // 不显示头像
+            imageUrl = @"";
+        }
     }
     if ([[ZCUICore getUICore] getLibConfig].topBarType == 2) {
         if (sobotConvertToString(imageUrl).length > 0) {
@@ -822,6 +932,16 @@
 }
 
 -(void)onPageStatusChanged:(ZCShowStatus)status message:(NSString *)message obj:(id)object{
+    if(status == ZCShowStatusRefreshFastMenuView){
+        // 会话保持刷新快捷菜单
+        [self.fastMenuView refreshData];
+        return;
+    }
+    if(status == ZCShowStatusShowReferenceMessage){
+        SobotChatMessage *msg = object;
+        [self.keyboardTools showReferenceMessage:msg];
+        return;
+    }
     if(status == ZCShowStatusConnectingUser){
 //        _keyboardTools.btnConnectUser.enabled = NO;
     }else if(status == ZCShowLeaveEditViewWithTempleteId){
@@ -831,6 +951,7 @@
         ZCPlatformInfo *info = [[ZCPlatformTools sharedInstance] getPlatformInfo];
         info.checkInitKey = @"";
         [[ZCPlatformTools sharedInstance] savePlatformInfo:info];
+        [ZCLibClient getZCLibClient].libInitInfo.isFirstEntry = 0;
         //  要去初始化啊
         [self doSDKConfig];
     }else if(status == ZCShowStatusLeaveMsgPage){
@@ -858,6 +979,10 @@
          }
     }
     else if (status == ZCShowStatusReConnected) {
+        // 当新会话键盘显示的时候要将快捷菜单移除掉
+        if(_fastMenuView != nil){
+            [_fastMenuView clearDataUpdateUIForNewSession];
+        }
         // 新会话
         // 新的会话要将上一次的数据清空全部初始化在重新拉取
         [_listTable reloadData];
@@ -874,25 +999,32 @@
     }else if(status == ZCSetKeyBoardStatus){
         ZCKeyboardViewStatus state = [object intValue];
         [_keyboardTools setKeyboardMenuByStatus:state];
-        
         if(state == ZCKeyboardStatusUser){
             [_fastMenuView refreshData];
-            
             self.changeRobotBtn.hidden  = YES;
+            if(self.delegate && [self.delegate respondsToSelector:@selector(onPageConnectStatusChange:)]){
+                [self.delegate onPageConnectStatusChange:[self getZCIMConfig].isArtificial];
+            }
         }else if(state == ZCKeyboardStatusRobot){
             [_fastMenuView refreshData];
             // 是否显示 多机器人按钮
             if ([self getZCIMConfig].robotSwitchFlag == 1) {
                 if ([self getZCIMConfig].type != 2 && ![self getZCIMConfig].isArtificial) {
                     self->_changeRobotBtn.hidden = NO;
-                    [self->_changeRobotBtn_btn2 setTitleColor:[ZCUIKitTools zcgetRobotBtnBgColor] forState:UIControlStateNormal];
+                    [self->_changeRobotBtn_btn2 setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateNormal];
                     UIImage *robotimg = SobotKitGetImage(@"zcicon_changerobot");
-                    [self->_changeRobotBtn_btn1 setImage:[self imageChangeColor:[ZCUIKitTools zcgetRobotBtnBgColor] chageImg:robotimg] forState:UIControlStateNormal];
+                    [self->_changeRobotBtn_btn1 setImage:[self imageChangeColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] chageImg:robotimg] forState:UIControlStateNormal];
+//                    self->_changeRobotBtn_btn1.layer.borderColor = [ZCUIKitTools zcgetServerConfigBtnBgColor].CGColor;
+//                    self->_changeRobotBtn_btn1.layer.borderWidth = 0.15;
                 }else{
                     self->_changeRobotBtn.hidden = YES;
                 }
             }else{
                 self->_changeRobotBtn.hidden = YES;
+            }
+            
+            if(self.delegate && [self.delegate respondsToSelector:@selector(onPageConnectStatusChange:)]){
+                [self.delegate onPageConnectStatusChange:NO];
             }
         }
     }else if(status == ZCShowStatusCloseSkillSet){
@@ -916,7 +1048,30 @@
             }
         }
         
+        if(!sobotIsNull(object)){
+            SobotChatMessage *message = (SobotChatMessage*)object;
+            if([message isKindOfClass:[SobotChatMessage class]]){
+                if(message.msgType == SobotMessageTypeSound){
+                    [self tableScrollToBottom]; // 最后一条消息是语音消息涉及到转文字的高度变化
+                }
+            }
+        }
+        
+        SobotChatMessage *newMsg = object;
+        if(!sobotIsNull(object) && [object isKindOfClass:[SobotChatMessage class]] && sobotConvertToString(newMsg.msgId).length > 0){
+            // 添加新消息,必须标记为readStatus=1的才发送已读消息
+            if(newMsg.senderType != 0 && newMsg.senderType!=1 && [self getZCIMConfig].isArtificial && [self getZCIMConfig].readFlag==1 && newMsg.readStatus == 1){
+                newMsg.readStatus = 2;
+                // 机器人，记录已读
+                [[ZCUICore getUICore].unReadMessageCache setObject:newMsg forKey:newMsg.msgId];
+            }
+        }
+        // 发布已读消息标记
+        [self updateMsgReadStatus];
         return;
+    }else if (status == ZCShowStatusChangedTitle){
+        // 更新标题
+        [self setTitleName:sobotConvertToString(message)];
     }
     
 }
@@ -932,6 +1087,30 @@
     }
     _leaveEditView = [[ZCQuickLeaveView alloc] initActionSheet:self withController:[SobotUITools getCurrentVC]];
     _leaveEditView.templateldIdDic = @{@"templateId":sobotConvertToString(message)};
+    
+    // 4.0.5新增，如果当前点击关闭按钮，没有提交留言添加一条提示语
+    [_leaveEditView setCloseBlock:^(int code, int type) {
+        // code = 0无提交操作，1有提交操作, type = 0 仅关闭，type=1，空白区域关闭，type=2提交关闭
+        if(code == 0){
+            SobotChatMessage *tempModel = object;
+            // 说明已经添加过了，不需要再添加了
+            if(tempModel && [tempModel isKindOfClass:[SobotChatMessage class]] && tempModel.action == SobotMessageActionTypeChat_UnWriteLeaveMsg){
+                return;
+            }
+            NSString *content = [NSString stringWithFormat:@"%@ %@",SobotKitLocalString(@"您未提交信息，请"),SobotKitLocalString(@"重新填写信息")];
+            SobotChatMessage *tipMsg2 = [[ZCUICore getUICore] addMessageToList:SobotMessageActionTypeChat_UnWriteLeaveMsg content:content type:SobotMessageTypeTipsText dict:@{@"templateId":sobotConvertToString(message)}];
+            tipMsg2.contentTemp = content;
+
+            [ZCLibServer sendLoopTipActionMsg:[safeSelf getZCIMConfig] title:@"多轮对话工单提交取消" msg:content updateStatus:0 msgId:tempModel.msgId deployId:tipMsg2.deployId start:^{
+
+            } success:^(NSDictionary *dict, ZCNetWorkCode sendCode) {
+
+            } failed:^(NSString *errorMessage, ZCNetWorkCode errorCode) {
+
+            }];
+        }
+    }];
+    
     [_leaveEditView setResultBlock:^(int code, id  _Nonnull obj) {
         [safeSelf.leaveEditView tappedCancel:YES];
         
@@ -944,11 +1123,29 @@
             NSString *uploadMessage = obj;
             uploadMessage = [uploadMessage stringByReplacingOccurrencesOfString:@"$\n$" withString:@"<br/>"];
             uploadMessage = [uploadMessage stringByReplacingOccurrencesOfString:@"$:$" withString:@"<br/>"];
-//                //如果开启了
+            //如果开启了
             [ZCLibServer insertSysMsg:[safeSelf getZCIMConfig] title:@"多轮对话工单提交确认提示" msg:uploadMessage start:^(NSString *url){
                 
             } success:^(NSDictionary *dict, ZCNetWorkCode sendCode) {
-                if (![safeSelf getZCIMConfig].isArtificial) {
+                if ([sobotConvertToString(dict[@"code"]) intValue] == 1 && ![safeSelf getZCIMConfig].isArtificial) {
+                    // 说明已经添加过了，需要修改状态为未读
+                    SobotChatMessage *tempModel = object;
+                    if(tempModel && [tempModel isKindOfClass:[SobotChatMessage class]] && (tempModel.action == SobotMessageActionTypeChat_UnWriteLeaveMsg || tempModel.action == SobotMessageActionTypeChat_UnWriteLeaveMsgUnDo)){
+                        [ZCLibServer sendLoopTipActionMsg:[safeSelf getZCIMConfig] title:@"多轮对话工单提交成功" msg:tempModel.contentTemp updateStatus:1 msgId:tempModel.msgId deployId:tempModel.deployId start:^{
+                            
+                        } success:^(NSDictionary *dict, ZCNetWorkCode sendCode) {
+                            
+                        } failed:^(NSString *errorMessage, ZCNetWorkCode errorCode) {
+                            
+                        }];
+                        
+                        tempModel.action = SobotMessageActionTypeChat_UnWriteLeaveMsgUnDo;
+                        tempModel.isHistory = YES;
+                        tempModel.displayMsgAttr = nil;
+                        tempModel.tipsMessage = sobotConvertToString(tempModel.contentTemp);
+                    }
+                    
+                    // 添加成功提示
                     [[ZCUICore getUICore] addMessageToList:SobotMessageActionTypeLeaveSuccess content:obj type:SobotMessageTypeTipsText dict:nil];
                 }
             } failed:^(NSString *errorMessage, ZCNetWorkCode errorCode) {
@@ -1033,14 +1230,24 @@
     if([ZCUICore getUICore].chatMessages.count <= 0){
         return;
     }
-    // 等待reloadData执行完成，或者使用[self.listTable layoutIfNeeded];
-//    dispatch_async(dispatch_get_main_queue(), ^{
-        NSIndexPath *lastMessage = [NSIndexPath indexPathForRow:[[ZCUICore getUICore].chatMessages count]-1 inSection:0];
-        // 滚动到底部
-        [self.listTable scrollToRowAtIndexPath:lastMessage atScrollPosition:UITableViewScrollPositionBottom animated:NO];
-        // 选中底部
-//        [self.listTable selectRowAtIndexPath:lastMessage animated:YES scrollPosition:UITableViewScrollPositionBottom];
+    // 等待reloadData执行完成，或者使用
+//    [self.listTable layoutIfNeeded];
+//    dispatch_async(dispatch_get_main_queue(), ^{ // 放到主线程刷新
+//        NSIndexPath *lastMessage = [NSIndexPath indexPathForRow:[[ZCUICore getUICore].chatMessages count]-1 inSection:0];
+//        // 滚动到底部
+//        [self.listTable scrollToRowAtIndexPath:lastMessage atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+//        // 选中底部
+////        [self.listTable selectRowAtIndexPath:lastMessage animated:YES scrollPosition:UITableViewScrollPositionBottom];
 //    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if([ZCUICore getUICore].chatMessages != nil && [ZCUICore getUICore].chatMessages.count > 0){
+            NSIndexPath *lastMessage = [NSIndexPath indexPathForRow:[[ZCUICore getUICore].chatMessages count]-1 inSection:0];
+            // 滚动到底部
+            [self.listTable scrollToRowAtIndexPath:lastMessage atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+            // 选中底部
+    //        [self.listTable selectRowAtIndexPath:lastMessage animated:YES scrollPosition:UITableViewScrollPositionBottom];
+        }
+    });
 }
 
 #pragma mark ZCUICore Delegate end
@@ -1048,11 +1255,101 @@
     [[ZCUICore getUICore] getChatMessages];
 }
 
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    if (!decelerate) {
+        [self scrollingFinish];
+    }
+}
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+//    [self scrollingFinish];
+}
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    [self scrollingFinish];
+}
+
+// 停止滚动，标记当前消息是否已读
+- (void)scrollingFinish {
+    //enter code here
+    SLog(@"scrollingFinish");
+    
+    if([self getZCIMConfig].readFlag == 1){
+        NSArray *arr = self.listTable.visibleCells;
+        for(ZCChatBaseCell *index in arr){
+            SobotChatMessage *msg = index.tempModel;
+            //        SLog(@"uid:%@\ncid:%@\nmsgId:%@",sobotConvertToString(msg.sender),sobotConvertToString(msg.cid),sobotConvertToString(msg.msgId));
+            // 自己发送的(机器人通过接口判断，人工通过IM通道判断)
+            if(msg.senderType==2){
+                // 未标记，未读
+                if(msg.readStatus == 1){
+                    [[ZCUICore getUICore].unReadMessageCache setObject:msg forKey:sobotConvertToString(msg.msgId)];
+                }
+            }
+            
+            [self updateMsgReadStatus];
+        }
+    }
+}
+
 -(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
     [_keyboardTools hideKeyboard];
     // 隐藏复制小气泡
     [[NSNotificationCenter defaultCenter] postNotificationName:UIMenuControllerDidHideMenuNotification object:nil];
 }
+
+// 设置消息为已读
+-(void)updateMsgReadStatus{
+    if([self getZCIMConfig].readFlag == 0){
+        return;
+    }
+    if(!sobotIsNull([ZCUICore getUICore].unReadMessageCache) && [ZCUICore getUICore].unReadMessageCache.allKeys.count > 0){
+        NSString *adminId = @"";
+        if([self getZCIMConfig].isArtificial){
+            adminId = [self getZCIMConfig].offlineMsgAdminId;
+        }
+        
+        NSMutableArray *msgIds = [[NSMutableArray alloc] init];
+        for(SobotChatMessage *chatMsg in [ZCUICore getUICore].unReadMessageCache.allValues){
+            [msgIds addObject:@{@"cid":sobotConvertToString(chatMsg.cid),@"msgId":sobotConvertToString(chatMsg.msgId)}];
+        }
+        
+        if(isSendReadState){
+            return;
+        }
+        isSendReadState = YES;
+        
+        // 设置消息为已读
+        [ZCLibServer realMarkReadToAdmin:[self getZCIMConfig] msgId:msgIds start:^(NSString * _Nonnull url) {
+           
+        } success:^(NSDictionary * _Nonnull dict, ZCNetWorkCode sendCode) {
+            self->isSendReadState = NO;
+            // 修改本地标记
+            for(NSDictionary *readMsg in msgIds){
+                NSString *readMsgId = sobotConvertToString(readMsg[@"msgId"]);
+                [[ZCUICore getUICore].unReadMessageCache removeObjectForKey:sobotConvertToString(readMsgId)];
+                
+                // 循环设置当前消息已读
+                for(SobotChatMessage *chatMsg in [ZCUICore getUICore].chatMessages){
+                    if([chatMsg.msgId isEqual:readMsgId]){
+                        chatMsg.readStatus = 2;
+                    }
+                }
+            }
+            
+            // 本地不显示标记，无需调用
+            [self.listTable reloadData];
+            if([ZCUICore getUICore].unReadMessageCache.allKeys.count > 0){
+                [self updateMsgReadStatus];
+            }
+        } failed:^(NSString * _Nonnull errorMessage, ZCNetWorkCode errorCode) {
+            self->isSendReadState = NO;
+            
+        }];
+    }
+    
+}
+
 
 #pragma mark - tableView 代理事件
 // 返回section数
@@ -1084,12 +1381,9 @@
         }
         return cell;
     }
+   
     SobotChatMessage *model=[[ZCUICore getUICore].chatMessages objectAtIndex:indexPath.row];
-
-    cell = [tableView dequeueReusableCellWithIdentifier:@"ZCChatTextCell"];
-    if (cell == nil) {
-        cell = [[ZCChatTextCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatTextCell"];
-    }
+    
     if(model.msgType == SobotMessageTypeSound || model.msgType == SobotMessageTypeStartSound){
         cell = [tableView dequeueReusableCellWithIdentifier:@"ZCChatVoiceCell"];
         if (cell == nil) {
@@ -1108,16 +1402,11 @@
                 cell = [[ZCChatNoticeLeaveCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatNoticeLeaveCell"];
             }
         }else if(model.action == SobotMessageActionTypeOnline){
-//            cell = (ZCChatOnlineTipsCell *)[tableView dequeueReusableCellWithIdentifier:@"ZCChatOnlineTipsCell"];
-//            if (cell == nil) {
-//                cell = [[ZCChatOnlineTipsCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatOnlineTipsCell"];
-//            }
             // 暂时保留，后期有可能使用
             cell = [tableView dequeueReusableCellWithIdentifier:@"ZCChatTipsCell"];
             if (cell == nil) {
                 cell = [[ZCChatTipsCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatTipsCell"];
             }
-            
         }else if(model.action == SobotMessageActionTypeSendGoods){
             cell = (ZCChatSendGoodsCell *)[tableView dequeueReusableCellWithIdentifier:@"ZCChatSendGoodsCell"];
             if (cell == nil) {
@@ -1129,7 +1418,6 @@
                 cell = [[ZCChatEvaluationCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatEvaluationCell"];
             }
         }else{
-            
             cell = [tableView dequeueReusableCellWithIdentifier:@"ZCChatTipsCell"];
             if (cell == nil) {
                 cell = [[ZCChatTipsCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatTipsCell"];
@@ -1145,28 +1433,55 @@
         if (cell == nil) {
             cell = [[ZCChatHotGuideCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatHotGuideCell"];
         }
-    }else if (model.msgType == SobotMessageTypeCard){
-        cell = (ZCChatGoodsCardCell*)[tableView dequeueReusableCellWithIdentifier:@"ZCChatGoodsCardCell"];
-        if (cell == nil) {
-            cell = [[ZCChatGoodsCardCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatGoodsCardCell"];
-        }
-    }else if (model.msgType == SobotMessageTypeOrder){
-        cell = (ZCChatOrderCardCell*)[tableView dequeueReusableCellWithIdentifier:@"ZCChatOrderCardCell"];
-        if (cell == nil) {
-            cell = [[ZCChatOrderCardCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatOrderCardCell"];
-        }
-    }else if (model.msgType == SobotMessageTypeLocation){
-        cell = (ZCChatLocationCell*)[tableView dequeueReusableCellWithIdentifier:@"ZCChatLocationCell"];
-        if (cell == nil) {
-            cell = [[ZCChatLocationCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatLocationCell"];
-        }
     }else if (model.msgType == SobotMessageTypeFile){
         cell = (ZCChatFileCell*)[tableView dequeueReusableCellWithIdentifier:@"ZCChatFileCell"];
         if (cell == nil) {
             cell = [[ZCChatFileCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatFileCell"];
         }
     }else if(model.msgType == SobotMessageTypeRichJson){
-        if(model.richModel.type == SobotMessageRichJsonTypeLoop){
+        if(model.richModel.type == SobotMessageRichJsonTypeCustomCard){
+            SobotChatCustomCard *cardModel = model.richModel.customCard;
+            // 判断是否显示单个商品
+            BOOL isSingle = NO;
+            if(cardModel.cardType == 1 && cardModel.cardStyle != 0){
+                if(sobotConvertToString(cardModel.cardGuide).length == 0
+                   && sobotConvertToString(cardModel.cardImg).length == 0
+                   && sobotConvertToString(cardModel.cardDesc).length == 0
+                   && cardModel.customCards.count == 1){
+                    isSingle = YES;
+                    // 不是发送方，显示发送、编辑等自定义按钮
+                    if(model.senderType!=0){
+                        cell = (ZCChatCustomCardSingleCell*)[tableView dequeueReusableCellWithIdentifier:@"ZCChatCustomCardSingleCell"];
+                        if (cell == nil) {
+                            cell =  [[ZCChatCustomCardSingleCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatCustomCardSingleCell"];
+                        }
+                    }else{
+                        cell = (ZCChatCustomCardSingleSendCell*)[tableView dequeueReusableCellWithIdentifier:@"ZCChatCustomCardSingleSendCell"];
+                        if (cell == nil) {
+                            cell =  [[ZCChatCustomCardSingleSendCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatCustomCardSingleSendCell"];
+                        }
+                    }
+                    
+                    
+                }
+            }
+            if(!isSingle){
+                // 平铺
+                if(cardModel.cardStyle == 0){
+                    cell = (ZCChatCustomCardHorizontalCell*)[tableView dequeueReusableCellWithIdentifier:@"ZCChatCustomCardHorizontalCell"];
+                    if (cell == nil) {
+                        cell =  [[ZCChatCustomCardHorizontalCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatCustomCardHorizontalCell"];
+                    }
+                }else{
+                    cell = (ZCChatCustomCardVerticalCell*)[tableView dequeueReusableCellWithIdentifier:@"ZCChatCustomCardVerticalCell"];
+                    if (cell == nil) {
+                        cell =  [[ZCChatCustomCardVerticalCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatCustomCardVerticalCell"];
+                    }
+                }
+                
+            }
+        }else
+            if(model.richModel.type == SobotMessageRichJsonTypeLoop){
             if(model.richModel.richContent.templateId <= 2){
                 cell = [tableView dequeueReusableCellWithIdentifier:@"ZCChatWheel123Cell"];
                 if (cell == nil) {
@@ -1210,8 +1525,14 @@
                 cell = [[ZCChatRichCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatRichCell"];
             }
         }
-        
-        
+    }else if(model.msgType == SobotMessageTypeText){
+        // 可能不需要,4.1.0版本修改，以前会自动使用ZCChatRichCell
+        if(sobotIsNull(model.richModel.richList) || model.richModel.richList.count == 0){
+            cell = [tableView dequeueReusableCellWithIdentifier:@"ZCChatTextCell"];
+            if (cell == nil) {
+                cell = [[ZCChatTextCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCChatTextCell"];
+            }
+        }
     }
     if(cell == nil){
         cell = [tableView dequeueReusableCellWithIdentifier:@"ZCChatRichCell"];
@@ -1231,6 +1552,13 @@
         format=@"HH:mm";
     }
     
+    // 开启人工已读未读，机器人在发送时处理
+    if([self getZCIMConfig].readFlag && model.senderType==2){
+        // 未标记，未读
+        if(model.readStatus == 1){
+            [[ZCUICore getUICore].unReadMessageCache setObject:model forKey:sobotConvertToString(model.msgId)];
+        }
+    }
     
     if(indexPath.row>0){
         SobotChatMessage *lm=[[ZCUICore getUICore].chatMessages objectAtIndex:(indexPath.row-1)];
@@ -1241,9 +1569,13 @@
     }else{
         time = sobotDateTransformString(format, sobotStringFormateDate(model.ts));
     }
-    
-    if([ZCUICore getUICore].getLibConfig.isArtificial){// [self getZCIMConfig].isArtificial
-        model.isHistory = YES;
+    // TODO 这里有问题
+    if([ZCUICore getUICore].getLibConfig.isArtificial && model.senderType!=2){// [self getZCIMConfig].isArtificial
+        // 排除重新填写信息
+        if(model.action != SobotMessageActionTypeChat_UnWriteLeaveMsg){
+            // 人工时，所有的机器人消息都不可以点击,把它变成历史消息
+            model.isHistory = YES;
+        }
     }
     
     if(model.msgType == SobotMessageTypeTipsText){
@@ -1274,10 +1606,10 @@
         return YES;
     }
     
-    if(index -1 >= 0){
+    if(index -1 >= 0 && [ZCUICore getUICore].chatMessages.count > 0){
         SobotChatMessage *chat = [ZCUICore getUICore].chatMessages[index - 1];
-        // 仅与上一个相比就可以了
-        if(![chat.senderName isEqual:lastMessage.senderName]){
+        // 仅与上一个相比就可以了,并且上一个不是提示语
+        if(![chat.senderName isEqual:lastMessage.senderName] || chat.msgType == SobotMessageTypeTipsText || chat.msgType == SobotMessageTypeHotGuide){
             return YES;
         }
         
@@ -1286,6 +1618,9 @@
         }
     }
     for (int i=(index-1);i>=0;i--) {
+        if((i > [ZCUICore getUICore].chatMessages.count -1) || [ZCUICore getUICore].chatMessages.count == 0 || sobotIsNull([ZCUICore getUICore].chatMessages)){
+            return NO; // 防止数组越界
+        }
         SobotChatMessage *chat = [ZCUICore getUICore].chatMessages[i];
         
         if(chat.isShowSenderFlag && chat.action != SobotMessageActionTypeOnline && !chat.isHistory){
@@ -1310,12 +1645,50 @@
 
 #pragma mark - tableView end
 
-#pragma mark tableviewcell delegate start
+#pragma mark tableviewcell delegate start 行事件处理
 -(void)cellItemClick:(SobotChatMessage *)model type:(ZCChatCellClickType)type text:(NSString *)text obj:(id)object{
+    
+    
     if(type == ZCChatCellClickTypeSendGoosText){
         [[ZCUICore getUICore] sendProductInfo:[ZCUICore getUICore].kitInfo.productInfo resultBlock:^(NSString * _Nonnull msg, int code) {
             
         }];
+    }else if(type == ZCChatCellClickTypeItemCloseKeyboard){
+        [self.keyboardTools hideKeyboard];
+    }else if(type == ZCChatCellClickTypeItemClickCusCardButoon || type == ZCChatCellClickTypeItemClickCusCardInfoButoon){
+        SobotChatCustomCardMenu *menu = object;
+        if(menu.menuType == 2){
+            if(type == ZCChatCellClickTypeItemClickCusCardInfoButoon){
+                // 发送单个商品
+                if(model && model.richModel && model.richModel.customCard && model.richModel.customCard.customCards.count > [sobotConvertToString(text) intValue]){
+                    SobotChatCustomCardInfo *info = model.richModel.customCard.customCards[[sobotConvertToString(text) intValue]];
+                    
+                    SobotChatCustomCard *card = [[SobotChatCustomCard alloc] init];
+                    card.cardType = model.richModel.customCard.cardType;
+                    card.cardStyle = model.richModel.customCard.cardStyle;
+//                    SobotChatCustomCard *card = [[SobotChatCustomCard alloc] initWithMyDict:[SobotCache getObjectData:model.richModel.customCard]];
+                    card.customCards = [[NSMutableArray alloc] initWithObjects:info, nil];
+                    [[ZCUICore getUICore] sendCusCardMessage:card type:1];
+                }
+            }else{
+                // 发送整个卡片
+                [[ZCUICore getUICore] sendCusCardMessage:model.richModel.customCard type:1];
+            }
+        }
+        else{
+            // 调整链接
+            [[ZCUICore getUICore] dealWithLinkClickWithLick:sobotConvertToString(menu.menuLink) viewController:[SobotUITools getCurrentVC]];
+        }
+        [[ZCUICore getUICore] addCusCardMenuClick:menu];
+        return;
+    }else if(type == ZCChatCellClickTypeItemRefreshData){
+        model.showAllMessage = YES;
+        // 展示所有消息
+        [self.listTable reloadData];
+        return;
+    } else if(type == ZCChatCellClickTypeItemResendLeaveMsg){
+        // 多伦留言提醒，重新发送留言消息
+        [self onPageStatusChanged:ZCShowLeaveEditViewWithTempleteId message:model.deployId obj:model];
     }else if (type == ZCChatCellClickTypeAppletAction){
         // 小程序
         if ( [[ZCUICore getUICore] AppletClickBlock] != nil) {
@@ -1347,6 +1720,11 @@
         // 继续排队
         [[ZCUICore getUICore] continueWaiting:model];
         return;
+    }else if (type == ZCChatCellClickTypeItemShowallsensitive) {
+        model.showAllMessage = YES;
+        // 展示所有敏感词
+        [self.listTable reloadData];
+        return;
     }else if (type == ZCChatCellClickTypeInsterTurn) {
         // 机器人 点踩 转人工
         if ([self getZCIMConfig].isArtificial) {
@@ -1358,6 +1736,7 @@
         ZCPlatformInfo *info = [[ZCPlatformTools sharedInstance] getPlatformInfo];
         info.checkInitKey = @"";
         [[ZCPlatformTools sharedInstance] savePlatformInfo:info];
+        [ZCLibClient getZCLibClient].libInitInfo.isFirstEntry = 0;
         //  要去初始化啊
         [self doSDKConfig];
         return;
@@ -1410,7 +1789,12 @@
         }
         playModel=model;
         playModel.isPlaying=YES;
-        [[SobotVoiceTools shareSobotVoiceTools] startWithModel:sobotConvertToString(model.richModel.richmoreurl) view:object category:SobotAudioSessionCategoryPlayback];
+        // 这里要区分 是否是本地的还是网络的加载地址，本地有本地优先，解决播放动画和加载进度不一致的问题
+        NSString *urlStr = sobotConvertToString(model.richModel.url);
+        if (sobotConvertToString(model.richModel.richmoreurl).length > 0) {
+            urlStr = sobotConvertToString(model.richModel.richmoreurl);
+        }
+        [[SobotVoiceTools shareSobotVoiceTools] startWithModel:urlStr view:object category:SobotAudioSessionCategoryPlayback];
     }else if(type == ZCShowStatusGoBack){
         if(self.delegate && [self.delegate respondsToSelector:@selector(onBackFinish:closeClick:)]){
             NSDictionary *params = object;
@@ -1440,12 +1824,15 @@
                 params[@"questionFlag"] = @"1";
                 params[@"requestText"] = dict[@"question"];
             }
+            if (sobotConvertToString([dict objectForKey:@"fromEnum"]).length >0) {
+                params[@"fromEnum"] = sobotConvertToString([dict objectForKey:@"fromEnum"]);
+            }
         }else{
             params[@"requestText"] = dict[@"question"];
             params[@"questionFlag"] = @"1";
             
         }
-        [[ZCUICore getUICore] sendMessage:title type:SobotMessageTypeText exParams:params duration:@""];
+        [[ZCUICore getUICore] sendMessage:title type:SobotMessageTypeText exParams:params duration:@"" richType:SobotMessageRichJsonTypeText];
     }else if(type == ZCChatCellClickTypeConnectUser){
         [[ZCUICore getUICore] checkUserServiceWithType:ZCTurnType_BtnClick model:model];
     }else if(type == ZCChatCellClickTypeStepOn || type == ZCChatCellClickTypeTheTop){
@@ -1523,17 +1910,106 @@
         } failed:^(NSString *errorMessage, ZCNetWorkCode errorCode) {
             
         }];
+    }else if (type == ZCChatCellClickTypeReSend){
+        // 重新发送
+        // 当前的键盘样式是新会话的样式，重新发送的消息不在发送  （用户超时下线提示和会话结束提示）
+        if (_keyboardTools.curKeyboardStatus  == ZCKeyboardStatusNewSession) {
+            [_listTable reloadData];
+            [self tableScrollToBottom];
+            return;
+        }
+        NSDictionary *dict = nil;
+        NSString *text = model.richModel.content;
+//        if(model.richModel.msgType == ZCMessageTypeLocation){
+//            dict = @{@"lng":model.richModel.longitude,@"lat":model.richModel.latitude,@"localName":model.richModel.localName,@"localLabel":model.richModel.localLabel,@"file":model.richModel.richmoreurl};
+//            //            model.richModel.msg = model.richModel.richmoreurl;
+//            text = model.richModel.richmoreurl;
+//        }
+        if(model.msgType == SobotMessageTypeVideo){
+            dict = @{@"cover":model.richModel.content};
+            text = model.richModel.richmoreurl;
+        }
+        if (model.msgType == SobotMessageTypeFile) {
+            text = model.richModel.richmoreurl;
+        }
+        
+        ZCLibSendMessageParams *sendParms = [[ZCLibSendMessageParams alloc]init];
+        sendParms.content = model.content;
+        sendParms.msgContent = model.msgContent;
+        sendParms.question = model.question;
+        sendParms.requestText = model.requestText;
+        sendParms.questionFlag = model.questionFlag;
+        sendParms.docId = model.docId;
+        sendParms.duration = model.duration;
+        sendParms.robotflag = model.robotflag;
+        sendParms.fromEnum = model.fromEnum;
+        sendParms.exParams = model.exParams;
+        sendParms.sendType = model.sendType;
+        
+        [ZCLibServer sendMessage:sendParms msgType:model.msgType config:[self getZCIMConfig] start:^(SobotChatMessage * _Nonnull message) {
+            model.sendStatus = 1;
+            
+            
+            [self->_listTable reloadData];
+        } success:^(SobotChatMessage * _Nonnull message, ZCNetWorkCode code) {
+            model.sendStatus = message.sendStatus;
+            model.includeSensitive = 0;
+            
+//            if(model.msgType == SobotMessageTypeFile){
+//                model.richModel.fileType = message.richModel.fileType;
+//                model.richModel.fileName = message.richModel.fileName;
+//                model.richModel.fileSize = message.richModel.fileSize;
+//                model.richModel.url = message.richModel.richmoreurl;
+//                
+//            }
+            
+            if(![self getZCIMConfig].isArtificial && code == ZC_NETWORK_New_Data){
+                
+                [[ZCUICore getUICore] parseRobotMessage:message];
+                // 3.1.0新增，发送完语音消息，消息被遮挡
+                [self tableScrollToBottom];
+            }else if(code == ZC_NETWORK_SUCCESS){
+                model.sendStatus = 0;
+                model.richModel.msgtranslation = message.richModel.msgtranslation;
+                if(model.msgType == SobotMessageTypeText){
+                    model.richModel.content = message.richModel.content;
+                    model.displayMsgAttr = message.displayMsgAttr;
+                }
+                
+                if(model.msgType == SobotMessageTypeFile){
+                    model.richModel.fileType = message.richModel.fileType;
+                    model.richModel.fileName = message.richModel.fileName;
+                    model.richModel.fileSize = message.richModel.fileSize;
+                    model.richModel.url = message.richModel.richmoreurl;
+                }
+                
+                [self->_listTable reloadData];
+            }else{
+                model.sendStatus = 2;
+                [self->_listTable reloadData];
+            }
+            
+        } progress:^(SobotChatMessage * _Nonnull message) {
+            model.progress = message.progress;
+            [self->_listTable reloadData];
+        } fail:^(SobotChatMessage * _Nonnull message, NSString * _Nonnull errorMsg, ZCNetWorkCode code) {
+            model.sendStatus = 2;
+            model.includeSensitive = 0;
+            [self->_listTable reloadData];
+        }];
     }
 }
 -(void)cellItemClick:(int)satifactionType isResolved:(int)isResolved rating:(int)rating problem:(NSString *)problem scoreFlag:(int)scoreFlag{
     if (satifactionType == 1) {
         
             BOOL isEvalutionAdmin = [ZCUICore getUICore].getLibConfig.isArtificial;
-            if(_keyboardTools.curKeyboardStatus == ZCKeyboardStatusNewSession){
-                isEvalutionAdmin = [ZCUICore getUICore].isAdminServerBeforeCloseSession;
-            }
-            
-            [[ZCUICore getUICore] checkSatisfacetion:isEvalutionAdmin type:SatisfactionTypeInvite rating:rating resolve:isResolved];
+//            if(_keyboardTools.curKeyboardStatus == ZCKeyboardStatusNewSession){
+//                isEvalutionAdmin = [ZCUICore getUICore].isAdminServerBeforeCloseSession;
+//            }
+        [self.keyboardTools hideKeyboard];
+        
+        isEvalutionAdmin = YES;
+            [[ZCUICore getUICore] checkSatisfacetion:isEvalutionAdmin type:SobotSatisfactionFromSrouceInvite rating:rating resolve:isResolved];
 
     }else{
         // 提交评价,10分实际是11
@@ -1575,6 +2051,11 @@
     if (isClose && [ZCUICore getUICore].kitInfo.isShowCloseSatisfaction) {
         showEvaluation = YES;
     }
+    
+    if(isClose && [self getZCIMConfig].commentFlag==1 && [self getZCIMConfig].isArtificial){
+        showEvaluation = YES;// 点了结束会话 并且是人工，并且开启了会话结束是否推送评价开关
+    }
+    
     if(!showEvaluation){
         if(self.delegate && [self.delegate respondsToSelector:@selector(onBackFinish:closeClick:)]){
             [self.delegate onBackFinish:YES closeClick:isClose];
@@ -1585,8 +2066,9 @@
     if(_keyboardTools.curKeyboardStatus == ZCKeyboardStatusNewSession){
         isEvalutionAdmin = [ZCUICore getUICore].isAdminServerBeforeCloseSession;
     }
-    
-    BOOL isShow = [[ZCUICore getUICore] checkSatisfacetion:isEvalutionAdmin type:isClose?SatisfactionTypeClose:SatisfactionTypeBack];
+    [self.keyboardTools hideKeyboard];
+    // 是否评价
+    BOOL isShow = [[ZCUICore getUICore] checkSatisfacetion:isEvalutionAdmin type:isClose?SobotSatisfactionFromSrouceClose:SobotSatisfactionFromSrouceBack];
     if(!isShow){
         if(self.delegate && [self.delegate respondsToSelector:@selector(onBackFinish:closeClick:)]){
             [self.delegate onBackFinish:YES closeClick:isClose];
@@ -1594,18 +2076,24 @@
     }
 }
 
+-(void)hiddenKeyboard{
+    [_keyboardTools hideKeyboard];
+}
 
 
 -(void)backChatView{
-    [ZCUICore getUICore].unknownWordsCount = 0;
+//    [ZCLibClient getZCLibClient].isShowTurnBtn = NO;
+//    [ZCUICore getUICore].unknownWordsCount = 0;
     if ([ZCUICore getUICore].lineModel) {
-        [[ZCUICore getUICore].chatMessages removeObject:[ZCUICore getUICore].lineModel];
+        if([ZCUICore getUICore].chatMessages &&[ZCUICore getUICore].chatMessages.count > 0){
+            [[ZCUICore getUICore].chatMessages removeObject:[ZCUICore getUICore].lineModel];
+        }
     }
     // 判断是否保存会话id，以判断是否重新初始化
     // 没有说过话，下次进入时判断是否需要重新初始化，如果当前时间-time,大于out_time就重新初始化
     if(![ZCUICore getUICore].isSendToUser && ![ZCUICore getUICore].isSendToRobot){
         NSDictionary *lastChat = @{@"cid":sobotConvertToString([self getZCIMConfig].cid),
-                                   @"time":sobotDateTransformString(SOBOT_FORMATE_DATETIME,[NSDate new]),
+                                   @"time":sobotDateTransformString(SOBOT_FORMATE_DATETIMESSS,[NSDate new]),
                                    @"out_time":[NSString stringWithFormat:@"%d",[self getZCIMConfig].userOutTime]
         };
         [SobotCache addObject:lastChat forKey:@"KEYP_ZCLastChat"];
@@ -1613,7 +2101,9 @@
 
 
     if ([ZCUICore getUICore].recordModel) {
-        [[ZCUICore getUICore].chatMessages removeObject:[ZCUICore getUICore].recordModel];
+        if([ZCUICore getUICore].chatMessages &&[ZCUICore getUICore].chatMessages.count > 0){
+            [[ZCUICore getUICore].chatMessages removeObject:[ZCUICore getUICore].recordModel];
+        }
     }
 
     @try{
@@ -1623,7 +2113,7 @@
                 [[ZCPlatformTools sharedInstance] getPlatformInfo].lastMsg = lastMsg.tipsMessage;
                 [[ZCPlatformTools sharedInstance] getPlatformInfo].lastDate = lastMsg.ts;
             } else {
-                [[ZCPlatformTools sharedInstance] getPlatformInfo].lastMsg = [ZCPlatformTools getLastMessage:lastMsg];
+                [[ZCPlatformTools sharedInstance] getPlatformInfo].lastMsg = [ZCPlatformTools getLastMessage:lastMsg urlRegular:[ZCUIKitTools zcgetUrlRegular]];
                 [[ZCPlatformTools sharedInstance] getPlatformInfo].lastDate = lastMsg.ts;
             }
         }
@@ -1632,6 +2122,17 @@
 //        [ZCUICore getUICore].isAddNotice = NO;
 
         NSInteger keyboardtype = [_keyboardTools curKeyboardStatus];
+        
+        // 这里需要处理一个特殊情况 展示可以发送的商品信息卡片消息要处理掉
+        if( [ZCUICore getUICore].chatMessages &&  [ZCUICore getUICore].chatMessages.count> 0){
+            for (SobotChatMessage *msg in [ZCUICore getUICore].chatMessages) {
+                if(msg.action == SobotMessageActionTypeSendGoods && msg.msgType == SobotMessageTypeTipsText){
+                    [[ZCUICore getUICore].chatMessages removeObject:msg];
+                }
+            }
+        }
+        
+        
         // 如果通道没有建立成功，当前正在链接中  则清空数据，下次重新初始化  2. 当前会话键盘是新会话键盘，返回时清空数据 重新初始化
         if((![ZCIMChat getZCIMChat].isConnected && [self getZCIMConfig].isArtificial) || keyboardtype == ZCKeyboardStatusNewSession){
             [self getPlatformInfo].cidsArray = nil;
@@ -1646,11 +2147,15 @@
         [ZCUICore getUICore].cids = nil;
         [ZCUICore getUICore].chatMessages = nil;
 
-        [[ZCIMChat getZCIMChat] setChatPageState:NO];
-
         if([ZCUICore getUICore].ZCViewControllerCloseBlock){
             [ZCUICore getUICore].ZCViewControllerCloseBlock(self,ZC_CloseChat);
         }
+        
+        if([ZCUICore getUICore].PageLoadBlock){
+            [ZCUICore getUICore].PageLoadBlock(self,ZCPageStateTypeChatBack);
+        }
+        
+        [[ZCIMChat getZCIMChat] setChatPageState:NO];
 
 //        // 离线用户，关闭通道
 //        if ([ZCUICore getUICore].kitInfo.isShowCloseSatisfaction) {
@@ -1707,9 +2212,16 @@
     return nil;
 }
 
+-(void)dealloc{
+    [[ZCIMChat getZCIMChat] setChatPageState:NO];
+}
+
 #pragma mark - 转换图片颜色
 -(UIImage*)imageChangeColor:(UIColor*)color chageImg:(UIImage*)chageImg;
 {
+    if(chageImg.size.width == 0 || chageImg.size.height == 0){
+        return chageImg;
+    }
     //获取画布
     UIGraphicsBeginImageContextWithOptions(chageImg.size, NO, 0.0f);
     //画笔沾取颜色

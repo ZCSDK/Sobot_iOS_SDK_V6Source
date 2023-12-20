@@ -187,6 +187,9 @@
 }
 
 -(UIImage *)imageWihtSize:(CGSize)size radius:(CGFloat)radius img:(UIImage *) img{
+    if(size.width == 0 || size.height == 0){
+        return img;
+    }
     // 利用绘图建立上下文
     UIGraphicsBeginImageContextWithOptions(size, false, 0);
     CGRect rect = CGRectMake(0, 0, size.width, size.height);

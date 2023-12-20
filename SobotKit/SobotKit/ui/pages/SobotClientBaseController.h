@@ -13,6 +13,8 @@ typedef NS_ENUM(NSInteger,ZCPageStateType) {
     ZCPageStateTypeChatBack     = 1,// 点击返回
     ZCPageStateTypeChatLoadFinish = 2,// 加载界面完成，可对UI进行修改
     ZCPageStateTypeLeave      = 3,// 留言
+    ZCPageStateTypeUserClose = 4,// 用户自己调用关闭页面
+    ZCPageStateViewShow   = 5,// SDK页面将要显示
 };
 
 typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
@@ -38,11 +40,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SobotClientBaseController : SobotBaseController
 
+-(void)updateNavOrTopView;
+
 // 更新导航栏背景色和渐变色
 -(void)updateTopViewBgColor;
 
 // 更新帮助中心导航栏渐变色
 -(void)updateCenterViewBgColor;
+
+// 设置导航栏的样式
+- (void)setNavigationBarStyle;
+
+// 设置导航栏按钮
+-(void)setNavigationBarLeft:(NSArray *__nullable)leftTags right:(NSArray *__nullable)rightTags;
+
 @end
 
 NS_ASSUME_NONNULL_END

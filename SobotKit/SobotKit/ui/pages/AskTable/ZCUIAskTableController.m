@@ -51,6 +51,7 @@
 @property (nonatomic,strong)NSLayoutConstraint *listY;
 @property (nonatomic,strong)NSLayoutConstraint *listL;
 
+@property (nonatomic,assign) BOOL isCommitSuccess;// 是否提交成功
 
 @end
 
@@ -239,7 +240,7 @@
     _commitBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [_commitBtn setTitle:SobotKitLocalString(@"提交并咨询") forState:UIControlStateNormal];
     [_commitBtn setTitle:SobotKitLocalString(@"提交并咨询") forState:UIControlStateSelected];
-    [_commitBtn setBackgroundColor:[ZCUIKitTools zcgetRobotBtnBgColor]];
+    [_commitBtn setBackgroundColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
     [_commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateNormal];
     [_commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateHighlighted];
     _commitBtn.tag = BUTTON_MORE;
@@ -334,7 +335,7 @@
         self.detailStr = sobotConvertToString(_dict[@"formDoc"]);
     }
     if (_coustomArr.count<1) {
-        [self createPlaceHolderView:self.view title:SobotKitLocalString(@"网络原因请求超时 重新加载") desc:nil image:[UIImage imageNamed:@"zcicon_networkfail"] block:nil];
+        [self createPlaceHolderView:self.view title:SobotKitLocalString(@"网络原因请求超时 重新加载") desc:nil image:[SobotUITools getSysImageByName:@"zcicon_networkfail"] block:nil];
     }else{
         [self removePlaceholderView];
     }
@@ -351,10 +352,12 @@
     if (_coustomArr>0) {
         [dic setValue:sobotConvertToString([SobotCache dataTOjsonString:dict]) forKey:@"customerFields"];
     }
+    __weak  ZCUIAskTableController *weakSelf = self;
     // 调用接口
     [ZCLibServer postAskTabelWithUid:[self getZCLibConfig].uid Parms:dic start:^{
         
     } success:^(NSDictionary *dict, ZCNetWorkCode sendCode) {
+        weakSelf.isCommitSuccess = YES;
         [[SobotToast shareToast] showToast:SobotKitLocalString(@"提交成功") duration:1.0f view:self.view position:SobotToastPositionCenter Image:[SobotUITools getSysImageByName:@"zcicon_successful"]];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.2f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self backAction];
@@ -508,6 +511,17 @@
         [self.navigationController popViewControllerAnimated:NO];
     }else{
         [self dismissViewControllerAnimated:NO completion:nil];
+    }
+}
+
+-(void)didMoveToParentViewController:(UIViewController *)parent{
+    [super didMoveToParentViewController:parent];
+    if(!parent){
+        if (!self.isCommitSuccess) {
+            // 没有提交成功 侧滑返回了，也要回置
+//            NSLog(@"页面侧滑返回：%@",parent);
+            [ZCUICore getUICore].isShowForm = NO;
+        }
     }
 }
 

@@ -1,0 +1,16 @@
+//
+//  ZCChatMessageInfoFileView.h
+//  SobotKit
+//
+//  Created by lizh on 2023/11/23.
+//
+
+#import "ZCChatMessageInfoView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ZCChatMessageInfoFileView : ZCChatMessageInfoView
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -74,10 +74,13 @@ NS_ASSUME_NONNULL_BEGIN
 // 默认几星
 @property (nonatomic, assign) int rating;
 
-// 邀请评价记录 是否已解决
+// 邀请评价记录 是否已解决,-1未选择,0未解决，1已解决，
 @property (nonatomic, assign) int isResolve;
 
 @property(nonatomic,assign)BOOL isOpenProblemSolving;// 是否开启 已解决 未解决
+
+
+@property(nonatomic,assign)BOOL isOpenDefaultStar;// 是否默认选中星星
 
 
 @end

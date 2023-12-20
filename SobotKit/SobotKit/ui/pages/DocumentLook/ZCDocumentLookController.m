@@ -65,7 +65,7 @@
     [_imgView setBackgroundColor:UIColor.clearColor];
     [_imgView setImage:[SobotUITools getFileIcon:_message.richModel.url fileType:_message.richModel.fileType]];
     
-    _labName = [[UILabel alloc] initWithFrame:CGRectMake(20, CGRectGetMaxY(_imgView.frame)+30, ScreenWidth - 40, 0)];
+    _labName = [[UILabel alloc] initWithFrame:CGRectMake(20, CGRectGetMaxY(_imgView.frame)+30, self.view.frame.size.width - 40, 0)];
     [_labName setFont:SobotFontBold20];
     [_labName setTextColor:UIColorFromKitModeColor(SobotColorTextMain)];
     [_labName setTextAlignment:NSTextAlignmentCenter];
@@ -74,12 +74,12 @@
     [self autoHeightOfLabel:_labName with:ScreenWidth - 40];
     [_labName sizeToFit];
     
-    _labSize = [[UILabel  alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_labName.frame) + 10, ScreenWidth, 21)];
+    _labSize = [[UILabel  alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_labName.frame) + 10, self.view.frame.size.width, 21)];
     [_labSize setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
     [_labSize setTextAlignment:NSTextAlignmentCenter];
     [_labSize setFont:SobotFont14];
     
-    _viewProgress = [[UIView alloc] initWithFrame:CGRectMake(20, CGRectGetMaxY(_labSize.frame) + 20, ScreenWidth - 40, 15)];
+    _viewProgress = [[UIView alloc] initWithFrame:CGRectMake(20, CGRectGetMaxY(_labSize.frame) + 20, self.view.frame.size.width - 40, 15)];
     [_viewProgress setBackgroundColor:UIColor.clearColor];
     
     [self addProgressView];
@@ -92,10 +92,10 @@
     _btnDown.layer.cornerRadius = 22.0;
     _btnDown.layer.masksToBounds = YES;
     _btnDown.tag = BUTTON_EVALUATION;
-    [_btnDown setFrame:CGRectMake(38, CGRectGetMaxY(_labSize.frame) + 100, ScreenWidth - 38*2, 44)];
+    [_btnDown setFrame:CGRectMake(38, CGRectGetMaxY(_labSize.frame) + 100, self.view.frame.size.width - 38*2, 44)];
     [_btnDown addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     
-    _labLookTip = [[UILabel  alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_btnDown.frame) + 10, ScreenWidth, 18)];
+    _labLookTip = [[UILabel  alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_btnDown.frame) + 10, self.view.frame.size.width, 18)];
     [_labLookTip setTextColor:UIColorFromKitModeColor(SobotColorTextMain)];
     [_labLookTip setTextAlignment:NSTextAlignmentCenter];
     [_labLookTip setFont:SobotFont12];
@@ -121,7 +121,6 @@
         //从服务器获取文件的总大小
         [self getServerFileSize];
         [self getLocalFileSize];
-        
         [self changeDownStatus];
     });
 }
@@ -131,13 +130,13 @@
  */
 -(void)viewDidLayoutSubviews{
     [super viewDidLayoutSubviews];
-    CGFloat w = ScreenWidth;
+    CGFloat w = self.view.frame.size.width;
     
     
     _imgView.frame = CGRectMake(w/2-68/2, (isLandspace?30:60) + NavBarHeight, 68, 80);
     _labName.frame = CGRectMake(20, CGRectGetMaxY(_imgView.frame)+30, w - 40, 0);
     [_labName setText:_message.richModel.fileName];
-    [self autoHeightOfLabel:_labName with:ScreenWidth - 40];
+    [self autoHeightOfLabel:_labName with:self.view.frame.size.width - 40];
     [_labName sizeToFit];
     
     _labSize.frame = CGRectMake(0, CGRectGetMaxY(_labName.frame) + 10, w, 21);
@@ -262,25 +261,34 @@
             }
             [self->_labSize setFont:SobotFont14];
             CGRect f = self->_imgProgress.frame;
-            f.size.width = (ScreenWidth - 40) * (self.currentSize*1.0/self.fileSize);
+            if(self.fileSize < self.currentSize){
+                self.fileSize = self.currentSize;
+            }
+            if(self.fileSize <= 0){
+                f.size.width = 0;
+            }else{
+                f.size.width = (self.view.frame.size.width - 40) * (self.currentSize*1.0/self.fileSize);
+            }
             self->_imgProgress.frame = f;
         }
     });
 }
 
 
-
 //获取本地沙盒已经下载的文件的大小
 - (void)getLocalFileSize{
     //操作本地文件的管理器
     NSFileManager *manager = [NSFileManager defaultManager];
-    
     //attributesOfItemAtPath 返回给定路径文件的属性(大小, 时间)
     NSDictionary *dict = [manager attributesOfItemAtPath:self.localFilePath error:NULL];
     //给当前文件的大小的变量赋值
     //fileSize 返回本地文件的大小
-    self.currentSize = dict.fileSize;
-//    NSLog(@"获取本地文件大小之后:%lld",self.currentSize);
+    if(dict){
+        self.currentSize = dict.fileSize;
+        if(self.fileSize > 0 && self.fileSize < self.currentSize){
+            self.fileSize = self.currentSize;
+        }
+    }
 }
 
 //获取文件的总大小(从服务器上获取)
@@ -301,6 +309,7 @@
     
     //给文件总长度赋值
     self.fileSize = response.expectedContentLength;
+    NSLog(@"%lld",self.fileSize);
 }
 
 
@@ -308,7 +317,9 @@
 - (void)downloadFile{
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         //从服务器获取文件的总大小
-        [self getServerFileSize];
+        if(self.fileSize <= 0){
+            [self getServerFileSize];
+        }
         [self getLocalFileSize];
         
         [self changeDownStatus];
@@ -319,11 +330,13 @@
         }
         
         //如果本地文件比服务器上的文件要大, 说明下载的本地文件有问题,删除本地文件,重新下载
+        // 可能是服务端的长度不正确
         if (self.currentSize > self.fileSize) {
-            //操作本地文件的管理器
-            NSFileManager *manager = [NSFileManager defaultManager];
-            [manager removeItemAtPath:self.localFilePath error:NULL];
-            self.currentSize = 0;
+            self.fileSize = self.currentSize;
+//            //操作本地文件的管理器
+//            NSFileManager *manager = [NSFileManager defaultManager];
+//            [manager removeItemAtPath:self.localFilePath error:NULL];
+//            self.currentSize = 0;
         }
         
         //比较服务器文件的总大小和本地文件的总大小
@@ -364,10 +377,12 @@
     
     //    NSLog(@"%lu接收到服务器文件的数据:" ,(unsigned long)data.length);
     self.currentSize += data.length;
-    
+   
     //计算下载进度
-    float progress =  self.currentSize*1.0/self.fileSize;
-    
+//    float progress =  self.currentSize*1.0/self.fileSize;
+    if(self.fileSize < self.currentSize){
+        self.fileSize = self.currentSize;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         [self changeDownStatus];
     });
@@ -464,3 +479,4 @@
 }
 
 @end
+

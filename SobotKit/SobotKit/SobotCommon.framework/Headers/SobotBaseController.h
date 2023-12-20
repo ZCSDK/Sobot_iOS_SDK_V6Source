@@ -111,6 +111,13 @@ typedef NS_ENUM(NSInteger,SobotButtonClick) {
 // 仅设置自定义导航，1.0.2之后废弃
 -(void)setNavigationBarLeft:(NSArray *__nullable)leftTags right:(NSArray *__nullable)rightTags;
 
+
+/// 设置导航
+/// @param leftTags 左侧按钮
+/// @param rightTags 右侧按钮
+/// @param autoSetting 是否设置导航颜色
+-(void)setNavigationBarLeft:(NSArray *__nullable)leftTags right:(NSArray *__nullable)rightTags setBarStyle:(BOOL) autoSetting;
+
 /// 仅设置左右按钮
 /// @param leftTags 左边
 /// @param rightTags 右边
@@ -135,6 +142,7 @@ typedef NS_ENUM(NSInteger,SobotButtonClick) {
 /// 设置导航颜色
 /// - Parameter color: 导航颜色
 -(void)setTopBackgroudColor:(UIColor *) color;
+-(void)setTopBackgroudColor:(UIColor *) color titleColor:(UIColor *) titleColor;
 
 
 // 获取nav上的button
@@ -144,7 +152,12 @@ typedef NS_ENUM(NSInteger,SobotButtonClick) {
 -(CGFloat )getVCContentY;
 
 
+/// 当显示底部Bar菜单时，返回bar的高度
+-(CGFloat) getVCBarHeight;
+
 -(void)createPlaceHolderView:(UIView *) superView title:(NSString *) title desc:(NSString *__nullable )message image:(UIImage *__nullable )  tipImage block:(void(^__nullable)(UIButton *_Nonnull btn,NSInteger tag))  refreshClick;
+
+-(void)createPlaceHolderView:(UIView *) superView title:(NSString *) title desc:(NSString *__nullable )message image:(UIImage *__nullable)  tipImage imgSize:(CGSize)size block:(void(^__nullable)(UIButton *_Nonnull btn,NSInteger tag)) refreshClick;
 - (void)removePlaceholderView;
 
 @end

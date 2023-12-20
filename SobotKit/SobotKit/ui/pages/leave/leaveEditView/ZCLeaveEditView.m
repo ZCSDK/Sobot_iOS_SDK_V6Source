@@ -39,7 +39,6 @@
 @property(nonatomic, assign) BOOL isSend;
 /** 系统相册相机图片 */
 @property(nonatomic,strong)UIImagePickerController *zc_imagepicker;
-@property(nonatomic,strong)UIView *successView;
 @property(nonatomic,strong)UITableView *listTable;
 @property(nonatomic,strong)NSMutableArray *listArray;
 @property(nonatomic,strong)NSMutableArray *imageArr;
@@ -55,6 +54,7 @@
 @property (nonatomic,strong)NSLayoutConstraint *listViewPL;
 @property (nonatomic,strong)NSLayoutConstraint *listViewPR;
 @property (nonatomic,strong)NSLayoutConstraint *listViewPB;
+@property (nonatomic,strong)NSLayoutConstraint *commitBtnEW;
 
 
 
@@ -123,7 +123,7 @@
      [commitBtn setTitle:SobotKitLocalString(@"提交") forState:UIControlStateSelected];
      [commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateNormal];
      [commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateHighlighted];
-     UIImage * img = [self createImageWithColor:[ZCUIKitTools zcgetRobotBtnBgColor]];
+     UIImage * img = [self createImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
      [commitBtn setBackgroundImage:img forState:UIControlStateNormal];
      [commitBtn setBackgroundImage:img forState:UIControlStateSelected];
      commitBtn.tag = 1001;
@@ -131,14 +131,17 @@
      commitBtn.layer.masksToBounds = YES;
      commitBtn.layer.cornerRadius = 22.f;
      commitBtn.titleLabel.font = SobotFont17;
-     commitBtn.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
+//     commitBtn.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
      [footView addSubview:commitBtn];
-    [footView addConstraint:sobotLayoutPaddingTop(SobotNumber(20), commitBtn, footView)];
-    [footView addConstraint:sobotLayoutPaddingLeft(SobotNumber(15), commitBtn, footView)];
-    [footView addConstraint:sobotLayoutPaddingRight(SobotNumber(-20), commitBtn, footView)];
-    [footView addConstraint:sobotLayoutEqualHeight(SobotNumber(44), commitBtn, NSLayoutRelationEqual)];
+    [footView addConstraint:sobotLayoutPaddingTop(20, commitBtn, footView)];
+    [footView addConstraint:sobotLayoutPaddingLeft(20, commitBtn, footView)];
+//    [footView addConstraint:sobotLayoutPaddingRight(-20, commitBtn, footView)];
+    [footView addConstraint:sobotLayoutEqualHeight(44, commitBtn, NSLayoutRelationEqual)];
+    self.commitBtnEW = sobotLayoutEqualWidth(ScreenWidth - 40, commitBtn, NSLayoutRelationEqual);
+    [footView addConstraint:self.commitBtnEW];
     _listTable.tableFooterView = footView;
 }
+
 
 #pragma mark EmojiLabel链接点击事件
 // 链接点击
@@ -510,11 +513,11 @@
 }
 
 - (void)actionSheet:(SobotActionSheetView *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
-    if (buttonIndex == 2) {
+    if (buttonIndex == 1) {
         // 相机
         [self getPhotoByType:1];
     }
-    if(buttonIndex == 3){
+    if(buttonIndex == 2){
         // 相册
         [self getPhotoByType:0];
     }
@@ -577,55 +580,65 @@
 }
 
 -(void) converToMp4:(NSDictionary *)dict withInfoDic:(NSDictionary *)infoDic{
+    #pragma mark - 注意这里的路径变化
     NSURL *videoUrl = dict[@"video"];
     NSString *coverImg = dict[@"image"];
     NSMutableDictionary *infoMutDic = [infoDic mutableCopy];
     [infoMutDic setValue:coverImg forKey:@"cover"];
-    AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:videoUrl options:nil];
+//    AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:videoUrl options:nil];
     [[SobotToast shareToast] showToast:SobotKitLocalString(@"视频处理中，请稍候!") duration:1.0 view:self  position:SobotToastPositionCenter];
     __weak  ZCLeaveEditView *keyboardSelf  = self;
-    AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:avAsset presetName:AVAssetExportPresetMediumQuality];
-    NSString * fname = [NSString stringWithFormat:@"/sobot/output-%ld.mp4",(long)[NSDate date].timeIntervalSince1970];
-    sobotCheckPathAndCreate(sobotGetDocumentsFilePath(@"/sobot/"));
-    NSString *resultPath=sobotGetDocumentsFilePath(fname);
-    exportSession.outputURL = [NSURL fileURLWithPath:resultPath];
-    exportSession.outputFileType = AVFileTypeMPEG4;
-    exportSession.shouldOptimizeForNetworkUse = YES;
-    [exportSession exportAsynchronouslyWithCompletionHandler:^(void)
-     {
-         switch (exportSession.status) {
-             case AVAssetExportSessionStatusCompleted:{
-                 //                 NSLog(@"AVAssetExportSessionStatusCompleted%@",[NSThread currentThread]);
-                 // 主队列回调
-                 dispatch_async(dispatch_get_main_queue(), ^{
-                     [keyboardSelf updateloadFile:[self URLDecodedString:resultPath] type:SobotMessageTypeVideo dict:infoMutDic];
-                 });
-             }
-                 break;
-             case AVAssetExportSessionStatusUnknown:
-                 //                 NSLog(@"AVAssetExportSessionStatusUnknown");
-                 break;
-
-             case AVAssetExportSessionStatusWaiting:
-
-                 //                 NSLog(@"AVAssetExportSessionStatusWaiting");
-                 break;
-
-             case AVAssetExportSessionStatusExporting:
-
-                 //                 NSLog(@"AVAssetExportSessionStatusExporting");
-
-                 break;
-             case AVAssetExportSessionStatusFailed:
-
-                 //                 NSLog(@"AVAssetExportSessionStatusFailed");
-
-                 break;
-             case AVAssetExportSessionStatusCancelled:
-
-                 break;
-         }
-     }];
+    
+//        sobotCheckPathAndCreate(sobotGetDocumentsFilePath(@"/sobot/"));
+//        NSString *resultPath=sobotGetDocumentsFilePath(fname);
+    if (!sobotIsNull(videoUrl)) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [keyboardSelf updateloadFile:[keyboardSelf URLDecodedString:[videoUrl absoluteString]] type:SobotMessageTypeVideo dict:infoMutDic];
+        });
+    }
+    
+//    AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:avAsset presetName:AVAssetExportPresetMediumQuality];
+//    NSString * fname = [NSString stringWithFormat:@"/sobot/output-%ld.mp4",(long)[NSDate date].timeIntervalSince1970];
+//    sobotCheckPathAndCreate(sobotGetDocumentsFilePath(@"/sobot/"));
+//    NSString *resultPath=sobotGetDocumentsFilePath(fname);
+//    exportSession.outputURL = [NSURL fileURLWithPath:resultPath];
+//    exportSession.outputFileType = AVFileTypeMPEG4;
+//    exportSession.shouldOptimizeForNetworkUse = YES;
+//    [exportSession exportAsynchronouslyWithCompletionHandler:^(void)
+//     {
+//         switch (exportSession.status) {
+//             case AVAssetExportSessionStatusCompleted:{
+//                                  NSLog(@"AVAssetExportSessionStatusCompleted%@",[NSThread currentThread]);
+//                 // 主队列回调
+//                 dispatch_async(dispatch_get_main_queue(), ^{
+//                     [keyboardSelf updateloadFile:[self URLDecodedString:resultPath] type:SobotMessageTypeVideo dict:infoMutDic];
+//                 });
+//             }
+//                 break;
+//             case AVAssetExportSessionStatusUnknown:
+//                                  NSLog(@"AVAssetExportSessionStatusUnknown");
+//                 break;
+//
+//             case AVAssetExportSessionStatusWaiting:
+//
+//                                  NSLog(@"AVAssetExportSessionStatusWaiting");
+//                 break;
+//
+//             case AVAssetExportSessionStatusExporting:
+//
+//                                  NSLog(@"AVAssetExportSessionStatusExporting");
+//
+//                 break;
+//             case AVAssetExportSessionStatusFailed:
+//
+//                                  NSLog(@"AVAssetExportSessionStatusFailed");
+//
+//                 break;
+//             case AVAssetExportSessionStatusCancelled:
+//
+//                 break;
+//         }
+//     }];
 }
 
 
@@ -1156,50 +1169,50 @@
     [self addConstraint:sobotLayoutPaddingTop(0, _successView, self)];
     [self addConstraint:sobotLayoutPaddingLeft(0, _successView, self)];
     [self addConstraint:sobotLayoutPaddingRight(0, _successView, self)];
-    _img = [[UIImageView alloc]initWithFrame:CGRectMake(viewWidth/2 - SobotNumber(60/2), SobotNumber(60), SobotNumber(60), SobotNumber(60))];
+    _img = [[UIImageView alloc]initWithFrame:CGRectMake(viewWidth/2 - (60/2), (60), (60), (60))];
     if(isLandspace){
-        _img.frame = CGRectMake(viewWidth/2 - SobotNumber(60/2), SobotNumber(40), SobotNumber(60), SobotNumber(60));
+        _img.frame = CGRectMake(viewWidth/2 - (60/2), (20), (60), (60));
     }
     _img.image = [SobotUITools getSysImageByName:@"zcicon_addleavemsgsuccess"];
     [_successView addSubview:_img];
     
-    CGFloat imgT = SobotNumber(60);
+    CGFloat imgT = (60);
     if (isLandspace) {
-        imgT = SobotNumber(40);
+        imgT = (20);
     }
     self.imgPT = sobotLayoutPaddingTop(imgT, _img, _successView);
     [self.successView addConstraint:self.imgPT];
-    [self.successView addConstraint:sobotLayoutEqualWidth(SobotNumber(60), _img, NSLayoutRelationEqual)];
-    [self.successView addConstraint:sobotLayoutEqualHeight(SobotNumber(60), _img, NSLayoutRelationEqual)];
+    [self.successView addConstraint:sobotLayoutEqualWidth((60), _img, NSLayoutRelationEqual)];
+    [self.successView addConstraint:sobotLayoutEqualHeight((60), _img, NSLayoutRelationEqual)];
     [self.successView addConstraint:sobotLayoutEqualCenterX(0, _img, _successView)];
     
-    _titleLab = [[UILabel alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(_img.frame)+ SobotNumber(30), viewWidth, SobotNumber(28))];
+    _titleLab = [[UILabel alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(_img.frame)+ (30), viewWidth, (28))];
     _titleLab.text = SobotKitLocalString(@"提交成功");
     _titleLab.textAlignment = NSTextAlignmentCenter;
     _titleLab.font = SobotFontBold20;
     _titleLab.textColor = UIColorFromKitModeColor(SobotColorTextMain);
     [_successView addSubview:_titleLab];
-    [_successView addConstraint:sobotLayoutMarginTop(SobotNumber(30), _titleLab, _img)];
+    [_successView addConstraint:sobotLayoutMarginTop((30), _titleLab, _img)];
     [_successView addConstraint:sobotLayoutPaddingLeft(0, _titleLab, _successView)];
     [_successView addConstraint:sobotLayoutPaddingRight(0, _titleLab, _successView)];
-    [_successView addConstraint:sobotLayoutEqualHeight(SobotNumber(28), _titleLab, NSLayoutRelationEqual)];
+    [_successView addConstraint:sobotLayoutEqualHeight((28), _titleLab, NSLayoutRelationEqual)];
         
-    _tiplab = [[UILabel alloc]initWithFrame:CGRectMake(SobotNumber(45), CGRectGetMaxY(_titleLab.frame) + SobotNumber(10), viewWidth - SobotNumber(90), SobotNumber(40))];
+    _tiplab = [[UILabel alloc]initWithFrame:CGRectMake((45), CGRectGetMaxY(_titleLab.frame) + (10), viewWidth - (90), (40))];
     _tiplab.textAlignment = NSTextAlignmentCenter;
     _tiplab.font = SobotFont14;
     _tiplab.text = SobotKitLocalString(@"我们将会以链接的形式在会话中向你反馈工单处理状态");
     [_tiplab setNumberOfLines:2];
     _tiplab.textColor = UIColorFromKitModeColor(SobotColorTextSub);
     [_successView addSubview:_tiplab];
-    [_successView addConstraint:sobotLayoutMarginTop(SobotNumber(10), _tiplab, _titleLab)];
+    [_successView addConstraint:sobotLayoutMarginTop((10), _tiplab, _titleLab)];
     [_successView addConstraint:sobotLayoutPaddingLeft(0, _tiplab, _successView)];
     [_successView addConstraint:sobotLayoutPaddingRight(0, _tiplab,_successView)];
-    [_successView addConstraint:sobotLayoutEqualHeight(SobotNumber(40), _tiplab, NSLayoutRelationEqual)];
+    [_successView addConstraint:sobotLayoutEqualHeight((40), _tiplab, NSLayoutRelationEqual)];
         
     _comBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    _comBtn.frame = CGRectMake(SobotNumber(15), CGRectGetMaxY(_tiplab.frame) + SobotNumber(100), viewWidth - SobotNumber(30), SobotNumber(44)) ;
+    _comBtn.frame = CGRectMake((15), CGRectGetMaxY(_tiplab.frame) + (100), viewWidth - (30), (44)) ;
     if(isLandspace){
-        _comBtn.frame = CGRectMake(SobotNumber(15), CGRectGetMaxY(_tiplab.frame) + SobotNumber(10), viewWidth - SobotNumber(30), SobotNumber(44)) ;
+        _comBtn.frame = CGRectMake((15), CGRectGetMaxY(_tiplab.frame) + (10), viewWidth - (30), (44)) ;
     }
     [_comBtn setTitle:SobotKitLocalString(@"完成") forState:UIControlStateNormal];
     [_comBtn setTitle:SobotKitLocalString(@"完成") forState:UIControlStateSelected];
@@ -1212,28 +1225,28 @@
     _comBtn.layer.cornerRadius = 22.0f;
     _comBtn.titleLabel.font = SobotFont17;
     [_successView addSubview:_comBtn];
-    CGFloat comBtnT = SobotNumber(100);
+    CGFloat comBtnT = (100);
     if (isLandspace) {
-        comBtnT =SobotNumber(10);
+        comBtnT =(10);
     }
     self.comBtnMT = sobotLayoutMarginTop(comBtnT, _comBtn, _tiplab);
     [_successView addConstraint:self.comBtnMT];
-    [_successView addConstraint:sobotLayoutPaddingLeft(SobotNumber(15), _comBtn, _successView)];
-    [_successView addConstraint:sobotLayoutPaddingRight(SobotNumber(-15), _comBtn, _successView)];
-    [_successView addConstraint:sobotLayoutEqualHeight(SobotNumber(44), _comBtn, NSLayoutRelationEqual)];
+    [_successView addConstraint:sobotLayoutPaddingLeft((15), _comBtn, _successView)];
+    [_successView addConstraint:sobotLayoutPaddingRight((-15), _comBtn, _successView)];
+    [_successView addConstraint:sobotLayoutEqualHeight((44), _comBtn, NSLayoutRelationEqual)];
     
     _recordBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    _recordBtn.frame = CGRectMake(SobotNumber(30), CGRectGetMaxY(_comBtn.frame) + SobotNumber(20), viewWidth - SobotNumber(60), SobotNumber(30));
+    _recordBtn.frame = CGRectMake((30), CGRectGetMaxY(_comBtn.frame) + (20), viewWidth - (60), (30));
     [_recordBtn setTitle:SobotKitLocalString(@"前往留言记录") forState:UIControlStateNormal];
     [_recordBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitImgColor] forState:UIControlStateNormal];
     _recordBtn.tag = 3002;
     [_recordBtn addTarget:self action:@selector(completionBackAction:) forControlEvents:UIControlEventTouchUpInside];
     _recordBtn.titleLabel.font = SobotFont14;
     [_successView addSubview:_recordBtn];
-    [_successView addConstraint:sobotLayoutMarginTop(SobotNumber(20), _recordBtn, _comBtn)];
-    [_successView addConstraint:sobotLayoutEqualHeight(SobotNumber(30), _recordBtn, NSLayoutRelationEqual)];
-    [_successView addConstraint:sobotLayoutPaddingLeft(SobotNumber(30), _recordBtn, _successView)];
-    [_successView addConstraint:sobotLayoutPaddingRight(SobotNumber(-30), _recordBtn, _successView)];
+    [_successView addConstraint:sobotLayoutMarginTop((20), _recordBtn, _comBtn)];
+    [_successView addConstraint:sobotLayoutEqualHeight((30), _recordBtn, NSLayoutRelationEqual)];
+    [_successView addConstraint:sobotLayoutPaddingLeft((30), _recordBtn, _successView)];
+    [_successView addConstraint:sobotLayoutPaddingRight((-30), _recordBtn, _successView)];
 }
 
 -(void)removeAddLeaveMsgSuccessView{
@@ -1256,20 +1269,21 @@
     if (self.successView != nil) {
         [self.successView removeConstraint:self.imgPT];
         [self.successView removeConstraint:self.comBtnMT];
-        CGFloat imgT = SobotNumber(60);
+        CGFloat imgT = (60);
         if (isLandspace) {
-            imgT = SobotNumber(40);
+            imgT = (20);
         }
         self.imgPT = sobotLayoutPaddingTop(imgT, _img, _successView);
         [self.successView addConstraint:self.imgPT];
         
-        CGFloat comBtnT = SobotNumber(100);
+        CGFloat comBtnT = (100);
         if (isLandspace) {
-            comBtnT =SobotNumber(10);
+            comBtnT =(10);
         }
         self.comBtnMT = sobotLayoutMarginTop(comBtnT, _comBtn, _tiplab);
         [self.successView addConstraint:self.comBtnMT];
     }
+    self.commitBtnEW.constant = self.frame.size.width -40;
 }
 
 #pragma mark - 验证添加数据是否符合校验

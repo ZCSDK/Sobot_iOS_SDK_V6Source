@@ -215,7 +215,9 @@
     [_commitBtn setTitle:SobotKitLocalString(@"提交") forState:UIControlStateSelected];
     [_commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateNormal];
     [_commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateHighlighted];
-    [_commitBtn setBackgroundColor:[ZCUIKitTools zcgetRobotBtnBgColor]];
+    [_commitBtn setBackgroundColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
+    _commitBtn.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+    _commitBtn.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5);
     _commitBtn.frame = CGRectMake(15, th + 20, ScreenWidth- 30, 44);
     _commitBtn.tag = BUTTON_MORE;
     [_commitBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
@@ -314,9 +316,18 @@
          self.navigationController.navigationBar.translucent = NO;
         }
         self.title = SobotKitLocalString(@"留言消息");
-        [self.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:[ZCUIKitTools zcgetTitleFont],NSForegroundColorAttributeName:[ZCUIKitTools zcgetTopViewTextColor]}];
+        if (![[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"zh-"]
+            || !(sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"zh-"])){
+            [self.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:SobotFont12,NSForegroundColorAttributeName:[ZCUIKitTools zcgetTopViewTextColor]}];
+        }else{
+            [self.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:[ZCUIKitTools zcgetTitleFont],NSForegroundColorAttributeName:[ZCUIKitTools zcgetTopViewTextColor]}];
+        }
     }else{
         self.titleLabel.text = SobotKitLocalString(@"留言消息");
+        if (![[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"zh-"]
+            || !(sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"zh-"])){
+            self.titleLabel.font = SobotFont12;
+        }
     }
 }
 

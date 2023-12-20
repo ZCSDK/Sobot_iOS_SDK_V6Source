@@ -85,7 +85,7 @@
         
         [self.bgView addConstraint:sobotLayoutEqualHeight(20, self.lookMore, NSLayoutRelationEqual)];
         [self.bgView addConstraint:sobotLayoutPaddingLeft(0, self.lookMore, self.bgView)];
-        [self.bgView addConstraint:sobotLayoutMarginRight(0, self.lookMore, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutMarginRight(0, self.lookMore, self.iconView)];
         [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace, self.lookMore, self.lineView)];
         [self.bgView addConstraint:sobotLayoutPaddingBottom(-ZCChatCellItemSpace, self.lookMore, self.bgView)];
         
@@ -157,7 +157,7 @@
     _iconView = ({
         SobotImageView *iv = [[SobotImageView alloc] init];
         iv.layer.masksToBounds = YES;
-        iv.contentMode = UIViewContentModeScaleAspectFill;
+        iv.contentMode = UIViewContentModeScaleAspectFit;
         //设置点击事件
         iv.userInteractionEnabled=YES;
         [self.bgView addSubview:iv];

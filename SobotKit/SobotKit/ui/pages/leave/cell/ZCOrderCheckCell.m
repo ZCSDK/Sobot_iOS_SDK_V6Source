@@ -41,8 +41,10 @@
         [self.contentView addConstraint:sobotLayoutPaddingTop(0, iv, self.contentView)];
         [self.contentView addConstraint:sobotLayoutPaddingLeft(0, iv, self.contentView)];
         [self.contentView addConstraint:sobotLayoutPaddingRight(0, iv, self.contentView)];
-        [self.contentView addConstraint:sobotLayoutPaddingBottom(0, iv, self.contentView)];
-        [self.contentView addConstraint:sobotLayoutEqualHeight(54, iv, NSLayoutRelationEqual)];
+        NSLayoutConstraint *bgPB = sobotLayoutPaddingBottom(0, iv, self.contentView);
+        bgPB.priority = UILayoutPriorityFittingSizeLevel;
+        [self.contentView addConstraint:bgPB];
+        [self.contentView addConstraint:sobotLayoutEqualHeight(55, iv, NSLayoutRelationEqual)];
         iv;
     });
     
@@ -64,7 +66,8 @@
        UIImageView *iv = [[UIImageView alloc]init];
         iv.image = [SobotUITools getSysImageByName:@"zcicon_arrow_right_record"];
         [self.contentView addSubview:iv];
-        [self.contentView addConstraint:sobotLayoutPaddingTop(54/2-12/2, iv, self.contentView)];
+//        [self.contentView addConstraint:sobotLayoutPaddingTop(54/2-12/2, iv, self.contentView)];
+        [self.contentView addConstraint:sobotLayoutEqualCenterY(0, iv, self.contentView)];
         [self.contentView addConstraint:sobotLayoutPaddingRight(-25, iv, self.contentView)];
         [self.contentView addConstraint:sobotLayoutEqualHeight(12, iv, NSLayoutRelationEqual)];
         [self.contentView addConstraint:sobotLayoutEqualWidth(7, iv, NSLayoutRelationEqual)];
@@ -108,15 +111,11 @@
 
 -(BOOL)checkLabelState:(BOOL) showSmall{
     BOOL isSmall = [super checkLabelState:showSmall text:@""];
-    if (self.labelContentPT) {
-        [self.contentView removeConstraint:self.labelContentPT];
-    }
     if(!isSmall){
-        self.labelContentPT = sobotLayoutPaddingTop(17, self.labelContent, self.contentView);
+        self.labelContentPT.constant = 17;
     }else{
-        self.labelContentPT = sobotLayoutPaddingTop(29, self.labelContent, self.contentView);
+        self.labelContentPT.constant = 29;
     }
-    [self.contentView addConstraint:self.labelContentPT];
     return isSmall;
 }
 

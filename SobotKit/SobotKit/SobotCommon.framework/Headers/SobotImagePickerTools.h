@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SobotImagePickerTools : NSObject
 
 /** 系统相册相机图片 */
-@property (nonatomic,strong) UIImagePickerController *zc_imagepicker;
+@property (nonatomic,strong) UIImagePickerController * _Nullable zc_imagepicker;
 
 +(SobotImagePickerTools *) shareImagePickerTools;
 
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  */
 -(void)getPhotoByType:(SobotImagePickerType) type onlyPhoto:(BOOL) onlyPicture  byUIImagePickerController:(UIViewController *)by_controller block:(nonnull DidFinishPickingMediaBlock)finshBlock;
--(void)getPhotoByType:(SobotImagePickerType) type onlyPhoto:(BOOL) onlyPicture  byUIImagePickerController:(UIViewController *)by_controller start:(void(^)(UIImagePickerController *vc)) pickerBlock block:(nonnull DidFinishPickingMediaBlock)finshBlock;
+-(void)getPhotoByType:(SobotImagePickerType) type onlyPhoto:(BOOL) onlyPicture  byUIImagePickerController:(UIViewController *)by_controller start:(void(^_Nullable)(UIImagePickerController *vc)) pickerBlock block:(nonnull DidFinishPickingMediaBlock)finshBlock;
 
 @end
 

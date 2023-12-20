@@ -124,6 +124,10 @@
 
 
 +(NSString *)getSysTipsText:(SobotChatMessage *) model{
+    if(model.msgType == SobotMessageActionTypeRevertMsg && model.isHistory){
+        model.tipsMessage = [NSString stringWithFormat:@"%@%@%@",SobotKitLocalString(@"客服"),sobotConvertToString(model.senderName),SobotKitLocalString(@"撤回了一条消息")];
+    }
+    
     // 处理HTML标签
     NSString  *text = [SobotHtmlCore filterHTMLTag:sobotConvertToString(model.tipsMessage)] ;
     while ([sobotConvertToString(text) hasPrefix:@"\n"]) {
@@ -144,7 +148,12 @@
         // 留言标签的处理
         text = [text stringByReplacingOccurrencesOfString:SobotKitLocalString(@"留言") withString:[NSString stringWithFormat:@"<a href='sobot://leavemessage'>%@</a>",SobotKitLocalString(@"留言")]];
     }
-    
+    if ([sobotConvertToString(text) hasSuffix:SobotKitLocalString(@"重新填写信息")]) {
+        if (!model.isHistory) {
+            // 留言标签的处理
+            text = [text stringByReplacingOccurrencesOfString:SobotKitLocalString(@"重新填写信息") withString:[NSString stringWithFormat:@"<a href='sobot://resendleavemessage'>%@</a>",SobotKitLocalString(@"重新填写信息")]];
+        }
+    }
     if ([sobotConvertToString(text) hasSuffix:SobotKitLocalString(@"重建会话")]) {
         // 如果有重建会话的时候，点击重新开始会话
         text = [text stringByReplacingOccurrencesOfString:SobotKitLocalString(@"重建会话") withString:[NSString stringWithFormat:@"<a href='sobot://newsessionchat'>%@</a>",SobotKitLocalString(@"重建会话")]];
@@ -154,6 +163,10 @@
         if (!model.isHistory) {
             // 转人工客服处理
             text = [text stringByReplacingOccurrencesOfString:SobotKitLocalString(@"转人工服务") withString:[NSString stringWithFormat:@"<a href='sobot://insterTrunMsg'>%@</a>",SobotKitLocalString(@"转人工服务")]];
+            // 如果是英文 需要在后面追加 here.
+            if ([[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"en"] || (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"en"])) {
+                text = [text stringByAppendingString:@" here."];
+            }
         }
     }
     

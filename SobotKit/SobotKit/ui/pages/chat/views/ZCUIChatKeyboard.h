@@ -10,6 +10,7 @@
 #import <SobotChatClient/SobotChatClient.h>
 #import <SobotCommon/SobotCommon.h>
 #import "ZCUIPlaceHolderTextView.h"
+#import "ZCUIRecordView.h"
 
 #define BottomHeight 59
 
@@ -43,6 +44,8 @@ typedef NS_ENUM(NSUInteger,ZCKeyboardViewStatus){
 @property (nonatomic,strong) UIButton * _Nullable btnVoice;
 @property (nonatomic,strong) UIButton * _Nullable btnFace;
 
+@property (nonatomic,strong) ZCUIRecordView *zc_recordView;
+
 /**
  *  初始化聊天页面中的底部输入框区域UI
  *
@@ -71,6 +74,11 @@ typedef NS_ENUM(NSUInteger,ZCKeyboardViewStatus){
 
 // 是否正则录音
 -(BOOL) isKeyboardRecord;
+
+
+// 显示引用消息
+-(void)showReferenceMessage:(SobotChatMessage *) rModel;
+-(void)hideReferenceView;
 
 @end
 

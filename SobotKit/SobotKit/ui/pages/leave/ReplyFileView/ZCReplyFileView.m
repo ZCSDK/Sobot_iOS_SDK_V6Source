@@ -31,7 +31,7 @@
 - (void)creatView {
     self.backgroundColor = UIColorFromKitModeColor(SobotColorBgSub2Dark1);
     NSString *fileType = sobotConvertToString(self.modelDic[@"fileType"]);
-    NSString *fileUrlStr = sobotConvertToString(self.modelDic[@"fileUrl"]);
+    NSString *fileUrlStr = sobotUrlEncodedString(sobotConvertToString(self.modelDic[@"fileUrl"]));
     NSString *fileName = sobotConvertToString(self.modelDic[@"fileName"]);
     NSString *cellIndexStr = sobotConvertToString(self.modelDic[@"cellIndex"]);
     UIColor *titleColor;
@@ -73,6 +73,7 @@
     }
     
     if ([[fileType lowercaseString] isEqualToString:@"jpg"]
+        || [[fileType lowercaseString] isEqualToString:@"jpeg"]
         || [[fileType lowercaseString] isEqualToString:@"png"]
         ||[[fileType lowercaseString] isEqualToString:@"gif"]) {
         SobotImageView *imgView = [[SobotImageView alloc]initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height)];

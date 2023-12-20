@@ -72,6 +72,7 @@
 //处理渐变色相关
 #pragma mark - 获取渐变后的颜色
 +(UIColor*)gradientColorWithSize:(CGSize)size colorArr:(NSMutableArray*)colorArr;
++(UIColor*)gradientColorWithSize:(CGSize)size colorArr:(NSMutableArray*)colorArr startPoint:(CGPoint)startPoint endPoint:(CGPoint)endPoint;
 #pragma mark - 颜色字符串转换成uicolor
 +(UIColor *)colorWithHexString:(NSString *)hexString alpha:(CGFloat)alpha;
 
