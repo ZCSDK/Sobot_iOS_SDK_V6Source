@@ -173,7 +173,7 @@
     
     NSMutableDictionary * detailDict = message.richModel.richContent.interfaceRetList.firstObject; // 多个
     if(sobotConvertToString(detailDict[@"thumbnail"]).length > 0){
-        [_posterView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(detailDict[@"thumbnail"])] placeholer:SobotKitGetImage(@"zcicon_default_goods") showActivityIndicatorView:YES];
+        [_posterView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(detailDict[@"thumbnail"])] placeholer:SobotKitGetImage(@"zcicon_default_goods") showActivityIndicatorView:NO];
       
     }
     [_labTitleDesc setText:sobotConvertToString(detailDict[@"title"])];

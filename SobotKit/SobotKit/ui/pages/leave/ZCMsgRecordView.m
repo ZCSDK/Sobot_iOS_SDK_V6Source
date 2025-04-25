@@ -59,14 +59,35 @@
     [self addConstraint:self.listB];
     [self addConstraint:self.listL];
     [self addConstraint:self.listR];
-    _listView.backgroundColor = [UIColor clearColor];
+//    _listView.backgroundColor = [UIColor clearColor];
+    _listView.backgroundColor = UIColorFromKitModeColor(SobotColorBgMainDark1);
+//    if (!Sobot_iPhoneX) {
+//        // 添加底部区尾
+//        UIView * bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, NavBarHeight)];
+//        bgView.backgroundColor = UIColor.clearColor;
+//        _listView.tableFooterView = bgView;
+//    }
     // 加载数据
+    [self getOrerStatusList];
     [self loadData];
 }
 
 -(ZCLibConfig *)getCurConfig{
     return [[ZCPlatformTools sharedInstance] getPlatformInfo].config;
 }
+
+-(void)getOrerStatusList{
+    [ZCLibServer getOrderStatusList:[self getCurConfig] start:^(NSString * _Nonnull urlString) {
+        
+    } success:^(NSDictionary * _Nonnull dict, ZCNetWorkCode sendCode) {
+        
+    } failed:^(NSString * _Nonnull errorMessage, ZCNetWorkCode errorCode) {
+        
+    } finish:^(NSString * _Nonnull jsonString) {
+        
+    }];
+}
+
 
 -(void)loadData{
     __weak ZCMsgRecordView *weakSelf = self;
@@ -116,7 +137,9 @@
         return cell;
     }
     ZCRecordListModel * model = _listArray[indexPath.row];
-    [cell initWithDict:model with:self.listView.frame.size.width];
+    [cell initWithDict:model with:self.listView.frame.size.width index:indexPath.row];
+    // 去掉选中时的背景色
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
 

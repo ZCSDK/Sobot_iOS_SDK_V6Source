@@ -105,6 +105,10 @@
             }else{
                 opportunity = @"0";
             }
+            // 未发送过消息，且当前支持0
+            if(![ZCUICore getUICore].isSendToUser && ![ZCUICore getUICore].isSendToRobot && [[self getZCIMConfig].menuSessionPhase containsObject:@0]){
+                opportunity = @"0";
+            }
         }
         
         if(opportunity.length >0){
@@ -133,9 +137,19 @@
                             }
                         }else{
                             if ([ZCUICore getUICore].kitInfo.cusMenuArray.count > 0 ) {
-                                for (NSDictionary * Dic in [ZCUICore getUICore].kitInfo.cusMenuArray) {
-                                    ZCLibCusMenu * model = [[ZCLibCusMenu alloc]initWithMyDict:Dic];
-                                    [self->_listArray addObject:model];
+                                for (id dic in [ZCUICore getUICore].kitInfo.cusMenuArray) {
+                                    ZCLibCusMenu * model = nil;
+                                    if([dic isKindOfClass:[ZCLibCusMenu class]]){
+                                        model = dic;
+                                    }else if([dic isKindOfClass:[NSDictionary class]]){
+                                        model = [[ZCLibCusMenu alloc]initWithMyDict:dic];
+                                        model.menuName = model.title;
+                                        model.labelLink = model.url;
+                                        model.menuType = ZCCusMenuTypeOpenUrl;
+                                    }
+                                    if(model!=nil){
+                                        [self->_listArray addObject:model];
+                                    }
                                 }
                             }else{
                                 [self getZCIMConfig].quickEntryFlag = 0;
@@ -155,11 +169,26 @@
                 safeView.isloading = NO;
             }];
         }else{
+            // 从showViews中移到此处，否则会重复添加
+            if ([ZCUICore getUICore].kitInfo.cusMenuArray.count > 0 ) {
+                for (id dic in [ZCUICore getUICore].kitInfo.cusMenuArray) {
+                    ZCLibCusMenu * model = nil;
+                    if([dic isKindOfClass:[ZCLibCusMenu class]]){
+                        model = dic;
+                    }else if([dic isKindOfClass:[NSDictionary class]]){
+                        model = [[ZCLibCusMenu alloc]initWithMyDict:dic];
+                        model.menuName = model.title;
+                        model.labelLink = model.url;
+                        model.menuType = ZCCusMenuTypeOpenUrl;
+                    }
+                    if(model!=nil){
+                        [self->_listArray addObject:model];
+                    }
+                }
+            }
+            
             [self showViews];
         }
-//    }else{
-//        [self showViews];
-//    }
 }
 
 // 新会话键盘显示的时候清理掉数据
@@ -170,17 +199,6 @@
 }
 
 -(void)showViews{
-    if ([ZCUICore getUICore].kitInfo.cusMenuArray.count > 0 ) {
-        for (NSDictionary * Dic in [ZCUICore getUICore].kitInfo.cusMenuArray) {
-            ZCLibCusMenu * model = [[ZCLibCusMenu alloc]initWithMyDict:Dic];
-            model.menuName = model.title;
-            model.labelLink = model.url;
-            model.menuType = ZCCusMenuTypeOpenUrl;
-            [self->_listArray addObject:model];
-            [self->_listArray addObject:model];
-        }
-    }
-    
     if(_listArray.count == 0){
         _layoutHeight.constant = 0;
         [self layoutIfNeeded];
@@ -192,9 +210,9 @@
     }
     
     
-    UIButton *preButton;
+    UIView *preButton;
     for (int i = 0; i< _listArray.count; i++) {
-        UIButton * itemBtn = [self addItemView:_listArray[i]];
+        UIView * itemBtn = [self addItemIconView:_listArray[i]];
         [_scrollView addSubview:itemBtn];
         [_scrollView addConstraint:sobotLayoutEqualHeight(30, itemBtn, NSLayoutRelationEqual)];
         [_scrollView addConstraint:sobotLayoutEqualCenterY(0, itemBtn, _scrollView)];
@@ -208,7 +226,11 @@
         
         itemBtn.userInteractionEnabled = YES;
         itemBtn.tag = i;
-        [itemBtn addTarget:self action:@selector(itemClick:) forControlEvents:UIControlEventTouchUpInside];
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(itemTapClick:)];
+        tap.numberOfTapsRequired = 1;
+        [itemBtn addGestureRecognizer:tap];
+        
+//        [itemBtn addTarget:self action:@selector(itemClick:) forControlEvents:UIControlEventTouchUpInside];
         itemBtn.layer.borderWidth = 1;
 //        itemBtn.layer.borderColor = UIColorFromRGB(TextUnPlaceHolderColor).CGColor;
         
@@ -217,15 +239,19 @@
         [preButton layoutIfNeeded];
         [_scrollView addConstraint:sobotLayoutPaddingRight(-10, preButton, _scrollView)];
     }
+    
+
+    [ZCUIKitTools setViewRTLtransForm:_scrollView];
+    
     // 刷新高度，列表的内容偏移量也需要刷新
     if (_fastMenuRefreshDataBlock) {
         _fastMenuRefreshDataBlock(_layoutHeight.constant);
     }
 }
 
--(void)itemClick:(UIButton *)sender{
-//    UIButton * btn = (UIButton*)sender;
-//    NSLog(@"%@",btn.titleLabel.text);
+-(void)itemTapClick:(UITapGestureRecognizer *) tap{
+    UIView *sender = tap.view;
+    
     if(_listArray.count == 0 || _listArray == nil){
         // 解决多次点击转人工按钮异常问题处理
         return;
@@ -245,38 +271,172 @@
     }
 }
 
--(UIButton*)addItemView:(ZCLibCusMenu *)model{
-    UIButton *itemView = [[UIButton alloc] init];
-    [_scrollView addSubview:itemView];
-    itemView.titleLabel.numberOfLines = 1;
-    itemView.titleLabel.font = SobotFont12;
-//    NSLog(@"%@",model.title);
-    [itemView setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];;
-    [itemView setContentEdgeInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
-    [itemView setImage:SobotKitGetImage(model.imgName) forState:0];
-    if(sobotConvertToString(model.imgName).length > 0){
-        
-        [itemView setTitle:[NSString stringWithFormat:@"  %@", SobotKitLocalString(sobotConvertToString(model.menuName))] forState:UIControlStateNormal];
-    }else{
-        
-        [itemView setTitle:SobotKitLocalString(sobotConvertToString(model.menuName)) forState:UIControlStateNormal];
+-(NSString *)getMenuUrl:(NSString *) menuUrl paramFlag:(NSString *)paramFlag{
+    menuUrl = sobotConvertToString(menuUrl);
+    // 未开启，直接返回url
+    if([sobotConvertToString(paramFlag) intValue] == 0){
+        return menuUrl;
     }
-//    [itemView setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 5)];
-//    [itemView setTitleEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
-    itemView.titleLabel.textAlignment = NSTextAlignmentCenter;
+    // 用户自定义字段
+    NSString *params = @"";
+    ZCLibInitInfo *initInfo = [ZCLibClient getZCLibClient].libInitInfo;
+    /** 解析外部传入的自定义 */
+    if (initInfo.params != nil&& [initInfo.params isKindOfClass:[NSDictionary class]]) {
+        @try {
+            NSMutableDictionary * dict = [NSMutableDictionary dictionaryWithDictionary:initInfo.params];
+            
+            // 用户昵称，电话，邮箱 头像  来源页  来源页标题
+            if (dict[@"email"] !=nil) {
+                initInfo.user_emails = dict[@"email"];
+                [dict removeObjectForKey:@"email"];
+            }
+            
+            if (dict[@"uname"] !=nil) {
+                initInfo.user_nick = dict[@"uname"];
+                [dict removeObjectForKey:@"uname"];
+            }
+            
+            if (dict[@"tel"] !=nil) {
+                initInfo.user_tels = dict[@"tel"];
+                [dict removeObjectForKey:@"tel"];
+            }
+            
+            if (dict[@"face"] != nil) {
+                initInfo.face = dict[@"face"];
+                [dict removeObjectForKey:@"face"];
+            }
+            
+            if (dict[@"visitUrl"] != nil) {
+                initInfo.visit_url = dict[@"visitUrl"];
+                [dict removeObjectForKey:@"visitUrl"];
+            }
+            
+            if (dict[@"visitTitle"] != nil) {
+                initInfo.visit_title = dict[@"visitTitle"];
+                [dict removeObjectForKey:@"visitTitle"];
+            }
+            
+            if (dict[@"realname"] !=nil) {
+                initInfo.user_name = dict[@"realname"];
+                [dict removeObjectForKey:@"realname"];
+            }
+            
+            if(dict != nil){
+                params = [SobotCache dataTOjsonString:dict];
+            }
+            
+            
+        } @catch (NSException *exception) {
+            
+        } @finally {
+            
+        }
+    }
+    
+    NSString *multi_params = @""; // 2.7.5新增
+    @try{
+        if (initInfo.multi_params != nil && [initInfo.multi_params isKindOfClass:[NSDictionary class]]) {
+            multi_params = [SobotCache dataTOjsonString:initInfo.multi_params];
+        }
+    } @catch (NSException *exception) {
+        
+    } @finally {
+        
+    }
+    
+    if([menuUrl rangeOfString:@"?"].length>0){
+        menuUrl=[NSString stringWithFormat:@"%@&partnerid=%@&multiparams=%@&params=%@",menuUrl,sobotConvertToString(initInfo.partnerid),sobotUrlEncodedString(multi_params),sobotUrlEncodedString(params)];
+    }else{
+        menuUrl=[NSString stringWithFormat:@"%@?partnerid=%@&multiparams=%@&params=%@",menuUrl,sobotConvertToString(initInfo.partnerid),sobotUrlEncodedString(multi_params),sobotUrlEncodedString(params)];
+    }
+    return menuUrl;
+}
+
+
+-(UIView*)addItemIconView:(ZCLibCusMenu *)model{
+    UIView *itemView = [[UIView alloc] init];
     [itemView setBackgroundColor:UIColor.clearColor];
-    [itemView setTitleColor:UIColorFromModeColor(SobotColorTextMain) forState:UIControlStateNormal];
-    [itemView setTitleColor:UIColorFromModeColor(SobotColorTextMain) forState:UIControlStateHighlighted];
-    itemView.titleLabel.lineBreakMode = NSLineBreakByClipping;
-
-
-
     itemView.layer.masksToBounds = YES;
     itemView.layer.cornerRadius = 15.0f;
     itemView.layer.borderWidth = 1;
     itemView.layer.borderColor = [ZCUIKitTools zcgetCommentButtonLineColor].CGColor;
-    [itemView sizeToFit];
+    [_scrollView addSubview:itemView];
+    
+    SobotImageView *img = [[SobotImageView alloc]init];
+//    img.layer.cornerRadius = 4.0f;
+//    img.layer.masksToBounds = YES;
+    [img setContentMode:UIViewContentModeScaleAspectFit];
+    [img setBackgroundColor:UIColor.clearColor];
+    [itemView addSubview:img];
+    
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.numberOfLines = 1;
+    titleLabel.font = SobotFont12;
+    titleLabel.textColor = UIColorFromModeColor(SobotColorTextMain);
+    titleLabel.lineBreakMode = NSLineBreakByClipping;
+    titleLabel.text = SobotKitLocalString(sobotConvertToString(model.menuName));
+    [itemView addSubview:titleLabel];
+    
+    [itemView addConstraint:sobotLayoutPaddingLeft(12, img, itemView)];
+    [itemView addConstraint:sobotLayoutPaddingTop(8, img, itemView)];
+    [itemView addConstraint:sobotLayoutPaddingBottom(-8, img, itemView)];
+    
+    [itemView addConstraint:sobotLayoutPaddingRight(-12, titleLabel, itemView)];
+    [itemView addConstraint:sobotLayoutEqualCenterY(0, titleLabel, itemView)];
+    
+    NSString *imageName = @"";
+    if(model.exhibit == 1){
+        if(sobotConvertToString(model.menuPicUrl).length > 0){
+            imageName = sobotConvertToString(model.menuPicUrl);
+        }else if(sobotConvertToString(model.iconMaterial).length > 0){
+            imageName = sobotConvertToString(model.iconMaterial);
+        }
+    }
+    
+    if(sobotConvertToString(imageName).length > 0){
+        [itemView addConstraint:sobotLayoutEqualWidth(14, img, NSLayoutRelationEqual)];
+        [itemView addConstraint:sobotLayoutMarginLeft(3, titleLabel, img)];
+        
+        // 如果自定义menuPicUrl图片么有，使用默认图片
+        NSString *picUrl = sobotConvertToString(model.menuPicUrl);
+        if(picUrl.length == 0){
+            picUrl = sobotConvertToString(model.iconMaterial);
+        }
+        [img loadWithURL:[NSURL URLWithString:picUrl] placeholer:SobotKitGetImage(model.imgName) showActivityIndicatorView:NO completionBlock:^(UIImage *image, NSURL *url, NSError *error) {
+            if(image){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    img.image = [self grayImage:image];
+                });
+            }
+        }];
+    }else{
+        // 处理第一个是转人工的特殊情况
+        if ([sobotConvertToString(model.imgName) isEqualToString:@"icon_fast_transfer"]) {
+            [itemView addConstraint:sobotLayoutEqualWidth(14, img, NSLayoutRelationEqual)];
+            [itemView addConstraint:sobotLayoutMarginLeft(3, titleLabel, img)];
+            [img setImage:SobotKitGetImage(model.imgName)];
+        }
+        
+        [itemView addConstraint:sobotLayoutEqualWidth(0, img, NSLayoutRelationEqual)];
+        [itemView addConstraint:sobotLayoutMarginLeft(0, titleLabel, img)];
+        
+    }
     return itemView;
 }
 
+-(UIImage *)grayImage:(UIImage *) image{
+    if([SobotUITools getSobotThemeMode] != SobotThemeMode_Dark){
+        return image;
+    }
+    if(image.size.width == 0 || image.size.height == 0){
+        return image;
+    }
+    UIGraphicsBeginImageContextWithOptions(image.size, NO, [UIScreen mainScreen].scale);
+    [image drawInRect:CGRectMake(0, 0, image.size.width, image.size.height)
+                   blendMode:kCGBlendModeDarken
+                       alpha:1.0];
+    UIImage *highlighted = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return highlighted;
+}
 @end

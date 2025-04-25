@@ -180,14 +180,14 @@ typedef void(^TurnServiceBlock)(SobotChatMessage *_Nullable model, NSInteger tur
 -(void)postConnectStatus:(ZCServerConnectStatus ) status msg:(NSString *_Nullable) result obj:(id _Nullable) obj;
 
 
--(NSString *)getLastMessage;
+-(NSString *_Nonnull)getLastMessage;
 
-+(NSString *) readLogFileDateString:(NSString *) dateString;
++(NSString *_Nonnull) readLogFileDateString:(NSString *_Nullable) dateString;
 
 
 /// 当前正在使用的语言
 /// 不能获取default_language配置，次配置会在实际使用失败时生效
-+(NSString *)getCurUseLanguagePreHeader;
++(NSString *_Nonnull)getCurUseLanguagePreHeader;
 
 /**
  获取未读消息数
@@ -199,8 +199,8 @@ typedef void(^TurnServiceBlock)(SobotChatMessage *_Nullable model, NSInteger tur
 /**
  清空用户下的所有未读消息(本地清空)
 
- @param userId 接入的用户ID
+ @param partnerid 接入的用户ID
  */
--(void) clearUnReadNumber:(NSString *) partnerid;
+-(void) clearUnReadNumber:(NSString *_Nullable) partnerid;
 
 @end

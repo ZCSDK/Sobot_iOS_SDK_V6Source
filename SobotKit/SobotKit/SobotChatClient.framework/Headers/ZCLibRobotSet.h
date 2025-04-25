@@ -15,6 +15,11 @@
  **/
 @interface ZCLibRobotSet : NSObject
 
+// 是否开启机器人评价
+@property (nonatomic,assign) BOOL    commentFlag;
+// 机器人评价模板
+@property (nonatomic,copy) NSString  *templateId;
+
 @property (nonatomic,copy) NSString  *robotFlag;
 @property (nonatomic,copy) NSString  *robotAlias;
 

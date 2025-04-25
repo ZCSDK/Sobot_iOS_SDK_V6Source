@@ -47,5 +47,6 @@ typedef NS_ENUM(NSInteger,EmojiBoardActionType) {
 
 
 -(void) refreshItemsView:(CGFloat) emojiHeight;
+-(void) addItemsViewWithHeight:(CGFloat)height;
 
 @end

@@ -11,7 +11,7 @@
 "暂时无法转接人工客服" = "Tạm thời không thể kết nối với chăm sóc khách hàng";
 "暂时无法评价" = "Tạm thời không thể bình luận";
 "网络错误，请检查网络后重试" = "Mạng lỗi, hãy kiểm tra lại mạng rồi thử lại";
-"转人工" = "Chuyển sang nhân công";
+"转人工" = "Chuyển sang hướng dẫn sử dụng";
 "时间" = "Thời gian";
 "日期" = "Ngày tháng";
 "标题" = "Tiêu đề";
@@ -48,7 +48,7 @@
 "您收到了一条新消息" = "Bạn đã nhận được 1 tin nhắn";
 "评分" = "Điểm số";
 "评语" = "Lời đánh giá";
-"是否解决了您的问题？" = "Có giải quyết được vấn đề của bạn không?";
+"是否解决了您的问题？" = "có giải quyết được vấn đề của bạn không?";
 "受理中" = "Đang xử lý";
 "问题分类" = "Loại câu hỏi";
 "问题详情" = "Chi tiết câu hỏi";
@@ -137,10 +137,10 @@
 "删除" = "Xóa";
 "数据错误" = "Dữ liệu lỗi";
 "客服" = "Chăm sóc khách hàng";
-"复制成功！" = "Sao chép thành công";
+"复制成功" = "Sao chép thành công";
 "复制" = "Sao chép";
 "已创建" = "Đã tạo";
-"倒计时:" = "Đếm ngược:";
+"倒计时" = "Đếm ngược";
 "消息中心" = "Trung tâm thông tin";
 "未连接" = "Chưa kết nối";
 "连接中..." = "Đang kết nối";
@@ -200,15 +200,95 @@
 "自定义字段" = "Trường tùy chỉnh";
 "非常不满意" = "Rất thất vọng";
 "未解决问题？点击" = "Không giải quyết được vấn đề của bạn?";
-"转人工服务" = "Dịch vụ con người";
+"转人工服务" = "Dịch vụ con người ";
 "展开消息" = "Mở rộng tin nhắn";
 "继续发送" = "Tiếp tục gửi";
 "拒绝" = "Từ chối";
 "您已同意发送个人敏感信息，本次授权有效期24小时" = "Bạn đã đồng ý gởi thông tin nhạy cảm cá nhân. Giấy phép này hợp lệ cả ngày.";
 "您已拒绝发送此消息" = "Bạn đã từ chối gửi tin nhắn này";
 "附件" = "Chung";
+"保存成功" = "đã lưu thành công";
+"保存失败" = "Lưu thất bại";
+
+
 "填写信息" = "Điền thông tin vào";
 "排队自动断开结束会话" = "Kết thúc phiên chạy sau khi xếp hàng tự động ngắt";
-"小程序" = "Name";
+"小程序" = "Tiểu dụng";
 "小程序只能通过微信打开" = "Táo chỉ có thể mở qua wechat";
 "解析中..." = "Đức";
+"转换失败" = "Chuyển đổi thất bại";
+"转换完成" = "Hoàn thành chuyển đổi";
+"订单号" = "số thứ tự";
+"交易状态"="trạng thái giao dịch";
+"创建时间"="thời gian sáng tạo";
+"展开更多" = "Mở rộng thêm";
+"共" = "Tổng cộng";
+"已读"="Đã đọc";
+"未读"="Chưa đọc";
+"我"="Tôi";
+"机器人"="Người máy";
+"链接" = "liên kết";
+"文章" = "bài viết";
+"引用" = "Trích dẫn";
+"已选"="Đã chọn";
+"搜索"="Tìm kiếm";
+"搜索全部省"="Tìm tất cả Province";
+"搜索全部市"="Tìm tất cả thành phố";
+"搜索全部县（区）"="Tìm kiếm tất cả các quận (quận)";
+"搜索全部街道"="Tìm tất cả đường phố";
+"无结果"="không có kết quả";
+"请选择是否解决了您的问题" = "Vui lòng chọn nếu vấn đề của bạn được giải quyết";
+"换一批" = "Đổi tổ";
+
+//
+/**公共组件翻译*/
+"选择时区" = "Chọn múi giờ";
+"请选择时区" = "Vui lòng chọn múi giờ";
+"暂无选项内容" = "Tạm thời không có nội dung tùy chọn";
+"时区"="Múi giờ";
+"年"="Năm";
+"月"="Tháng";
+"日"="Ngày";
+
+"区号"="Mã vùng";
+
+
+"语言已切换为“xxx”" = "Ngôn ngữ đã được chuyển sang \"xxx\"";
+"选择语言" = "Chọn ngôn ngữ";
+"请选择您要使用的聊天语言：" = "Vui lòng chọn ngôn ngữ bạn muốn trò chuyện:";
+"更多语言" = "Thêm ngôn ngữ";
+
+
+
+"顶" = "trên";
+"踩" = "bước lên";
+
+"满意" = "thỏa mãn";
+"不满意" = "Không hài lòng";
+
+"回复了您" = "Đã trả lời bạn";
+"您的回复" = "câu trả lời của bạn";
+
+"上传附件" = "Tải lên tệp đính kèm";
+"展开全部" = "Mở rộng tất cả";
+"收起" = "Gấp lại";
+"松开 发送" = "Thả để gửi";
+"松开 取消" = "Thả để hủy";
+"松开发送，上滑取消" = "Thả để gửi, vuốt lên để hủy";
+"暂无回复" = "Không trả lời";
+"请输入" = "Vui lòng nhập";
+"最多上传" = "Tải lên tối đa";
+"个，" = ",";
+"大小不超过" = "kích thước không vượt quá";
+"已达上限 15 个" = "Đã đạt giới hạn 15";
+"知道了" = "Đã ghi nhận";
+"已拒绝" = "Đã từ chối";
+
+
+"请选择" = "Vui lòng chọn";
+"暂无客服在线，点击进行留言。" = "Không có đại lý trực tuyến. Nhấp để gửi";
+"工单处理状态更新后将在会话中提醒您" = "Bạn sẽ được thông báo trong cuộc trò chuyện sau khi trạng thái xử lý vé được cập nhật";
+
+"商品数" = "Số lượng";
+"更多信息" = "Thông tin thêm";
+"查看更多" = "Xem thêm";

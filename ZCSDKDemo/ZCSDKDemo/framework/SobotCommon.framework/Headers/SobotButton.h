@@ -12,6 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SobotButton : UIButton
 
+// 如果需要自动折行，设置YES
+@property(nonatomic,assign) BOOL autoHeight;
+
 // 扩展参数
 @property(nonatomic,strong) id obj;
 

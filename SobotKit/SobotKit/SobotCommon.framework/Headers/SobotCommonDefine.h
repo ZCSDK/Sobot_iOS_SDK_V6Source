@@ -28,8 +28,16 @@
 
 //#import <SobotUtils_private/SobotUtils.h>
 //#import <SobotUtils_private/SobotLocaliable.h>
-//// 多语言支持
+
+// 多语言支持    这里需要注意 App使用下面的获取方式App有自己的组件图片资源包文件  SDK使用传入的
 #define SobotLocalString(key) [[SobotLocaliable shareSobotLocaliable] sobotGetLocalString:key]
+#define SobotIsRTL [[SobotLocaliable shareSobotLocaliable] sobotCheckRTL]
+
+// 此方法可以废弃，默认取不到资源都会执行SobotCommon
+//#define SobotLocalString(key) [[SobotLocaliable shareSobotLocaliable] sobotGetLocalString:key bundleName:@"SobotCommon"]
+
+// 资源
+#define SobotGetImage(imageName) [SobotUITools getSysImageByName:imageName]
 
 #ifndef SobotCommonDefine_h
 #define SobotCommonDefine_h
@@ -44,7 +52,7 @@
 
 
 // 是否为竖屏
-#define Sobot_IsPortrait  ([[UIApplication sharedApplication] statusBarOrientation] == UIDeviceOrientationPortrait || [[UIApplication sharedApplication] statusBarOrientation] == UIDeviceOrientationPortraitUpsideDown)
+#define Sobot_IsPortrait  [SobotUITools sobotIsPortrait]
 
 
 // 格式化转换(int转String)
@@ -78,7 +86,7 @@
 // 状态栏的高度
 #define StatusBarHeight                     (Sobot_iPhoneX ? [[UIApplication sharedApplication] statusBarFrame].size.height : 20.0)
 // 导航栏的高度
-#define isLandspace     ([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight || [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft)
+#define isLandspace     !Sobot_IsPortrait
 #define NavLandspaceBarHeight               ([UIApplication sharedApplication].statusBarHidden?32.0:64.0)
 
 //return self.navigationController.navigationBar.frame.size.height+[[UIApplication sharedApplication] statusBarFrame].size.height;

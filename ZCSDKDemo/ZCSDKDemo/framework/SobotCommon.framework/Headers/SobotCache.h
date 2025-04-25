@@ -8,12 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "SobotCacheEntity.h"
+#import <SobotCommon/SobotCacheEntity.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 
 @interface SobotCache : NSObject
+
+// 记录ai 大模型机器人 一次回复多条数据，只能最后一条消息 显示点踩 点赞，处理完之后 在清理掉
+@property(nonatomic,strong) NSMutableArray *aiMsgIdArray;
+// 记录ai 大模型机器人 存放中间的数据对象，用于找最后一条
+@property(nonatomic,strong) NSMutableArray *aiMsgArray;
 
 // SobotThemeMode,默认0
 //SobotThemeMode_Default    = 0, // 默认，跟随系统
@@ -24,6 +29,20 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong,nonatomic) SobotCacheEntity *sobotCacheEntity;
 
 @property(assign,nonatomic) BOOL isUseImagesxcassets;
+
+/**
+ 同步的翻译内容，如果有，优先使用同步的翻译
+ */
+@property(nonatomic,strong) NSMutableDictionary *localStringsDict;
+
+// 记录是否要镜像处理
+@property(nonatomic,assign) BOOL isRTL;
+
+/**
+ 读取当前缓存语言文件
+ */
+-(void)readCacheToLocalStrings:(NSString *) language;
+
 
 -(void)addCacheEntity:(SobotCacheEntity *) entity;
 
@@ -58,6 +77,8 @@ NS_ASSUME_NONNULL_BEGIN
 // 对象转换为字典
 + (NSDictionary*)getObjectData:(id)obj;
 
+// 处理接口不要的字段 转JSON
++ (NSDictionary*)getObjectData:(id)obj isRemove:(BOOL)isRemove;
 
 /**
  存储本地数据到NSUserDefault中
@@ -114,6 +135,8 @@ NS_ASSUME_NONNULL_BEGIN
 +(NSArray *)getLocalArray:(NSString *)key;
 
 
+/// 清理大模型机器人缓存的数据
+-(void)clearAiMsgArray;
 
 @end
 

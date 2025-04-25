@@ -96,7 +96,7 @@
     if (configModel != nil && configModel.notificationTopViewBgColor && ![self useDefaultThemeColor]) {
         return configModel.notificationTopViewBgColor;
     }
-    return UIColorFromKitModeColor(SobotColorYellowLight); // UIColorFromRGB(noticBgColor);
+    return UIColorFromKitModeColor(SobotColorHeaderBg); // UIColorFromRGB(noticBgColor);
 }
 
 
@@ -121,7 +121,7 @@
     if (configModel != nil && configModel.notificationTopViewLabelColor && ![self useDefaultThemeColor]) {
         return configModel.notificationTopViewLabelColor;
     }
-    return UIColorFromKitModeColor(SobotColorYellowDark);
+    return UIColorFromKitModeColor(SobotColorTextMain);
 }
 +(BOOL) zcgetPhotoLibraryBgImage{
     ZCKitInfo * configModel = [self getZCKitInfo];
@@ -163,7 +163,7 @@
     if (configModel !=nil && configModel.goodsDetFont) {
         return configModel.goodsDetFont;
     }
-    return SobotFont14;
+    return SobotFont12;
 }
 
 
@@ -206,7 +206,7 @@
     if(configModel!=nil && configModel.voiceButtonFont!=nil){
         return configModel.voiceButtonFont;
     }
-    return SobotFont15;
+    return SobotFontBold16;
 }
 
 
@@ -215,7 +215,7 @@
     if (configModel != nil && configModel.scTopTextFont && ![self useDefaultThemeColor]) {
         return configModel.scTopTextFont;
     }
-    return SobotFontBold17;
+    return SobotFontBold16;
 }
 
 +(UIColor *)zcgetscTopTextColor{
@@ -312,11 +312,34 @@
         }
     }
     
-    UIColor *colorItemLeft = [SobotImageTools colorWithHexString:@"#4ADABE" alpha:1];
+    // 用户没有设置取 PC端的设置值
+    if ([ZCPlatformTools sharedInstance].visitorConfig !=nil && sobotConvertToString([ZCPlatformTools sharedInstance].visitorConfig.topBarColor).length > 0) {
+        NSString *colorStr = sobotConvertToString([ZCPlatformTools sharedInstance].visitorConfig.topBarColor);
+//        colorStr = @"#2DB4F9,#272EDC,#ff33cc,#cc0033";// 测试数据
+        NSArray *colorStrArray = [colorStr componentsSeparatedByString:@","];
+        if (!sobotIsNull(colorStrArray)) {
+            for (NSString *colorName in colorStrArray) {
+                UIColor *colorItem = [SobotImageTools colorWithHexString:colorName alpha:1];
+                [colors addObject:(__bridge id)colorItem.CGColor];
+            }
+            UIColor *bgColor = [SobotImageTools gradientColorWithSize:size colorArr:colors];
+            return bgColor;
+        }
+    }
+    
+    // 默认白色
+//    UIColor *colorItemLeft = [SobotImageTools colorWithHexString:@"#4ADABE" alpha:1];
+//    [colors addObject:(__bridge id)colorItemLeft.CGColor];
+//    
+//    UIColor *colorItemRight = [SobotImageTools colorWithHexString:@"#0DAEAF" alpha:1];
+//    [colors addObject:(__bridge id)colorItemRight.CGColor];
+    
+    UIColor *colorItemLeft = UIColorFromKitModeColor(SobotColorTextWhite);
     [colors addObject:(__bridge id)colorItemLeft.CGColor];
     
-    UIColor *colorItemRight = [SobotImageTools colorWithHexString:@"#0DAEAF" alpha:1];
+    UIColor *colorItemRight = UIColorFromKitModeColor(SobotColorTextWhite);
     [colors addObject:(__bridge id)colorItemRight.CGColor];
+    
     return [SobotImageTools gradientColorWithSize:size colorArr:colors];
 }
 
@@ -383,7 +406,7 @@
     if(configModel!=nil && configModel.chatBgBottomLineColor!=nil){
         return configModel.chatBgBottomLineColor;
     }
-    return UIColorFromKitModeColor(SobotColorBgLine);
+    return UIColorFromKitModeColor(SobotColorBgTopLine);
 }
 
 +(UIColor *)zcgetChatBgBottomColor{
@@ -432,7 +455,7 @@
     if(configModel!=nil && configModel.chatBgBottomLineColor!=nil && ![self useDefaultThemeColor]){
         return configModel.chatBgBottomLineColor;
     }
-    return UIColorFromKitModeColor(SobotColorBgLine);
+    return UIColorFromKitModeColor(SobotColorBorderLine);
 }
 
 
@@ -441,7 +464,8 @@
     if(configModel!=nil && configModel.commentItemButtonBgColor!=nil && ![self useDefaultThemeColor]){
         return configModel.commentItemButtonBgColor;
     }
-    return UIColorFromKitModeColor(SobotColorBgSub);
+//    return UIColorFromKitModeColor(SobotColorBgSub);
+    return UIColorFromKitModeColor(SobotColorBgMain);
 }
 
 
@@ -450,7 +474,7 @@
     if(configModel!=nil && configModel.commentItemButtonSelBgColor!=nil && ![self useDefaultThemeColor]){
         return configModel.commentItemButtonSelBgColor;
     }
-    return UIColorFromKitModeColor(SobotColorTheme); // UIColorFromRGB(BgTitleColor);
+    return UIColorFromKitModeColor(SobotColorGreenLightBg); // UIColorFromRGB(BgTitleColor);
 }
 
 +(UIColor *)zcgetSatisfactionColor{
@@ -485,6 +509,13 @@
         return configModel.commentItemButtonBgColor;
     }
     return UIColorFromModeColor(SobotColorTheme);
+}
++(UIColor *)zcgetButtonThemeBgColorAlpha:(CGFloat)alpha{
+    ZCKitInfo *configModel = [self getZCKitInfo];
+    if(configModel!=nil && configModel.commentItemButtonBgColorAlpha!=nil && ![self useDefaultThemeColor]){
+        return configModel.commentItemButtonBgColorAlpha;
+    }
+    return UIColorFromModeColorAlpha(SobotColorTheme, alpha);
 }
 
 +(UIColor *)zcgetScoreExplainTextColor{
@@ -690,7 +721,7 @@
                 UIColor *colorItem = [SobotImageTools colorWithHexString:colorName alpha:1];
                 [colors addObject:(__bridge id)colorItem.CGColor];
             }
-            UIColor *bgColor = [SobotImageTools gradientColorWithSize:size colorArr:colors ];
+            UIColor *bgColor = [SobotImageTools gradientColorWithSize:size colorArr:colors];
             return bgColor;
         }
     }
@@ -703,7 +734,8 @@
     if(configModel!=nil && configModel.rightChatSelectedColor!=nil && ![self useDefaultThemeColor]){
         return configModel.rightChatSelectedColor;
     }
-    return UIColorFromKitModeColor(SobotColorTextSub1);
+//    return UIColorFromKitModeColor(SobotColorTextSub1);
+    return UIColorFromKitModeColor(@"#AEAEAE");
 }
 
 +(UIColor *)zcgetRightChatVoiceTextBgColor{
@@ -711,7 +743,7 @@
     if(configModel!=nil && configModel.videoConversionBgColor!=nil && ![self useDefaultThemeColor]){
         return configModel.videoConversionBgColor;
     }
-    return UIColorFromKitModeColor(SobotColorBgSub);
+    return UIColorFromKitModeColor(SobotColorBgF5);
 }
 
 +(UIColor *)zcgetRightChatVoiceTextColor{
@@ -728,7 +760,8 @@
     if(configModel!=nil && configModel.leftChatSelectedColor!=nil && ![self useDefaultThemeColor]){
         return configModel.leftChatSelectedColor;
     }
-    return UIColorFromKitModeColor(SobotColorTextSub1);
+//    return UIColorFromKitModeColor(SobotColorTextSub1);
+    return UIColorFromKitModeColor(@"#DDDDDD");
 }
 +(UIColor *)zcgetChatRightVideoSelBgColor{
     ZCKitInfo *configModel = [self getZCKitInfo];
@@ -790,8 +823,56 @@
     if (configModel != nil && configModel.noSatisfactionTextColor && ![self useDefaultThemeColor]) {
         return configModel.noSatisfactionTextColor;
     }
-    return UIColorFromKitModeColor(SobotColorTextSub);
+    return UIColorFromKitModeColor(SobotColorTextMain);
 }
+
++(UIColor *)zcgetReferenceLeftLineColor{
+    ZCKitInfo *configModel = [self getZCKitInfo];
+    if (configModel != nil && configModel.referenceLeftLineColor) {
+        return configModel.referenceLeftLineColor;
+    }
+    return  UIColorFromKitModeColor(@"#CCCCCC");
+}
++(UIColor *)zcgetReferenceLeftNameColor{
+    ZCKitInfo *configModel = [self getZCKitInfo];
+    if (configModel != nil && configModel.referenceLeftNameColor) {
+        return configModel.referenceLeftNameColor;
+    }
+    return   UIColorFromKitModeColor(SobotColorTextSub);
+}
+
++(UIColor *)zcgetReferenceLeftTextColor{
+    ZCKitInfo *configModel = [self getZCKitInfo];
+    if (configModel != nil && configModel.referenceLeftTextColor) {
+        return configModel.referenceLeftTextColor;
+    }
+    return   UIColorFromKitModeColor(SobotColorTextSub1);
+}
+
+
++(UIColor *)zcgetReferenceRightLineColor{
+    ZCKitInfo *configModel = [self getZCKitInfo];
+    if (configModel != nil && configModel.referenceRightLineColor) {
+        return configModel.referenceRightLineColor;
+    }
+    return  UIColorFromKitModeColorAlpha(SobotColorWhite, 0.4);
+}
++(UIColor *)zcgetReferenceRightNameColor{
+    ZCKitInfo *configModel = [self getZCKitInfo];
+    if (configModel != nil && configModel.referenceRightNameColor) {
+        return configModel.referenceRightNameColor;
+    }
+    return  UIColorFromKitModeColorAlpha(SobotColorWhite, 0.9);
+}
+
++(UIColor *)zcgetReferenceRightTextColor{
+    ZCKitInfo *configModel = [self getZCKitInfo];
+    if (configModel != nil && configModel.referenceRightTextColor) {
+        return configModel.referenceRightTextColor;
+    }
+    return  UIColorFromKitModeColorAlpha(SobotColorWhite, 0.85);
+}
+
 
 #pragma mark - 帮助中心导航栏颜色
 +(UIColor *)zcgetscTopBgColorWithSize:(CGSize)size{
@@ -820,7 +901,7 @@
     if (configModel != nil && configModel.lineSpacing>0) {
         return configModel.lineSpacing;
     }
-    return 5.0f;
+    return 4.0f;
 }
 
 //过滤html标签
@@ -1030,7 +1111,7 @@
         type = 2;
     }else if([@"application/pdf" isEqual:mimeType] || [filePath hasSuffix:@".pdf"]){
         type = 3;
-    }else if([@"application/zip" isEqual:mimeType] || [@"application/rar" isEqual:mimeType]){
+    }else if([@"application/zip" isEqual:mimeType] || [@"application/rar" isEqual:mimeType] || [filePath hasSuffix:@".zip"]){
         type = 6;
     }else if([mimeType hasPrefix:@"audio"] || [filePath hasSuffix:@".mp3"]){
         type = 4;
@@ -1043,12 +1124,17 @@
 }
 +(UIImage *) getFileIcon:(NSString * ) filePath fileType:(int) type{
     type  = type>0 ? [self changeFileType:type] : [self zcLibmimeWithURLType:filePath];
+    if (type == 12) {
+        // 12 特殊处理
+        type = [self zcLibmimeWithURLType:filePath];
+    }
     NSString *iconName = @"";
+    // message.richModel.fileType 12 有问题 ，
     if(type == 0){
         iconName = @"zcicon_file_word";
     }else if( type == 1 || type == 8){
         iconName = @"zcicon_file_ppt";
-    }else if(type == 2 || type == 12){
+    }else if(type == 2 ){
         iconName = @"zcicon_file_excel";
     }else if(type == 3){
         iconName = @"zcicon_file_pdf";
@@ -1151,5 +1237,87 @@
     }
 }
 
+
+#pragma mark --计算文本宽度 注意字号
++(CGFloat)getLabelTextWidthWith:(NSString *)tip font:(UIFont*)font hight:(CGFloat)hight{;
+    CGSize maxSize = CGSizeMake(CGFLOAT_MAX, hight);  // 限制高度为一行
+    CGRect textRect = [tip boundingRectWithSize:maxSize
+                                         options:NSStringDrawingUsesLineFragmentOrigin
+                                      attributes:@{NSFontAttributeName: font}
+                                         context:nil];
+    return textRect.size.width;
+}
+
+/**
+ *  设置部分圆角(绝对布局)
+ *
+ *  @param corners 需要设置为圆角的角 UIRectCornerTopLeft | UIRectCornerTopRight | UIRectCornerBottomLeft | UIRectCornerBottomRight | UIRectCornerAllCorners
+ *  @param radii   需要设置的圆角大小 例如 CGSizeMake(20.0f, 20.0f)
+ */
++(void)addRoundedCorners:(UIRectCorner)corners
+                withRadii:(CGSize)radii withView:(UIView *) view {
+    view.layer.masksToBounds = YES;
+    UIBezierPath* rounded = [UIBezierPath bezierPathWithRoundedRect:view.bounds byRoundingCorners:corners cornerRadii:radii];
+    CAShapeLayer* shape = [[CAShapeLayer alloc] init];
+    [shape setPath:rounded.CGPath];
+    view.layer.mask = shape;
+}
+/**
+ *  设置部分圆角(相对布局)
+ *
+ *  @param corners 需要设置为圆角的角 UIRectCornerTopLeft | UIRectCornerTopRight | UIRectCornerBottomLeft | UIRectCornerBottomRight | UIRectCornerAllCorners
+ *  @param radii   需要设置的圆角大小 例如 CGSizeMake(20.0f, 20.0f)
+ *  @param rect    需要设置的圆角view的rect
+ */
++ (void)addRoundedCorners:(UIRectCorner)corners
+                withRadii:(CGSize)radii
+                 viewRect:(CGRect)rect withView:(UIView *) view {
+    
+    UIBezierPath* rounded = [UIBezierPath bezierPathWithRoundedRect:rect byRoundingCorners:corners cornerRadii:radii];
+    CAShapeLayer* shape = [[CAShapeLayer alloc] init];
+    [shape setPath:rounded.CGPath];
+    view.layer.mask = shape;
+}
+
+#pragma mark -- 获取当前是否支持镜像
++(BOOL)getSobotIsRTLLayout{
+    // 关闭系统RTL语言适配
+    if([ZCUICore getUICore].kitInfo.isCloseSystemRTL){
+        return NO;
+    }
+    // 如果是 阿语 设置镜像
+    if (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length && [sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language) hasPrefix:@"ar"]) {
+        return YES;
+    }
+    NSString *lan = sobotGetLanguagePrefix();
+    //是否要重右到左布局
+    if([lan hasPrefix:@"ar"] || [lan hasPrefix:@"he"]){
+        return YES;
+    }else{
+        return NO;
+    }
+}
+
+#pragma mark -- 设置父视图镜像翻转，子视图再次镜像
++(void)setViewRTLtransForm:(UIView *)view{
+    if ([ZCUIKitTools getSobotIsRTLLayout]) {
+        view.transform = CGAffineTransformMakeScale(-1, 1);
+        for (UIView *subview in view.subviews) {
+            subview.transform = CGAffineTransformMakeScale(-1, 1);
+        }
+    }
+}
+
++(NSMutableAttributedString *)getOtherColorString:(NSString *)string Color:(UIColor *)Color withString:(NSString *)originalString
+{
+    NSMutableString *temp = [NSMutableString stringWithString:sobotConvertToString(originalString)];
+    NSMutableAttributedString *str = [[NSMutableAttributedString alloc] initWithString:temp];
+    if (string.length) {
+        NSRange range = [temp rangeOfString:string];
+        [str addAttribute:NSForegroundColorAttributeName value:Color range:range];
+        return str;
+    }
+    return str;
+}
 
 @end

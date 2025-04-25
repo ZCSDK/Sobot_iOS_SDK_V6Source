@@ -134,7 +134,7 @@
         [_ivPicture setImage:localImage];
     }else{
         if (message.msgType == SobotMessageTypeVideo) {
-            [_ivPicture loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(message.richModel.snapshot)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:YES completionBlock:^(UIImage * _Nonnull image, NSURL * _Nonnull url, NSError * _Nonnull error) {
+            [_ivPicture loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(message.richModel.snapshot)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:NO completionBlock:^(UIImage * _Nonnull image, NSURL * _Nonnull url, NSError * _Nonnull error) {
                 if(!error){
                     [self->_ivPicture hideLoadingView];
                 }
@@ -144,7 +144,7 @@
             self.ivPictureEW.constant = 40;
             self.playBgView.hidden = YES;
             self.btnPlay.hidden = YES;
-            [_ivPicture loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(message.richModel.content)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:YES completionBlock:^(UIImage * _Nonnull image, NSURL * _Nonnull url, NSError * _Nonnull error) {
+            [_ivPicture loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(message.richModel.content)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:NO completionBlock:^(UIImage * _Nonnull image, NSURL * _Nonnull url, NSError * _Nonnull error) {
                 if(!error){
                     [self->_ivPicture hideLoadingView];
                 }

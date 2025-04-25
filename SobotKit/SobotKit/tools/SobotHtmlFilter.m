@@ -12,7 +12,7 @@
 #import "ZCUICore.h"
 @implementation SobotHtmlFilter
 
-+(NSMutableAttributedString *) setHtml:(NSString *)text attrs:(NSMutableArray *) attrs view:(UILabel *) label  textColor:(UIColor*)textColor textFont:(UIFont*)textFont linkColor:(UIColor*)linkColor{
++(NSMutableAttributedString *) setHtml:(NSString *)text attrs:(NSMutableArray *) attrs view:(UILabel *) label  textColor:(UIColor*)textColor textFont:(UIFont*)textFont linkColor:(UIColor*)linkColor lineSpacing:(CGFloat)lineSpacing{
     __block NSMutableAttributedString  *str = nil;
     str = [[NSMutableAttributedString alloc] initWithString:text];
     // 先处理 ZCMLEmojiLabel 正则的匹配
@@ -87,17 +87,19 @@
         }
     }
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-    NSInteger lineSpaceing = [ZCUICore getUICore].kitInfo.lineSpacing;
-    if (lineSpaceing > 0) {
-        paragraphStyle.lineSpacing = lineSpaceing; // 调整行间距
-    }
-    if(sobotIsRTLLayout()){
+    paragraphStyle.lineSpacing =  lineSpacing;//[ZCUIKitTools zcgetChatLineSpacing];
+    if(SobotKitIsRTLLayout){
         [paragraphStyle setAlignment:NSTextAlignmentRight];
     }
     NSRange range = NSMakeRange(0, str.length);
     [str addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:range];
     label.attributedText = str;
     return str;
+}
+
+
++(NSMutableAttributedString *) setHtml:(NSString *)text attrs:(NSMutableArray *) attrs view:(UILabel *) label  textColor:(UIColor*)textColor textFont:(UIFont*)textFont linkColor:(UIColor*)linkColor{
+    return [SobotHtmlFilter setHtml:text attrs:attrs view:label textColor:textColor textFont:textFont linkColor:linkColor lineSpacing:[ZCUIKitTools zcgetChatLineSpacing]];
 }
 
 +(NSMutableAttributedString *)setGuideHtml:(NSString *)text attrs:(NSMutableArray *) attrs view:(UILabel *) label  textColor:(UIColor*)textColor textFont:(UIFont*)textFont linkColor:(UIColor*)linkColor{

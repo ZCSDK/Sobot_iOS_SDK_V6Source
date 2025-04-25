@@ -11,7 +11,7 @@
 "暂时无法转接人工客服" = "ręcznej obsługi klienta nie można tymczsowo przenieść";
 "暂时无法评价" = "nie można tymczasowo ocenić";
 "网络错误，请检查网络后重试" = "błąd sieci, Proszę sprawdzić sieć i spróbować ponownie.";
-"转人工" = "Przenieś do porodu";
+"转人工" = "Przekieruj do operatora";
 "时间" = "czas";
 "日期" = "data";
 "标题" = "tytuł";
@@ -26,7 +26,7 @@
 "换一组" = "zmień grupę";
 "建议为必填" = "sugerowane zgodnie z wymaganiami";
 "服务评价" = "Ocena";
-"留言" = "Wiadomość";
+"留言" = "Wiadomość ";
 "您好，客服" = "Witam, obsługa klienta";
 "接受了您的请求" = "Zaakceptowano Twoją prośbę";
 "服务器请求错误！" = "Wycofano wiadomość";
@@ -48,7 +48,7 @@
 "您收到了一条新消息" = "Zezwól na dostęp do swojego mikrofonu w opcji „Ustawienia-Prywatność-Mikrofon”";
 "评分" = "Zezwól na dostęp do swojej kamery w opcji „Ustawienia-Prywatność-Kamera”";
 "评语" = "Przetwarzanie wideo, czekaj!";
-"是否解决了您的问题？" = "Przekroczono limit czasu żądania przyczyny sieci Przeładuj";
+"是否解决了您的问题？" = "przekroczono limit czasu żądania przyczyny sieci Przeładuj";
 "受理中" = "akceptuję";
 "问题分类" = "kategoria pytań";
 "问题详情" = "szczegóły zapytania";
@@ -76,7 +76,7 @@
 "运输中" = "w tranzycie";
 "待发货" = "poczekaj na dostawę";
 "待付款" = "poczekaj na wypłatę";
-"选填" = "opcjonalna";
+"选填" = "Opcjonalna";
 "展开" = "rozwiń";
 "收起" = "odłożyj";
 "无" = "zero";
@@ -137,10 +137,10 @@
 "删除" = "usuń";
 "数据错误" = "bląd danych";
 "客服" = "obsługa niestandardowa";
-"复制成功！" = "kopiuj pomyślnie";
+"复制成功" = "kopiuj pomyślnie";
 "复制" = "kopiuj";
 "已创建" = "utworzony";
-"倒计时:" = "odliczanie";
+"倒计时" = "odliczanie";
 "消息中心" = "centrum wiadomień";
 "未连接" = "nie połączony";
 "连接中..." = "złączony";
@@ -200,15 +200,90 @@
 "自定义字段" = "Pole niestandardowe";
 "非常不满意" = "Bardzo niezadowolony";
 "未解决问题？点击" = "Nie rozwiązałeś swojego problemu?";
-"转人工服务" = "Usługi człowieka";
+"转人工服务" = "Usługi człowieka ";
 "展开消息" = "Rozwiń wiadomość";
 "继续发送" = "Wysyłaj dalej";
 "拒绝" = "Odrzucać";
 "您已同意发送个人敏感信息，本次授权有效期24小时" = "Użytkownik zgodził się na przesłanie poufnych danych osobowych. Niniejsze zezwolenie jest ważne przez dobę godzin";
 "您已拒绝发送此消息" = "Odmówiłeś wysłania tej wiadomości";
 "附件" = "obudowa";
+"保存成功" = "Zapisano pomyślnie";
+"保存失败" = "nie udało się zapisać";
+
+
+//************* 同步415的数据 ***********
 "填写信息" = "Wypełnij informacje";
 "排队自动断开结束会话" = "Zakończ sesję po automatycznym rozłączeniu w kolejce";
 "小程序" = "Aplet";
 "小程序只能通过微信打开" = "Aplet może być otwarty tylko przez wechat";
 "解析中..." = "Analiza";
+"转换失败" = "przełączanie widoków";
+"转换完成" = "konwertuj sieć";
+"订单号" = "numer zamówienia";
+"交易状态"="status handlowy";
+"创建时间"="czas utworzenia";
+"展开更多" = "Rozwiń więcej";
+"共" = "często";
+"已读"="Czytaj";
+"未读"="Nieprzeczytane";
+"我"="Ja";
+"机器人"="Robot";
+"链接" = "Link";
+"文章" = "Artykuł";
+"引用" = "cytat";
+"已选"="Wybrane";
+"搜索"="wyszukiwanie";
+"搜索全部省"="Przeszukaj wszystkie prowincje";
+"搜索全部市"="Przeszukaj wszystkie miasta";
+"搜索全部县（区）"="Przeszukaj wszystkie powiaty (okręgi)";
+"搜索全部街道"="Przeszukaj wszystkie ulice";
+"无结果"="Brak wyniku";
+"请选择是否解决了您的问题" = "Proszę wybrać, czy Twój problem został rozwiązany";
+"换一批" = "zmień grupę";
+//************* 同步415的数据 ***********
+
+/**公共组件翻译*/
+"选择时区" = "Wybierz strefę czasową";
+"请选择时区" = "Proszę wybrać strefę czasową";
+"暂无选项内容" = "Obecnie nie ma dostępnych opcji";
+"时区"="Strefa czasowa";
+"年"="Rok";
+"月"="Miesiąc";
+"日"="Dzień";
+
+"区号"="Kod obszaru";
+
+"语言已切换为“xxx”" = "Język został zmieniony na „xxx”";
+"选择语言" = "Wybierz język";
+"请选择您要使用的聊天语言：" = "Proszę wybrać język czatu, którego chcesz używać:";
+"更多语言" = "Więcej języków";
+
+"顶" = "na górze";
+"踩" = "krok na";
+
+"回复了您" = "Odpisałem Ci";
+"您的回复" = "twoja odpowiedź";
+
+
+"上传附件" = "Wgraj załącznik";
+"展开全部" = "Rozwiń wszystko";
+"收起" = "Zwiń";
+"松开 发送" = "Puść Wyślij";
+"松开 取消" = "Puść Anuluj";
+"松开发送，上滑取消" = "Puść aby wysłać, przesuń w górę aby anulować";
+"暂无回复" = "Brak odpowiedzi";
+"请输入" = "Wpisz";
+"最多上传" = "Maksymalnie można wgrać ";
+"个，" = ", ";
+"大小不超过" = "o rozmiarze nie przekraczającym";
+"已达上限 15 个" = "Osiągnięto limit 15";
+"知道了" = "Rozumiem";
+"已拒绝" = "Odrzucono";
+
+"请选择" = "Proszę wybrać";
+"暂无客服在线，点击进行留言。" = "Brak obecnie dostępnych operatorów obsługi klienta. Kliknij, aby pozostawić wiadomość.";
+"工单处理状态更新后将在会话中提醒您" = "Gdy status przetwarzania zgłoszenia zostanie zaktualizowany, zostaniesz powiadomiony w trakcie sesji rozmówczej.";
+
+"商品数" = "Ilość";
+"更多信息" = "Więcej informacji";
+"查看更多" = "Zobacz więcej";

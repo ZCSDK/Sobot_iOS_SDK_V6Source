@@ -17,6 +17,7 @@ static SobotTypeColor const _Nullable SobotColorBgSub2Dark3 = @"SobotColorBgSub2
 static SobotTypeColor const _Nullable SobotColorBgMainDark1 = @"SobotColorBgMainDark1";//白色背景,转浅黑背景
 static SobotTypeColor const _Nullable SobotColorBgMainDark2 = @"SobotColorBgMainDark2";//白色背景,转浅黑背景
 static SobotTypeColor const _Nullable SobotColorBgMainDark3 = @"SobotColorBgMainDark3";//白色背景,转浅黑背景
+static SobotTypeColor const _Nullable SobotColorTextRed = @"SobotColorTextRed";//白色背景,转浅黑背景
 
 
 static SobotTypeColor const _Nullable SobotColorYellowLight = @"SobotColorYellowLight";//白色背景,转浅黑背景
@@ -25,11 +26,13 @@ static SobotTypeColor const _Nullable SobotColorYellowDark = @"SobotColorYellowD
 
 static SobotTypeColor const _Nullable SobotColorTextSubDark = @"SobotColorTextSubDark";// 客服昵称 机器人昵称 提示语文字颜色
 
+static SobotTypeColor const _Nullable SobotColorGreenLightBg = @"SobotColorGreenLightBg";// 选项选中时的浅色绿背景
+
+
+
 NS_ASSUME_NONNULL_BEGIN
 
 
-#define BgNetworkFailColor  0xe4e4e4
-#define TextNetworkTipColor 0x666666
 
 /// 自定义颜色
 @interface ZCUIKitTools : NSObject
@@ -343,6 +346,11 @@ NS_ASSUME_NONNULL_BEGIN
 +(UIColor *)zcgetButtonThemeBgColor;
 
 /**
+ *   按钮主题背景色 带透明度
+ */
++(UIColor *)zcgetButtonThemeBgColorAlpha:(CGFloat)alpha;
+
+/**
  *    导航栏背景颜色
  */
 +(UIColor *)zcgetTopViewBgColor;
@@ -351,6 +359,18 @@ NS_ASSUME_NONNULL_BEGIN
  *    请您留言 和留言记录 以及选中的线条颜色
  */
 +(UIColor *)zcgetLeaveTitleTextColor;
+
+
+/**
+ 引用消息，左右文字和竖线颜色
+ */
++(UIColor *)zcgetReferenceLeftLineColor;
++(UIColor *)zcgetReferenceLeftNameColor;
++(UIColor *)zcgetReferenceLeftTextColor;
++(UIColor *)zcgetReferenceRightLineColor;
++(UIColor *)zcgetReferenceRightNameColor;
++(UIColor *)zcgetReferenceRightTextColor;
+
 
 /// 引导语行间距，3.0.3新增
 +(CGFloat )zcgetChatGuideLineSpacing;
@@ -387,6 +407,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 +(CGFloat)getHeightContain:(NSString *)string font:(UIFont *)font Width:(CGFloat) width;
 +(CGFloat)getWidthContain:(NSString *)string font:(UIFont *)font Height:(CGFloat) height;
+// 计算文本的最大宽度
++(CGFloat)getLabelTextWidthWith:(NSString *)tip font:(UIFont*)font hight:(CGFloat)hight;
+
+// 添加圆角的方法
++(void)addRoundedCorners:(UIRectCorner)corners
+                withRadii:(CGSize)radii withView:(UIView *) view;
+
++(void)addRoundedCorners:(UIRectCorner)corners
+                withRadii:(CGSize)radii
+                 viewRect:(CGRect)rect withView:(UIView *) view;
+
+
+// 获取当前是否支持镜像
++(BOOL)getSobotIsRTLLayout;
+
+// 设置镜像翻转
++(void)setViewRTLtransForm:(UIView *)view;
+
+//
++(NSMutableAttributedString *)getOtherColorString:(NSString *)string Color:(UIColor *)Color withString:(NSString *)originalString;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -4,7 +4,7 @@
 //
 //  Created by 张新耀 on 2019/10/10.
 //  Copyright © 2019 zhichi. All rights reserved.
-//
+//  城市也使用新版的UI级联处理  新版UI规则去掉左右按钮 只留标题
 
 #import "ZCCheckCityView.h"
 #import <SobotCommon/SobotCommon.h>
@@ -119,21 +119,18 @@
     [self.topView setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark1)];
     [self.topView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
     [self addSubview:self.topView];
-    
-    
-    
+        
     //    [self.topView addSubview:self.topImageView];
     
-    self.titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(80,0, _topView.frame.size.width- 80*2, ZCSheetTitleHeight)];
+    self.titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(16,0, _topView.frame.size.width- 32, ZCSheetTitleHeight)];
     [self.titleLabel setTextAlignment:NSTextAlignmentCenter];
     [self.titleLabel setFont:[ZCUIKitTools zcgetscTopTextFont]];
     [self.titleLabel setTextColor:[ZCUIKitTools zcgetscTopTextColor]];
-    
+    self.titleLabel.numberOfLines = 0;
     self.titleLabel.text = sobotConvertToString(_pageTitle);
     [self.titleLabel setBackgroundColor:[UIColor clearColor]];
     [self.titleLabel setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [self.titleLabel setAutoresizesSubviews:YES];
-    
     
     self.backButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.backButton setFrame:CGRectMake(20, 0, 64, ZCSheetTitleHeight)];
@@ -149,27 +146,46 @@
     
     self.backButton.hidden = YES;
     
+//    self.moreButton=[UIButton buttonWithType:UIButtonTypeCustom];
+//    [self.moreButton setFrame:CGRectMake(_topView.frame.size.width-64, 0, 64, ZCSheetTitleHeight)];
+//    [self.moreButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+//    [self.moreButton setContentEdgeInsets:UIEdgeInsetsZero];
+//    [self.moreButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
+//    [self.moreButton setAutoresizesSubviews:YES];
+//    [self.moreButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 15)];
+//    [self.moreButton setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 15)];
+//    [self.moreButton setImage:[SobotUITools getSysImageByName:@"zcicon_sf_close"] forState:UIControlStateNormal];
+//    [self.moreButton setImage:[SobotUITools getSysImageByName:@"zcicon_sf_close"] forState:UIControlStateHighlighted];
+//    self.moreButton.tag = BUTTON_MORE;
+//    [self.moreButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
+//    [self.moreButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
+//    [self.moreButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+   
     self.moreButton=[UIButton buttonWithType:UIButtonTypeCustom];
-    [self.moreButton setFrame:CGRectMake(_topView.frame.size.width-64, 0, 64, ZCSheetTitleHeight)];
+    [self.moreButton setFrame:CGRectMake(_topView.frame.size.width-64-16, 0, 64, ZCSheetTitleHeight)];
     [self.moreButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.moreButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
     [self.moreButton setContentEdgeInsets:UIEdgeInsetsZero];
     [self.moreButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
     [self.moreButton setAutoresizesSubviews:YES];
-    [self.moreButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 15)];
-    [self.moreButton setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 15)];
-    [self.moreButton setImage:[SobotUITools getSysImageByName:@"zcicon_sf_close"] forState:UIControlStateNormal];
-    [self.moreButton setImage:[SobotUITools getSysImageByName:@"zcicon_sf_close"] forState:UIControlStateHighlighted];
+
+    UIImage *originalImage = [SobotUITools getSysImageByName:@"zcion_sheet_close"];
+    CGSize newSize = CGSizeMake(14, 14);  // 调整图片为更大尺寸
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+    [originalImage drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *resizedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    [self.moreButton setImage:resizedImage forState:UIControlStateNormal];
+    [self.moreButton setImage:resizedImage forState:UIControlStateHighlighted];
     self.moreButton.tag = BUTTON_MORE;
-    [self.moreButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
-    [self.moreButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
     [self.moreButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
-   
     [self.topView addSubview:self.backButton];
-    [self.topView addSubview:self.moreButton];
+//    [self.topView addSubview:self.moreButton];
+    
     [self.topView addSubview:self.titleLabel];
     
     UIView *bottomLine = [[UIView alloc]initWithFrame:CGRectMake(0, ZCSheetTitleHeight -0.5, ScreenWidth, 0.5)];
-    bottomLine.backgroundColor = [ZCUIKitTools zcgetCommentButtonLineColor];
+    bottomLine.backgroundColor = UIColorFromKitModeColor(SobotColorBgTopLine);
     [bottomLine setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [self.topView addSubview:bottomLine];
 }
@@ -215,7 +231,8 @@
     if (version.doubleValue >= 11.0) {
         [_listTable setInsetsContentViewsToSafeArea:NO];
     }
-    [self setTableSeparatorInset];
+//    [self setTableSeparatorInset];
+    _listTable.separatorColor = UIColor.clearColor;
     
     UIView * bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 0)];
     bgView.backgroundColor = [ZCUIKitTools zcgetCommentButtonLineColor];
@@ -259,8 +276,11 @@
    [self setFrame:CGRectMake(0, 0, LW, h)];
     
     self.topView.frame = CGRectMake(0, 0, LW, ZCSheetTitleHeight);
-    self.titleLabel.frame = CGRectMake(80,0, _topView.frame.size.width- 80*2, ZCSheetTitleHeight);
+    self.titleLabel.frame = CGRectMake(16,0, _topView.frame.size.width- 16*2, ZCSheetTitleHeight);
     self.superview.frame = CGRectMake(0, ScreenHeight - h, self.frame.size.width, h);
+    
+    [ZCUIKitTools addRoundedCorners:UIRectCornerTopLeft|UIRectCornerTopRight withRadii:CGSizeMake(8, 8) withView:_topView];
+    [ZCUIKitTools addRoundedCorners:UIRectCornerTopLeft|UIRectCornerTopRight withRadii:CGSizeMake(8, 8) withView:self];
 }
 
 
@@ -306,7 +326,7 @@
     UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectZero];
     [imageView setContentMode:UIViewContentModeScaleAspectFit];
     [cell.contentView addSubview:imageView];
-    UILabel *textLabel = [[UILabel alloc] initWithFrame:CGRectMake(15, 17, self.listTable.frame.size.width - 50, 21)];
+    UILabel *textLabel = [[UILabel alloc] initWithFrame:CGRectMake(16, 7, self.listTable.frame.size.width - 50, 22)];
     textLabel.font = SobotFont14;
     textLabel.textColor = UIColorFromKitModeColor(SobotColorTextMain);
     [cell.contentView addSubview:textLabel];
@@ -363,7 +383,7 @@
 // table 行的高度
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 54.0f;
+    return 36.0f;
 }
 
 // table 行的点击事件
@@ -397,20 +417,20 @@
 }
 
 //设置分割线间距
--(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
-    if((indexPath.row+1) < _listArray.count){
-        UIEdgeInsets inset = UIEdgeInsetsMake(0, 0, 0, 0);
-        if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
-            [cell setSeparatorInset:inset];
-        }
-        if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
-            [cell setLayoutMargins:inset];
-        }
-    }
-}
+//-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
+//    if((indexPath.row+1) < _listArray.count){
+//        UIEdgeInsets inset = UIEdgeInsetsMake(0, 0, 0, 0);
+//        if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+//            [cell setSeparatorInset:inset];
+//        }
+//        if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+//            [cell setLayoutMargins:inset];
+//        }
+//    }
+//}
 
 -(void)viewDidLayoutSubviews{
-    [self setTableSeparatorInset];
+//    [self setTableSeparatorInset];
     [self.listTable reloadData];
 }
 
@@ -420,14 +440,14 @@
  *  设置UITableView分割线空隙
  */
 -(void)setTableSeparatorInset{
-    UIEdgeInsets inset = UIEdgeInsetsMake(0, 0, 0, 0);
-    if ([_listTable respondsToSelector:@selector(setSeparatorInset:)]) {
-        [_listTable setSeparatorInset:inset];
-    }
-    
-    if ([_listTable respondsToSelector:@selector(setLayoutMargins:)]) {
-        [_listTable setLayoutMargins:inset];
-    }
+//    UIEdgeInsets inset = UIEdgeInsetsMake(0, 0, 0, 0);
+//    if ([_listTable respondsToSelector:@selector(setSeparatorInset:)]) {
+//        [_listTable setSeparatorInset:inset];
+//    }
+//    
+//    if ([_listTable respondsToSelector:@selector(setLayoutMargins:)]) {
+//        [_listTable setLayoutMargins:inset];
+//    }
 }
 
 

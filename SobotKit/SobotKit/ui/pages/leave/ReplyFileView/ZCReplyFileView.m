@@ -80,7 +80,7 @@
         [imgView setContentMode:UIViewContentModeScaleAspectFill];
         imgView.clipsToBounds = YES;
         self.isLoading = YES;
-        [imgView loadWithURL:fileUrl placeholer:nil showActivityIndicatorView:YES completionBlock:^(UIImage *image, NSURL *url, NSError *error) {
+        [imgView loadWithURL:fileUrl placeholer:nil showActivityIndicatorView:NO completionBlock:^(UIImage *image, NSURL *url, NSError *error) {
             if (image !=nil) {
                 self.isLoading = NO;
             }

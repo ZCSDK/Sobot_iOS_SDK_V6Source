@@ -50,6 +50,9 @@ typedef void(^ZCQuickLeaveViewBlock)(int code,id obj);
 @property (nonatomic , assign) BOOL     enclosureShowFlag;
 @property (nonatomic , assign) BOOL     enclosureFlag;
 
+@property (nonatomic,assign) BOOL ticketContentShowFlag;
+@property (nonatomic,assign) BOOL ticketContentFillFlag;
+
 // 用户自定义字段数组
 @property(nonatomic,strong)NSMutableArray *_Nullable coustomArr;
 

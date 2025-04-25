@@ -28,19 +28,10 @@
 @implementation SobotSatisfactionItemView
 
 
--(instancetype)init{
-    self = [super init];
-    if (self) {
-        
-        self.backgroundColor = UIColor.clearColor;
-    }
-    return self;
-}
-
-
 -(instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if (self) {
+        self.backgroundColor = UIColor.clearColor;
         self.frame = frame;
         self.userInteractionEnabled = YES;
     }
@@ -103,8 +94,8 @@
         checksArr = [sobotConvertToString(labels) componentsSeparatedByString:@","];
     }
     
-    CGFloat spaceX = 10;
-    CGFloat spaceY = 20;
+    CGFloat spaceX = 8;
+    CGFloat spaceY = 8;
     CGFloat spaveXY = 0;
         
     
@@ -121,34 +112,44 @@
     if(ScreenWidth > ScreenHeight){
         isMulMode = YES;
     }
-    
+    if(titles.count == 0){
+        return;
+    }
     CGFloat cw = 0;
     // 3.0.1开始，使用动态宽度
     for (int index=0;index<titles.count;index ++) {
         
         UIButton *titleBT= [UIButton buttonWithType:UIButtonTypeCustom];
-        [titleBT setTitleEdgeInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+        [titleBT setContentEdgeInsets:UIEdgeInsetsMake(0, 16, 0, 16)];
       
         titleBT.titleLabel.numberOfLines = 1;
-        titleBT.layer.cornerRadius = ih /2;
+        titleBT.layer.cornerRadius = 4.0f;// ih /2;
         titleBT.layer.borderWidth = 0.75f;
-        if([SobotUITools getSobotThemeMode] == SobotThemeMode_Dark){
-            titleBT.layer.borderColor = UIColorFromKitModeColor(SobotColorBgMainDark2).CGColor;
-            [titleBT setTitleColor:UIColorFromKitModeColor(SobotColorTextSub) forState:UIControlStateNormal];
-            [titleBT setTitleColor:[ZCUIKitTools zcgetTextNolColor] forState:UIControlStateHighlighted];
-            [titleBT setTitleColor:[ZCUIKitTools zcgetTextNolColor] forState:UIControlStateSelected];
-        }else{
-            titleBT.layer.borderColor = [UIColor whiteColor].CGColor;
-            [titleBT setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateNormal];
-            [titleBT setTitleColor:UIColorFromKitModeColor(SobotColorWhite) forState:UIControlStateHighlighted];
-            [titleBT setTitleColor:UIColorFromKitModeColor(SobotColorWhite) forState:UIControlStateSelected];
-        }
+//        if([SobotUITools getSobotThemeMode] == SobotThemeMode_Dark){
+//            titleBT.layer.borderColor = UIColorFromKitModeColor(SobotColorBgMainDark2).CGColor;
+//            [titleBT setTitleColor:UIColorFromKitModeColor(SobotColorTextSub) forState:UIControlStateNormal];
+//            [titleBT setTitleColor:[ZCUIKitTools zcgetTextNolColor] forState:UIControlStateHighlighted];
+//            [titleBT setTitleColor:[ZCUIKitTools zcgetTextNolColor] forState:UIControlStateSelected];
+//        }else{
+//            titleBT.layer.borderColor = [UIColor whiteColor].CGColor;
+//            [titleBT setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateNormal];
+//            [titleBT setTitleColor:UIColorFromKitModeColor(SobotColorWhite) forState:UIControlStateHighlighted];
+//            [titleBT setTitleColor:UIColorFromKitModeColor(SobotColorWhite) forState:UIControlStateSelected];
+//        }
+        
+        titleBT.layer.borderColor = [ZCUIKitTools zcgetCommentButtonLineColor].CGColor;
+        [titleBT setTitleColor:UIColorFromKitModeColor(SobotColorTextMain) forState:UIControlStateNormal];
+        [titleBT setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateHighlighted];
+        [titleBT setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateSelected];
+        
         titleBT.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         titleBT.layer.masksToBounds=YES;
         [titleBT.titleLabel setFont:SobotFont14];
         [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetCommentItemButtonBgColor]] forState:UIControlStateNormal];
-        [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]] forState:UIControlStateSelected];
-        [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]] forState:UIControlStateHighlighted];
+//        [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetCommentItemSelButtonBgColor]] forState:UIControlStateSelected];
+//        [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetCommentItemSelButtonBgColor]] forState:UIControlStateHighlighted];
+        [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[SobotUITools getSobotNewColorWith:[ZCUIKitTools zcgetServerConfigBtnBgColor] alpha:0.1]] forState:UIControlStateSelected];
+        [titleBT setBackgroundImage:[SobotImageTools sobotImageWithColor:[SobotUITools getSobotNewColorWith:[ZCUIKitTools zcgetServerConfigBtnBgColor] alpha:0.1]] forState:UIControlStateHighlighted];
         
         
         tagI = tagI + 1;
@@ -162,7 +163,7 @@
         
         CGRect f = titleBT.frame;
         
-        CGFloat iw = f.size.width + 32;
+        CGFloat iw = f.size.width;
         if(iw > maxWidth){
             iw = maxWidth;
         }
@@ -204,16 +205,19 @@
     bt.selected = !bt.selected;
     if (bt.selected) {
         if([SobotUITools getSobotThemeMode] == SobotThemeMode_Dark){
-            bt.layer.borderColor = UIColorFromKitModeColor(SobotColorBgMainDark2).CGColor;
+//            bt.layer.borderColor = UIColorFromKitModeColor(SobotColorBgMainDark2).CGColor;
         }else{
-            bt.layer.borderColor = [UIColor whiteColor].CGColor;
+//            bt.layer.borderColor = [UIColor whiteColor].CGColor;
         }
+        
+        bt.layer.borderColor = [ZCUIKitTools zcgetServerConfigBtnBgColor].CGColor;
     }else{
         if([SobotUITools getSobotThemeMode] == SobotThemeMode_Dark){
-            bt.layer.borderColor = UIColorFromKitModeColor(SobotColorBgMainDark2).CGColor;
+//            bt.layer.borderColor = UIColorFromKitModeColor(SobotColorBgMainDark2).CGColor;
         }else{
-            bt.layer.borderColor = [UIColor whiteColor].CGColor;
+//            bt.layer.borderColor = [UIColor whiteColor].CGColor;
         }
+        bt.layer.borderColor = [ZCUIKitTools zcgetCommentButtonLineColor].CGColor;
     }
 }
 

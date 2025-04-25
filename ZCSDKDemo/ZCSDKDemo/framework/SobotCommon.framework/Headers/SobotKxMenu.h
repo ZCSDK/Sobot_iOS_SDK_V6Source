@@ -40,6 +40,7 @@
 @property (readwrite, nonatomic, strong) NSString *title;
 @property (readwrite, nonatomic, assign) NSInteger intTag;
 @property (readwrite, nonatomic, weak) id target;
+@property (readwrite, nonatomic, strong) id modelObj;
 @property (readwrite, nonatomic) SEL action;
 @property (readwrite, nonatomic, strong) UIColor *foreColor;
 @property (readwrite, nonatomic, strong) UIFont *titleFont;

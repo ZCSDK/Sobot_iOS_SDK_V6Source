@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZCMsgRecordCell : UITableViewCell
 
--(void)initWithDict:(ZCRecordListModel*)model with:(CGFloat) width;
+-(void)initWithDict:(ZCRecordListModel*)model with:(CGFloat) width index:(NSInteger)index;
 @end
 
 NS_ASSUME_NONNULL_END

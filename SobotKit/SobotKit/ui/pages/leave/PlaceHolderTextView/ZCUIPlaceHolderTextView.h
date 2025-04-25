@@ -54,8 +54,9 @@
  */
 @property (nonatomic,assign) int LineSpacing;
 
-
 @property (nonatomic,assign) int type; // 1.占位文字要设置 文字颜色
 
 @property (nonatomic,assign) BOOL isAddLink;//不设置超链
+//起始间距
+@property (nonatomic,assign) CGFloat sx;
 @end

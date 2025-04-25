@@ -7,6 +7,7 @@
 //
 
 #import "ZCUIPlaceHolderTextView.h"
+#import <SobotKit/SobotKit.h>
 
 @interface ZCUIPlaceHolderTextView  ()
 
@@ -22,7 +23,6 @@
     _placeHolderLabel = nil;
     placeholderColor = nil;
     _placeholder = nil;
-    
 }
 
 - (void)awakeFromNib
@@ -37,6 +37,7 @@
 {
     if( (self = [super initWithFrame:frame]) )
     {
+        self.sx = -1;
         [self setPlaceholder:@""];
         [self setPlaceholderColor:[UIColor lightGrayColor]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textChanged:) name:UITextViewTextDidChangeNotification object:nil];
@@ -61,7 +62,6 @@
     }
     [self setNeedsDisplay];
 }
-
 
 
 - (void)setText:(NSString *)text {
@@ -93,23 +93,32 @@
             }else{
                 _placeHolderLabel.text = text;
             }
-            
-            CGSize optimalSize = [self.placeHolderLabel preferredSizeWithMaxWidth:self.bounds.size.width-20];
+            CGFloat sp = 20;
+            if (self.sx>=0) {
+                sp = self.sx *2;
+            }
+            CGSize optimalSize = [self.placeHolderLabel preferredSizeWithMaxWidth:self.bounds.size.width-sp];
             phlab.size.height = optimalSize.height;
             _placeHolderLabel.frame = CGRectMake(10, 10, self.bounds.size.width - 20, phlab.size.height);
+            if (self.sx >=0) {
+                _placeHolderLabel.frame = CGRectMake(self.sx, 10, self.bounds.size.width - self.sx*2, phlab.size.height);
+            }
             _placeHolderLabel.backgroundColor = [UIColor clearColor];
             UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(textViewBeginEditing:)];
             [_placeHolderLabel addGestureRecognizer:tap];
             [self addSubview:_placeHolderLabel];
-            if(sobotIsRTLLayout()){
+            if(SobotKitIsRTLLayout){
                 [_placeHolderLabel setTextAlignment:NSTextAlignmentRight];
             }
-            
             if(self.contentSize.height < optimalSize.height){
-                self.contentSize = CGSizeMake(self.bounds.size.width, optimalSize.height + 20);
+                self.contentSize = CGSizeMake(self.bounds.size.width, optimalSize.height + sp);
+                if (self.sx >= 0) {
+                    CGRect sf = self.frame;
+                    sf.origin.x = sf.origin.x -self.sx-1;
+                    self.frame = sf;
+                }
             }
         }
-        
         [self sendSubviewToBack:_placeHolderLabel];
     }
     
@@ -128,15 +137,24 @@
     _placeholder = textPlaceholder;
     if(!sobotIsNull(self.placeHolderLabel)){
         self.placeHolderLabel.text = _placeholder;
-        
         CGRect phlab = _placeHolderLabel.frame;
-
-        CGSize optimalSize = [self.placeHolderLabel preferredSizeWithMaxWidth:self.bounds.size.width-20];
+        CGFloat sp = 20;
+        if (self.sx>=0) {
+            sp = self.sx *2;
+        }
+        CGSize optimalSize = [self.placeHolderLabel preferredSizeWithMaxWidth:self.bounds.size.width-sp];
         phlab.size.height = optimalSize.height;
         _placeHolderLabel.frame = CGRectMake(10, 10, self.bounds.size.width - 20, phlab.size.height);
-        
+        if (self.sx >=0) {
+            _placeHolderLabel.frame = CGRectMake(self.sx, 10, self.bounds.size.width - self.sx*2, phlab.size.height);
+        }
         if(self.contentSize.height < optimalSize.height){
-            self.contentSize = CGSizeMake(self.bounds.size.width, optimalSize.height + 20);
+            self.contentSize = CGSizeMake(self.bounds.size.width, optimalSize.height + sp);
+        }
+        if (self.sx >= 0) {
+            CGRect sf = self.frame;
+            sf.origin.x = sf.origin.x -self.sx-1;
+            self.frame = sf;
         }
     }
     [self setNeedsDisplay];
@@ -160,5 +178,7 @@
     }
     return str;
 }
+
+
 
 @end

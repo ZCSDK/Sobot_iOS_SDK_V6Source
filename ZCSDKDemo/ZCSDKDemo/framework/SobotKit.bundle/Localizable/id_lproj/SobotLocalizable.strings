@@ -11,7 +11,7 @@
 "暂时无法转接人工客服" = "Tidak dapat mentransfer layanan pelanggan manual untuk sementara";
 "暂时无法评价" = "Tidak dapat mengevaluasi sementara";
 "网络错误，请检查网络后重试" = "Kesalahan jaringan, mohon periksa jaringan dan coba lagi";
-"转人工" = "Pindahkan tenaga kerja";
+"转人工" = "Transfer ke Manual";
 "时间" = "waktu";
 "日期" = "tanggal";
 "标题" = "judul";
@@ -48,7 +48,7 @@
 "您收到了一条新消息" = "Anda menerima pesan baru";
 "评分" = "skor";
 "评语" = "Komentar";
-"是否解决了您的问题？" = "Apakah  memecahkan masalah Anda?";
+"是否解决了您的问题？" = "apakah  memecahkan masalah Anda?";
 "受理中" = "Sudah diterima";
 "问题分类" = "kategori pertanyaan";
 "问题详情" = "Detail pertanyaan";
@@ -76,7 +76,7 @@
 "运输中" = "sedang transit";
 "待发货" = "tunggu mengirim";
 "待付款" = "Tunggu pembayaran";
-"选填" = "opsional";
+"选填" = "Opsional";
 "展开" = "Lebarkan";
 "收起" = "Ciutkan";
 "无" = "tidak";
@@ -137,10 +137,10 @@
 "删除" = "menghapus";
 "数据错误" = "kesalahan data";
 "客服" = "Pelayanan pelanggan";
-"复制成功！" = "Berhasil menyalin!";
+"复制成功" = "Berhasil menyalin";
 "复制" = "menyalin";
 "已创建" = "Sudah dibangun";
-"倒计时:" = "Hitung mundur:";
+"倒计时" = "Hitung mundur";
 "消息中心" = "Pusat pesan";
 "未连接" = "Tidak terhubung";
 "连接中..." = "menghubungkan ...";
@@ -200,15 +200,95 @@
 "自定义字段" = "Tanah adat";
 "非常不满意" = "Sangat tidak puas";
 "未解决问题？点击" = "Tidak menyelesaikan masalah Anda?";
-"转人工服务" = "Layanan manusia";
+"转人工服务" = "Layanan manusia ";
 "展开消息" = "Perluas pesannya";
 "继续发送" = "Terus kirim";
 "拒绝" = "Menolak";
 "您已同意发送个人敏感信息，本次授权有效期24小时" = "Anda telah setuju untuk mengirim informasi sensitif pribadi. Otorisasi ini valid selama 24 jam";
 "您已拒绝发送此消息" = "Anda telah menolak untuk mengirim pesan ini";
 "附件" = "penyamaran";
+"保存成功" = "Berhasil disimpan";
+"保存失败" = "Gagal menyimpan";
+
+//************* 同步415的数据 ***********
 "填写信息" = "Compilare le informazioni";
 "排队自动断开结束会话" = "Termina la sessione dopo la disconnessione automatica in coda";
 "小程序" = "Aplet";
 "小程序只能通过微信打开" = "Aplet hanya dapat dibuka melalui wechat";
 "解析中..." = "Menganalisis";
+"转换失败" = "tukar pandangan";
+"转换完成" = "mengubah jaringan";
+"订单号" = "jumlah order";
+"交易状态"="status perdagangan";
+"创建时间"="Waktu penciptaan";
+"展开更多" = "Tambah Lebih";
+"共" = "umum";
+"已读"="baca";
+"未读"="Belum dibaca";
+"我"="Aku";
+"机器人"="Robot";
+"链接" = "Link";
+"文章" = "Artikel";
+"引用" = "kutipan";
+"已选"="Dipilih";
+"搜索"="Cari";
+"搜索全部省"="Cari semua provinsi";
+"搜索全部市"="Cari semua kota";
+"搜索全部县（区）"="Cari semua daerah (distrik)";
+"搜索全部街道"="Cari semua jalan";
+"无结果"="Tidak ada hasil";
+"请选择是否解决了您的问题" = "Silakan pilih apakah masalah Anda telah diselesaikan";
+"换一批" = "Ganti grup";
+//************* 同步415的数据 ***********
+
+/**公共组件翻译*/
+"选择时区" = "Pilih zona waktu";
+"请选择时区" = "Silakan pilih zona waktu";
+"暂无选项内容" = "Saat ini tidak ada pilihan yang tersedia";
+"时区"="Zona Waktu";
+"年"="Tahun";
+"月"="Bulan";
+"日"="Hari";
+
+"区号"="Kode area";
+
+
+"语言已切换为“xxx”" = "Bahasa telah dialihkan ke \"xxx\"";
+"选择语言" = "Pilih bahasa";
+"请选择您要使用的聊天语言：" = "Silakan pilih bahasa yang ingin Anda gunakan untuk ngobrol:";
+"更多语言" = "Lebih banyak bahasa";
+
+
+"顶" = "atas";
+"踩" = "langkah ke";
+
+"满意" = "Puas";
+"不满意" = "Tidak puas";
+
+
+"回复了您" = "Membalasmu";
+"您的回复" = "balasanmu";
+
+"上传附件" = "Unggah Lampiran";
+"展开全部" = "Perluas Semuanya";
+"收起" = "Tutup";
+"松开 发送" = "Rilis untuk Dikirim";
+"松开 取消" = "Rilis untuk Dibatalkan";
+"松开发送，上滑取消" = "Rilis untuk dikirim, geser ke atas untuk membatalkan";
+"暂无回复" = "Tidak ada balasan";
+"请输入" = "Silakan masukkan...";
+"最多上传" = "Batas unggahan maksimum adalah";
+"个，" = "item,";
+"大小不超过" = "dengan ukuran tidak melebihi ";
+"已达上限 15 个" = "Batas 15 item telah tercapai";
+"知道了" = "Mengerti";
+"已拒绝" = "Ditolak";
+
+
+"请选择" = "Silakan pilih";
+"暂无客服在线，点击进行留言。" = "Tidak ada agen yang online. Klik untuk meninggalkan pengajuan";
+"工单处理状态更新后将在会话中提醒您" = "Anda akan diingatkan dalam sesi setelah status pemrosesan perintah kerja diperbarui.";
+
+"商品数" = "Jumlah";
+"更多信息" = "Informasi lebih lanjut";
+"查看更多" = "Lihat lebih lanjut";

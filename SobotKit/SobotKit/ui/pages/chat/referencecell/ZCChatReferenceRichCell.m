@@ -224,11 +224,11 @@
                     _layoutPictureH.constant = 40;
                     if(type == SobotMessageTypeVideo){
                         _layoutPictureW.constant = 70;
-                        [_ivPicture loadWithURL:[NSURL URLWithString:sobotConvertToString(item.snapshot)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")];
+                        [_ivPicture loadWithURL:[NSURL URLWithString:sobotConvertToString(item.snapshot)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1") showActivityIndicatorView:NO];
                         _btnPlay.hidden = NO;
                     }else{
                         _layoutPictureW.constant = 40;
-                        [_ivPicture loadWithURL:[NSURL URLWithString:sobotConvertToString(item.msg)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")];
+                        [_ivPicture loadWithURL:[NSURL URLWithString:sobotConvertToString(item.msg)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1") showActivityIndicatorView:NO];
                     }
                     if(sobotConvertToString(item.url).length > 0){
                         _btnPlay.obj = @{@"msg":sobotConvertToString(item.url)};
@@ -256,12 +256,12 @@
                     }else if (type == 4){
                         [_imgLeft setImage:[ZCUIKitTools getFileIcon:sobotConvertToString(item.msg) fileType:0]];
                         
-                        if(self.parentMessage.sendType == 0){
+                        if(self.isSupRight == 0){
                             // 右边
-                            self.viewContent.backgroundColor = UIColorFromModeColorAlpha(SobotColorWhite, 0.14);
+                            self.viewContent.backgroundColor = UIColorFromModeColorAlpha(SobotColorTextWhite, 0.14);
                         }else{
                             // 左边
-                            self.viewContent.backgroundColor = UIColorFromModeColor(SobotColorWhite);
+                            self.viewContent.backgroundColor = UIColorFromModeColor(SobotColorTextWhite);
                         }
                     }
                     [_labTitle setText:sobotConvertToString(item.name)];
@@ -292,16 +292,16 @@
                         self.labTitle.textColor = [ZCUIKitTools zcgetRightChatTextColor];
                     }
                     
-                    if(self.parentMessage.sendType == 0){
+                    if(self.isSupRight == 0){
                         // 右边
-                        self.viewContent.backgroundColor = UIColorFromModeColorAlpha(SobotColorWhite, 0.14);
+                        self.viewContent.backgroundColor = UIColorFromModeColorAlpha(SobotColorTextWhite, 0.14);
                     }else{
                         // 左边
-                        self.viewContent.backgroundColor = UIColorFromModeColor(SobotColorWhite);
+                        self.viewContent.backgroundColor = UIColorFromModeColor(SobotColorTextWhite);
                     }
                     
                     _labTitle.text = SobotKitLocalString(@"解析中...");
-                    [_imgRight loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zcicon_url_icon")];
+                    [_imgRight loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
                     contentW = ScreenWidth;
                     [self getLinkValues:sobotConvertToString(item.msg) name:sobotConvertToString(item.name) result:^(NSString * _Nonnull title, NSString * _Nonnull desc, NSString * _Nonnull iconUrl) {
                         if(title.length > 0){
@@ -353,7 +353,17 @@
             NSString *title = sobotConvertToString([data objectForKey:@"title"]);
             NSString *desc = sobotConvertToString([data objectForKey:@"desc"]);
             NSString *imgUrl = sobotConvertToString([data objectForKey:@"imgUrl"]);
-            if(title.length > 0){
+            if(title.length > 0 || imgUrl.length >0){
+                if (sobotConvertToString(title).length == 0) {
+                    if (sobotConvertToString(name).length >0) {
+                        title = sobotConvertToString(name);
+                    }else{
+                        title = sobotConvertToString(link);
+                    }
+                }
+                if (sobotConvertToString(desc).length == 0) {
+                    desc = sobotConvertToString(link);
+                }
                 NSDictionary *dataDic = @{@"title":sobotConvertToString(title),
                                           @"desc":sobotConvertToString(desc),
                                           @"imgUrl":sobotConvertToString(imgUrl),

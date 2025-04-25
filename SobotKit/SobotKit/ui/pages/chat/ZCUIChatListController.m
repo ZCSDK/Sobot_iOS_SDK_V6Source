@@ -192,7 +192,7 @@
     // 横竖屏更新导航栏渐变色
 //    [self updateTopViewBgColor];
     // 横竖屏更新导航栏渐变色
-    [self updateCenterViewBgColor];
+    [self updateTopViewBgColor];
 }
 
 /**

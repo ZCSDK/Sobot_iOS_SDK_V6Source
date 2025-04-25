@@ -37,11 +37,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,copy) NSString * queryShowFlag;
 @property (nonatomic,copy) NSString *fieldRemark;// 备注 占位文字使用
 @property (nonatomic,copy) NSString * fieldValue;// 自定义字段值
+
+@property (nonatomic,copy) NSString * value;// 自定义字段值
+@property (nonatomic,copy) NSString * text;// 自定义字段值
+
+
 @property (nonatomic,strong) NSMutableArray * detailArray;// 多选，单选 下拉列表 的数据
 @property (nonatomic,strong) NSString * fieldSaveValue;// 存储当前自定义字段填写的值
 //限制方式  1禁止输入空格   2 禁止输入小数点  3 小数点后只允许2位  4 禁止输入特殊字符  5只允许输入数字 6最多允许输入字符  7判断邮箱格式  8判断手机格式
 @property (nonatomic,strong) NSArray * limitOptions;
 @property (nonatomic,strong) NSString * limitChar;//允许输入字符数
+
+@property (nonatomic,assign) int regionalLevel;
 
 -(id)initWithMyDict:(NSDictionary *)dict;
 @end

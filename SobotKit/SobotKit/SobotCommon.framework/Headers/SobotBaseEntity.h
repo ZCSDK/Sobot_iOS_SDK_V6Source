@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(id)initWithMyDict:(NSDictionary *)dict;
 
+-(void)appendDictData:(NSDictionary *)dict;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -7,9 +7,10 @@
 //
 
 #import "ZCCheckMulCusFieldView.h"
-#define cellIdentifier @"ZCUITableViewCell"
+#define cellIdentifier @"ZCCheckMulCusFieldCell"
 #import "ZCPageSheetView.h"
 #import "ZCUIKitTools.h"
+#import "ZCCheckMulCusFieldCell.h"
 typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
     BUTTON_BACK   = 1, // 返回
     BUTTON_CLOSE  = 2, // 关闭(未使用)
@@ -30,8 +31,19 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
 @property(nonatomic,strong)UIButton *backButton;
 @property(nonatomic,strong)UIButton *moreButton;
 @property(nonatomic,strong)UILabel *titleLabel;
-
-
+@property(nonatomic,strong) NSMutableArray *searchArray;
+@property(nonatomic,strong)UITextField *searchField;
+@property(nonatomic,strong)UIScrollView *topScrollView;
+@property(nonatomic,strong)UIView *headerView;
+// 滑动模块是动态的
+@property(nonatomic,assign)BOOL isShowScrollView;
+// 滑块数据源
+@property(nonatomic,strong)NSMutableArray *sorceArray;
+// 无结果
+@property(nonatomic,strong)UILabel *labNullResult;
+@property(nonatomic,strong)NSLayoutConstraint *linePB;
+// 到下一级的时候显示
+@property(nonatomic,strong)UIView *lineView;
 @end
 
 @implementation ZCCheckMulCusFieldView
@@ -62,8 +74,9 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
 
 
 -(void)createTableView{
-    [self createTitleView];
+    self.sorceArray = [NSMutableArray array];
     _listTable = [[UITableView alloc]initWithFrame:CGRectMake(0, ZCSheetTitleHeight, ScreenWidth, 0) style:UITableViewStylePlain];
+    [_listTable registerClass:[ZCCheckMulCusFieldCell class] forCellReuseIdentifier:cellIdentifier];
     _listTable.delegate = self;
     _listTable.dataSource = self;
     _listTable.layer.masksToBounds = YES;
@@ -82,13 +95,30 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
     
     [_listTable setSeparatorColor:[ZCUIKitTools zcgetCommentButtonLineColor]];
     [_listTable setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
-    _listTable.tableHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, CGFLOAT_MIN)];
+    //    _listTable.tableHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, CGFLOAT_MIN)];
     _listTable.tableFooterView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, CGFLOAT_MIN)];
     
-    [self setTableSeparatorInset];
+//    [self setTableSeparatorInset];
     if(_showArray == nil){
         _showArray = [[NSMutableArray alloc] init];
     }
+    // 先创建列表后创建头部
+    [self createTitleView];
+    
+    // 没有搜索结果的
+    _labNullResult = [[UILabel alloc] init];
+    _labNullResult.textAlignment = NSTextAlignmentCenter;
+    _labNullResult.textColor = UIColorFromModeColor(SobotColorTextSub);
+    _labNullResult.backgroundColor = UIColorFromKitModeColor(SobotColorBgMain);
+    _labNullResult.backgroundColor = UIColor.clearColor;
+    _labNullResult.text = SobotLocalString(@"无结果");
+    _labNullResult.font = SobotFont14;
+    [self.listTable addSubview:_labNullResult];
+    [self.listTable addConstraint:sobotLayoutEqualCenterY(0,_labNullResult,self.listTable)];
+    [self.listTable addConstraint:sobotLayoutEqualCenterX(0,_labNullResult,self.listTable)];
+    [self.listTable addConstraint:sobotLayoutEqualWidth(ScreenWidth, _labNullResult, NSLayoutRelationEqual)];
+    [self.listTable addConstraint:sobotLayoutEqualHeight(ScreenHeight *0.8 - 52 - self.headerView.frame.size.height, _labNullResult, NSLayoutRelationEqual)];
+    _labNullResult.hidden = YES;
 }
 
 -(void)buttonClick:(UIButton *) btn{
@@ -108,20 +138,16 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
 -(void)setAllArray:(NSMutableArray *)allArray{
     _allArray = allArray;
     _showArray = [self getChildNodes:_parentDataId];
-    CGRect f = self.listTable.frame;
-    f.size.height = _showArray.count * 54;
-    CGFloat scale = 0.7;
+    _searchArray = [self getChildNodes:_parentDataId];
+    CGFloat scale = 0.8;
     if(isLandspace){
         scale = 0.5;
     }
-    if(f.size.height > ScreenHeight * scale){
-        f.size.height = ScreenHeight * scale;
-    }
-    _listTable.frame = f;
     [self.listTable reloadData];
-     CGFloat h = f.size.height + ZCSheetTitleHeight + XBottomBarHeight;
+    // 直接设置最大值
+    CGFloat h = ScreenHeight *scale;
     [self setFrame:CGRectMake(0, 0, self.frame.size.width, h)];
-     self.superview.frame = CGRectMake(0, ScreenHeight - h, self.frame.size.width, h);
+    self.superview.frame = CGRectMake(0, ScreenHeight - h, self.frame.size.width, h);
     if([_parentDataId isEqual:@""]){
         _backButton.hidden = YES;
     }
@@ -151,32 +177,30 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
 -(void)layoutSubviews{
     [super layoutSubviews];
     CGRect f = self.listTable.frame;
-    f.size.height = _showArray.count * 54;
-    CGFloat scale = 0.7;
-   if(isLandspace){
-       scale = 0.5;
-   }
-   if(f.size.height > ScreenHeight * scale){
-       f.size.height = ScreenHeight * scale;
-   }
-   f.origin.y = ZCSheetTitleHeight;
+    // 固定弹窗高度80%
+    CGFloat scale = 0.8;
+    if(isLandspace){
+        scale = 0.5;
+    }
     int direction = [SobotUITools getCurScreenDirection];
-       CGFloat spaceX = 0;
-       CGFloat LW = self.frame.size.width;
-       // iphoneX 横屏需要单独处理
-       if(direction > 0){
-           LW = self.frame.size.width - XBottomBarHeight;
-       }
-       if(direction == 2){
-           spaceX = XBottomBarHeight;
-       }
+    CGFloat spaceX = 0;
+    CGFloat LW = self.frame.size.width;
+    // iphoneX 横屏需要单独处理
+    if(direction > 0){
+        LW = self.frame.size.width - XBottomBarHeight;
+    }
+    if(direction == 2){
+        spaceX = XBottomBarHeight;
+    }
     f.origin.x = spaceX;
     f.size.width = LW;
-   _listTable.frame = f;
-   [self.listTable reloadData];
-    CGFloat h = f.size.height + ZCSheetTitleHeight + XBottomBarHeight;
-   [self setFrame:CGRectMake(0, 0, self.frame.size.width, h)];
+    _listTable.frame = f;
+    [self.listTable reloadData];
+    CGFloat h = ScreenHeight *scale;
+    [self setFrame:CGRectMake(0, 0, self.frame.size.width, h)];
     self.superview.frame = CGRectMake(0, ScreenHeight - h, self.frame.size.width, h);
+    [self addRoundedCorners:UIRectCornerTopLeft|UIRectCornerTopRight withRadii:CGSizeMake(8, 8) withView:self.topView];
+    [self addRoundedCorners:UIRectCornerTopLeft|UIRectCornerTopRight withRadii:CGSizeMake(8, 8) withView:self];
 }
 
 //设置分割线间距
@@ -198,58 +222,39 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
 
 // 返回section下得行数
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    if(_showArray==nil){
+    if(_searchArray==nil){
         return 0;
     }
-    return _showArray.count;
+    // 有搜索结果
+    return _searchArray.count;
 }
 
 // cell
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    UITableViewCell *cell = (UITableViewCell*)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    ZCCheckMulCusFieldCell *cell = (ZCCheckMulCusFieldCell*)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
+        cell = [[ZCCheckMulCusFieldCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
     }
-    if(indexPath.row==_showArray.count-1){
-        if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
-            [cell setSeparatorInset:UIEdgeInsetsZero];
-        }
-        if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
-            [cell setLayoutMargins:UIEdgeInsetsZero];
-        }
-        if([cell respondsToSelector:@selector(setPreservesSuperviewLayoutMargins:)]){
-            [cell setPreservesSuperviewLayoutMargins:NO];
+    if (sobotIsNull(_searchArray)&&_searchArray.count >0) {
+        if(_searchArray.count < indexPath.row){
+            return cell;
         }
     }
-    
-    if(_showArray.count < indexPath.row){
-        return cell;
-    }
-    cell.frame = CGRectMake(0, 0, self.listTable.frame.size.width, 54);
-    [cell setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark1)];
-    [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
-    [[cell.contentView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectZero];
-    [imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [cell.contentView addSubview:imageView];
-    UILabel *textLabel = [[UILabel alloc] initWithFrame:CGRectMake(15, 20, self.listTable.frame.size.width - 50, 21)];
-    textLabel.font = SobotFont14;
-    textLabel.textColor = UIColorFromKitModeColor(SobotColorTextMain);
-    [cell.contentView addSubview:textLabel];
-    ZCOrderCusFieldsDetailModel *model=[_showArray objectAtIndex:indexPath.row];
-    textLabel.text = model.dataName;
-    CGRect imgf = imageView.frame;
+    ZCOrderCusFieldsDetailModel *model = [_searchArray objectAtIndex:indexPath.row];
+    BOOL isNext = NO;
+    BOOL isSel = NO;
     if([self checkNextChildNodes:model.dataId]){
-        imageView.image =  [SobotUITools getSysImageByName:@"zcicon_arrow_right_record"];
-        imgf.size = CGSizeMake(7, 12);
+        // 有下一级
+        isNext = YES;
+    }else{
+        if (!sobotIsNull(_preModel) && [_preModel.fieldSaveValue containsString:sobotConvertToString(model.dataValue)]) {
+            isSel = YES;
+        }
     }
-    
-    imgf.origin.x = self.listTable.frame.size.width - imgf.size.width - 15;
-    imgf.origin.y = (55 - imgf.size.height)/2;
-    imageView.frame = imgf;
+    // 查看是否选中
+    [cell initDataToView:model isSel:isSel isNext:isNext];
     return cell;
 }
-
 
 
 // 是否显示删除功能
@@ -263,33 +268,62 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
     editingStyle = UITableViewCellEditingStyleDelete;
 }
 
-// table 行的高度
--(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return 54.0f;
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 0;
 }
+
+// table 行的高度 不固定
+//-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    return 54.0f;
+//}
 
 // table 行的点击事件
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    if(_showArray==nil || _showArray.count<indexPath.row){
+    if(_searchArray==nil || _searchArray.count<indexPath.row){
         return;
     }
     
-    ZCOrderCusFieldsDetailModel *model = [_showArray objectAtIndex:indexPath.row];
+    ZCOrderCusFieldsDetailModel *model = [_searchArray objectAtIndex:indexPath.row];
     if([self checkNextChildNodes:model.dataId]){
-        ZCCheckMulCusFieldView *typeVC = [[ZCCheckMulCusFieldView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 0)];
-        typeVC.parentDataId = model.dataId;
-        typeVC.pageTitle = model.dataName;
-        typeVC.orderCusFiledCheckBlock =  _orderCusFiledCheckBlock;
-        typeVC.parentView = self;
-        typeVC.allArray = _allArray;
-        [self.superview addSubview:typeVC];
-        [(ZCPageSheetView *)self.superview.superview showSheet:typeVC.frame.size.height animation:NO block:^{
-            self.hidden = YES;
-        }];
+        // 这里逻辑替换不再跳页处理，只在本月切换数据 展示下一级数据
+        NSMutableArray *cutArray = [NSMutableArray array];
+        for (ZCOrderCusFieldsDetailModel *item in _showArray) {
+            [cutArray addObject:item];
+        }
+        NSDictionary *sorceDict = @{
+            @"level":[NSString stringWithFormat:@"%d",model.level],
+            @"dataName":sobotConvertToString(model.dataName),
+            @"cutShowArr":cutArray,
+            @"dataId":sobotConvertToString(model.dataId)
+        };
+        [self.sorceArray addObject:sorceDict];
         
+        // 同步下一级的数据
+        self.parentDataId = model.dataId;
+        [_showArray removeAllObjects];
+        _showArray = [self getChildNodes:_parentDataId];
+        self.searchArray = [self getChildNodes:_parentDataId];
+        self.searchField.text = @"";
+        // 切换回显滑块
+        [self changeScrollViewItems];
+        [self.listTable reloadData];
+        
+        // 这里在放一遍当前要展示的数据作为不可点击的数据，标题是上一级的标题，
+        
+        //        ZCCheckMulCusFieldView *typeVC = [[ZCCheckMulCusFieldView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 0)];
+        //        typeVC.parentDataId = model.dataId;
+        //        typeVC.pageTitle = model.dataName;
+        //        typeVC.orderCusFiledCheckBlock =  _orderCusFiledCheckBlock;
+        //        typeVC.parentView = self;
+        //        typeVC.allArray = _allArray;
+        //        [self.superview addSubview:typeVC];
+        //        [(ZCPageSheetView *)self.superview.superview showSheet:typeVC.frame.size.height animation:NO block:^{
+        //            self.hidden = YES;
+        //        }];
     }else{
+        // 没有下一级了 直接选中
         dataIds = model.dataValue;
         dataNames = model.dataName;
         [self getParentNode:model.parentDataId];
@@ -302,6 +336,206 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
     }
 }
 
+#pragma mark -- 添加滑动返回按钮集合
+-(void)changeScrollViewItems{
+    if (self.sorceArray.count > 0) {
+        self.isShowScrollView = YES;
+        _lineView.hidden = NO;
+    }else{
+        self.isShowScrollView = NO;
+        _lineView.hidden = YES;
+    }
+    [self setScrollViewShow];
+    if (self.sorceArray.count >0) {
+        [self.topScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        CGFloat itemX = 0;
+        CGFloat itemY = 15;
+        CGFloat itemH = 22;
+        CGFloat itemW = 0;
+        for (int i = 0; i<self.sorceArray.count; i++) {
+            NSDictionary *sorceDict = self.sorceArray[i];
+            UIView *lastView =  [self createItemWith:sorceDict x:itemX y:itemY w:itemW h:itemH index:i];
+            itemX = lastView.frame.origin.x + lastView.frame.size.width;
+            if (lastView) {
+                self.topScrollView.contentSize = CGSizeMake(lastView.frame.size.width + lastView.frame.origin.x, 22);
+                if (itemX > self.topScrollView.frame.size.width) {
+                    self.topScrollView.contentOffset = CGPointMake(itemX-self.topScrollView.frame.size.width, 0);
+                }
+            }
+        }
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            [ZCUIKitTools setViewRTLtransForm:self.topScrollView];
+        }
+    }
+}
+
+#pragma Mark构建每一个按钮
+-(UIView *)createItemWith:(NSDictionary *)sorceDict x:(CGFloat)itemX y:(CGFloat)itemY w:(CGFloat)itemW h:(CGFloat)itemH index:(int)i{
+    UIView *firstBgView;
+    UIView *itemBgView;
+    if (i == 0) {
+        // 创建全部的按钮
+        // 并且创建第一个数据
+        firstBgView = [[UIView alloc]init];
+        firstBgView.backgroundColor = UIColor.clearColor;
+        [self.topScrollView addSubview:firstBgView];
+        // 全部的lab
+        UILabel *allTipLab = [[UILabel alloc]init];
+        allTipLab.textColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
+        allTipLab.font = SobotFont14;
+        [firstBgView addSubview:allTipLab];
+        // 计算文本的宽度
+        CGFloat textW = [self getLabelTextWidthWith:SobotLocalString(@"全部")];
+        allTipLab.text = SobotLocalString(@"全部");
+        allTipLab.frame = CGRectMake(0, 0, textW, itemH);
+        // 箭头
+        UIImageView *firstIconImg = [[UIImageView alloc]init];
+        firstIconImg.image = [[SobotUITools getSysImageByName:@"zcicon_arrow_right_record_small"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        firstIconImg.tintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
+        firstIconImg.frame = CGRectMake(textW+4, 2.5, 10, 18);
+        [firstBgView addSubview:firstIconImg];
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            firstIconImg.transform = CGAffineTransformMakeRotation(M_PI);  // M_PI_4 是 45 度
+        }
+        // 首次之后的X值
+        itemX = textW + 4 + 10 +4;
+        firstBgView.frame = CGRectMake(0, itemY, itemX, itemH);
+        //点击交互按钮
+        SobotButton *firstClickBtn = [SobotButton buttonWithType:UIButtonTypeCustom];
+        [firstBgView addSubview:firstClickBtn];
+        firstClickBtn.obj = sorceDict;
+        firstClickBtn.tag = i;
+        [firstClickBtn addTarget:self action:@selector(backAction:) forControlEvents:UIControlEventTouchUpInside];
+        firstClickBtn.frame = CGRectMake(0, 0, itemX, itemH);
+    }
+    // 这里计算全部之后的数据
+    itemBgView = [[UIView alloc]init];
+    itemBgView.backgroundColor = UIColor.clearColor;
+    itemBgView.frame = CGRectMake(itemX, itemY, 0, itemH);
+    [self.topScrollView addSubview:itemBgView];
+    // lab
+    UILabel *tipLab = [[UILabel alloc]init];
+    tipLab.textColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
+    tipLab.font = SobotFont14;
+    [itemBgView addSubview:tipLab];
+    // 计算文本的宽度
+    CGFloat textW = [self getLabelTextWidthWith:sobotConvertToString([sorceDict objectForKey:@"dataName"])];
+    tipLab.text = sobotConvertToString([sorceDict objectForKey:@"dataName"]);
+    tipLab.frame = CGRectMake(0, 0, textW, itemH);
+    if (i == self.sorceArray.count -1) {
+        // 最后一个显示灰色
+        tipLab.textColor = UIColorFromKitModeColor(SobotColorTextSub1);
+        // 没有箭头
+    }else{
+        // 有箭头
+        UIImageView *iconImg = [[UIImageView alloc]init];
+        iconImg.image = [[SobotUITools getSysImageByName:@"zcicon_arrow_right_record_small"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        iconImg.tintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
+        iconImg.frame = CGRectMake(textW+4, 2.5, 10, 18);
+        [itemBgView addSubview:iconImg];
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            iconImg.transform = CGAffineTransformMakeRotation(M_PI);  // M_PI_4 是 45 度
+        }
+        // 计算完之后的X
+        itemX = itemX + textW + 4 + 10 +4;
+    }
+    CGRect itemF = itemBgView.frame;
+    itemF.size.width = textW + 4 + ((i== self.sorceArray.count-1)? 0 : 14);
+    itemBgView.frame = itemF;
+    if (i != self.sorceArray.count -1) {
+        // 有箭头才有点击事件，没有箭头不要加
+        SobotButton *clickBtn = [SobotButton buttonWithType:UIButtonTypeCustom];
+        [itemBgView addSubview:clickBtn];
+        clickBtn.obj = sorceDict;
+        clickBtn.tag = i+1;
+        [clickBtn addTarget:self action:@selector(backAction:) forControlEvents:UIControlEventTouchUpInside];
+        clickBtn.frame = CGRectMake(0, 0, itemF.size.width, itemF.size.height);
+    }
+    return itemBgView;
+}
+
+
+
+#pragma mark -- 点击返回上一级或某一级
+-(void)backAction:(SobotButton *)sender{
+    int tag = (int)sender.tag;
+    NSDictionary *scoreDict = self.sorceArray[tag];
+    int level = [sobotConvertToString([scoreDict objectForKey:@"level"]) intValue];
+    // 这里是倒着来的，点击2级是要显示是3级的数据的
+    if (level == 0 && tag == 0) {
+        // 移除滚动条，恢复默认 清理缓存数据
+        [self.sorceArray removeAllObjects];
+        [_showArray removeAllObjects];
+        [_searchArray removeAllObjects];
+        _showArray = [scoreDict objectForKey:@"cutShowArr"];
+        self.searchArray = [scoreDict objectForKey:@"cutShowArr"];
+        [self clearSearchView];
+        // 切换回显滑块
+        [self changeScrollViewItems];
+        [self.listTable reloadData];
+    }else{
+        [self clearSearchView];
+        // 切换数据，清理缓存数据
+        [_showArray removeAllObjects];
+        _showArray = [scoreDict objectForKey:@"cutShowArr"];
+        _searchArray = [scoreDict objectForKey:@"cutShowArr"];
+        self.parentDataId = [scoreDict objectForKey:@"dataId"];
+        self.searchArray = _showArray;
+#pragma mark --//移除下标之后的 注意这里的数据关系 先处理展示的数据，在移除scorllview的数据
+        if (self.sorceArray && self.sorceArray.count >0) {
+            if (tag <self.sorceArray.count) {
+                [self.sorceArray removeObjectsInRange:NSMakeRange(tag, self.sorceArray.count -tag)];
+            }
+        }
+        // 切换回显滑块
+        [self changeScrollViewItems];
+        [self.listTable reloadData];
+    }
+}
+
+#pragma mark-- 清空输入，回收键盘
+-(void)clearSearchView{
+    self.searchField.text = @"";
+    [_searchField resignFirstResponder];
+    [self endEditing:YES];
+    _labNullResult.hidden = YES;
+    [self hideKeyBoard];
+}
+#pragma mark --滚动回收键盘
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    [self endEditing:YES];
+    [self hideKeyBoard];
+}
+
+#pragma mark -- 全局回收键盘
+- (void)hideKeyBoard
+{
+    for (UIWindow* window in [UIApplication sharedApplication].windows)
+    {
+        for (UIView* view in window.subviews)
+        {
+            [self dismissAllKeyBoardInView:view];
+        }
+    }
+}
+
+-(BOOL) dismissAllKeyBoardInView:(UIView *)view
+{
+    if([view isFirstResponder])
+    {
+        [view resignFirstResponder];
+        return YES;
+    }
+    for(UIView *subView in view.subviews)
+    {
+        if([self dismissAllKeyBoardInView:subView])
+        {
+            return YES;
+        }
+    }
+    return NO;
+}
+#pragma Mark -- 切换数据查询
 -(void)getParentNode:(NSString *) dataId{
     if([@"" isEqual:dataId]){
         return;
@@ -329,7 +563,15 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
     if ([_listTable respondsToSelector:@selector(setLayoutMargins:)]) {
         [_listTable setLayoutMargins:inset];
     }
-    [_listTable setSeparatorColor : [ZCUIKitTools zcgetCommentButtonLineColor]];
+    [_listTable setSeparatorColor : UIColor.clearColor];
+}
+
+#pragma Mark -- 设置标题
+-(void)setPageTitle:(NSString *)pageTitle{
+    if(sobotConvertToString(pageTitle)){
+        _pageTitle = pageTitle;
+        self.titleLabel.text = _pageTitle;
+    }
 }
 
 -(void)createTitleView{
@@ -338,7 +580,8 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
     [self.topView setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark1)];
     [self addSubview:self.topView];
 
-    self.titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(80,0, _topView.frame.size.width- 80*2, ZCSheetTitleHeight)];
+    // 新版UI 标题居中，其他的不显示
+    self.titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(16,0, _topView.frame.size.width- 32, ZCSheetTitleHeight)];
     [self.titleLabel setTextAlignment:NSTextAlignmentCenter];
     self.titleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     [self.titleLabel setFont:[ZCUIKitTools zcgetscTopTextFont]];
@@ -362,29 +605,188 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
     [self.backButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     
     self.moreButton=[UIButton buttonWithType:UIButtonTypeCustom];
-    [self.moreButton setFrame:CGRectMake(_topView.frame.size.width-64, 0, 64, ZCSheetTitleHeight)];
+    [self.moreButton setFrame:CGRectMake(_topView.frame.size.width-64-16, 0, 64, ZCSheetTitleHeight)];
     [self.moreButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.moreButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
     [self.moreButton setContentEdgeInsets:UIEdgeInsetsZero];
     [self.moreButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
     [self.moreButton setAutoresizesSubviews:YES];
-    [self.moreButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 15)];
-    [self.moreButton setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 15)];
-    [self.moreButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
-    [self.moreButton setImage:[SobotUITools getSysImageByName:@"zcicon_sf_close"] forState:UIControlStateNormal];
-    [self.moreButton setImage:[SobotUITools getSysImageByName:@"zcicon_sf_close"] forState:UIControlStateHighlighted];
+    
+    UIImage *originalImage = [SobotUITools getSysImageByName:@"zcion_sheet_close"];
+    CGSize newSize = CGSizeMake(14, 14);  // 调整图片为更大尺寸
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+    [originalImage drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *resizedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    [self.moreButton setImage:resizedImage forState:UIControlStateNormal];
+    [self.moreButton setImage:resizedImage forState:UIControlStateHighlighted];
     self.moreButton.tag = BUTTON_MORE;
     [self.moreButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
    
-    [self.topView addSubview:self.backButton];
-    [self.topView addSubview:self.moreButton];
+//    [self.topView addSubview:self.backButton];
+//    [self.topView addSubview:self.moreButton];
     [self.topView addSubview:self.titleLabel];
     
     UIView *bottomLine = [[UIView alloc]initWithFrame:CGRectMake(0, ZCSheetTitleHeight -0.5, ScreenWidth, 0.5)];
     bottomLine.backgroundColor = [ZCUIKitTools zcgetCommentButtonLineColor];
     [bottomLine setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [self.topView addSubview:bottomLine];
+
+    if(_searchArray == nil){
+        _searchArray = [[NSMutableArray alloc] init];
+        // 展示的View
+        _searchArray = [[NSMutableArray alloc]init];
+    }
+    self.headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, 56)];
+    self.headerView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    self.headerView.userInteractionEnabled = YES;
+    _listTable.tableHeaderView = self.headerView;
     
+    UIImageView *bgImageView = [[UIImageView alloc] initWithFrame:CGRectMake(16, 12, ScreenWidth - 32, 36)];
+    [bgImageView setBackgroundColor:UIColorFromKitModeColor(SobotColorBgSub)];
+    bgImageView.layer.cornerRadius = 4.0f;
+    bgImageView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    bgImageView.layer.masksToBounds = YES;
+    [self.headerView addSubview:bgImageView];
+    
+    UIImageView *searchIcon = [[UIImageView alloc] initWithImage:[SobotUITools getSysImageByName:@"zcicon_serach"]];
+    [searchIcon setFrame:CGRectMake(13, 10, 16, 16)];
+    [searchIcon setBackgroundColor:UIColor.clearColor];
+    searchIcon.autoresizingMask = UIViewAutoresizingFlexibleRightMargin;
+    [bgImageView addSubview:searchIcon];
+    
+    _searchField = [[UITextField alloc] initWithFrame:CGRectMake(54, 11.5, ScreenWidth - 85, 36)];
+    [_searchField setBackgroundColor:UIColor.clearColor];
+    [_searchField setTextAlignment:NSTextAlignmentLeft];
+    [_searchField setTextColor:UIColorFromKitModeColor(SobotColorTextMain)];
+    [_searchField setPlaceholder:SobotKitLocalString(@"请输入")];
+    _searchField.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    _searchField.userInteractionEnabled = YES;
+    [_searchField setBorderStyle:UITextBorderStyleNone];
+    [_searchField addTarget:self action:@selector(searchTextChanged:) forControlEvents:UIControlEventEditingChanged];
+    if([[[UIDevice currentDevice] systemVersion] doubleValue] >= 13.0){
+        [_searchField setValue:UIColorFromKitModeColor(SobotColorTextSub1) forKeyPath:@"placeholderLabel.textColor"];
+        [_searchField setValue:SobotFont14 forKeyPath:@"placeholderLabel.font"];
+    }
+    else{
+        [_searchField setValue:UIColorFromKitModeColor(SobotColorTextSub1) forKeyPath:@"_placeholderLabel.textColor"];
+        [_searchField setValue:SobotFont14 forKeyPath:@"_placeholderLabel.font"];
+    }
+    [self.headerView addSubview:_searchField];
+    
+    //级联新增滚动视图
+    _topScrollView = [[UIScrollView alloc]init];
+    _topScrollView.backgroundColor = UIColor.clearColor;
+    _topScrollView.showsVerticalScrollIndicator  = NO;
+    _topScrollView.showsHorizontalScrollIndicator = NO;
+    _topScrollView.bounces = NO;
+    _topScrollView.frame = CGRectMake(16, 48, ScreenWidth-16*2, 0);
+    _topScrollView.contentSize = CGSizeMake(0, ScreenWidth);
+    _topScrollView.scrollEnabled = YES;
+    [self.headerView addSubview:_topScrollView];
+    
+    // 底部还有一根线条
+    _lineView = [[UIView alloc]init];
+    _lineView.backgroundColor = UIColorFromKitModeColor(SobotColorBgTopLine);
+    [self.headerView addSubview:_lineView];
+    self.linePB = sobotLayoutPaddingBottom(0, _lineView, self.headerView);
+    [self.headerView addConstraint:self.linePB];
+    [self.headerView addConstraint:sobotLayoutPaddingLeft(0, _lineView , self.headerView)];
+    [self.headerView addConstraint:sobotLayoutPaddingRight(0, _lineView, self.headerView)];
+    [self.headerView addConstraint:sobotLayoutEqualHeight(0.5, _lineView, NSLayoutRelationEqual)];
+    _lineView.hidden = YES;
+    [self addRoundedCorners:UIRectCornerTopLeft|UIRectCornerTopRight withRadii:CGSizeMake(8, 8) withView:self.topView];
+    [self addRoundedCorners:UIRectCornerTopLeft|UIRectCornerTopRight withRadii:CGSizeMake(8, 8) withView:self];
 }
 
+#pragma mark -- 是否显示滑动模块
+-(void)setScrollViewShow{
+    CGRect tsf = _topScrollView.frame;
+    CGRect headerF = self.headerView.frame;
+    if (self.isShowScrollView) {
+        tsf.size.height = 52;
+        headerF.size.height = 52+48 +8;
+        self.linePB.constant = -8;
+    }else{
+        self.linePB.constant = -8;
+        tsf.size.height = 0;
+        headerF.size.height = 56 +8;
+    }
+    self.headerView.frame = headerF;
+    _topScrollView.frame = tsf;
+    [self.listTable reloadData];
+}
+
+
+/**
+ *  设置部分圆角(绝对布局)
+ *
+ *  @param corners 需要设置为圆角的角 UIRectCornerTopLeft | UIRectCornerTopRight | UIRectCornerBottomLeft | UIRectCornerBottomRight | UIRectCornerAllCorners
+ *  @param radii   需要设置的圆角大小 例如 CGSizeMake(20.0f, 20.0f)
+ */
+- (void)addRoundedCorners:(UIRectCorner)corners
+                withRadii:(CGSize)radii withView:(UIView *) view {
+    view.layer.masksToBounds = YES;
+    UIBezierPath* rounded = [UIBezierPath bezierPathWithRoundedRect:view.bounds byRoundingCorners:corners cornerRadii:radii];
+    CAShapeLayer* shape = [[CAShapeLayer alloc] init];
+    [shape setPath:rounded.CGPath];
+    
+    view.layer.mask = shape;
+}
+/**
+ *  设置部分圆角(相对布局)
+ *
+ *  @param corners 需要设置为圆角的角 UIRectCornerTopLeft | UIRectCornerTopRight | UIRectCornerBottomLeft | UIRectCornerBottomRight | UIRectCornerAllCorners
+ *  @param radii   需要设置的圆角大小 例如 CGSizeMake(20.0f, 20.0f)
+ *  @param rect    需要设置的圆角view的rect
+ */
+- (void)addRoundedCorners:(UIRectCorner)corners
+                withRadii:(CGSize)radii
+                 viewRect:(CGRect)rect withView:(UIView *) view {
+    
+    UIBezierPath* rounded = [UIBezierPath bezierPathWithRoundedRect:rect byRoundingCorners:corners cornerRadii:radii];
+    CAShapeLayer* shape = [[CAShapeLayer alloc] init];
+    [shape setPath:rounded.CGPath];
+    
+    view.layer.mask = shape;
+}
+
+#pragma mark -- 搜索编辑事件
+-(void)searchTextChanged:(UITextField *) field{
+    NSString *text = field.text;
+    if(sobotConvertToString(text).length > 0){
+        NSMutableArray *resultArr = [[NSMutableArray alloc] init];
+        for (ZCOrderCusFieldsDetailModel *model in _showArray) {
+            NSString *lowerMainString = [model.dataName lowercaseString];
+            NSString *lowerSearchString = [text lowercaseString];
+            if ([lowerMainString containsString:sobotConvertToString(lowerSearchString)]) {
+                [resultArr addObject:model];
+            }
+        }
+        self.searchArray = resultArr;
+        if(resultArr.count > 0){
+            _labNullResult.hidden = YES;
+        }else{
+            // 没有搜到数据，
+            _labNullResult.hidden = NO;
+        }
+        [_listTable reloadData];
+    }else{
+        _labNullResult.hidden = YES;
+        // 取全部的
+        self.searchArray = [NSMutableArray arrayWithArray:self.showArray];
+        [_listTable reloadData];
+    }
+}
+
+#pragma mark --计算文本宽度 注意字号
+-(CGFloat)getLabelTextWidthWith:(NSString *)tip{;
+    UIFont *font = SobotFont14;
+    CGSize maxSize = CGSizeMake(CGFLOAT_MAX, 22);  // 限制高度为一行
+    CGRect textRect = [tip boundingRectWithSize:maxSize
+                                         options:NSStringDrawingUsesLineFragmentOrigin
+                                      attributes:@{NSFontAttributeName: font}
+                                         context:nil];
+    return textRect.size.width;
+}
 @end

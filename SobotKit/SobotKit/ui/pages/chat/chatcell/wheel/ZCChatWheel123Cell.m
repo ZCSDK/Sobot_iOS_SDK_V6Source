@@ -33,10 +33,13 @@
 
 @property (nonatomic,strong) NSLayoutConstraint * layoutCollectionHeight;
 @property (nonatomic,strong) NSLayoutConstraint * layoutBtnPreHight;
+@property (nonatomic,strong) NSLayoutConstraint * layoutBtnPreT;
 
 @property (nonatomic,assign) NSInteger cellNumOnPageInt;
 @property (nonatomic,assign) NSInteger clickFlag;
 
+// 是否多行
+@property (nonatomic,assign) BOOL isMoreLine;
 @end
 
 @implementation ZCChatWheel123Cell
@@ -88,7 +91,8 @@
     if(!_pageControl){
         _pageControl = [[UIPageControl alloc] init];
         _pageControl.currentPage = 0;
-        _pageControl.currentPageIndicatorTintColor = [ZCUIKitTools zcgetRightChatColor];
+        // 切换主题色
+        _pageControl.currentPageIndicatorTintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
         if([SobotUITools getSobotThemeMode] == SobotThemeMode_Dark){
             _pageControl.pageIndicatorTintColor = [ZCUIKitTools zcgetTextPlaceHolderColor];
         }else{
@@ -168,14 +172,15 @@
     [self.contentView addConstraint:_layoutTitleHeight];
     
     // collectionview，与titleLab等宽，并顶部距离其一个间隔
-    [self.contentView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace, self.collectionView, _titleLab)];
+    [self.contentView addConstraint:sobotLayoutMarginTop(ZCChatItemSpace10, self.collectionView, _titleLab)];
     [self.contentView addConstraint:sobotLayoutPaddingLeft(0, self.collectionView, self.titleLab)];
     [self.contentView addConstraint:sobotLayoutPaddingRight(0, self.collectionView, self.titleLab)];
     _layoutCollectionHeight = sobotLayoutEqualHeight(0, self.collectionView, NSLayoutRelationEqual);
     [self.contentView addConstraint:_layoutCollectionHeight];
     
     // btnPre，整个最终高的确定对象，上下左右均有定义
-    [self.contentView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace, self.btnPre, self.collectionView)];
+    _layoutBtnPreT = sobotLayoutMarginTop(ZCChatCellItemSpace, self.btnPre, self.collectionView);
+    [self.contentView addConstraint:_layoutBtnPreT];
     [self.contentView addConstraint:sobotLayoutPaddingLeft(0, self.btnPre, self.titleLab)];
     _layoutBtnPreHight = sobotLayoutEqualHeight(25, self.btnPre, NSLayoutRelationEqual);
     [self.contentView addConstraint:_layoutBtnPreHight];
@@ -205,6 +210,7 @@
     CGFloat maxContentWidth = self.maxWidth;
     // 处理标题
     NSString * text = sobotConvertToString(message.richModel.richContent.msg);
+    text = [text stringByReplacingOccurrencesOfString:@"&#x27;" withString:@"’"];
     [ZCChatBaseCell configHtmlText:text label:self.titleLab right:self.isRight];
     CGSize size = [self.titleLab preferredSizeWithMaxWidth:maxContentWidth];
     _layoutTitleWidth.constant = maxContentWidth;
@@ -226,6 +232,7 @@
     CGFloat collectionHeight = 0;
     CGFloat itemHeight = 0;
     _layoutBtnPreHight.constant = 0;
+    _layoutBtnPreT.constant = 0;
     if(templateId == 0 || templateId == 2){
         // 114 card 标题+图片+文字,//2, 94 address 没有标题
         _cellNumOnPageInt = 3;
@@ -234,6 +241,7 @@
         }else{
             _pageControl.hidden = NO;
             _layoutBtnPreHight.constant = 25;
+            _layoutBtnPreT.constant = ZCChatItemSpace4;
             
             if (self.listArray.count%_cellNumOnPageInt > 0) {
                 numberOfPages = self.listArray.count/_cellNumOnPageInt + 1;
@@ -243,7 +251,25 @@
             _pageControl.numberOfPages = numberOfPages;
             _pageControl.currentPage = 0;
         }
-        itemHeight = (templateId==2?90:114);
+        CGFloat maxh=114;
+        if (templateId == 0) {
+           // 计算所有的最大值
+            self.isMoreLine = NO;
+            if (self.listArray && self.listArray.count >0) {
+                for (NSDictionary *item in self.listArray) {
+                    NSString *leftStr = sobotConvertToString([item objectForKey:@"label"]);
+                    NSString *rightStr = sobotConvertToString([item objectForKey:@"tag"]);
+                    CGFloat w1 = [SobotUITools getWidthContain:leftStr font:SobotFont14 Height:20];
+                    CGFloat w2 = [SobotUITools getWidthContain:rightStr font:SobotFont14 Height:20];
+                    if (w1 + w2 >self.maxWidth - 16*2 - 16*2 -60 -8) {
+                        self.isMoreLine = YES;
+                        // 如果要动态计算后期放开
+//                        maxh = 114 + 20;
+                    }
+                }
+            }
+        }
+        itemHeight = (templateId==2?90:maxh);
         collectionHeight = _cellNumOnPageInt * itemHeight + (_cellNumOnPageInt-1)*ZCChatPaddingVSpace;
         
     }else if(templateId == 1){
@@ -261,6 +287,7 @@
             _btnPre.enabled = false;
             _btnNext.hidden = NO;
             _layoutBtnPreHight.constant = 25;
+            _layoutBtnPreT.constant = ZCChatItemSpace4;
         }
         
         // 34  text
@@ -323,7 +350,7 @@
     }else{
         ZCChatWheelCollectionCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([ZCChatWheelCollectionCell class]) forIndexPath:indexPath];
         cell.indexPath = indexPath;
-        [cell configureCellWithPostURL:self.listArray[indexPath.row] message:self.tempModel];
+        [cell configureCellWithPostURL:self.listArray[indexPath.row] message:self.tempModel isMoreLine:self.isMoreLine];
         return cell;
     }
     

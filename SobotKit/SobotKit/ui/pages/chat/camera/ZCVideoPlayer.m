@@ -139,6 +139,11 @@
     _sliderProgress.minimumTrackTintColor = UIColorFromModeColor(SobotColorWhite); // 已走过
     _sliderProgress.maximumTrackTintColor = UIColorFromModeColor(SobotColorTextSub); // 未走过
     _sliderProgress.thumbTintColor = UIColorFromModeColor(SobotColorWhite);        // 滑块颜色
+    [_sliderProgress addTarget:self action:@selector(dragSlider:) forControlEvents:UIControlEventTouchUpInside];
+    [_sliderProgress addTarget:self action:@selector(touchChange)
+          forControlEvents:UIControlEventValueChanged|UIControlEventTouchDown];
+    
+    
     _sliderProgress.minimumValue = 0;
     _sliderProgress.maximumValue = 1;
     _sliderProgress.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -156,6 +161,40 @@
     [_menuView addSubview:_labEndTime];
 }
 
+
+/**
+ 按下是，暂停播放；不然进度会跳动
+ */
+-(void)touchChange{
+    if(self.player!=nil && self.player.currentItem!=nil){
+        //        _isPlay = YES;
+        [self.player pause];
+        
+        [self.avTimer setFireDate:[NSDate distantFuture]];
+    }
+}
+
+-(void)dragSlider:(UISlider *) slider{
+    CGFloat progress = slider.value;
+    if(self.player!=nil && self.player.currentItem!=nil){
+        
+        CMTime targetTime = CMTimeMakeWithSeconds(CMTimeGetSeconds(self.player.currentItem.duration)*progress, _player.currentItem.duration.timescale);
+        if (CMTIME_IS_VALID(targetTime)) {
+            [self.player seekToTime:targetTime];
+            [self.player play];
+        } else {
+            NSLog(@"Invalid target time");
+        }
+        
+        // 延迟一下，防止回弹问题
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.avTimer setFireDate:[NSDate distantPast]];
+        });
+    }else{
+        [self nextPlayer];
+    }
+    
+}
 -(UIView *) getTipsView{
     if(!_tipsView){
         _tipsView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 220, 110)];

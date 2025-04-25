@@ -125,6 +125,21 @@
 
 
 /**
+ 客户信息，国家
+ */
+@property(nonatomic,strong) NSString *country_name;
+
+/**
+ 客户信息，时区
+ */
+@property(nonatomic,strong) NSString *timezoneid;
+
+/**
+ 客户信息，设备语言
+ */
+//@property(nonatomic,strong) NSString *language;
+
+/**
 *  接入来源页面标题，默认nil
 */
 @property(nonatomic,strong) NSString *visit_title;
@@ -459,7 +474,10 @@
  */
 @property(nonatomic,assign) int isFirstEntry  NS_AVAILABLE_IOS(3.0.2);
 
-
+/**
+   公司企业名称  4.1.5新增
+ */
+@property(nonatomic,copy) NSString *enterprise_name;
 
 -(id)initByJsonDict:(NSDictionary *) dict;
 

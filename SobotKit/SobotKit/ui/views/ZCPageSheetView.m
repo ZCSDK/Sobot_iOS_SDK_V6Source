@@ -29,7 +29,7 @@
     self.userInteractionEnabled = YES;
     // 黑色遮盖
     self.frame = [UIScreen mainScreen].bounds;
-//    self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.3];
+    //    self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.3];
     self.backgroundColor = SobotRgbColorAlpha(0, 0, 0, 0.3);
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(coverClick:)];
     tap.delegate = self;
@@ -48,7 +48,7 @@
     return self;
 }
 
-- (void)showSheet:(CGFloat)height animation:(BOOL)animation block:(nonnull void (^)())ShowBlock{
+- (void)showSheet:(CGFloat)height animation:(BOOL)animation block:(nonnull void (^)(void))ShowBlock{
     self.sheetView.hidden = NO;
     CGRect sheetViewF = self.sheetView.frame;
     sheetViewF.origin.y = ScreenHeight;
@@ -76,8 +76,24 @@
     CGRect f=self.sheetView.frame;
     if(point.x<f.origin.x || point.x>(f.origin.x+f.size.width) ||
        point.y<f.origin.y || point.y>(f.origin.y+f.size.height)){
+        if (self.dissmisBlock) {
+            self.dissmisBlock(@"点击取消", self.isFromAsk);
+        }
         [self dissmisPageSheet];
     }
+}
+
+// 区分是否是询前表单的 点击页面销毁有数据回执的逻辑，这里只做事件区分
+-(void)dissmisPageSheetCommit{
+    CGRect sheetViewF = self.sheetView.frame;
+    sheetViewF.origin.y = ScreenHeight;
+    [UIView animateWithDuration:0.2 animations:^{
+        self.alpha = 0.0f;
+        self.sheetView.frame = sheetViewF;
+    } completion:^(BOOL finished) {
+        [self removeFromSuperview];
+        [self.sheetView removeFromSuperview];
+    }];
 }
 
 -(void)dissmisPageSheet{
@@ -87,8 +103,8 @@
         self.alpha = 0.0f;
         self.sheetView.frame = sheetViewF;
     } completion:^(BOOL finished) {
-        [self removeFromSuperview];
         [self.sheetView removeFromSuperview];
+        [self removeFromSuperview];
     }];
 }
 

@@ -34,7 +34,7 @@ static int const ZCReferenceVSpace = 3;
 
 @implementation ZCChatReferenceCell
 
-+(ZCChatReferenceCell *)createViewUseFactory:(SobotChatMessage *)message mainModel:(nonnull SobotChatMessage *)parentMessage maxWidth:(CGFloat)maxWidth{
++(ZCChatReferenceCell *)createViewUseFactory:(SobotChatMessage *)message mainModel:(nonnull SobotChatMessage *)parentMessage maxWidth:(CGFloat)maxWidth isRight:(BOOL)isRight{
     ZCChatReferenceCell *cell = nil;
     if(message.msgType == SobotMessageTypeText){
         cell = [[ZCChatReferenceTextCell alloc] init];
@@ -64,7 +64,9 @@ static int const ZCReferenceVSpace = 3;
     }else{
         cell = [[ZCChatReferenceCell alloc] init];
     }
+    
     if(cell!=nil){
+        cell.isSupRight = isRight;
         cell.maxWidth = maxWidth;
         cell.parentMessage = parentMessage;
         [cell dataToView:message];
@@ -179,8 +181,11 @@ static int const ZCReferenceVSpace = 3;
 
 
 -(void)dataToView:(SobotChatMessage *)message{
+    NSLog(@"sssssssssssssssssssssssssssssssssssssss");
+    _labName.text = @"";// 先回执默认空
     self.tempMessage = message;
     
+    //-1未知、0-客服 1-客戸2-引用机器人
     
     if(_parentMessage.senderType == 2){
         // 当为客服时，对方应该显示我
@@ -192,7 +197,8 @@ static int const ZCReferenceVSpace = 3;
             _labName.text = SobotKitLocalString(@"客服");
         }
     }else{
-        if(message.senderType == 0 && message.appointType == 0){
+        // appointType == 0 自己发送的
+        if(message.senderType == 0 && (message.appointType == 1 || message.appointType == 0)){
             _labName.text = SobotKitLocalString(@"我");
         }else if(message.senderType == 1 || message.appointType == 2){
     //        _labName.text = SobotKitLocalString(@"机器人");  // SDK是用户视角 除了自己都显示客服
@@ -207,15 +213,22 @@ static int const ZCReferenceVSpace = 3;
     if(self.parentMessage!=nil){
         if(self.parentMessage.senderType == 0){
             self.isRight = YES;
-            self.labTopText.textColor = [ZCUIKitTools zcgetRightChatTextColor];
-            _viewLeftLine.backgroundColor =  UIColorFromKitModeColorAlpha(SobotColorWhite, 0.4);
+//            self.labTopText.textColor = [ZCUIKitTools zcgetRightChatTextColor];
             _labName.textColor  = [ZCUIKitTools zcgetRightChatTextColor];
+            _viewLeftLine.backgroundColor =  [ZCUIKitTools zcgetReferenceRightLineColor];
+            self.labName.textColor =  [ZCUIKitTools zcgetReferenceRightNameColor];
+            self.labTopText.textColor = [ZCUIKitTools zcgetReferenceRightTextColor];
+            self.labBottomText.textColor = [ZCUIKitTools zcgetReferenceRightTextColor];
         }else{
             self.isRight = NO;
             self.labTopText.textColor = [ZCUIKitTools zcgetChatLeftLinkColor];
             self.labName.textColor = [ZCUIKitTools zcgetLeftChatTextColor];
-            _viewLeftLine.backgroundColor = UIColorFromKitModeColor(@"#CCCCCC");
+            _viewLeftLine.backgroundColor = [ZCUIKitTools zcgetReferenceLeftLineColor];
+            self.labName.textColor =  [ZCUIKitTools zcgetReferenceLeftNameColor];
+            self.labTopText.textColor = [ZCUIKitTools zcgetReferenceLeftTextColor];
+            self.labBottomText.textColor =  [ZCUIKitTools zcgetReferenceLeftTextColor];
         }
+        
     }
     
     // 清理数据

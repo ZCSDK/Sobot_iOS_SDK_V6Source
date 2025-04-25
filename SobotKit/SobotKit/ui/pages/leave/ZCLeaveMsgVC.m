@@ -12,14 +12,14 @@
 #import "ZCUIPlaceHolderTextView.h"
 #import "SobotHtmlFilter.h"
 #import "ZCUIWebController.h"
+#import "ZCUITextView.h"
+#import "ZCUITextView.h"
 @interface ZCLeaveMsgVC ()<SobotEmojiLabelDelegate,UITextFieldDelegate,UITextViewDelegate>
 {
     NSString *callURL;
     CGPoint contentoffset;// 记录list的偏移量
     UILabel *detailLab ;  // 问题描述
 }
-@property(nonatomic,strong) ZCUIPlaceHolderTextView *textView;
-
 @property (nonatomic,strong) SobotEmojiLabel *tipLab;
 
 @property (nonatomic,strong) UIScrollView *scrollView;
@@ -31,6 +31,25 @@
 @property (nonatomic,strong) UIView *lineView1;
 
 @property (nonatomic,strong) UIView *lineView2;
+
+@property (nonatomic,strong) UIView *headerView;
+
+@property (nonatomic,strong) UILabel *askTipLab;
+
+@property (nonatomic,strong) ZCUITextView *textDesc;
+
+@property (nonatomic,strong) UIView *lineView;
+
+@property (nonatomic,strong)NSLayoutConstraint *commitBtnPB;
+
+//内容视图
+@property (nonatomic,strong) UIView *bgConentView;
+
+@property(nonatomic,strong) NSLayoutConstraint *bgContentW;
+
+@property(nonatomic,strong) NSLayoutConstraint *bgContentH;
+
+@property(nonatomic,strong) NSLayoutConstraint *scrollViewPT;
 @end
 
 @implementation ZCLeaveMsgVC
@@ -55,10 +74,7 @@
     self.view.backgroundColor = [ZCUIKitTools zcgetLightGrayDarkBackgroundColor];
     [self createVCTitleView];
     [self updateNavOrTopView];
-    // 设置导航栏标题
-//    [self setHeaderConfig];
-//    // 布局子视图
-//    [self layoutSubViewsUI];
+    [self createItemView];
     UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapAction:)];
     [self.view addGestureRecognizer:tap];    
     if([ZCPlatformTools checkLeaveMessageModule]){
@@ -72,175 +88,251 @@
     }
 }
 
-#pragma mark - 子视图构建
--(void)layoutSubViewsUI{
-//    [self.view.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    if (!sobotIsNull(_scrollView)) {
-        [_scrollView removeFromSuperview];
-    }
-    if (!sobotIsNull(_tipLab)) {
-        [_tipLab removeFromSuperview];
-    }
-    if (!sobotIsNull(_textView)) {
-        [_textView removeFromSuperview];
-    }
-    if (!sobotIsNull(_lineView2)) {
-        [_lineView2 removeFromSuperview];
-    }
-    if (!sobotIsNull(_lineView1)) {
-        [_lineView1 removeFromSuperview];
-    }
-    if (!sobotIsNull(_commitBtn)) {
-        [_commitBtn removeFromSuperview];
-    }
-    if (!sobotIsNull(_label)) {
-        [_label removeFromSuperview];
-    }
-    
-    
+#pragma mark --423新版UI界面
+-(void)createItemView{
     CGFloat y = 0;
     if (self.navigationController.navigationBarHidden) {
         y = NavBarHeight;
     }
-    _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, y, ScreenWidth, ScreenHeight -NavBarHeight)];
-    _scrollView.scrollEnabled = YES;
-    _scrollView.pagingEnabled = NO;
-    _scrollView.showsVerticalScrollIndicator = NO;
-    _scrollView.showsHorizontalScrollIndicator = NO;
-    _scrollView.bounces = NO;
-    _scrollView.backgroundColor = [UIColor clearColor];
-    [self.view addSubview:_scrollView];
     
-    CGFloat Y = 0;
-    if (self.navigationController.navigationBarHidden) {
-        Y = NavBarHeight;
-    }
+    _scrollView = ({
+        UIScrollView *iv =[[UIScrollView alloc]init];
+        [self.view addSubview:iv];
+        iv.showsHorizontalScrollIndicator = NO;
+        iv.showsVerticalScrollIndicator = YES;
+        iv.alwaysBounceVertical = NO;
+        iv.alwaysBounceHorizontal = NO;
+        iv.pagingEnabled = NO;
+        iv.bounces = NO;
+        iv.scrollEnabled = YES;
+        iv.delegate = self;
+        iv.userInteractionEnabled = YES;
+        _scrollViewPT = sobotLayoutPaddingTop(y, iv, self.view);
+        [self.view addConstraint:_scrollViewPT];
+        [self.view addConstraint:sobotLayoutPaddingLeft(0, iv, self.view)];
+        [self.view addConstraint:sobotLayoutPaddingRight(0, iv, self.view)];
+        [self.view addConstraint:sobotLayoutPaddingBottom(0, iv, self.view)];
+        [iv setContentSize:CGSizeMake(0, ScreenHeight-y)];
+        iv;
+    });
     
-    _tipLab = [[SobotEmojiLabel alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 0)];
-    _tipLab.font = SobotFont14;
-    _tipLab.numberOfLines = 0;
-    _tipLab.backgroundColor = [UIColor clearColor];
-    [_tipLab setTextAlignment:NSTextAlignmentLeft];
-    [_tipLab setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
-    _tipLab.numberOfLines = 0;
-    _tipLab.isNeedAtAndPoundSign = NO;
-    _tipLab.disableEmoji = NO;
+    _bgConentView = ({
+        UIView *iv = [[UIView alloc]init];
+        iv.backgroundColor = UIColor.clearColor;
+        [_scrollView addSubview:iv];
+        [_scrollView addConstraint:sobotLayoutPaddingLeft(0, iv, _scrollView)];
+        [_scrollView addConstraint:sobotLayoutPaddingTop(0, iv, _scrollView)];
+        self.bgContentW = sobotLayoutEqualWidth(ScreenWidth, iv, NSLayoutRelationEqual);
+        [_scrollView addConstraint:self.bgContentW];
+        [_scrollView addConstraint:sobotLayoutPaddingBottom(0, iv, _scrollView)];
+        self.bgContentH = sobotLayoutEqualHeight(ScreenHeight-y, iv, NSLayoutRelationEqual);
+        [_scrollView addConstraint:self.bgContentH];
+        iv;
+    });
     
-    _tipLab.lineSpacing = 3.0f;
-    [_tipLab setLinkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
-    _tipLab.delegate = self;
-    NSString *text = @"";
-    if (_msgTxt !=nil && _msgTxt.length > 0) {
-        text = sobotConvertToString(_msgTxt);
-    }
-     if(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveMsgGuideContent).length > 0){
-        text = SobotKitLocalString(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveMsgGuideContent));
-    }
-    text = [SobotHtmlCore filterHTMLTag:text];
+    _headerView = ({
+        UIView *iv = [[UIView alloc]init];
+        [_bgConentView addSubview:iv];
+        [_bgConentView addConstraint:sobotLayoutPaddingTop(0, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutPaddingLeft(0, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutPaddingRight(0, iv, _bgConentView)];
+        iv.backgroundColor = UIColorFromKitModeColor(SobotColorHeaderBg);
+        iv;
+    });
     
-    [SobotHtmlCore filterHtml:text result:^(NSString * _Nonnull text1, NSMutableArray * _Nonnull arr, NSMutableArray * _Nonnull links) {
-        if (text1.length > 0 && text1 != nil) {
-           self->_tipLab.attributedText =   [SobotHtmlFilter setHtml:text1 attrs:arr view:self->_tipLab textColor:UIColorFromKitModeColor(SobotColorTextSub) textFont:[UIFont systemFontOfSize:14] linkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
-        }else{
-            self->_tipLab.attributedText = [[NSAttributedString alloc] initWithString:@""];
+    _tipLab = ({
+        SobotEmojiLabel *iv = [[SobotEmojiLabel alloc]initWithFrame:CGRectZero];
+        [self.headerView addSubview:iv];
+        iv.font = SobotFont12;
+        iv.numberOfLines = 0;
+        iv.backgroundColor = [UIColor clearColor];
+        [iv setTextAlignment:NSTextAlignmentLeft];
+        [iv setTextColor:UIColorFromKitModeColor(SobotColorHeaderText)];
+        iv.isNeedAtAndPoundSign = NO;
+        iv.disableEmoji = NO;
+        iv.lineSpacing = 10.0f;
+        [iv setLinkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
+        iv.delegate = self;
+        NSString *text = @"";
+        if (_msgTxt !=nil && _msgTxt.length > 0) {
+            text = sobotConvertToString(_msgTxt);
         }
-    }];
+         if(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveMsgGuideContent).length > 0){
+            text = SobotKitLocalString(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveMsgGuideContent));
+        }
+        text = [SobotHtmlCore filterHTMLTag:text];
+        
+        [SobotHtmlCore filterHtml:text result:^(NSString * _Nonnull text1, NSMutableArray * _Nonnull arr, NSMutableArray * _Nonnull links) {
+            if (text1.length > 0 && text1 != nil) {
+                iv.attributedText =   [SobotHtmlFilter setHtml:text1 attrs:arr view:iv textColor:UIColorFromKitModeColor(SobotColorHeaderText) textFont:[UIFont systemFontOfSize:14] linkColor:[ZCUIKitTools zcgetChatLeftLinkColor] lineSpacing:5];
+            }else{
+                iv.attributedText = [[NSAttributedString alloc] initWithString:@""];
+            }
+        }];
+        [self.headerView addConstraint:sobotLayoutPaddingTop(10, iv, self.headerView)];
+        [self.headerView addConstraint:sobotLayoutPaddingLeft(16, iv, self.headerView)];
+        [self.headerView addConstraint:sobotLayoutPaddingRight(-16, iv, self.headerView)];
+        [self.headerView addConstraint:sobotLayoutPaddingBottom(-10, iv, self.headerView)];
+        
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            iv.textAlignment = NSTextAlignmentRight;
+        }else{
+            iv.textAlignment = NSTextAlignmentLeft;
+        }
+        iv;
+    });
     
-    CGSize  labSize  =  [_tipLab preferredSizeWithMaxWidth:ScreenWidth-30];
-    _tipLab.frame = CGRectMake(15, 12, labSize.width, labSize.height);
-    [_scrollView addSubview:_tipLab];
-       
-    UIView * wbgView = [[UIView alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(_tipLab.frame) +12,ScreenWidth , 30 + 154 + 20)];
-    wbgView.backgroundColor = UIColorFromKitModeColor(SobotColorBgMainDark2);
-    [_scrollView addSubview:wbgView];
+    _askTipLab = ({
+        UILabel *iv = [[UILabel alloc]init];
+        [_bgConentView addSubview:iv];
+        iv.textColor = UIColorFromKitModeColor(SobotColorTextSub);
+        iv.font = SobotFont14;
+        iv.numberOfLines = 0;
+        iv.text = SobotKitLocalString(@"*问题描述");
+        [_bgConentView addConstraint:sobotLayoutMarginTop(12, iv, self.headerView)];
+        [_bgConentView addConstraint:sobotLayoutPaddingLeft(16, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutPaddingRight(-16, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutEqualHeight(20, iv, NSLayoutRelationEqual)];
+        iv.attributedText = [self getOtherColorString:@"*" Color:[UIColor redColor] withString:[NSString stringWithFormat:@"* %@",SobotKitLocalString(@"问题描述")]];
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            iv.textAlignment = NSTextAlignmentRight;
+        }else{
+            iv.textAlignment = NSTextAlignmentLeft;
+        }
+        iv;
+    });
     
-    _textView = [[ZCUIPlaceHolderTextView alloc]initWithFrame:CGRectMake(20, CGRectGetMaxY(_tipLab.frame) + 40, ScreenWidth-40, 154)];
-    _textView.type = 1;
-    _textView.placeholder = @"";
-    [_textView setPlaceholderColor:UIColorFromKitModeColor(SobotColorTextSub1)];
-    [_textView setFont:SobotFont14];
-    [_textView setTextColor:UIColorFromKitModeColor(SobotColorTextMain)];
-    _textView.delegate = self;
+    _textDesc = ({
+        ZCUITextView *iv = [[ZCUITextView alloc]init];
+        iv.placeholder = SobotKitLocalString(@"请输入");
+        [iv setPlaceholderColor:UIColorFromKitModeColor(SobotColorTextSub1)];
+        [iv setFont:SobotFont14];
+        [iv setTextColor:UIColorFromKitModeColor(SobotColorTextMain)];
+        iv.delegate = self;
+        iv.placeholederFont = SobotFont14;
+        iv.layer.cornerRadius = 4.0f;
+        iv.layer.masksToBounds = YES;
+        [iv setBackgroundColor:UIColor.clearColor];
+        [_bgConentView addSubview:iv];
+                
+        NSString *tmp = sobotConvertToString(self.msgTmp);
+        tmp = [SobotHtmlCore filterHTMLTag:tmp];
+        while ([tmp hasPrefix:@"\n"]) {
+            tmp=[tmp substringWithRange:NSMakeRange(1, tmp.length-1)];
+        }
+        if(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveContentPlaceholder).length > 0){
+            tmp = SobotKitLocalString(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveContentPlaceholder));
+        }
+        [SobotHtmlCore filterHtml:tmp result:^(NSString * _Nonnull text1, NSMutableArray * _Nonnull arr, NSMutableArray * _Nonnull links) {
+           iv.placeholder = text1;
+           iv.placeholderLinkColor = UIColorFromKitModeColor(SobotColorTextSub1);
+        }];
+        [_bgConentView addConstraint:sobotLayoutMarginTop(0, iv, self.askTipLab)];
+        [_bgConentView addConstraint:sobotLayoutPaddingLeft(16-7, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutPaddingRight(-16+7, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutEqualHeight(64, iv, NSLayoutRelationEqual)];
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            iv.textAlignment = NSTextAlignmentRight;
+            // 获取UITextView的UITextRange
+                UITextRange *textRange = [iv textRangeFromPosition:iv.beginningOfDocument toPosition:iv.endOfDocument];
+            [iv setBaseWritingDirection:UITextWritingDirectionRightToLeft forRange:textRange];
+        }else{
+            iv.textAlignment = NSTextAlignmentLeft;
+            // 获取UITextView的UITextRange
+                UITextRange *textRange = [iv textRangeFromPosition:iv.beginningOfDocument toPosition:iv.endOfDocument];
+            [iv setBaseWritingDirection:NSWritingDirectionLeftToRight forRange:textRange];
+        }
+        iv.tintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
+        iv;
+    });
     
-    _textView.placeholederFont = SobotFont14;
-    _textView.layer.cornerRadius = 4.0f;
-    _textView.layer.masksToBounds = YES;
-    [_textView setBackgroundColor:[ZCUIKitTools zcgetLeftChatColor]];
-    [_textView setContentInset:UIEdgeInsetsMake( 7, 12, 15, 15)];
-    NSString * tmp =   sobotConvertToString(self.msgTmp);
-    tmp = [SobotHtmlCore filterHTMLTag:tmp];
-    while ([tmp hasPrefix:@"\n"]) {
-        tmp=[tmp substringWithRange:NSMakeRange(1, tmp.length-1)];
-    }
-    
-    if(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveContentPlaceholder).length > 0){
-        tmp = SobotKitLocalString(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveContentPlaceholder));
-    }
-    
-    [SobotHtmlCore filterHtml:tmp result:^(NSString * _Nonnull text1, NSMutableArray * _Nonnull arr, NSMutableArray * _Nonnull links) {
-       self->_textView.placeholder = text1;
-        self->_textView.placeholderLinkColor = UIColorFromKitModeColor(SobotColorTextSub1);
-    }];
-    [_scrollView addSubview:_textView];
+    _lineView = ({
+        UIView *iv = [[UIView alloc]init];
+        [_bgConentView addSubview:iv];
+        iv.backgroundColor =UIColorFromKitModeColor(SobotColorBgTopLine);
+        [_bgConentView addConstraint:sobotLayoutPaddingLeft(16, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutPaddingRight(0, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutEqualHeight(0.5, iv, NSLayoutRelationEqual)];
+        [_bgConentView addConstraint:sobotLayoutMarginTop(12, iv, _textDesc)];
+        iv;
+    });
     
     
-    //    2.8.0 增加导航栏下面 细线
-    _lineView1 = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 0.5)];
-    _lineView1.backgroundColor = UIColorFromKitModeColor(SobotColorBgLine);
-    [wbgView addSubview:_lineView1];
+    _label = ({
+        UILabel *iv = [[UILabel alloc] init];
+        iv.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        [iv setFont:SobotFont14];
+        [iv setText:sobotConvertToString(_leaveExplain)];
+        [iv setBackgroundColor:[UIColor clearColor]];
+        [iv setTextAlignment:NSTextAlignmentLeft];
+        [iv setTextColor:UIColorFromKitModeColor(SobotColorTextSub1)];
+        iv.numberOfLines = 0;
+        [_bgConentView addSubview:iv];
+        [_bgConentView addConstraint:sobotLayoutMarginTop(12, iv, self.lineView)];
+        [_bgConentView addConstraint:sobotLayoutPaddingLeft(16, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutPaddingRight(-16, iv, _bgConentView)];
+        if(sobotConvertToString(_leaveExplain).length <= 0){
+            iv.hidden = YES;
+        }
+        iv;
+    });
     
-    //    2.8.0 增加导航栏下面 细线
-    _lineView2 = [[UIView alloc]initWithFrame:CGRectMake(0, wbgView.frame.size.height , self.view.frame.size.width, 0.5)];
-    _lineView2.backgroundColor = UIColorFromKitModeColor(SobotColorBgLine);
-    [wbgView addSubview:_lineView2];
     
-    int th = CGRectGetMaxY(wbgView.frame);
-    if(sobotConvertToString(_leaveExplain).length > 0){
-        _label=[[UILabel alloc] initWithFrame:CGRectMake(15, th + 10, ScreenWidth-30, 0)];
-        _label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        [_label setFont:SobotFont14];
-        [_label setText:sobotConvertToString(_leaveExplain)];
-        [_label setBackgroundColor:[UIColor clearColor]];
-        [_label setTextAlignment:NSTextAlignmentLeft];
-        [_label setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
-        _label.numberOfLines = 0;
-        [_label sizeToFit];
-        [_scrollView addSubview:_label];
-        th = CGRectGetMaxY(_label.frame);
-    }
+    _commitBtn = ({
+        UIButton *iv = [UIButton buttonWithType:UIButtonTypeCustom];
+        [iv setTitle:SobotKitLocalString(@"提交") forState:UIControlStateNormal];
+        [iv setTitle:SobotKitLocalString(@"提交") forState:UIControlStateSelected];
+        [iv setTitleColor:[ZCUIKitTools zcgetRobotBtnTitleColor] forState:UIControlStateNormal];
+        [iv setBackgroundColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
+        iv.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+        iv.tag = BUTTON_MORE;
+        [iv addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+        iv.layer.masksToBounds = YES;
+        iv.layer.cornerRadius = 4.0f;
+        [_bgConentView addSubview:iv];
+        self.commitBtnPB = sobotLayoutPaddingBottom(-XBottomBarHeight, iv, _bgConentView);
+        [_bgConentView addConstraint:self.commitBtnPB];
+        [_bgConentView addConstraint:sobotLayoutPaddingLeft(16, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutPaddingRight(-16, iv, _bgConentView)];
+        [_bgConentView addConstraint:sobotLayoutEqualHeight(40, iv, NSLayoutRelationEqual)];
+        iv;
+    });
+   
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hideKeyboard)];
+    [self.view addGestureRecognizer:tap];
     
-    // 区尾添加提交按钮 2.7.1改版
-    _commitBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [_commitBtn setTitle:SobotKitLocalString(@"提交") forState:UIControlStateNormal];
-    [_commitBtn setTitle:SobotKitLocalString(@"提交") forState:UIControlStateSelected];
-    [_commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateNormal];
-    [_commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateHighlighted];
-    [_commitBtn setBackgroundColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
-    _commitBtn.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
-    _commitBtn.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5);
-    _commitBtn.frame = CGRectMake(15, th + 20, ScreenWidth- 30, 44);
-    _commitBtn.tag = BUTTON_MORE;
-    [_commitBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
-    _commitBtn.layer.masksToBounds = YES;
-    _commitBtn.layer.cornerRadius = 22.f;
-    _commitBtn.titleLabel.font = SobotFont17;
-    [_scrollView addSubview:_commitBtn];
-    [_scrollView setContentSize:CGSizeMake(0, CGRectGetMaxY(_commitBtn.frame) + CGRectGetHeight(_commitBtn.frame))];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyBoardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyBoardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 }
 
-//- (void)textViewDidChange:(UITextView *)textView{
-//    if (textView.text.length > 0) {
-//        UITextRange *selectedRange = [textView markedTextRange];
-//        NSString * newText = [textView textInRange:selectedRange]; //获取高亮部分
-//        if(newText.length>0){
-//            return;
-//        }
-//        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-//        paragraphStyle.lineSpacing = 5;// 字体的行间距
-//        NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],NSParagraphStyleAttributeName:paragraphStyle};
-//        textView.attributedText = [[NSAttributedString alloc] initWithString:textView.text attributes:attributes];
-//    }
-//}
+-(NSMutableAttributedString *)getOtherColorString:(NSString *)string Color:(UIColor *)Color withString:(NSString *)originalString
+{
+    NSMutableString *temp = [NSMutableString stringWithString:sobotConvertToString(originalString)];
+    NSMutableAttributedString *str = [[NSMutableAttributedString alloc] initWithString:temp];
+    if (string.length) {
+        NSRange range = [temp rangeOfString:string];
+        [str addAttribute:NSForegroundColorAttributeName value:Color range:range];
+        return str;
+    }
+    return str;
+}
+
+
+//判断是否全是空格
+- (BOOL)isEmpty:(NSString *)str {
+    if (!str) {
+        return true;
+    } else {
+        NSCharacterSet *set = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+        NSString *trimedString = [str stringByTrimmingCharactersInSet:set];
+        if ([trimedString length] == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 
 #pragma mark - 返回和提交接口调用事件
 -(IBAction)buttonClick:(UIButton *) sender{
@@ -251,12 +343,12 @@
             [self dismissViewControllerAnimated:NO completion:nil];
         }
     }else if (sender.tag == BUTTON_MORE){
-        if (_textView.text.length <=0) {
+        if (_textDesc.text.length <=0 || [self isEmpty:sobotConvertToString(_textDesc.text)]) {
             [[SobotToast shareToast] showToast:SobotKitLocalString(@"请填写问题描述") duration:2 view:[UIApplication sharedApplication].keyWindow position:SobotToastPositionCenter];
             return;
         }
         __weak ZCLeaveMsgVC * saveSelf = self;
-        [ZCLibServer getLeaveMsgWith:[[ZCUICore getUICore] getLibConfig].uid Content:_textView.text groupId:self.groupId start:^{
+        [ZCLibServer getLeaveMsgWith:[[ZCUICore getUICore] getLibConfig].uid Content:_textDesc.text msgType:0 groupId:self.groupId start:^{
             
         } success:^(NSDictionary *dict, ZCNetWorkCode sendCode) {
             if (dict) {
@@ -267,9 +359,10 @@
                         return;
                     }
                 }
+                [[NSNotificationCenter defaultCenter]removeObserver:self];
                 // 返回，发送留言消息
                 if (saveSelf.passMsgBlock) {
-                    saveSelf.passMsgBlock(saveSelf.textView.text);
+                    saveSelf.passMsgBlock(saveSelf.textDesc.text);
                 }
                 if (saveSelf.navigationController) {
                     [saveSelf.navigationController popViewControllerAnimated:NO];
@@ -284,6 +377,37 @@
     }
 }
 
+#pragma mark - 键盘事件
+
+-(void)keyBoardWillShow:(NSNotification *) notification{
+    float animationDuration = [[[notification userInfo] valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+    CGFloat keyboardHeight = [[[notification userInfo] objectForKey:@"UIKeyboardBoundsUserInfoKey"] CGRectValue].size.height;
+   
+    NSNumber *curve = [notification.userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey];
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationBeginsFromCurrentState:YES];
+    [UIView setAnimationDuration:animationDuration];
+    [UIView setAnimationCurve:[curve intValue]];
+    [UIView setAnimationDelegate:self];
+    {
+//       self.commitBtnPB.constant = -XBottomBarHeight -keyboardHeight;
+    }
+    // commit animations
+    [UIView commitAnimations];
+}
+
+//键盘隐藏
+- (void)keyBoardWillHide:(NSNotification *)notification {
+    float animationDuration = [[[notification userInfo] valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+    [UIView beginAnimations:@"bottomBarDown" context:nil];
+    [UIView setAnimationDuration:animationDuration];
+    [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+    [UIView commitAnimations];
+    [UIView animateWithDuration:0.25 animations:^{
+//        self.commitBtnPB.constant = -XBottomBarHeight;
+    }];
+}
+
 #pragma mark - 更新导航栏
 -(void)updateNavOrTopView{
     // 统计 系统导航栏上面的按钮
@@ -293,7 +417,11 @@
     [navItemSource setObject:@{@"img":@"zcicon_titlebar_back_normal",@"imgsel":sobotConvertToString([ZCUICore getUICore].kitInfo.topBackNolImg)} forKey:@(SobotButtonClickBack)];
     // 更新系统导航栏的按钮
     self.navItemsSource = navItemSource;
-    [self setLeftTags:rightItem rightTags:@[] titleView:nil];
+    if ([ZCUIKitTools getSobotIsRTLLayout]) {
+        [self setLeftTags:@[] rightTags:rightItem titleView:nil];
+    }else{
+        [self setLeftTags:rightItem rightTags:@[] titleView:nil];
+    }
     if (!self.navigationController.navigationBarHidden) {
         if([ZCUIKitTools getZCThemeStyle] == SobotThemeMode_Light){
             if(sobotGetSystemDoubleVersion() >= 13){
@@ -318,7 +446,7 @@
         self.title = SobotKitLocalString(@"留言消息");
         if (![[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"zh-"]
             || !(sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"zh-"])){
-            [self.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:SobotFont12,NSForegroundColorAttributeName:[ZCUIKitTools zcgetTopViewTextColor]}];
+            [self.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:[ZCUIKitTools zcgetTitleFont],NSForegroundColorAttributeName:[ZCUIKitTools zcgetTopViewTextColor]}];
         }else{
             [self.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:[ZCUIKitTools zcgetTitleFont],NSForegroundColorAttributeName:[ZCUIKitTools zcgetTopViewTextColor]}];
         }
@@ -326,7 +454,7 @@
         self.titleLabel.text = SobotKitLocalString(@"留言消息");
         if (![[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"zh-"]
             || !(sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length == 0 && [sobotGetLanguagePrefix() hasPrefix:@"zh-"])){
-            self.titleLabel.font = SobotFont12;
+            self.titleLabel.font = [ZCUIKitTools zcgetTitleFont];
         }
     }
 }
@@ -338,12 +466,8 @@
 #pragma mark -- 键盘滑动的高度
 
 - (void) hideKeyboard {
-    [_textView resignFirstResponder];
+    [_textDesc resignFirstResponder];
     [self allHideKeyBoard];
-    if(contentoffset.x != 0 || contentoffset.y != 0){
-        // 隐藏键盘，还原偏移量
-        [_scrollView setContentOffset:contentoffset];
-    }
 }
 
 - (void)allHideKeyBoard
@@ -377,8 +501,8 @@
 #pragma mark - 更新子视图
 -(void)viewDidLayoutSubviews{
     [super viewDidLayoutSubviews];
-    [self layoutSubViewsUI];
     [self setHeaderConfig];
+    [self updateContenView];
 }
 
 // 适配iOS 13以上的横竖屏切换
@@ -388,6 +512,26 @@
     [self updateTopViewBgColor];
 }
 
+#pragma mark -- 横竖屏切换时，重新设置宽高 + 滚动偏移量
+-(void)updateContenView{
+    CGFloat y = 0;
+    if (self.navigationController.navigationBarHidden) {
+        y = NavBarHeight;
+    }
+  
+    self.bgContentW.constant = ScreenWidth;
+    self.bgContentH.constant = ScreenHeight -NavBarHeight;
+    CGFloat h = ScreenHeight-NavBarHeight;
+//    if (ScreenWidth >ScreenHeight) {
+//        [_label layoutIfNeeded];
+//        // 获取实际高度
+//        CGRect lf = _label.frame;
+//        if (lf.size.height + lf.origin.y > ScreenHeight-NavBarHeight) {
+//            h = ScreenHeight +(lf.size.height + lf.origin.y - ScreenHeight-NavBarHeight);
+//        }
+//    }
+    self.scrollView.contentSize = CGSizeMake(ScreenWidth, h);
+}
 #pragma mark - 代理事件
 - (void)SobotEmojiLabel:(SobotEmojiLabel*)emojiLabel didSelectLink:(NSString*)link withType:(SobotEmojiLabelLinkType)type{
     [self doClickURL:link text:@""];
@@ -401,7 +545,10 @@
                 callURL=url;
                 [SobotUITools showAlert:nil message:[url stringByReplacingOccurrencesOfString:@"tel:" withString:@""] cancelTitle:SobotKitLocalString(@"取消") viewController:self confirm:^(NSInteger buttonTag) {
                     if(buttonTag>=0){
-                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:callURL]];
+//                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:callURL]];
+                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:callURL] options:@{} completionHandler:^(BOOL res) {
+                                        
+                             }];
                     }
                 } buttonTitles:SobotKitLocalString(@"呼叫"), nil];
             }else if([url hasPrefix:@"mailto:"] || sobotValidateEmail(url)){
@@ -438,20 +585,22 @@
 }
 
 
-#pragma mark -
-- (void)textViewDidChange:(UITextView *)textView{
-    if (textView.text.length == 0) {
-        return;
-    }
-    UITextRange *selectedRange = [textView markedTextRange];
-    NSString * newText = [textView textInRange:selectedRange]; //获取高亮部分
-    if(newText.length>0)
-        return;
-    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-    paragraphStyle.lineSpacing = 5;// 字体的行间距
-    NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],NSParagraphStyleAttributeName:paragraphStyle};
-    textView.attributedText = [[NSAttributedString alloc] initWithString:textView.text attributes:attributes];
-}
+#pragma mark -  这个代理方法不能执行，会影响镜像的实现
+//- (void)textViewDidChange:(UITextView *)textView{
+//    if (textView.text.length == 0) {
+//        return;
+//    }
+//    if (sobotGetSystemDoubleVersion()>=16.0) {
+//        UITextRange *selectedRange = [textView markedTextRange];
+//        NSString * newText = [textView textInRange:selectedRange]; //获取高亮部分
+//        if(newText.length>0)
+//            return;
+//        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+//        paragraphStyle.lineSpacing = 5;// 字体的行间距
+//        NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],NSParagraphStyleAttributeName:paragraphStyle};
+//        textView.attributedText = [[NSAttributedString alloc] initWithString:textView.text attributes:attributes];
+//    }
+//}
 
     
 @end

@@ -53,6 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (UIColor *)getSobotThemeModeByHexAlpha:(NSString *)hexColor alpha:(CGFloat) alpha;
 
 
+
+// 获取RGB和Alpha
++ (NSArray *)getSobotRGBWithColor:(UIColor *)color;
+ 
+// 改变UIColor的Alpha
++ (UIColor *)getSobotNewColorWith:(UIColor *)color alpha:(CGFloat )alpha;
+
 // 读取图片资源
 +(UIImage *)getSysImageByName:(NSString *)imageName;
 +(UIImage *)getSysImageByName:(NSString *)imageName bundleName:(NSString *) bundleName;
@@ -61,6 +68,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 设置国际化RTL适配坐标
 +(void)setRTLFrame:(UIView *)view;
+
+
+/// 是否为竖屏
++(BOOL) sobotIsPortrait;
 
 // 获取当前最上层Window和VC
 +(UIWindow *)getCurWindow;
@@ -173,10 +184,22 @@ NS_ASSUME_NONNULL_BEGIN
 +(NSMutableAttributedString *) attributedStringByHTML:(NSString *)html textColor:(UIColor *) textColor linkColor:(UIColor *) linkColor;
 
 
++(CGSize )getSizeContain:(NSString *)string font:(UIFont *)font Width:(CGSize) size;
 +(CGFloat)getHeightContain:(NSString *)string font:(UIFont *)font Width:(CGFloat) width;
 
 +(CGFloat)getWidthContain:(NSString *)string font:(UIFont *)font Height:(CGFloat) height;
 
+
+/// 设置文本的行间距，并返回最大高度
+/// - Parameters:
+///   - label: 控件UILabel
+///   - text: 文本
+///   - lineSpacing: 行间距
+///   - maxWidth: 最大宽度
++ (CGFloat )setLabel:(UILabel *)label withText:(NSString *)text lineHeight:(CGFloat)lineSpacing width:(CGFloat) maxWidth;
+
+
++ (void ) sobotButon:(UIButton *) iv hSpace:(CGFloat ) spacing top:(CGFloat )imgTBSpace rtl:(BOOL )isRTL;
 
 +(BOOL)getIsIphonX;
 
@@ -192,6 +215,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 +(UIImage*)sobotCreateImageWithColor:(UIColor*)color;
 
+
+
+/// 重写布局superView的子view
+/// 子view需要设置好内容
+/// - Parameters:
+///   - paddingInsets: 子view的外边距
+///   - superView: superView
+///   - subViews: 如果为nil，自动去superView.subviews
+///   - maxWidth: 显示的最大宽度
+///   - hspace: 子控件的左右间隔
+///   - vspace: 子控件的上下间隔
++(UIView *)subViewsLineBreak:(UIEdgeInsets )paddingInsets view:(UIView *) superView subview:(NSArray * _Nullable) subViews maxWidth:(CGFloat )maxWidth hSpace:(CGFloat) hspace vSpace:(CGFloat) vspace;
+
+// 获取最大的高度
++(CGFloat)getMaxHeightContain:(NSString *)string font:(UIFont *)font width:(CGFloat) width;
 @end
 
 NS_ASSUME_NONNULL_END

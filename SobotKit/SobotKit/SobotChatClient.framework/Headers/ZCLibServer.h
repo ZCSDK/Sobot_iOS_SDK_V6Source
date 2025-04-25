@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDictionary *_Nullable dict,NSString *_Nullable jsonString);
 
+/// <#Description#>
 @interface ZCLibServer : NSObject
 
 /// 查询appkey企业配置信息
@@ -237,6 +238,24 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
                 success:(void(^)(NSDictionary *dict,ZCMessageSendCode sendCode)) successBlock
                    fail:(void(^)(NSString * errorMsg,ZCMessageSendCode errorCode)) failBlock;
 
+/// 4.1.8新增接口，当切换快捷菜单时添加统计数据
++(void)addLabelShowTriggerCount:(ZCLibConfig*)config
+                   menuPlanId:(NSString *) menuPlanId
+                  start:(void(^)(NSString *url))startBlock
+                success:(void(^)(NSDictionary *dict,ZCMessageSendCode sendCode)) successBlock
+                         fail:(void(^)(NSString * errorMsg,ZCMessageSendCode errorCode)) failBlock;
+
+
+/// 
+/// 4.1.8新增接口，本地添加快捷菜单列表，机器人默认，人工模式，如果前两组都没有数据，显示兜底进入会话列表
+/// @param config 当前初始化对象
+/// @param startBlock 开始
+/// @param successBlock 成功
+/// @param failBlock 失败
++(void)getLabelInfoListNew:(ZCLibConfig*)config
+                  start:(void(^)(NSString *url))startBlock
+                success:(void(^)(NSDictionary *dict,ZCMessageSendCode sendCode)) successBlock
+                      fail:(void(^)(NSString * errorMsg,ZCMessageSendCode errorCode)) failBlock;
 
 /// 自定义标签点击次数
 /// @param config 初始化对象
@@ -271,6 +290,23 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
                        failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
 
 
+/// 新版询前表单
+/// @param uid 用户ID
+/// @param cid 会话ID
+/// @param companyId 公司ID
+/// @param schemeId 询前表单方案ID
+/// @param language 多语言
+/// @param startBlock startBlock description
+/// @param successBlock successBlock description
+/// @param failedBlock failedBlock description
++(void)postAskTableWithUid:(NSString *)uid
+                       cid:(NSString *)cid
+                 companyId:(NSString *)companyId
+                  schemeId:(NSString *)schemeId
+                  language:(NSString *)language
+                     start:(void (^)(void))startBlock
+                   success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
+                    failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
 
 #pragma mark 继续排队
 //新接口继续排队按钮点击
@@ -443,6 +479,7 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
 /// @param failedBlock 失败
 +(void)getHistoryMessages:(NSString *)cid
                   withUid:(NSString *) uid
+                 currtCid:(NSString *)currtCid
                     start:(void (^)(NSString *url, NSDictionary *parameters))startBlock
                   success:(void (^)(NSMutableArray *messages, ZCNetWorkCode))successBlock
                    failed:(void (^)(NSString *errormsg, ZCNetWorkCode))failedBlock;
@@ -505,6 +542,11 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
                        fail:(void(^)(NSString* msg, ZCNetWorkCode errorCode)) failedBlock;
 
 
+/**
+ *  获取大模型机器人评价标签
+ *  @parma config uid/cid/templeteId/robotFlag
+ */
++(void)satisfactionAiAgent:(ZCLibConfig *)config start:(void (^)(void))startBlock success:(void (^)(NSDictionary *, ZCNetWorkCode))successBlock fail:(void (^)(NSString *msg ,ZCNetWorkCode))failedBlock;
 
 /// 查询链接的内容
 /// @param url 要查询的url地址
@@ -540,6 +582,36 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
 +(void)doComment:(NSMutableDictionary *) params result:(void (^)(ZCNetWorkCode code,int status,NSString *msg))resultBlock;
 
 
+
+/**
+ 评价大模型机器人
+ cid
+ aiAgentCid
+ robotFlag
+ uid
+ sourceEnum APP
+ scoreFlag
+ score
+ labelIds array[string] 标签
+ remark
+ commentType评价类型， 0-邀请评价，1-主动评价
+
+ solved 是否解决 0：未解决，1：已解决，-1：未选择
+
+ scoreExplain 星级说明
+ currentTime 当前时间
+ companyId
+ */
++(void)doCommentAiAgent:(NSMutableDictionary *)params result:(void (^)(ZCNetWorkCode, int, NSString *))resultBlock;
+
+
+
+/**
+ 大模型机器人是否已经评价过
+ */
++(void)isCommentAiAgent:(ZCLibConfig *)config result:(void (^)(ZCNetWorkCode, int, NSString *))resultBlock;
+
+
 /**
  *  清空历史消息
  *  @param uid 用户id
@@ -553,10 +625,12 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
  * 留言转离线消息接口
  * uid ：用户id
  * content： 留言内容
+ * msgType: 当是文件类型消息时，content为网络url
  * groupId : 技能组ID
  **/
 +(void)getLeaveMsgWith:(NSString*)uid
                Content:(NSString *)content
+               msgType:(SobotMessageType) msgType
                groupId:(NSString *)groupId
                  start:(void (^)(void))startBlock
                success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
@@ -610,13 +684,193 @@ typedef void(^SobotKitResultBlock)(ZCNetWorkCode code,id _Nullable obj,NSDiction
 
 /// 延迟转人工排队时调用
 /// @param content 发送内容
+/// @param msgType 消息类型，当是图片，音频，视频，文件时，content为网络路径
 /// @param config 当前初始化对象
 /// @param errorBlock 失败
 /// @param successBlock 成功
-+ (void)sendAfterModeWithConnectWait:(NSString *)content
++ (void)sendAfterModeWithConnectWait:(NSString *)content msgType:(SobotMessageType) msgType
                        uid:(ZCLibConfig *)config
                      error:(void (^)(ZCNetWorkCode status,NSString *errorMessage))errorBlock
                              success:(void(^)(NSString *msgLeaveTxt,NSString *msgLeaveContentTxt,NSString *leaveExplain)) successBlock;
+
+
+
+
+/// 查询是否可以发送自定义卡片
+/// - Parameters:
+///   - cardId: 卡片ID 唯一键
+///   - cid: 当前会话ID
+///   - startBlock: 开始
+///   - successBlock: 成功
+///   - failedBlock: 失败
++(void)checkCardSendRepeat:(NSString *) cardId
+                cid:(NSString *)cid
+             start:(void (^)(NSString *url))startBlock
+           success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
+                    failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
+
+
+/// 查询机器人点踩配置信息
+/// @param uid 用户ID
+/// @param robotFlag 机器人ID
+/// @param startBlock startBlock description
+/// @param successBlock successBlock description
+/// @param failedBlock failedBlock description
++(void)getRobotRealuateConfigInfo:(NSString *)uid
+                        robotFlag:(NSString *)robotFlag
+                            start:(void (^)(NSString *url))startBlock
+                          success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
+                           failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
+
+
+/// 对点踩信息追加系统消息 或追加标签点踩原因
+/// @param param 入参
+/// @param startBlock startBlock description
+/// @param successBlock successBlock description
+/// @param failedBlock failedBlock description
++(void)postRobotOperation:(NSDictionary *)param
+                    start:(void (^)(NSString *url))startBlock
+                  success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
+                   failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
+
+
+
++(void)getLeaveRegionList:(NSString *) pid
+                    start:(void(^)(NSString *urlString)) startBlock
+                          success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode))successBlock
+                           failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode))failedBlock
+                   finish:(void(^)(id response, NSData *data)) finishBlock;
+
+
+/// 搜索地区
++(void)searchLeaveRegion:(NSString *)queryParam
+           regionalLevel:(int )regionalLevel
+                page:(int )pageNo
+                         start:(void(^)(NSString *urlString)) startBlock
+                       success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode))successBlock
+                        failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode))failedBlock
+                  finish:(void(^)(NSString *jsonString)) finishBlock;
+
+
+
+/// 查询访客配置信息
+/// - Parameters:
+///   - app_key: app_key description
+///   - partnerid: partnerid description
+///   - startBlock: startBlock description
+///   - successBlock: successBlock description
+///   - failedBlock: failedBlock description
+///   - finishBlock: finishBlock description
++(void)getVisitorHelpConfig:(NSString *)app_key
+          partnerId:(NSString *)partnerid
+                        start:(void(^)(NSString *urlString)) startBlock
+                      success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode))successBlock
+                       failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode))failedBlock
+                     finish:(void(^)(NSString *jsonString)) finishBlock;
+
+
+
+
+/// 回调前台，检测当前用户是否已经离线
+/// - Parameters:
+///   - config: 当前正在会话的初始化配置
+///   - startBlock: 开始
+///   - successBlock: 成功
+///   - failedBlock: 失败
+///   - finishBlock: 结束(本接口关注此回调即可)
++(void)checkUserOnlineStatus:(ZCLibConfig *)config
+                        start:(void(^)(NSString *urlString)) startBlock
+                      success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode))successBlock
+                       failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode))failedBlock
+                      finish:(void(^)(NSString *jsonString)) finishBlock;
+
+
+/// 获取多语言切换列表数据
+/// - Parameters:
+///   - config: 初始化配置
+///   - startBlock: startBlock description
+///   - successBlock: successBlock description
+///   - failedBlock: failedBlock description
+///   - finishBlock: finishBlock description
++(void)getLanguageList:(ZCLibConfig *)config
+                        start:(void(^)(NSString *urlString)) startBlock
+                      success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode))successBlock
+                       failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode))failedBlock
+                      finish:(void(^)(NSString *jsonString)) finishBlock;
+
+
+/// 切换语言之后重新获取初始化配置数据
+/// - Parameters:
+///   - language: 切换选中的语言
+///   - uid: 用户ID
+///   - startBlock: startBlock description
+///   - successBlock: successBlock description
+///   - failedBlock: failedBlock description
+///   - finishBlock: finishBlock description
++(void)sendToAdminChooseLan:(NSString*)language
+                        uid:(NSString *)uid
+                        start:(void(^)(NSString *urlString)) startBlock
+                      success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode))successBlock
+                       failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode))failedBlock
+                      finish:(void(^)(NSString *jsonString)) finishBlock;
+
+
+/// 新版询前表单
+/// @param uid  访客Id
+/// @param cid 会话Id
+/// @param schemeId 询前表单方案Id
+/// @param formData array[object (SubmitFormDataReqVo) {7}]
+/// @param startBlock startBlock description
+/// @param successBlock successBlock description
+/// @param failedBlock failedBlock description
++(void)postNewAskTabelWithUid:(NSString *)uid
+                          cid:(NSString *)cid
+                     schemeId:(NSString*)schemeId
+                     formData:(NSMutableArray *)formData
+                     canvasId:(NSString *)canvasId
+                        start:(void (^)(void))startBlock
+                      success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
+                       failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
+
+
+
+
+/// 工单状态列表，用于展示自定义工单状态
+/// @param config 初始化对象，用户获取companyId
+/// @param startBlock 开始
+/// @param successBlock successBlock description
+/// @param failedBlock failedBlock description
+/// @param finishBlock finishBlock description
++(void)getOrderStatusList:(ZCLibConfig *)config
+                        start:(void(^)(NSString *urlString)) startBlock
+                      success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode))successBlock
+                       failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode))failedBlock
+                   finish:(void(^)(NSString *jsonString)) finishBlock;
+
+
+/// 查询大模型机器人点踩配置信息
+/// @param companyId 企业ID
+/// @param robotFlag 机器人ID
+/// @param startBlock startBlock description
+/// @param successBlock successBlock description
+/// @param failedBlock failedBlock description
++(void)getAiRobotRealuateConfigInfo:(NSString *)companyId
+                        robotFlag:(NSString *)robotFlag
+                             config:(ZCLibConfig *)config
+                            start:(void (^)(NSString *url))startBlock
+                          success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
+                           failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
+
+
+/// 大模型机器人点踩收集提交接口
+/// @param param 入参
+/// @param startBlock startBlock description
+/// @param successBlock successBlock description
+/// @param failedBlock failedBlock description
++(void)postAiAgentRobotAnswerComment:(NSDictionary *)param
+                    start:(void (^)(NSString *url))startBlock
+                  success:(void(^)(NSDictionary *dict,ZCNetWorkCode sendCode)) successBlock
+                              failed:(void(^)(NSString *errorMessage,ZCNetWorkCode errorCode)) failedBlock;
 @end
 
 NS_ASSUME_NONNULL_END

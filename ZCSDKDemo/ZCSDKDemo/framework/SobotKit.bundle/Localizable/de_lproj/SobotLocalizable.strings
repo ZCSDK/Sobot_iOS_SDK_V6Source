@@ -11,7 +11,7 @@
 "暂时无法转接人工客服" = "Manueller kundendienst kann momentan nicht übertragen werden";
 "暂时无法评价" = "Man kann es nicht momentan bewerten";
 "网络错误，请检查网络后重试" = "Netzwerkfehler, bitte überprüfen sie das netzwerk und wiederholen sie";
-"转人工" = "Manuellen kundenservice übertragen";
+"转人工" = "Transmit-to-Agent";
 "时间" = "Uhrzeit";
 "日期" = "Datum";
 "标题" = "Titel";
@@ -48,7 +48,7 @@
 "您收到了一条新消息" = "Sie haben eine neue nachricht erhalten";
 "评分" = "Wertungen";
 "评语" = "Bemerkungen";
-"是否解决了您的问题？" = "Hat  ihr problem gelöst?";
+"是否解决了您的问题？" = "hat ihr problem gelöst?";
 "受理中" = "Akzeptiert";
 "问题分类" = "Problemkategorie";
 "问题详情" = "Problemeinzelheiten";
@@ -76,7 +76,7 @@
 "运输中" = "Unterwegs";
 "待发货" = "Ausstehende lieferung";
 "待付款" = "Ausstehende zahlung";
-"选填" = "optional";
+"选填" = "Optional";
 "展开" = "Entfalten";
 "收起" = "Ausblenden";
 "无" = "Nichts";
@@ -137,10 +137,10 @@
 "删除" = "Löschen";
 "数据错误" = "Falsche daten";
 "客服" = "Kundendienst";
-"复制成功！" = "Erfolgreich kopieren!";
+"复制成功" = "Erfolgreich kopieren";
 "复制" = "Kopieren";
 "已创建" = "Erstellt";
-"倒计时:" = "Countdown:";
+"倒计时" = "Countdown";
 "消息中心" = "Nachrichtenzentrum";
 "未连接" = "Nicht verbunden";
 "连接中..." = "Verbunden ...";
@@ -200,15 +200,96 @@
 "自定义字段" = "Benutzerdefinierte feld";
 "非常不满意" = "Sehr unzufrieden";
 "未解决问题？点击" = "Ihr Problem nicht gelöst?";
-"转人工服务" = "Personaldienstleistungen";
+"转人工服务" = "Personaldienstleistungen ";
 "展开消息" = "Erweitern Sie die Nachricht";
 "继续发送" = "Sende weiterhin";
 "拒绝" = "Sich weigern";
 "您已同意发送个人敏感信息，本次授权有效期24小时" = "Sie haben zugestimmt, persönliche sensible Informationen zu senden. Diese Berechtigung ist für 24-Stunden gültig";
 "您已拒绝发送此消息" = "Sie haben das Senden dieser Nachricht abgelehnt";
 "附件" = "Gehäuse";
+"保存成功" = "Erfolgreich gespeichert";
+"保存失败" = "Fehlgeschlagen speichern";
+
+
+//************* 同步415的数据 ***********
 "填写信息" = "Informationen ausfüllen";
 "排队自动断开结束会话" = "Sitzung nach automatischer Trennung in der Warteschlange beenden";
 "小程序" = "AppletName";
 "小程序只能通过微信打开" = "Applet kann nur über Wechat geöffnet werden";
 "解析中..." = "Analyse";
+"转换失败" = "Ansicht wechseln";
+"转换完成" = "Netzwerk konvertieren";
+"订单号" = "Bestellnummer";
+"交易状态"="Handelsstatus";
+"创建时间"="Erstellungszeitpunkt";
+"展开更多" = "Mehr erweitern";
+"共" = "häufig";
+"已读"="Lesen";
+"未读"="Ungelesen";
+"我"="Ich";
+"机器人"="Roboter";
+"链接" = "Link";
+"文章" = "Artikel";
+"引用" = "Zitat";
+"已选"="Ausgewählt";
+"搜索"="Suche";
+"搜索全部省"="Alle Provinzen durchsuchen";
+"搜索全部市"="Alle Städte durchsuchen";
+"搜索全部县（区）"="Alle Landkreise durchsuchen";
+"搜索全部街道"="Alle Straßen durchsuchen";
+"无结果"="Kein Ergebnis";
+"请选择是否解决了您的问题" = "Bitte wählen Sie, ob Ihr Problem gelöst wurde";
+"换一批" = "Andere gruppe wechseln";
+//************* 同步415的数据 ***********
+
+
+/**公共组件翻译*/
+"选择时区" = "Zeitzone auswählen";
+"请选择时区" = "Bitte wählen Sie eine Zeitzone";
+"暂无选项内容" = "Derzeit gibt es keinen Optionsinhalt";
+"时区"="Zeitzone";
+"年"="Jahr";
+"月"="Monat";
+"日"="Tag";
+
+
+"区号"="Gebietsnummer";
+
+"语言已切换为“xxx”" = "Sprache wurde auf „xxx“ umgestellt";
+"选择语言" = "Sprache auswählen";
+"请选择您要使用的聊天语言：" = "Bitte wählen Sie die Sprache aus, in der Sie chatten möchten:";
+"更多语言" = "Weitere Sprachen";
+
+"顶" = "Spitze";
+"踩" = "aufsteigen";
+
+"满意" = "Zufrieden";
+"不满意" = "Unzufrieden";
+
+"回复了您" = "Habe dir geantwortet";
+"您的回复" = "Deine Antwort";
+
+
+"上传附件" = "Anhang Hochladen";
+"展开全部" = "Alles Erweitern";
+"收起" = "Einklappen";
+"松开 发送" = "Loslassen, um zu Senden";
+"松开 取消" = "Loslassen, um Abzubrechen";
+"松开发送，上滑取消" = "Loslassen, um zu senden, nach oben wischen, um abzubrechen";
+"暂无回复" = "Keine Rückmeldungen vorhanden";
+"请输入" = "Bitte eingeben";
+"最多上传" = "Maximal";
+"个，" = " hochladen,";
+"大小不超过" = "mit einer Größe von nicht mehr als";
+"已达上限 15 个" = "Obergrenze erreicht: 15";
+"知道了" = "Verstanden";
+"已拒绝" = "Abgelehnt";
+
+
+"请选择" = "Bitte wählen Sie";
+"暂无客服在线，点击进行留言。" = "Kein Agent online. Klicken Sie hier, um die Übermittlung zu verlassen";
+"工单处理状态更新后将在会话中提醒您" = "Sie werden in der Unterhaltung benachrichtigt, sobald sich der Ticketstatus ändert";
+
+"商品数" = "Menge";
+"更多信息" = "Mehr Informationen";
+"查看更多" = "Mehr anzeigen";

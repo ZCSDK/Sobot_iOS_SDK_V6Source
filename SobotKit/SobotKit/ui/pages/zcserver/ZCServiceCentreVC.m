@@ -32,10 +32,10 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
 @property (nonatomic,strong) NSMutableArray *listArray;
 @property (nonatomic,assign) id<ZCChatControllerDelegate> delegate;
 
-@property (nonatomic,strong) NSLayoutConstraint *telBtnEW;
-@property (nonatomic,strong) UIButton *telButton;
 @property (nonatomic,strong) UIScrollView *scrollView;
 @property (nonatomic,strong) NSLayoutConstraint *scrollViewPT;
+@property (nonatomic,strong) NSLayoutConstraint *scrollViewPL;
+@property (nonatomic,strong) NSLayoutConstraint *scrollViewPR;
 @end
 
 @implementation ZCServiceCentreVC
@@ -46,21 +46,8 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
         if([ZCUICore getUICore].ZCViewControllerCloseBlock != nil){
             [ZCUICore getUICore].ZCViewControllerCloseBlock(self,ZC_CloseHelpCenter);
         }
-        if (self.navigationController && self.isPush) {
-            [self.navigationController popViewControllerAnimated:NO];
-        }else{
-            [self dismissViewControllerAnimated:NO completion:nil];
-        }
-    }
-}
-
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-    if ([ZCUICore getUICore].kitInfo.navcBarHidden) {
-        self.navigationController.navigationBarHidden = YES;
-        [self.titleLabel setText:SobotKitLocalString(@"客户服务中心")];
-    }else if (![ZCUICore getUICore].kitInfo.navcBarHidden && self.navigationController){
-        self.title = SobotKitLocalString(@"客户服务中心");
+        
+        [self goBack];
     }
 }
 
@@ -72,21 +59,20 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
         self.navigationController.navigationBarHidden = YES;
     }
     [self createVCTitleView];
+    
+    [self setNavTitle:SobotKitLocalString(@"客户服务中心")];
+    
     [self createSubviews];
     [self loadData];
+    
+    [self updateNavOrTopView];
 }
 
 #pragma mark -- 添加子控件
 -(void)createSubviews{
     // 构建 联系客服和联系热线按钮
-    serviceBtnBgView = [[UIView alloc]init];
-    serviceBtnBgView.backgroundColor = UIColorFromKitModeColor(SobotColorBgSub2Dark1);
-    [self.view addSubview:serviceBtnBgView];
-    [self createHelpCenterButtons:10 sView:serviceBtnBgView];
-    [self.view addConstraint:sobotLayoutPaddingBottom(0, serviceBtnBgView, self.view)];
-    [self.view addConstraint:sobotLayoutPaddingLeft(0, serviceBtnBgView, self.view)];
-    [self.view addConstraint:sobotLayoutEqualHeight(80, serviceBtnBgView, NSLayoutRelationEqual)];
-    [self.view addConstraint:sobotLayoutPaddingRight(0, serviceBtnBgView, self.view)];
+    serviceBtnBgView = [self createBtmView:YES];
+    
     CGFloat navh = NavBarHeight;
     if (self.topView == nil || ![ZCUICore getUICore].kitInfo.navcBarHidden) {
         navh = 0;
@@ -97,15 +83,21 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
         iv.alwaysBounceVertical = YES;
         iv.alwaysBounceHorizontal = NO;
         iv.bounces = NO;
-        iv.frame = CGRectMake(0, navh, ScreenWidth, self.view.frame.size.height - navh- 80);
+        //            iv.frame = CGRectMake(0, navh, ScreenWidth, self.view.frame.size.height - navh- 80);
         iv;
     });
-    
+    _scrollViewPT = sobotLayoutPaddingTop(navh, self.scrollView, self.view);
+    _scrollViewPL = sobotLayoutPaddingLeft(0, self.scrollView, self.view);
+    _scrollViewPR = sobotLayoutPaddingRight(navh, self.scrollView, self.view);
+    [self.view addConstraint:_scrollViewPL];
+    [self.view addConstraint:_scrollViewPR];
+    [self.view addConstraint:_scrollViewPT];
+    [self.view addConstraint:sobotLayoutMarginBottom(0, self.scrollView, serviceBtnBgView)];
 }
 
-#pragma mark - 联系客服 和 联系电话点击事件
--(void)openZCSDK:(UIButton *)sender{
-    NSLog(@"点击了联系客服 %ld",(long)sender.tag);
+-(void)btmButtonClick:(UIButton *)sender{
+    [super btmButtonClick:sender];
+    
     if(sender.tag == 1){
         if (self.OpenZCSDKTypeBlock) {
             self.OpenZCSDKTypeBlock(self);
@@ -116,27 +108,7 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
         }
         return;
     }
-    if (sender.tag == 2) {
-        NSString *link = sobotConvertToString([ZCUICore getUICore].kitInfo.helpCenterTel);
-        if(![link hasSuffix:@"tel:"]){
-            link = [NSString stringWithFormat:@"tel:%@",link];
-        }
-        if (NSFoundationVersionNumber <= NSFoundationVersionNumber_iOS_9_x_Max) {
-            [SobotUITools showAlert:nil message:[link stringByReplacingOccurrencesOfString:@"tel:" withString:@""] cancelTitle:SobotKitLocalString(@"取消") viewController:self confirm:^(NSInteger buttonTag) {
-                if(buttonTag>=0){
-                    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:link]];
-                }
-            } buttonTitles:SobotKitLocalString(@"呼叫"), nil];
-        }else{
-            if([ZCUICore getUICore].ZCViewControllerCloseBlock != nil){
-                [ZCUICore getUICore].ZCViewControllerCloseBlock(self,ZC_PhoneCustomerService);
-            }
-            // 打电话
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:link]];
-        }
-    }
 }
-
 
 -(id)initWithInitInfo:(ZCKitInfo *)info{
     self=[super init];
@@ -175,14 +147,14 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
     }];
 }
 
-
 -(void)layoutItemWith:(NSMutableArray *)array{
     CGFloat bw= _scrollView.frame.size.width;
-    CGFloat x= 12;
-    CGFloat y= 11;
-    CGFloat itemW = (bw-0.25 - 30)/2.0f;
+    CGFloat hSpace = SobotSpace16;
+    CGFloat vSpace = 8;
+    CGFloat x= hSpace;
+    CGFloat y= SobotSpace16;
+    CGFloat itemW = (bw-vSpace - hSpace*2)/2.0f;
     
-    int index = _listArray.count%2==0?round(_listArray.count/2):round(_listArray.count/2)+1;
     UIView *lastView;
     UIButton *lastBtn;
     for (int i =0; i<_listArray.count; i++) {
@@ -196,7 +168,7 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
         itemView.tag = i;
         if(i%2==1){
             // 右边的按钮,与上一个左边按钮对比，那个高度高，就使用那个高度
-            x = 12;
+            x = SobotSpace16;
 //            y = y + itemH + 6;
 
             if (itemView.frame.size.height >= lastView.frame.size.height) {
@@ -206,7 +178,7 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
                 CGRect btnF = lastBtn.frame;
                 btnF.size = lastF.size ;
                 lastBtn.frame = btnF;
-                y = y + 6 + lastF.size.height;
+                y = y + vSpace + lastF.size.height;
             }else{
                 CGRect itemF = itemView.frame;
                 itemF.size.height = lastView.frame.size.height;
@@ -214,7 +186,7 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
                 CGRect btnF = lastBtn.frame;
                 btnF.size = itemF.size ;
                 lastBtn.frame = btnF;
-                y = y + 6 + itemF.size.height;
+                y = y + vSpace + itemF.size.height;
             }
             lastView = itemView;
             UIButton * btn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -226,7 +198,7 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
             lastBtn = btn;
             
         }else if(i%2==0){
-            x = itemW + 12 + 6;
+            x = itemW + hSpace + vSpace;
             lastView = itemView;
             UIButton * btn = [UIButton buttonWithType:UIButtonTypeCustom];
             btn.tag = i;
@@ -238,7 +210,7 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
         }
         [_scrollView addSubview:itemView];
     }
-    [_scrollView setContentSize:CGSizeMake(bw, CGRectGetMaxY(lastView.frame)+10)];
+    [_scrollView setContentSize:CGSizeMake(bw, CGRectGetMaxY(lastView.frame)+hSpace)];
 //    [scrollView setContentInset:UIEdgeInsetsZero];
 
 }
@@ -248,10 +220,12 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
     
     UIView *itemView = [[UIView alloc] initWithFrame:CGRectMake(x, y, w,0)];
     [itemView setFrame:CGRectMake(x, y, w, 0)];
-    [itemView setBackgroundColor:UIColorFromKitModeColor(SobotColorWhite)];
+    itemView.layer.cornerRadius = 8.0f;
+    itemView.layer.masksToBounds = YES;
+    [itemView setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark3)];
     
-    SobotImageView *img = [[SobotImageView alloc]initWithFrame:CGRectMake(14, 18, 40, 40)];
-    [img loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model.categoryUrl)] placeholer:nil showActivityIndicatorView:NO completionBlock:^(UIImage *image, NSURL *url, NSError *error) {
+    SobotImageView *img = [[SobotImageView alloc]initWithFrame:CGRectMake(12, 12, 32, 32)];
+    [img loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model.categoryUrl)] placeholer:nil showActivityIndicatorView:YES completionBlock:^(UIImage *image, NSURL *url, NSError *error) {
         if(image){
             dispatch_async(dispatch_get_main_queue(), ^{
                 img.image = [self grayImage:image];
@@ -260,24 +234,27 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
     }];
     img.layer.cornerRadius = 4.0f;
     img.layer.masksToBounds = YES;
-    [img setBackgroundColor:UIColorFromKitModeColor(SobotColorBgSub)];
+    [img setBackgroundColor:UIColorFromKitModeColor(SobotColorBgF5)];
     [itemView addSubview:img];
     
-    CGFloat maxW = w-70;
+    CGFloat maxW = w-20-32-12;
     CGFloat titleH = [ZCUIKitTools getHeightContain:sobotConvertToString(model.categoryName) font:SobotFontBold14 Width:maxW];
-    CGFloat detailH = [ZCUIKitTools getHeightContain:sobotConvertToString(model.categoryDetail) font:SobotFont12 Width:maxW];
     
+    if(titleH<32){
+        titleH = 32;
+    }
     
-    UILabel *titlelab = [[UILabel alloc]initWithFrame:CGRectMake(CGRectGetMaxX(img.frame) + 10, 20, maxW, titleH)];
+    UILabel *titlelab = [[UILabel alloc]initWithFrame:CGRectMake(CGRectGetMaxX(img.frame) + 8, 12, maxW, titleH)];
     titlelab.numberOfLines = 0;
     [titlelab setTextAlignment:NSTextAlignmentLeft];
-    [titlelab setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
+    [titlelab setTextColor:UIColorFromKitModeColor(SobotColorTextMain)];
     [titlelab setText:sobotConvertToString(model.categoryName)];
     [titlelab setFont:SobotFontBold14];
     [itemView addSubview:titlelab];
     
     
-    UILabel *detailLab = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(img.frame) +10, CGRectGetMaxY(titlelab.frame) +2, maxW, detailH)];
+    CGFloat detailH = [ZCUIKitTools getHeightContain:sobotConvertToString(model.categoryDetail) font:SobotFont12 Width:w-24];
+    UILabel *detailLab = [[UILabel alloc] initWithFrame:CGRectMake(12, CGRectGetMaxY(titlelab.frame) + 8, w-24, detailH)];
     [detailLab setTextAlignment:NSTextAlignmentLeft];
     detailLab.numberOfLines = 0;
     [detailLab setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
@@ -311,7 +288,7 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
 
 
 -(UIImage *)grayImage:(UIImage *) image{
-    if([SobotUITools getSobotThemeMode] == SobotThemeMode_Dark){
+    if([SobotUITools getSobotThemeMode] != SobotThemeMode_Dark){
         return image;
     }
     if(image.size.width == 0 || image.size.height == 0){
@@ -326,90 +303,41 @@ typedef void (^PageLoadBlock)(id object,ZCPageStateType type);
     return highlighted;
 }
 
-#pragma mark - 联系客服
--(UIButton *)createHelpCenterButtons:(CGFloat ) y sView:(UIView *) superView{
-    CGFloat itemW =  (ScreenWidth - SobotNumber(24) - 20)/2;
-    _telButton = [self createHelpCenterOpenButton];
-    _telButton.tag = 2;
-    [_telButton setTitle:sobotConvertToString([ZCUICore getUICore].kitInfo.helpCenterTelTitle) forState:UIControlStateNormal];
-    [_telButton setTitle:sobotConvertToString([ZCUICore getUICore].kitInfo.helpCenterTelTitle) forState:UIControlStateHighlighted];
-    [superView addSubview:_telButton];
-    [superView addConstraint:sobotLayoutPaddingTop(y, _telButton, superView)];
-    [superView addConstraint:sobotLayoutPaddingRight(SobotNumber(-12), _telButton, superView)];
-    [superView addConstraint:sobotLayoutEqualHeight(44, _telButton, NSLayoutRelationEqual)];
-    _telButton.hidden = YES;
-    if(sobotConvertToString([ZCUICore getUICore].kitInfo.helpCenterTel).length > 0 && sobotConvertToString([ZCUICore getUICore].kitInfo.helpCenterTelTitle).length > 0){
-        _telButton.hidden = NO;
-        self.telBtnEW = sobotLayoutEqualWidth(itemW, _telButton, NSLayoutRelationEqual);
-    }else{
-        self.telBtnEW = sobotLayoutEqualWidth(0, _telButton, NSLayoutRelationEqual);
-    }
-    [superView addConstraint:self.telBtnEW];
-    UIButton *serviceButton = [self createHelpCenterOpenButton];
-    serviceButton.tag = 1;
-    [superView addSubview:serviceButton];
-    [superView addConstraint:sobotLayoutPaddingLeft(SobotNumber(12), serviceButton, superView)];
-    [superView addConstraint:sobotLayoutPaddingTop(y, serviceButton, superView)];
-    [superView addConstraint:sobotLayoutEqualHeight(44, serviceButton, NSLayoutRelationEqual)];
-    if (!_telButton.hidden) {
-        [superView addConstraint:sobotLayoutMarginRight(-20, serviceButton, _telButton)];
-    }else{
-        [superView addConstraint:sobotLayoutMarginRight(0, serviceButton, _telButton)];
-    }
-    return serviceButton;
-}
-
-#pragma mark - 在线客服按钮 和拨号按钮
--(UIButton *)createHelpCenterOpenButton{
-    // 在线客服btn
-    UIButton *serviceBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-//    serviceBtn.type = 5;
-    [serviceBtn setTitle:SobotKitLocalString(@"在线客服") forState:UIControlStateNormal];
-    [serviceBtn setTitle:SobotKitLocalString(@"在线客服") forState:UIControlStateHighlighted];
-    [serviceBtn setTitleColor:UIColorFromKitModeColor(SobotColorTextMain) forState:UIControlStateNormal];
-    [serviceBtn setTitleColor:UIColorFromKitModeColor(SobotColorTextMain) forState:UIControlStateHighlighted];
-    serviceBtn.titleLabel.font = SobotFontBold14;
-    [serviceBtn addTarget:self action:@selector(openZCSDK:) forControlEvents:UIControlEventTouchUpInside];
-    serviceBtn.layer.borderColor = UIColorFromKitModeColor(SobotColorBgLine).CGColor;
-    serviceBtn.layer.borderWidth = 0.5f;
-    serviceBtn.layer.cornerRadius = 22.0f;
-    serviceBtn.layer.masksToBounds = YES;
-    serviceBtn.titleLabel.lineBreakMode = 4;
-    [serviceBtn setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark2)];
-    [serviceBtn setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 3)];
-    [serviceBtn setTitleEdgeInsets:UIEdgeInsetsMake(0, 3, 0, 0)];
-    [serviceBtn setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin];
-    [serviceBtn setAutoresizesSubviews:YES];
-    return serviceBtn;
-}
 
 // 适配iOS 13以上的横竖屏切换
 -(void)viewSafeAreaInsetsDidChange{
     [super viewSafeAreaInsetsDidChange];
     UIEdgeInsets e = self.view.safeAreaInsets;
     // 横竖屏更新导航栏渐变色
-    [self updateCenterViewBgColor];
-    [self updateNavOrTopView];
+    [self updateTopViewBgColor];
+    
     CGFloat navh = NavBarHeight;
     if (self.topView == nil || ![ZCUICore getUICore].kitInfo.navcBarHidden) {
         navh = 0;
     }
     // 中间部分
     if (self.scrollView) {
-        self.scrollView.frame = CGRectMake(e.left, navh, ScreenWidth-e.left*2, self.view.frame.size.height - navh- 80);
-        if (_listArray.count > 0) {
+        _scrollViewPL.constant = e.left;
+        _scrollViewPR.constant = -e.right;
+        _scrollViewPT.constant = navh;
+    }
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        // 更新UIScrollView的子视图的约束
+        
+        // 强制更新布局
+        [self.scrollView layoutIfNeeded];
+        if (self->_listArray.count > 0) {
             [self removePlaceholderView];
-            [_scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-            [self layoutItemWith:_listArray];
+            [self->_scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+            [self layoutItemWith:self->_listArray];
         }
-    }
-    // 底部 联系客服按钮的切换
-    if (!self.telButton.hidden) {
-        [serviceBtnBgView removeConstraint:self.telBtnEW];
-        CGFloat itemW = (ScreenWidth - SobotNumber(24) -20)/2;
-        self.telBtnEW = sobotLayoutEqualWidth(itemW, self.telButton, NSLayoutRelationEqual);
-        [serviceBtnBgView addConstraint:self.telBtnEW];
-    }
+        
+    } completion:nil];
 }
 
 -(void)dealloc{

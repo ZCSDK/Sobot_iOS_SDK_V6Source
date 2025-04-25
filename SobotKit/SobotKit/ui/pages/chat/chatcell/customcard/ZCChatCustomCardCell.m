@@ -242,7 +242,7 @@
     _cardModel = message.richModel.customCard;
     CGFloat tempHeight = 0;
     
-    [_logoView loadWithURL:[NSURL URLWithString:sobotConvertToString(_cardModel.cardImg)]];
+    [_logoView loadWithURL:[NSURL URLWithString:sobotConvertToString(_cardModel.cardImg)] placeholer:nil showActivityIndicatorView:NO];
     [_labDesc setText:sobotConvertToString(_cardModel.cardGuide)];
     [_labTitle setText:sobotTrimString(_cardModel.cardDesc)];
     
@@ -359,7 +359,11 @@
     [_cusButtonView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     if(_cardModel.cardMenus.count > 0){
         SobotButton *preButton = nil;
-        for(int i=0;i<_cardModel.cardMenus.count ; i ++ ){
+        int maxCount = (int)_cardModel.cardMenus.count;
+        if (maxCount > 3) {
+            maxCount = 3;
+        }
+        for(int i=0;i<maxCount; i ++ ){
             SobotChatCustomCardMenu *menu = _cardModel.cardMenus[i];
             
             SobotButton *btn = (SobotButton *)[SobotUITools createZCButton];

@@ -9,8 +9,6 @@
 #import <SobotChatClient/SobotChatClient.h>
 #import <SobotCommon/SobotCommon.h>
 #import "ZCUIKitTools.h"
-#import "ZCOrderContentCell.h"
-#define cellOrderContentIdentifier @"ZCOrderContentCell"
 #import "ZCOrderOnlyEditCell.h"
 #define cellOrderSingleIdentifier @"ZCOrderOnlyEditCell"
 #import "ZCOrderEditCell.h"
@@ -24,7 +22,8 @@
 #import "ZCUIWebController.h"
 #import "SobotHtmlFilter.h"
 #import "ZCCheckCityView.h"
-
+#import "ZCOrderCheckMoreCell.h"
+#define cellCheckMoreIdentifier @"ZCOrderCheckMoreCell"
 @interface ZCUIAskTableController ()<UITextFieldDelegate,UITextViewDelegate,UIGestureRecognizerDelegate,UINavigationControllerDelegate,UITableViewDataSource,UITableViewDelegate,SobotEmojiLabelDelegate,UIScrollViewDelegate,ZCZHPickViewDelegate,ZCOrderCreateCellDelegate>
 {
     // 链接点击
@@ -60,23 +59,37 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     if ([ZCUICore getUICore].kitInfo.navcBarHidden) {
-        self.navigationController.navigationBarHidden = YES;
+        [self.navigationController setNavigationBarHidden:YES animated:YES];
     }
-    self.view.backgroundColor = [ZCUIKitTools zcgetLightGrayDarkBackgroundColor];
+    self.view.backgroundColor = UIColorFromKitModeColor(SobotColorBgMainDark1);// [ZCUIKitTools zcgetLightGrayDarkBackgroundColor];
     [self createVCTitleView];
-    [self updateNavOrTopView];
-    // 创建列表
-    [self createTableView];
     if(!self.navigationController.navigationBarHidden){
         self.title = SobotKitLocalString(@"请填写询前表单");
     }else{
         self.titleLabel.text = SobotKitLocalString(@"请填写询前表单");
     }
     
+    [self updateNavOrTopView];
+    // 创建列表
+    [self createTableView];
     // 加载数据
     [self loadDataForPage];
     // 布局子页面
     [self refreshViewData];
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    if ([ZCUICore getUICore].kitInfo.navcBarHidden) {
+        [self.navigationController setNavigationBarHidden:YES animated:animated];
+    }
+
+
+    if(!self.navigationController.navigationBarHidden){
+        self.title = SobotKitLocalString(@"请填写询前表单");
+    }else{
+        self.titleLabel.text = SobotKitLocalString(@"请填写询前表单");
+    }
 }
 
 -(void)setDict:(NSMutableDictionary *)dict{
@@ -129,29 +142,35 @@
     UIView *view=[[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, 0)];
     view.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     if (_coustomArr.count) {
-        [view setBackgroundColor:UIColorFromKitModeColor(SobotColorBgSub2Dark1)];
+        [view setBackgroundColor:UIColorFromKitModeColor(SobotColorHeaderBg)];
         SobotEmojiLabel *label=[[SobotEmojiLabel alloc] initWithFrame:CGRectMake(15, 15, ScreenWidth-30, 0)];
         label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         [label setFont:SobotFont14];
         //    [label setText:_listArray[section][@"sectionName"]];
         [label setBackgroundColor:[UIColor clearColor]];
         [label setTextAlignment:NSTextAlignmentLeft];
-        [label setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
+        [label setTextColor:UIColorFromKitModeColor(SobotColorHeaderText)];
         label.numberOfLines = 0;
         label.isNeedAtAndPoundSign = NO;
         label.disableEmoji = NO;
         label.lineSpacing = 3.0f;
         [label setLinkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
         label.delegate = self;
-        
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            label.textAlignment = NSTextAlignmentRight;
+        }else{
+            label.textAlignment = NSTextAlignmentLeft;
+        }
         NSString *text = self.detailStr;
-        [SobotHtmlCore filterHtml:text result:^(NSString * _Nonnull text1, NSMutableArray * _Nonnull arr, NSMutableArray * _Nonnull links) {
-            if (text1 !=nil && text1.length > 0) {
-                label.attributedText =   [SobotHtmlFilter setHtml:text1 attrs:arr view:label textColor:UIColorFromKitModeColor(SobotColorTextSub) textFont:SobotFont14 linkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
-            }else{
-                label.attributedText = [[NSAttributedString alloc] initWithString:@""];
-            }
-        }];
+        text = [SobotHtmlCore removeAllHTMLTag:text];
+//        [SobotHtmlCore filterHtml:text result:^(NSString * _Nonnull text1, NSMutableArray * _Nonnull arr, NSMutableArray * _Nonnull links) {
+//            if (text1 !=nil && text1.length > 0) {
+//                label.attributedText =   [SobotHtmlFilter setHtml:text1 attrs:arr view:label textColor:UIColorFromKitModeColor(SobotColorTextSub) textFont:SobotFont14 linkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
+//            }else{
+//                label.attributedText = [[NSAttributedString alloc] initWithString:@""];
+//            }
+//        }];
+        label.text = text;
         CGSize  labSize  =  [label preferredSizeWithMaxWidth:ScreenWidth-30];
         label.frame = CGRectMake(15, 12, labSize.width, labSize.height);
         [view addSubview:label];
@@ -203,14 +222,18 @@
     [self.view addConstraint:self.listL];
     [self.view addConstraint:self.listR];
     _listView.backgroundColor = [UIColor clearColor];
+    _listView.separatorColor = UIColor.clearColor;
+    _listView.separatorStyle = UITableViewCellSeparatorStyleNone;
+
     _listArray = [[NSMutableArray alloc]init];
     
     _listView.clipsToBounds = YES;
     [_listView registerClass:[ZCOrderCheckCell class] forCellReuseIdentifier:cellCheckIdentifier];
     [_listView registerClass:[ZCOrderEditCell class] forCellReuseIdentifier:cellEditIdentifier];
     [_listView registerClass:[ZCOrderOnlyEditCell class] forCellReuseIdentifier:cellOrderSingleIdentifier];
+    [_listView registerClass:[ZCOrderCheckMoreCell class] forCellReuseIdentifier:cellCheckMoreIdentifier];
     [_listView setSeparatorColor:UIColorFromKitModeColor(SobotColorBgLine)];
-    [self setTableSeparatorInset];
+//    [self setTableSeparatorInset];
     
     UIView * footView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 15 + 30 + 80)];
     footView.backgroundColor = [UIColor clearColor];
@@ -241,23 +264,23 @@
     [_commitBtn setTitle:SobotKitLocalString(@"提交并咨询") forState:UIControlStateNormal];
     [_commitBtn setTitle:SobotKitLocalString(@"提交并咨询") forState:UIControlStateSelected];
     [_commitBtn setBackgroundColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
-    [_commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateNormal];
-    [_commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateHighlighted];
+    [_commitBtn setTitleColor:[ZCUIKitTools zcgetRobotBtnTitleColor] forState:UIControlStateNormal];
+    [_commitBtn setTitleColor:[ZCUIKitTools zcgetRobotBtnTitleColor] forState:UIControlStateHighlighted];
     _commitBtn.tag = BUTTON_MORE;
     [_commitBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     _commitBtn.layer.masksToBounds = YES;
     _commitBtn.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    _commitBtn.layer.cornerRadius = SobotNumber(22);
-    _commitBtn.titleLabel.font = SobotFontBold17;
+    _commitBtn.layer.cornerRadius = 4;
+    _commitBtn.titleLabel.font = SobotFontBold16;
     [footView addSubview:_commitBtn];
-    [footView addConstraint:sobotLayoutPaddingTop(th + SobotNumber(15), _commitBtn, footView)];
-    [footView addConstraint:sobotLayoutPaddingLeft(SobotNumber(15), _commitBtn, footView)];
-    [footView addConstraint:sobotLayoutPaddingRight(SobotNumber(-15), _commitBtn, footView)];
-    [footView addConstraint:sobotLayoutEqualHeight(SobotNumber(44), _commitBtn, NSLayoutRelationEqual)];
+    [footView addConstraint:sobotLayoutPaddingTop(th + 15, _commitBtn, footView)];
+    [footView addConstraint:sobotLayoutPaddingLeft(16, _commitBtn, footView)];
+    [footView addConstraint:sobotLayoutPaddingRight(-16, _commitBtn, footView)];
+    [footView addConstraint:sobotLayoutEqualHeight(40, _commitBtn, NSLayoutRelationEqual)];
     _listView.tableFooterView = footView;
     _isSend = NO;
     
-    self.listView.backgroundColor = [ZCUIKitTools zcgetLightGrayDarkBackgroundColor];
+//    self.listView.backgroundColor = [ZCUIKitTools zcgetLightGrayDarkBackgroundColor];
     
     UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapHideKeyboard)];
     gestureRecognizer.numberOfTapsRequired = 1;
@@ -377,13 +400,13 @@
  *  设置UITableView分割线空隙
  */
 -(void)setTableSeparatorInset{
-    UIEdgeInsets inset = UIEdgeInsetsMake(0, 0, 0, 0);
-    if ([_listView respondsToSelector:@selector(setSeparatorInset:)]) {
-        [_listView setSeparatorInset:inset];
-    }
-    if ([_listView respondsToSelector:@selector(setLayoutMargins:)]) {
-        [_listView setLayoutMargins:inset];
-    }
+//    UIEdgeInsets inset = UIEdgeInsetsMake(0, 0, 0, 0);
+//    if ([_listView respondsToSelector:@selector(setSeparatorInset:)]) {
+//        [_listView setSeparatorInset:inset];
+//    }
+//    if ([_listView respondsToSelector:@selector(setLayoutMargins:)]) {
+//        [_listView setLayoutMargins:inset];
+//    }
 }
 
 #pragma mark -- 返回和提交
@@ -404,7 +427,7 @@
         NSMutableDictionary *cusFields = [NSMutableDictionary dictionaryWithCapacity:0];
         // 自定义字段
         for (ZCOrderCusFiledsModel *cusModel in _coustomArr) {
-            if([cusModel.fillFlag intValue] == 1 && sobotIsNull(cusModel.fieldValue)){
+            if([cusModel.fillFlag intValue] == 1 && (sobotIsNull(cusModel.fieldValue) || sobotIsEmpty(cusModel.fieldValue))){
                 [[SobotToast shareToast] showToast:[NSString stringWithFormat:@"%@%@",cusModel.fieldName,SobotKitLocalString(@"不能为空")] duration:1.0f view:self.view position:SobotToastPositionCenter];
                 return;
             }
@@ -565,6 +588,12 @@
         if (cell == nil) {
             cell = [[ZCOrderEditCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellEditIdentifier];
         }
+    }else if (type == 7){
+        // 复选UI改版了
+        cell = (ZCOrderCheckMoreCell*)[tableView dequeueReusableCellWithIdentifier:cellCheckMoreIdentifier];
+        if (cell == nil) {
+            cell = [[ZCOrderCheckMoreCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellCheckMoreIdentifier];
+        }
     }else{
         cell = (ZCOrderCheckCell*)[tableView dequeueReusableCellWithIdentifier:cellCheckIdentifier];
         if (cell == nil) {
@@ -609,12 +638,14 @@
             ZCZHPickView *pickView = [[ZCZHPickView alloc] initWithFrame:self.view.frame DatePickWithDate:[NSDate new]  datePickerMode:UIDatePickerModeTime isHaveNavControler:NO];
             pickView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
             pickView.delegate = self;
+            [pickView setTitle:sobotConvertToString([itemDict objectForKey:@"dictDesc"])];
             [pickView show];
         }
         if(fieldType == 3){
             ZCZHPickView *pickView = [[ZCZHPickView alloc] initWithFrame:self.view.frame DatePickWithDate:[NSDate new]  datePickerMode:UIDatePickerModeDate isHaveNavControler:NO];
             pickView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
             pickView.delegate = self;
+            [pickView setTitle:sobotConvertToString([itemDict objectForKey:@"dictDesc"])];
             [pickView show];
         }
         if(fieldType == 9){
@@ -771,7 +802,10 @@
                 callURL=url;
                 [SobotUITools showAlert:nil message:[url stringByReplacingOccurrencesOfString:@"tel:" withString:@""] cancelTitle:SobotKitLocalString(@"取消") viewController:self confirm:^(NSInteger buttonTag) {
                     if(buttonTag>=0){
-                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self->callURL]];
+//                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self->callURL]];
+                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self->callURL] options:@{} completionHandler:^(BOOL res) {
+                                        
+                             }];
                     }
                 } buttonTitles:SobotKitLocalString(@"呼叫"), nil];
                 
@@ -859,30 +893,6 @@
     return NO;
 }
 
-#pragma mark - 更新导航栏
--(void)updateNavOrTopView{
-    // 统计 系统导航栏上面的按钮
-    NSMutableArray *rightItem = [NSMutableArray array];
-    NSMutableDictionary *navItemSource = [NSMutableDictionary dictionary];
-    [rightItem addObject:@(SobotButtonClickBack)];
-    [navItemSource setObject:@{@"img":@"zcicon_titlebar_back_normal",@"imgsel":sobotConvertToString([ZCUICore getUICore].kitInfo.topBackNolImg)} forKey:@(SobotButtonClickBack)];
-    // 更新系统导航栏的按钮
-    self.navItemsSource = navItemSource;
-    [self setLeftTags:@[@(SobotButtonClickBack)] rightTags:@[] titleView:nil];
-    if (!self.navigationController.navigationBarHidden) {
-        if([ZCUIKitTools getZCThemeStyle] == SobotThemeMode_Light){
-            if(sobotGetSystemDoubleVersion() >= 13){
-                self.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
-                self.navigationController.toolbar.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
-            }
-        }
-    }else{
-        self.moreButton.hidden = YES;
-        self.titleLabel.hidden = NO;
-        self.backButton.hidden = NO;
-        self.bottomLine.hidden = YES;
-    }
-}
 
 
 #pragma mark UITableViewCell 行点击事件处理
@@ -918,11 +928,6 @@
     }
 }
 #pragma mark -- 系统键盘的监听事件
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-    // 影藏NavigationBar
-    
-}
 
 - (void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];

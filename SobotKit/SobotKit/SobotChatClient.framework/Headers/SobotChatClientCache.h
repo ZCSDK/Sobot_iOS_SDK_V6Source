@@ -23,6 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 +(SobotChatClientCache *) shareSobotCallCache;
 
 +(NSString *)localKitString:(NSString *) key;
+
+// 检测当前配置语言是否为RTL
++(BOOL)checkKitIsRTLLayout;
+
 +(UIImage *)getKitSysImage:(NSString *)imageName;
 
 

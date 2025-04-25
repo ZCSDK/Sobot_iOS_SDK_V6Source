@@ -13,12 +13,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,assign) int isCreated;// 0,未复制，1赋值
 
+// 4.2.4新增
+@property (nonatomic,strong) NSString *tempDescribe;//模板描述
+@property (nonatomic,strong) NSString *tempDescribeLan;//模板描述「多语言占位符」
 
 @property (nonatomic,assign) int defaultQuestionFlag;//：“问题是否解决”默认选中状态：(0)-未解决 (1)-解决 (-1)-不选中
 @property (nonatomic,assign) int defaultType;//：默认显示星级  0-5星,1-0星 / 0-10分，1-5分，2-0分，3-不选中
 @property (nonatomic,assign) int isQuestionFlag;//：人工客服是否解决问题开关  1-开启 0-关闭
 @property (nonatomic,assign) int isQuestionMust;//：“问题是否解决”是否为必填选项： 0-非必填 1-必填
-@property (nonatomic,assign) int scoreFlag;//：星级类型 0-旧版5星级评价  1-nps评价 
+
+// 0 5星，1、10星，2、2分
+// scoreFlag==0星级: 0代表5星,1代表不选中
+// scoreFlag==1分值: 0代表10分，1代表5分，2代表0分，3代表不选中
+// scoreFlag==2分值: 0代表满意，1不满意，2不选中
+// defaultType 默认显示星级  0-5星,1-0星 / 0-10分，1-5分，2-0分，3-不选中 / 0-满意，1-不满意，2-不选中
+@property (nonatomic,assign) int scoreFlag;//：星级类型 0-旧版5星级评价  1-nps评价 2 2分
 @property (nonatomic,assign) int status;//：模板状态开关 0-关闭 1-开启
 
 // 0自定义，1默认

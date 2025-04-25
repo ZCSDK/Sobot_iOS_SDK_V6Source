@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 +(NSMutableAttributedString *)setHtml:(NSString *)text attrs:(NSMutableArray *) attrs view:(UILabel *) label  textColor:(UIColor*)textColor textFont:(UIFont*)textFont linkColor:(UIColor*)linkColor;
 
+// 增加行间距的入参
++(NSMutableAttributedString *) setHtml:(NSString *)text attrs:(NSMutableArray *) attrs view:(UILabel *) label  textColor:(UIColor*)textColor textFont:(UIFont*)textFont linkColor:(UIColor*)linkColor lineSpacing:(CGFloat)lineSpacing;
+
 /**
  单独处理引导语 设置带html属性到label标签上
 

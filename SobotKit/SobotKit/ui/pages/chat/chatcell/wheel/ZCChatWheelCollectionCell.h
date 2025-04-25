@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) UILabel *labLabel; //
 
 
-- (void)configureCellWithPostURL:(NSDictionary *)model message:(SobotChatMessage *)message;
+- (void)configureCellWithPostURL:(NSDictionary *)model message:(SobotChatMessage *)message isMoreLine:(BOOL)isMoreLine;
 
 @end
 

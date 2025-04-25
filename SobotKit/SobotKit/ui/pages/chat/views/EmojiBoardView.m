@@ -51,7 +51,13 @@
                             action:@selector(pageChange:)
                   forControlEvents:UIControlEventValueChanged];
         facePageControl.pageIndicatorTintColor=[UIColor lightGrayColor];
-        facePageControl.currentPageIndicatorTintColor=[UIColor darkGrayColor];
+//        facePageControl.currentPageIndicatorTintColor=[UIColor darkGrayColor];
+        facePageControl.currentPageIndicatorTintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
+//        if([SobotUITools getSobotThemeMode] == SobotThemeMode_Dark){
+//            facePageControl.pageIndicatorTintColor = [ZCUIKitTools zcgetTextPlaceHolderColor];
+//        }else{
+//            facePageControl.pageIndicatorTintColor = UIColorFromModeColor(SobotColorBgMainDark1);
+//        }
         
 //        facePageControl.pageIndicatorTintColor=[UIColor clearColor];
 //        facePageControl.currentPageIndicatorTintColor=[UIColor clearColor];
@@ -97,6 +103,9 @@
 
 -(void)refreshItemsView:(CGFloat)emojiHeight{
     [self addItemsViewWithHeight:emojiHeight];
+    facePageControl.currentPageIndicatorTintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
+    
+    [self layoutIfNeeded];
 }
 
 -(void) addItemsViewWithHeight:(CGFloat)height{
@@ -113,9 +122,14 @@
     CGFloat width = SobotViewWidth(self);
     CGFloat EmojiWidth  = 44;
     CGFloat EmojiHeight = 48; // 2.8.4以前版本高度为44
-    int columns         = width/EmojiWidth;
+    int columns         = (width - 24)/EmojiWidth;
+    CGFloat itemSpace   = (width - 24 - columns * EmojiWidth)/columns;
+    if(itemSpace < 0){
+        columns = columns - 1;
+        itemSpace   = (width - 24 - columns * EmojiWidth)/columns;
+    }
     // 当宽度无法除尽时，表情居中
-    CGFloat itemX       = (width - columns * EmojiWidth)/2;
+    CGFloat itemX       = 12;
     
     int allSize         = (int)_faceMap.count;
     int rows            = (height-20)/EmojiHeight;
@@ -130,6 +144,7 @@
         facePageControl.hidden = YES;
     }
     
+    // 循环有几页
     for(int i=0; i< pageNum; i++){
         //删除键
         UIButton *back = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -139,7 +154,7 @@
         [back setImage:SobotKitGetImage(@"zcicon_emoji_del_press") forState:UIControlStateHighlighted];
         [back setBackgroundColor:[UIColor clearColor]];
         [back addTarget:self action:@selector(backFace) forControlEvents:UIControlEventTouchUpInside];
-        back.frame = CGRectMake(itemX+i*width + (columns-2)*EmojiWidth, EmojiHeight * (rows-1)+8, EmojiWidth, EmojiHeight);
+        back.frame = CGRectMake(itemX+i*width + (columns-2)*itemSpace + (columns-2)*EmojiWidth, EmojiHeight * (rows-1)+8, EmojiWidth, EmojiHeight);
         [back setImageEdgeInsets:UIEdgeInsetsMake(3, 3, 3, 3)];
         [back.imageView setContentMode:UIViewContentModeScaleAspectFit];
         [faceView addSubview:back];
@@ -150,17 +165,19 @@
         [sendButton.titleLabel setFont:SobotFont14];
         [sendButton.layer setCornerRadius:4.0f];
         [sendButton.layer setMasksToBounds:YES];
+        sendButton.contentHorizontalAlignment= UIControlContentHorizontalAlignmentFill;//水平方向拉伸
+        sendButton.contentVerticalAlignment = UIControlContentVerticalAlignmentFill;//垂直方向拉伸
         [sendButton setImage: SobotKitGetImage(@"zcicon_emoji_send") forState:UIControlStateNormal];
         // 更改更随主题色
-        [sendButton setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]] forState:UIControlStateNormal];
-        [sendButton setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]] forState:UIControlStateHighlighted];
-        [sendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [sendButton setImageEdgeInsets:UIEdgeInsetsMake(3, 3, 3, 3)];
+//        [sendButton setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]] forState:UIControlStateNormal];
+//        [sendButton setBackgroundImage:[SobotImageTools sobotImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]] forState:UIControlStateHighlighted];
+//        [sendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//        [sendButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+//        sendButton.layer.masksToBounds = YES;
+//        sendButton.layer.cornerRadius = 15;
+//        [sendButton setImageEdgeInsets:UIEdgeInsetsMake(3, 3, 3, 3)];
         [sendButton addTarget:self action:@selector(sendEmoji) forControlEvents:UIControlEventTouchUpInside];
-        [sendButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        sendButton.frame = CGRectMake(itemX+i*width + (columns-1)*EmojiWidth+7, EmojiHeight * (rows-1)+8+9, 30, 30);
-        sendButton.layer.masksToBounds = YES;
-        sendButton.layer.cornerRadius = 15;
+        sendButton.frame = CGRectMake(itemX+i*width + (columns-1)*itemSpace + (columns-1)*EmojiWidth+4-4, EmojiHeight * (rows-1)+8+6-4, 44, 44);
         
         [faceView addSubview:sendButton];
         
@@ -184,7 +201,7 @@
                  forControlEvents:UIControlEventTouchUpInside];
             
             //计算每一个表情按钮的坐标和在哪一屏
-            CGFloat x = i * width + (j%columns) * EmojiWidth+itemX;
+            CGFloat x = i * width + (j%columns) * EmojiWidth+itemX + (j%columns)*itemSpace;
             
             CGFloat y = 8;
             if(j>=columns){

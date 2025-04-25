@@ -19,6 +19,8 @@ typedef NS_ENUM(NSInteger, SobotSatisfactionType) {
     SobotSatisfactionTypeRobot = 1,
     /** 留言 业务和人工一样 */
     SobotSatisfactionTypeLeave = 2,
+    /** AI机器人 */
+    SobotSatisfactionTypeAiAgent = 3,
 };
 
 /**

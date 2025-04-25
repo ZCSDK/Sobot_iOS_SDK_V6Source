@@ -11,7 +11,7 @@
 "暂时无法转接人工客服" = "No se puede transferir al servicio al cliente manual por ahora";
 "暂时无法评价" = "No se puede evaluar ahora";
 "网络错误，请检查网络后重试" = "Error de red, compruebe la red y vuelva a intentarlo";
-"转人工" = "Cambiar a manual";
+"转人工" = "Transferencia a Manual";
 "时间" = "Hora";
 "日期" = "Fecha";
 "标题" = "Título";
@@ -48,7 +48,7 @@
 "您收到了一条新消息" = "Ha recibido un mensaje nuevo";
 "评分" = "Punto";
 "评语" = "Comentario";
-"是否解决了您的问题？" = "Se resolvió su problema?";
+"是否解决了您的问题？" = "se resolvió su problema?";
 "受理中" = "Aceptando";
 "问题分类" = "Categoría de problemas";
 "问题详情" = "Detalles de pregunta";
@@ -76,7 +76,7 @@
 "运输中" = "En tránsito";
 "待发货" = "Para entregar";
 "待付款" = "Por pagar";
-"选填" = "opcional";
+"选填" = "Opcional";
 "展开" = "Expandir";
 "收起" = "Guardar";
 "无" = "Nada";
@@ -126,7 +126,7 @@
 "暂无相关信息" = "Sin información relevante";
 "邮箱不能为空" = "El correo no puede estar vacío";
 "请输入正确的邮箱" = "Su correo no tiene el formato correcto";
-"邮箱" = "Correi";
+"邮箱" = "Correo";
 "欢迎给我们的服务提建议~" = "Bienvenido a consejos";
 "要删除这个视频吗?" = "¿Quieres borrar este video?";
 "要删除这张图片吗？" = "¿Quiere borrar esta imagen?";
@@ -137,10 +137,10 @@
 "删除" = "Eliminar";
 "数据错误" = "Error de datos";
 "客服" = "Servicio al Cliente";
-"复制成功！" = "¡Copia realizada exitosamente!";
+"复制成功" = "¡Copia realizada exitosamente";
 "复制" = "Copiar";
 "已创建" = "Creado";
-"倒计时:" = "Cuenta regresiva:";
+"倒计时" = "Cuenta regresiva";
 "消息中心" = "Centro de mensajes";
 "未连接" = "Desconectado";
 "连接中..." = "Conectando...";
@@ -200,15 +200,95 @@
 "自定义字段" = "Campos Personalizados";
 "非常不满意" = "Muy insatisfecho";
 "未解决问题？点击" = "¿No resolvió tu problema?";
-"转人工服务" = "Servicios Humanos";
+"转人工服务" = "Servicios Humanos ";
 "展开消息" = "Expandir el mensaje";
 "继续发送" = "Sigue enviando";
 "拒绝" = "Rehusar";
 "您已同意发送个人敏感信息，本次授权有效期24小时" = "Usted ha accedido a enviar información personal sensible, esta autorización es válida durante 24 horas";
 "您已拒绝发送此消息" = "Has rechazado enviar este mensaje.";
 "附件" = "Anexo";
+"保存成功" = "Guardado exitosamente";
+"保存失败" = "Error al guardar";
+
+
+//************* 同步415的数据 ***********
 "填写信息" = "Rellene la información";
 "排队自动断开结束会话" = "Terminar la sesión después de que la cola se desconecte automáticamente";
 "小程序" = "Applet";
 "小程序只能通过微信打开" = "Los applets sólo se pueden abrir a través de Wechat";
 "解析中..." = "Analizar...";
+"转换失败" = "La conversión falló";
+"转换完成" = "Conversión completada";
+"订单号" = "número de orden";
+"交易状态"="estado comercial";
+"创建时间"="tiempo de creación";
+"展开更多" = "Lanza más";
+"共" = "Total";
+"已读"="leído";
+"未读"="no leído";
+"我"="Yo";
+"机器人"="Robot";
+"链接" = "enlace";
+"文章" = "artículo";
+"引用" = "Cita";
+"已选"="seleccionado";
+"搜索"="Buscar";
+"搜索全部省"="Buscar todas las provincias";
+"搜索全部市"="Buscar todas las ciudades";
+"搜索全部县（区）"="Buscar todos los condados (distritos)";
+"搜索全部街道"="Buscar todas las calles";
+"无结果"="sin resultados";
+"请选择是否解决了您的问题" = "Por favor, elija si ha resuelto su problema.";
+"换一批" = "Cambiar el grupo";
+//************* 同步415的数据 ***********
+
+
+/**公共组件翻译*/
+"选择时区" = "Elegir zona horaria";
+"请选择时区" = "Por favor, elija la zona horaria";
+"暂无选项内容" = "No hay contenido de opción por el momento";
+"时区"="Zona horaria";
+"年"="Año";
+"月"="Luna";
+"日"="Día";
+
+"区号"="Código de área";
+
+"语言已切换为“xxx”" = "Idioma cambiado a \"xxx\"";
+"选择语言" = "Seleccionar idioma";
+"请选择您要使用的聊天语言：" = "Por favor seleccione el idioma en el que desea chatear:";
+"更多语言" = "Más idiomas";
+
+
+"顶" = "Top";
+"踩" = "Pisotear";
+
+"满意" = "Satisfecho";
+"不满意" = "Insatisfecho";
+
+"回复了您" = "te respondi";
+"您的回复" = "tu respuesta";
+
+"上传附件" = "Subir Archivo Adjunto";
+"展开全部" = "Desplegar Todo";
+"收起" = "Contraer";
+"松开 发送" = "Soltar para Enviar";
+"松开 取消" = "Soltar para Cancelar";
+"松开发送，上滑取消" = "Suelta para enviar, desliza hacia arriba para cancelar";
+"暂无回复" = "No hay respuesta";
+"请输入" = "Por favor ingresa";
+"最多上传" = "Se pueden subir un máximo de ";
+"个，" = "archivos,";
+"大小不超过" = "cada uno no debe exceder";
+"已达上限 15 个" = "Se ha alcanzado el límite de 15";
+"知道了" = "Entendido";
+"已拒绝" = "Rechazado";
+
+
+"请选择" = "Seleccione";
+"暂无客服在线，点击进行留言。" = "No hay ningún agente en línea. Haga clic para abandonar el envío";
+"工单处理状态更新后将在会话中提醒您" = "El estado de procesamiento del ticket se actualizará y se le notificará durante la sección. ";
+
+"商品数" = "Cantidad";
+"更多信息" = "Más información";
+"查看更多" = "Ver más";

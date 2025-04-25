@@ -67,12 +67,14 @@
     
     [self showContent:@"" view:_fileBgView btm:nil isMaxWidth:YES customViewWidth:ScreenWidth];
     
-    if(self.parentMessage.sendType == 0){
+    if(self.isSupRight){
         // 右边
-        _fileBgView.backgroundColor = UIColorFromModeColorAlpha(SobotColorWhite, 0.14);
+        _fileBgView.backgroundColor = UIColorFromModeColorAlpha(SobotColorTextWhite, 0.14);
+        _flieNamelab.textColor = UIColorFromKitModeColor(SobotColorWhite);
     }else{
         // 左边
-        _fileBgView.backgroundColor = UIColorFromModeColor(SobotColorWhite);
+        _fileBgView.backgroundColor = UIColorFromModeColor(SobotColorTextWhite);
+        _flieNamelab.textColor = UIColorFromModeColor(SobotColorTextMain);
     }
 }
 

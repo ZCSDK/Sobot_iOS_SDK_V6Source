@@ -15,6 +15,7 @@
 }
 
 @property(nonatomic,strong) NSLayoutConstraint *layoutBgWidth;
+@property(nonatomic,strong) NSLayoutConstraint *layoutBgLeft;
 
 @property(nonatomic,strong) NSLayoutConstraint *layoutBgViewHeight;
 @property (strong, nonatomic) UIView *bgView;
@@ -44,11 +45,24 @@
         //设置点击事件
         _layoutBgWidth = sobotLayoutEqualWidth(ScreenWidth, self.bgView, NSLayoutRelationEqual);
         [self.contentView addConstraint:_layoutBgWidth];
-        [self.contentView addConstraint:sobotLayoutPaddingTop(0, self.bgView, self.ivBgView)];
-        [self.contentView addConstraint:sobotLayoutPaddingLeft(0, self.bgView, self.ivBgView)];
-//        [self.contentView addConstraint:sobotLayoutMarginBottom(-ZCChatCellItemSpace, self.bgView, self.lblSugguest)];
-        [self.contentView addConstraint:sobotLayoutPaddingBottom(0, self.bgView, self.ivBgView)];
+        [self.contentView addConstraint:sobotLayoutPaddingTop(ZCChatPaddingVSpace, self.bgView, self.contentView)];
+        [self.contentView addConstraint:sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, self.bgView, self.contentView)];
         
+        // 当不是用户的数据，显示全屏；当是用户的数据，需要显示正常的数据
+        /**
+         用户：left = self.viewWidth - self.maxWidth - 16;
+            width = self.maxWidth
+         非用户：left = 16
+            width = self.viewWidth - 16;
+         */
+//        [self.contentView addConstraint:sobotLayoutPaddingLeft(0, self.bgView, self.ivBgView)];
+        
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            _layoutBgLeft = sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.bgView, self.contentView);
+        }else{
+            _layoutBgLeft = sobotLayoutPaddingLeft(ZCChatPaddingHSpace, self.bgView, self.contentView);
+        }
+        [self.contentView addConstraint:_layoutBgLeft];
         
         [self.bgView addConstraint:sobotLayoutPaddingTop(0, self.collectionView, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingLeft(0, self.collectionView, self.bgView)];
@@ -113,7 +127,11 @@
 -(void)initDataToView:(SobotChatMessage *)message time:(NSString *)showTime{
     [super initDataToView:message time:showTime];
     
-    
+    self.tempModel = message;
+    self.ivHeader.hidden = YES;
+    self.lblNickName.hidden = YES;
+    self.lblSugguest.hidden = YES;
+    self.ivBgView.hidden = YES;
     
 //    [_logoView loadWithURL:[NSURL URLWithString:sobotConvertToString(self.cardModel.cardImg)]];
 //    [_labDesc setText:sobotConvertToString(self.cardModel.cardGuide)];
@@ -121,39 +139,108 @@
     
     [self.listArray removeAllObjects];
     itemHeight = 0;
+    contentWidth = 300;
+    if(self.tempModel.senderType!=0){
+        contentWidth = contentWidth+ZCChatMarginHSpace;
+    }
     if(self.cardModel.customCards.count > 0){
-        NSInteger maxMenuCount = 0;
         for(SobotChatCustomCardInfo *info in self.cardModel.customCards){
-            NSInteger tempCount = 0;
+            CGFloat logoHeight = 188;
+            
+            CGFloat descH = 24;
+            if(info.customCardDesc){
+                CGFloat tempH = [SobotUITools getHeightContain:sobotConvertToString(info.customCardDesc) font:SobotFont14 Width:contentWidth-ZCChatPaddingVSpace*2];
+                if(tempH > 20){
+                    descH = 44;
+                }
+            }
+            CGFloat titleDescHeight = 34 + descH;
+            CGFloat tipsHeight = 0;
+            CGFloat btnHeight = 0;
+            if(sobotConvertToString(info.customCardThumbnail).length == 0){
+                logoHeight = 0;
+            }
+            // 可能隐藏此行  sobotConvertToString(info.customCardCount).length > 0 ||
+//            if( sobotConvertToString(info.customCardAmount).length > 0 ){
+//                // 金额和单位必现同时有
+//                tipsHeight = 29;
+//            }
+            //////////////////////////////////
+            if(message.richModel.customCard.cardType == 0){
+                if(sobotConvertToString(info.customCardCount).length > 0 || sobotConvertToString(info.customCardAmount).length > 0){
+                    tipsHeight = 17+12;
+                }else{
+                   
+                }
+            }
+            if(message.richModel.customCard.cardType == 1){
+                if (sobotConvertToString(info.customCardAmount).length == 0) {
+
+                }else{
+                    tipsHeight = 17+12;
+                }
+            }
+            
+            //////////////////////////////////
+            
+            
+            // 计算要显示的button的个数
+            CGFloat tempCount = 0;
             for (SobotChatCustomCardMenu *menu in info.customMenus) {
                 if(menu.menuType == 0 && menu.menuLinkType == 1){
-                    
-                }else{
+                    // 是跳转链接 并且是客服跳转类型，SDK不展示
+                    continue;
+                }
+                if(self.tempModel.senderType!=0){
                     tempCount ++;
                 }
             }
-            if(maxMenuCount < tempCount){
-                maxMenuCount = tempCount;
+            // 按钮有上限 不能超过3个
+            if (tempCount >3) {
+                tempCount = 3;
             }
-            tempCount = 0;
+            
+            // 如果有按钮，需要添加底部16的间隔
+            if(tempCount > 0){
+                // 由于 title未固定高度，导致下面计算有误差，理论上此处也需要添加12的底部间隔
+                btnHeight = tempCount * (36) + (tempCount-1)*ZCChatRichCellItemSpace + ZCChatMarginHSpace +  ZCChatMarginVSpace;
+            }else{
+                // 没有按钮，仅需要添加12个间隔
+                btnHeight = ZCChatMarginVSpace;
+            }
+            
+            CGFloat totalHeight = logoHeight + tipsHeight + titleDescHeight + btnHeight;
+            if(itemHeight<totalHeight){
+                itemHeight = totalHeight;
+            }
         }
         
         // invalidate之前的layout，这个很关键
         [self.collectionView.collectionViewLayout invalidateLayout];
         [self.listArray addObjectsFromArray:self.cardModel.customCards];
         // 一定要重新设置，否则尺寸不生效
-        contentWidth = 280;
+        contentWidth = 300;
         if(self.tempModel.senderType!=0){
-            itemHeight = 240 + ZCChatMarginHSpace + maxMenuCount*(32+ZCChatPaddingVSpace);
-            _layoutBgWidth.constant = self.viewWidth -66;// 平铺的最大宽度
-            _layoutCollectionViewHeight.constant = itemHeight+8;
+            contentWidth = contentWidth+ZCChatMarginHSpace;
+//            _layoutBgWidth.constant = self.viewWidth -66;// 平铺的最大宽度
+            _layoutBgWidth.constant = self.viewWidth - ZCChatPaddingHSpace;// 平铺的最大宽度
+            if ([ZCUIKitTools getSobotIsRTLLayout]) {
+                _layoutBgLeft.constant = -ZCChatPaddingHSpace;
+            }else{
+                _layoutBgLeft.constant = ZCChatPaddingHSpace;
+            }
+            _layoutCollectionViewHeight.constant = itemHeight + 4;
 
         }else{
-            itemHeight = 240 + 12;
+            // 由于图片尺寸固定300*188,此处固定300宽度
 //            contentWidth = self.maxWidth + ZCChatPaddingHSpace*2;
-//            _layoutBgWidth.constant = self.maxWidth + ZCChatPaddingHSpace*2;
-            contentWidth = self.maxWidth;
-            _layoutBgWidth.constant =  self.maxWidth;// 发送后的也是同样的宽度
+           
+            if ([ZCUIKitTools getSobotIsRTLLayout]) {
+                _layoutBgLeft.constant = -(self.viewWidth - contentWidth - ZCChatPaddingHSpace);
+            }else{
+                _layoutBgLeft.constant = self.viewWidth - contentWidth - ZCChatPaddingHSpace;
+            }
+            _layoutBgWidth.constant =  contentWidth;// 发送后的也是同样的宽度
             _layoutCollectionViewHeight.constant = itemHeight;// 用户发送的 这里不搞阴影，不用加间隔
 
         }
@@ -166,13 +253,6 @@
     }
 
     [self.bgView layoutIfNeeded];
-    if(self.tempModel.senderType == 0){
-        [self setChatViewBgState:CGSizeMake(self.maxWidth-40,CGRectGetMaxY(_bgView.frame))];
-    }else{
-        [self setChatViewBgState:CGSizeMake(self.maxWidth,CGRectGetMaxY(_bgView.frame))];
-    }
-    
-
 }
 
 
@@ -202,7 +282,9 @@
 -(UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
 {
     if(self.tempModel.senderType!=0){
-        return UIEdgeInsetsMake(0, 4, 0, 4);//分别为上、左、下、右
+//        return UIEdgeInsetsMake(0, 8, 0, 8);//分别为上、左、下、右
+        // 这里不偏移一下，阴影边框会看不见
+        return UIEdgeInsetsMake(0, 2, 0, 14);//分别为上、左、下、右
     }else{
         return UIEdgeInsetsMake(0, 0, 0, 0);
     }
@@ -232,6 +314,9 @@
             }
             tempCount = 0;
         }
+    }
+    if (maxMenuCount >3) {
+        maxMenuCount = 3;
     }
     if(self.tempModel.senderType!=0){
         

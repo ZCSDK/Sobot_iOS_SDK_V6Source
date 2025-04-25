@@ -7,6 +7,21 @@
 
 #import <UIKit/UIKit.h>
 #import <SobotChatClient/SobotChatClient.h>
+
+// **编辑cell的间距**
+// 左右间距 16
+#define  EditCellHSpec 16
+// 标题行高 22
+#define  EditCellTitleH 22
+// 单行高度 72
+#define  EditCellBGH 72
+// 多行高度 112
+#define  EditCellMBGH 112
+// 标题上间距 12 和下间距 12
+#define  EditCellPT 12
+// 组件之间的上下间距 4
+#define  EditCellMT 4
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger,ZCOrderCreateItemType) {
@@ -20,6 +35,7 @@ typedef NS_ENUM(NSInteger,ZCOrderCreateItemType) {
     ZCOrderCreateItemTypeMulEdit         = 8,// 多行编辑
     ZCOrderCreateItemTypeReplyType       = 9,// 多行编辑
     ZCOrderCreateItemTypeDeletePhoto     = 10,// 删除文件
+    ZCOrderCreateItemTypeSelAsk     = 11,// 询前表单单选
 };
 
 @protocol ZCOrderCreateCellDelegate <NSObject>
@@ -44,7 +60,8 @@ typedef NS_ENUM(NSInteger,ZCOrderCreateItemType) {
 
 @property (nonatomic,strong)NSLayoutConstraint *labelNamePT;
 @property (nonatomic,strong)NSLayoutConstraint *labelNameEH;
-
+@property (nonatomic,strong)NSLayoutConstraint *lineViewPL;
+@property (nonatomic,strong)UIView *lineView;
 -(void)initDataToView:(NSDictionary *) dict;
 -(NSMutableAttributedString *)getOtherColorString:(NSString *)string Color:(UIColor *)Color withString:(NSString *)originalString;
 

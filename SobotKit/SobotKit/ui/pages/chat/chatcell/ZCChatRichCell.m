@@ -9,7 +9,7 @@
 #import "ZCUIKitTools.h"
 #import <SobotChatClient/SobotChatClient.h>
 #import "SobotHtmlFilter.h"
-
+#import <SobotCommon/SobotXHCacheManager.h>
 #define MidImageHeight 110
 
 @interface ZCChatRichCell(){
@@ -23,6 +23,10 @@
 @property(nonatomic,strong) NSLayoutConstraint *layoutWidth;
 @property(nonatomic,strong) UIView *lastView;
 @property(nonatomic,strong) NSLayoutConstraint *linkLayoutHeight;
+
+@property(nonatomic,strong) SobotImageView *loadView;
+@property(nonatomic,strong) NSLayoutConstraint *loadViewH;
+@property(nonatomic,strong) NSLayoutConstraint *loadViewW;
 @end
 @implementation ZCChatRichCell
 
@@ -45,21 +49,37 @@
         [self.contentView addConstraint:_layoutBottom];
         _layoutWidth = sobotLayoutEqualWidth(0, _chatConentView, NSLayoutRelationEqual);
         [self.contentView addConstraint:_layoutWidth];
+//        [self createLoadView];
     }
     return self;
+}
+
+-(void)createLoadView{
+    _loadView = ({
+        SobotImageView *iv = [[SobotImageView alloc] init];
+        [_chatConentView addSubview:iv];
+        [_chatConentView addConstraint:sobotLayoutEqualCenterY(0, iv, _chatConentView)];
+        self.loadViewW = sobotLayoutEqualWidth(19, iv, NSLayoutRelationEqual);
+        [_chatConentView addConstraint:self.loadViewW];
+        self.loadViewH = sobotLayoutEqualHeight(3.5, iv, NSLayoutRelationEqual);
+        [_chatConentView addConstraint:self.loadViewH];
+        [_chatConentView addConstraint:sobotLayoutPaddingLeft(0, iv, _chatConentView)];
+        NSBundle *sBundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"SobotKit" ofType:@"bundle"]];
+        NSString  *filePath = [sBundle pathForResource:@"Light/zcicon_writering_animate" ofType:@"gif"];
+        NSData  *imageData = [NSData dataWithContentsOfFile:filePath];
+        [iv setImage:[SobotImageTools sobotAnimatedGIFWithData:imageData]];
+        iv;
+    });
 }
 
 -(void)initDataToView:(SobotChatMessage *) message time:(NSString *) showTime{
     [super initDataToView:message time:showTime];
     _lastView = nil;
-
+    _loadView.hidden = YES;
     [_chatConentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     CGSize s = [self addRichView:message width:self.maxWidth with:_chatConentView msgLabel:nil];
-    
     if(_lastView){
         [_chatConentView addConstraint:sobotLayoutPaddingBottom(0, _lastView, _chatConentView)];
-//        [_lastView layoutIfNeeded];
-        
         [_chatConentView layoutIfNeeded];
         s.height = CGRectGetMaxY(_lastView.frame);
     }
@@ -69,8 +89,27 @@
         // 最大宽度应该+20，chatContentView，需要留有左右边距
         s.width = s.width;
     }
+    
+//    if (sobotConvertToString(message.aiAgentCid).length >0) {
+//        if (s.width == 0) {
+//        [self createLoadView];
+//            _lastView.hidden = NO;
+//            s.width = 19;
+//            _loadViewW.constant = 19;
+//            _loadViewH.constant = 3.5;
+//            s.height = 22;
+//        }else{
+//            _loadView.hidden = YES;
+//            _loadViewW.constant = 0;
+//            _loadViewH.constant = 0;
+//        }
+//    }
+    
     // 需要设置宽度，否则无法点击
     _layoutWidth.constant = s.width;
+    if(s.height == 0){
+        _layoutBottom.constant = 0;
+    }
     
     [_chatConentView layoutIfNeeded];
     [self setChatViewBgState:s];
@@ -105,7 +144,8 @@
     
     // 记录实际最大宽度
     CGFloat contentWidth = 0;
-    if(model==nil || model.richModel.richList==nil || [model.richModel.richList isKindOfClass:[NSNull class]] ||![model.richModel.richList isKindOfClass:[NSMutableArray class]] || (model.richModel.richList !=nil && [model.richModel.richList isKindOfClass:[NSMutableArray class]] && model.richModel.richList.count == 0)){
+    
+    if(sobotIsNull(model) || sobotIsNull(model.richModel) || sobotIsNull(model.richModel.richList) || (model.richModel.richList !=nil && [model.richModel.richList isKindOfClass:[NSArray class]] && model.richModel.richList.count == 0)){
         #pragma mark 标题+内容
         NSString *text = @"";
         if(!self.isRight){
@@ -181,28 +221,83 @@
                     
                     SobotImageView *imgView = [[SobotImageView alloc] init];
                     [imgView setContentMode:UIViewContentModeScaleAspectFill];
-                    [imgView.layer setCornerRadius:4.0f];
-                    [imgView.layer setMasksToBounds:YES];
-                    if(type == 3){
-                        [imgView loadWithURL:[NSURL URLWithString:sobotConvertToString(item.snapshot)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")];
-                    }else{
-                        [imgView loadWithURL:[NSURL URLWithString:msg] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")];
-                    }
+//                    [imgView.layer setCornerRadius:4.0f];
+//                    [imgView.layer setMasksToBounds:YES];
                     UITapGestureRecognizer *tapGesturer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imgTouchUpInside:)];
                     imgView.userInteractionEnabled=YES;
                     [imgView addGestureRecognizer:tapGesturer];
                     [superView addSubview:imgView];
-                    [superView addConstraints:sobotLayoutSize(maxWidth, imgHeight, imgView, NSLayoutRelationEqual)];
+                    NSLayoutConstraint *layoutImgH = sobotLayoutEqualHeight(imgHeight, imgView, NSLayoutRelationEqual);
+                    [superView addConstraint:sobotLayoutEqualWidth(maxWidth, imgView, NSLayoutRelationEqual)];
+                    [superView addConstraint:layoutImgH];
                     [superView addConstraint:sobotLayoutPaddingLeft(0, imgView, superView)];
+                    [imgView setBackgroundColor:UIColorFromKitModeColor(SobotColorBgTopLine)];
                     if(_lastView){
                         [superView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace*2, imgView, _lastView)];
                     }else{
                         [superView addConstraint:sobotLayoutPaddingTop(0, imgView, superView)];
                     }
+                    
+                    if(type == 3){
+                        NSString *imgUrl = sobotConvertToString(item.snapshot);
+                        if (imgUrl.length == 0) {
+                            imgUrl = sobotConvertToString(item.videoImgUrl);
+                        }
+                        if (imgUrl.length == 0) {
+                            // 网络占位图
+                            imgUrl = @"https://img.sobot.com/chat/common/res/83f5636f-51b7-48d6-9d63-40eba0963bda.png";
+                        }
+                        UIImage *cacheImage = [SobotXHCacheManager imageWithURL:[NSURL URLWithString:sobotConvertToString(imgUrl)] storeMemoryCache:YES];
+                        if (!sobotIsNull(cacheImage)) {
+                            [imgView setImage:cacheImage];
+                            [self resizeImageFrame:imgView layout:layoutImgH maxW:maxWidth img:cacheImage isSend:NO];
+                        }else{
+                            if ([[ZCUICore getUICore] isHasUserWithUrl:sobotConvertToString(imgUrl)]) {
+                                [self setMaxPlacHoldImgMaxW:maxWidth imgView:imgView layout:layoutImgH isShow:YES];
+                            }else{
+                                [imgView loadWithURL:[NSURL URLWithString:sobotConvertToString(imgUrl)] placeholer:nil showActivityIndicatorView:YES completionBlock:^(UIImage * _Nonnull image, NSURL * _Nonnull url, NSError * _Nonnull error) {
+                                    if (sobotIsNull(image)) {
+                                        [[ZCUICore getUICore] addUrlToTempImageArray:sobotConvertToString(imgUrl)];
+                                        
+                                    }
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        [[NSNotificationCenter defaultCenter] postNotificationName:@"SOBOTCHATPHOTCELLUPDATE" object:nil userInfo:@{@"indexPath":self.indexPath}];
+                                    });
+                                }];
+                            }
+                                
+                        }
+                    }else{
+                       // 先看缓存有没有
+                    UIImage *cacheImage = [SobotXHCacheManager imageWithURL:[NSURL URLWithString:msg] storeMemoryCache:YES];
+                    if (!sobotIsNull(cacheImage)) {
+                        [imgView setImage:cacheImage];
+                        [self resizeImageFrame:imgView layout:layoutImgH maxW:maxWidth img:cacheImage isSend:NO];
+                    }else{
+                        if ([[ZCUICore getUICore] isHasUserWithUrl:sobotConvertToString(msg)]) {
+                            [self setMaxPlacHoldImgMaxW:maxWidth imgView:imgView layout:layoutImgH isShow:YES];
+                        }else{
+                            [imgView loadWithURL:[NSURL URLWithString:msg] placeholer:nil showActivityIndicatorView:YES completionBlock:^(UIImage * _Nonnull image, NSURL * _Nonnull url, NSError * _Nonnull error) {
+                                if (sobotIsNull(image)) {
+                                    [[ZCUICore getUICore] addUrlToTempImageArray:sobotConvertToString(msg)];
+                                    
+                                }
+                                dispatch_async(dispatch_get_main_queue(), ^{
+//                                    NSLog(@"加载完了 去刷新通知 url= %@",url);
+                                    [[NSNotificationCenter defaultCenter] postNotificationName:@"SOBOTCHATPHOTCELLUPDATE" object:nil userInfo:@{@"indexPath":self.indexPath}];
+                                });
+                            }];
+                        }
+                    }
+                    }
                     _lastView = imgView;
                     
                     if(type == 3){
-                        [imgView loadWithURL:[NSURL URLWithString:@"https://img.sobot.com/chat/common/res/83f5636f-51b7-48d6-9d63-40eba0963bda.png"] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")];
+//                        [imgView loadWithURL:[NSURL URLWithString:@"https://img.sobot.com/chat/common/res/83f5636f-51b7-48d6-9d63-40eba0963bda.png"] placeholer:SobotKitGetImage(@"zcicon_default_goods_1") showActivityIndicatorView:NO completionBlock:^(UIImage * _Nonnull image, NSURL * _Nonnull url, NSError * _Nonnull error) {
+//                            dispatch_async(dispatch_get_main_queue(), ^{
+//                                [self resizeImageFrame:imgView layout:layoutImgH maxW:maxWidth img:image isSend:NO];
+//                            });
+//                        }];
                         // 设置一个特殊的tag，不支持点击查看大图
                         imgView.tag = 101;
                         SobotButton *_playButton = [SobotButton buttonWithType:UIButtonTypeCustom];
@@ -251,7 +346,7 @@
                     [bgView addConstraints:sobotLayoutSize(34,40, icon, NSLayoutRelationEqual)];
                     
                     UILabel *titleLab = [[UILabel alloc]init];
-                    titleLab.font = SobotFontBold14;
+                    titleLab.font = SobotFont14;
                     titleLab.textColor = UIColorFromModeColor(SobotColorTextMain);;
                     titleLab.numberOfLines = 1;
                     [bgView addSubview:titleLab];
@@ -283,11 +378,67 @@
                 }
             }
         }
-        
     }
     
-    
     return CGSizeMake(contentWidth, CGRectGetMaxY(_lastView.frame));
+}
+
+
+-(void)resizeImageFrame:(SobotImageView *) imgView layout:(NSLayoutConstraint *) layoutH maxW:(CGFloat )maxW img:(UIImage *)imgData isSend:(BOOL)isSend{
+    if(!self || !imgView ){
+        return;
+    }
+    UIImage *img = imgData;
+    if(img){
+//        if(maxW > self.maxWidth - ZCChatPaddingHSpace*2){
+//            maxW = self.maxWidth - ZCChatPaddingHSpace*2;
+//        }
+        
+        CGSize s = img.size;
+        CGFloat w = s.width;
+        CGFloat h = s.height;
+        if(s.width < maxW){
+            w = maxW;
+            h = maxW * s.height / s.width;
+        }
+        
+        if(s.width > maxW){
+            w = maxW;
+            h = maxW * s.height / s.width;
+        }
+        
+        
+        layoutH.constant = h;
+        
+//        CGSize size = CGSizeMake(maxW + ZCChatPaddingHSpace*2, CGRectGetMaxY(_lastView.frame));
+        
+        // 需要设置宽度，否则无法点击
+//        _layoutWidth.constant = maxW + ZCChatPaddingHSpace*2;
+    }
+}
+
+-(void)setMaxPlacHoldImgMaxW:(CGFloat )maxW imgView:(UIImageView *)imgView layout:(NSLayoutConstraint *) layoutH isShow:(BOOL)isShow{
+    if(maxW > self.maxWidth - ZCChatPaddingHSpace*2){
+        maxW = self.maxWidth - ZCChatPaddingHSpace*2;
+    }
+    if (isShow) {
+        UIImageView *plView = [[UIImageView alloc]init];
+        [imgView addSubview:plView];
+        [plView setImage:SobotKitGetImage(@"zcicon_default_placeholer_image")];
+        [imgView addConstraints:sobotLayoutSize(50, 40, plView, NSLayoutRelationEqual)];
+        [imgView addConstraint:sobotLayoutEqualCenterX(0, plView, imgView)];
+        [imgView addConstraint:sobotLayoutEqualCenterY(0, plView, imgView)];
+    }
+//    CGFloat w = maxW;
+    CGFloat h = MidImageHeight;
+    layoutH.constant = h;
+//    [_chatConentView layoutIfNeeded];
+//    [self.contentView layoutIfNeeded];
+    CGSize size = CGSizeMake(maxW + ZCChatPaddingHSpace*2, CGRectGetMaxY(_lastView.frame));
+    // 需要设置宽度，否则无法点击
+    _layoutWidth.constant = size.width;
+    [_chatConentView layoutIfNeeded];
+    [self setChatViewBgState:size];
 }
 
 #pragma mark - 文件点击事件
@@ -572,7 +723,11 @@
     }
     [tipLabel setTextColor:textColor];
     [tipLabel setLinkColor:linkColor];
-    tipLabel.textAlignment = NSTextAlignmentLeft;
+    if([ZCUIKitTools getSobotIsRTLLayout]){
+        tipLabel.textAlignment = NSTextAlignmentRight;
+    }else{
+        tipLabel.textAlignment = NSTextAlignmentLeft;
+    }
     [superView addSubview:tipLabel];
     
     if(!sobotIsNull(item.name) && sobotConvertToString(item.name).length > 0 && sobotIsUrl(text,[ZCUIKitTools zcgetUrlRegular])){
@@ -629,7 +784,7 @@
 //        [superView addConstraint:sobotLayoutMarginTop([ZCUIKitTools zcgetChatLineSpacing], linkBgView, tipLabel)];
         [superView addConstraint:sobotLayoutPaddingLeft(0,linkBgView, superView)];
         
-        _linkLayoutHeight = sobotLayoutEqualHeight(78, linkBgView, NSLayoutRelationEqual);
+        _linkLayoutHeight = sobotLayoutEqualHeight(90, linkBgView, NSLayoutRelationEqual);
         [superView addConstraint:sobotLayoutEqualWidth(links.width, linkBgView, NSLayoutRelationEqual)];
         [superView addConstraint:_linkLayoutHeight];
         
@@ -646,17 +801,17 @@
         linktitleLab.textColor = UIColorFromModeColor(SobotColorTextMain);;
         [linkBgView addSubview:linktitleLab];
         linktitleLab.numberOfLines = 1;
-        [superView addConstraint:sobotLayoutEqualHeight(20, linktitleLab, NSLayoutRelationEqual)];
+        [superView addConstraint:sobotLayoutEqualHeight(22, linktitleLab, NSLayoutRelationEqual)];
         NSLayoutConstraint *rightTitle = sobotLayoutPaddingRight(-15, linktitleLab, linkBgView);
         [linkBgView addConstraint:rightTitle];
-        [linkBgView addConstraint:sobotLayoutPaddingLeft(15, linktitleLab, linkBgView)];
+        [linkBgView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingVSpace, linktitleLab, linkBgView)];
         [linkBgView addConstraint:sobotLayoutPaddingTop(12, linktitleLab, linkBgView)];
         
         SobotImageView *icon = [[SobotImageView alloc]init];
-        [icon loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zcicon_url_icon")];
+        [icon loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
         [linkBgView addSubview:icon];
-        [superView addConstraints:sobotLayoutSize(34,34, icon, NSLayoutRelationEqual)];
-        [linkBgView addConstraint:sobotLayoutPaddingRight(-15, icon, linkBgView)];
+        [superView addConstraints:sobotLayoutSize(40,40, icon, NSLayoutRelationEqual)];
+        [linkBgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingVSpace, icon, linkBgView)];
         
         NSLayoutConstraint *iconTop = sobotLayoutMarginTop(ZCChatCellItemSpace, icon, linktitleLab);
         [linkBgView addConstraint:iconTop];
@@ -668,7 +823,8 @@
         linkdescLab.textColor = UIColorFromModeColor(SobotColorTextSub);
         linkdescLab.numberOfLines = 2;
         [linkBgView addSubview:linkdescLab];
-        [linkBgView addConstraint:sobotLayoutPaddingLeft(15, linkdescLab, linkBgView)];
+        [superView addConstraint:sobotLayoutEqualHeight(20, linktitleLab, NSLayoutRelationGreaterThanOrEqual)];
+        [linkBgView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingVSpace, linkdescLab, linkBgView)];
         
         NSLayoutConstraint *descTop = sobotLayoutMarginTop(ZCChatCellItemSpace, linkdescLab, linktitleLab);
 
@@ -682,13 +838,13 @@
             if(title.length > 0){
                 linktitleLab.text = sobotConvertToString(title);
                 linkdescLab.text = sobotConvertToString(desc);
-                self->_linkLayoutHeight.constant = 78;
+                self->_linkLayoutHeight.constant = 90;
                 [icon loadWithURL:[NSURL URLWithString:sobotConvertToString(iconUrl)] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
             }else{
                 linktitleLab.text = sobotConvertToString(text);
                 linkdescLab.hidden = YES;
                 descTop.constant = 0;
-                self->_linkLayoutHeight.constant = 60;
+                self->_linkLayoutHeight.constant = 64;
                 [linkBgView removeConstraint:iconTop];
                 [linkBgView addConstraint:sobotLayoutPaddingTop(0, icon, linktitleLab)];
                 
@@ -758,7 +914,7 @@
                 if (sobotConvertToString(desc).length == 0) {
                     linkLab.text = sobotConvertToString(urlMsg);
                 }
-                [icon loadWithURL:[NSURL URLWithString:imgUrl] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
+            [icon loadWithURL:[NSURL URLWithString:imgUrl] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:YES];
 //            }
         }
     } failed:^(NSString *errorMessage, ZCNetWorkCode errorCode) {

@@ -10,7 +10,8 @@
 
 #define SobotReceiveNewMessage @"SobotReceiveNewMessage"
 #define SobotTcpConnectedChanged @"SobotTcpConnectedChanged"
-
+#define SobotAiagentAsking @"SobotAiagentAsking"
+#define SobotAiagentAskEnd @"SobotAiagentAskEnd"
 /**
  *  @enum 智齿连接业务状态码
  */
@@ -99,6 +100,7 @@ typedef NS_ENUM(NSInteger,ZCReceivedMessageType) {
     ZCReceivedMessageToNewWindow    = 2046,// 打开新窗口
     ZCReceivedMessageConfirm        = 301,// 消息确认
     ZCReceivedMessageEvaluation     = 209,// 客服主动推送评价
+    ZCReceivedMessageEvaluationByClose     = 2099,// 客服主动推送评价
     ZCReceivedMessageRevertMsg      = 211,// 消息撤回
     ZCReceivedMessageLockType_1      = 2131,// 会话锁定
     ZCReceivedMessageLockType_2      = 2132,// 会话解锁

@@ -14,6 +14,7 @@
 @property (nonatomic,assign) int      intTag;
 @property (nonatomic,assign) BOOL  checked;
 @property (nonatomic,strong) NSString *title;
+@property (nonatomic,strong) NSString *bundleName;
 @property (nonatomic,strong) NSString *iconImage;
 @property (nonatomic,strong) UIFont   *titleFont;
 @property (nonatomic,strong) UIColor  *textColor;

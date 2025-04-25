@@ -7,9 +7,6 @@
 
 #import "ZCChatNoticeCell.h"
 
-// 气泡外部间隔
-#define ZCChatMarginHSpace 16
-#define ZCChatMarginVSpace 10
 @interface ZCChatNoticeCell()
 
 
@@ -18,12 +15,19 @@
 @property(nonatomic,strong) SobotButton *lookBtn;
 @property(nonatomic,strong) UIImageView *imgIcon;
 //@property(nonatomic,strong) NSLayoutConstraint *layoutMessageHeight;
+@property(nonatomic,strong) NSLayoutConstraint *lookBtnTop;
 @property(nonatomic,strong) NSLayoutConstraint *lookBtnEH;
-@property(nonatomic,strong) NSLayoutConstraint *lblTextMB;
-@property(nonatomic,strong) NSLayoutConstraint *lblTextPB;
-@property(nonatomic,strong) NSLayoutConstraint *lookBtnPB;
 
 @property(nonatomic,strong) UIView *cAGradientView;
+@property(nonatomic,strong) UIView *lineView;
+//#FA8314
+
+@property(nonatomic,strong) UILabel *openLabel;
+@property(nonatomic,strong) UIImageView *openIcon;
+@property(nonatomic,strong) UIView *openBgView;
+@property(nonatomic,strong) UIButton *openClickBtn;
+@property(nonatomic,strong) NSLayoutConstraint *openBgViewH;
+
 @end
 
 @implementation ZCChatNoticeCell
@@ -53,37 +57,37 @@
     #pragma mark 标题+内容
     NSString * text = sobotConvertToString(message.richModel.content);
     [ZCChatBaseCell configHtmlText:text label:_lblTextMsg right:self.isRight];
-    _lblTextMsg.textColor = UIColorFromModeColor(SobotColorYellowDark);
+    _lblTextMsg.textColor = UIColorFromModeColor(SobotColorTextMain);
     [_lblTextMsg setLinkColor:UIColorFromModeColor(SobotColorYellow)];
-    CGFloat maxw = ScreenWidth - ZCChatMarginHSpace*2 - ZCChatCellItemSpace - ZCChatPaddingVSpace*2 - ZCChatPaddingHSpace -13;
+    CGFloat maxw = self.viewWidth - ZCChatMarginHSpace*4 - ZCChatItemSpace8 - 14;
+    
+    // 要在前面设置一次，不然第二次计算会不正确
+    _lblTextMsg.numberOfLines = 0;
     CGSize size = [_lblTextMsg preferredSizeWithMaxWidth:maxw];
     
 //    _layoutMessageHeight.constant = size.height;
-    // 如果显示，文本最多显示3行
-    if (size.height > 40 && !self.tempModel.isOpenNotice) {
-        _lblTextMsg.numberOfLines = 2;
-//        _layoutMessageHeight.constant = 120;
-//        _cAGradientView.frame = CGRectMake(0,ZCChatMarginVSpace + 45 ,ScreenWidth - ZCChatMarginVSpace*2,  20 );
-//        CAGradientLayer *layer = [CAGradientLayer new];
-//        //存放渐变的颜色的数组
-//        layer.colors = @[(__bridge id)UIColor.clearColor.CGColor, (__bridge id)UIColorFromModeColor(SobotColorYellowLight).CGColor];
-//        //起点和终点表示的坐标系位置，(0,0)表示左上角，(1,1)表示右下角
-//        layer.startPoint = CGPointMake(0.0, 0.0);
-//        layer.endPoint = CGPointMake(0.0, 1);
-//        layer.frame = _cAGradientView.frame;
-//        [self.cAGradientView.layer addSublayer:layer];
+    // 如果显示，文本最多显示4行
+    if (size.height > 95 && !self.tempModel.isOpenNotice) {
+        _lblTextMsg.numberOfLines = 4;
     }else{
         _lblTextMsg.numberOfLines = 0;
-//        _cAGradientView.hidden = YES;
     }
-   
-    if (size.height >40) {
+   // 大于40 并且没有开启展开 或者 当前是展开的场景
+    if ((size.height > 95 && !self.tempModel.isOpenNotice) || self.tempModel.isOpenNotice) {
         _lookBtn.hidden = NO;
+        _lineView.hidden = NO;
+        self.lookBtnEH.constant = 40;
+        self.lookBtnTop.constant = 0;
+        // 显示
+        self.openBgViewH.constant = 17;
     }else{
+        _lineView.hidden = YES;
         _lookBtn.hidden = YES;
-        [self.bgView removeConstraint:self.lookBtnPB];
-        [self.bgView removeConstraint:self.lblTextMB];
-        [self.bgView addConstraint:self.lblTextPB];
+        self.lookBtnEH.constant = 0;
+        self.lookBtnTop.constant = 0;
+        self.openBgViewH.constant = 0;
+        [self.openIcon setImage:nil];
+        self.openLabel.text = @"";
     }
     
     [self.bgView setNeedsLayout];
@@ -95,31 +99,42 @@
     [self imgIcon];
     [self lblTextMsg];
     [self lookBtn];
+    [self createOpenSubViewIsOpen:NO];
     
+    _lineView = ({
+        UIView *iv = [[UIView alloc]init];
+        [self.bgView addSubview:iv];
+        iv.backgroundColor = UIColorFromKitModeColorAlpha(@"#FA8314", 0.3) ;
+        [self.bgView addConstraint:sobotLayoutMarginTop(16, iv, self.lblTextMsg)];
+        [self.bgView addConstraint:sobotLayoutPaddingLeft(0, iv, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingRight(0, iv, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutEqualHeight(0.5, iv, NSLayoutRelationEqual)];
+        iv.hidden = YES;
+        iv;
+    });
     //设置点击事件
     [self.contentView addConstraint:sobotLayoutPaddingTop(ZCChatMarginVSpace, self.bgView, self.contentView)];
     [self.contentView addConstraint:sobotLayoutPaddingLeft(ZCChatMarginHSpace, self.bgView, self.contentView)];
     [self.contentView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginHSpace, self.bgView, self.contentView)];
     [self.contentView addConstraint:sobotLayoutPaddingBottom(-ZCChatMarginVSpace, self.bgView, self.contentView)];
     
-    [self.bgView addConstraints:sobotLayoutPaddingView(ZCChatPaddingVSpace+3, 0, ZCChatPaddingHSpace, 0, self.imgIcon, self.bgView)];
-    [self.bgView addConstraints:sobotLayoutSize(15, 15, self.imgIcon, NSLayoutRelationEqual)];
+//    [self.bgView addConstraints:sobotLayoutPaddingView(ZCChatMarginHSpace, 0, ZCChatPaddingHSpace, 0, self.imgIcon, self.bgView)];
+    [self.bgView addConstraint:sobotLayoutPaddingTop(ZCChatMarginHSpace+1, self.imgIcon, self.bgView)];
+    [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatMarginHSpace, self.imgIcon, self.bgView)];
+    [self.bgView addConstraints:sobotLayoutSize(14, 14, self.imgIcon, NSLayoutRelationEqual)];
     
     
-    [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingVSpace, self.lblTextMsg, self.bgView)];
-    [self.bgView addConstraint:sobotLayoutPaddingTop(ZCChatPaddingVSpace, self.lblTextMsg, self.bgView)];
-    [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatCellItemSpace, self.lblTextMsg, self.imgIcon)];
-//    _layoutMessageHeight = sobotLayoutEqualHeight(0,self.lblTextMsg, NSLayoutRelationEqual);
-//    [self.bgView addConstraint:_layoutMessageHeight];
-    self.lblTextPB = sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, self.lblTextMsg, self.bgView);
-    self.lblTextMB = sobotLayoutMarginBottom(-ZCChatPaddingVSpace, self.lblTextMsg, self.lookBtn);
-    [self.bgView addConstraint:self.lblTextMB];
-    [self.bgView addConstraint:sobotLayoutEqualWidth(80, self.lookBtn, NSLayoutRelationEqual)];
+    [self.bgView addConstraint:sobotLayoutPaddingTop(ZCChatMarginHSpace-3, self.lblTextMsg, self.bgView)];
+    [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatItemSpace4, self.lblTextMsg, self.imgIcon)];
+    [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginHSpace, self.lblTextMsg, self.bgView)];
+    
+    _lookBtnTop = sobotLayoutMarginTop(0, self.lookBtn, self.lineView);
+    [self.bgView addConstraint:self.lookBtnTop];
+    [self.bgView addConstraint:sobotLayoutEqualWidth(ScreenWidth-80, self.lookBtn, NSLayoutRelationEqual)];
     self.lookBtnEH = sobotLayoutEqualHeight(20, self.lookBtn, NSLayoutRelationEqual);
     [self.bgView addConstraint:self.lookBtnEH];
     [self.bgView addConstraint:sobotLayoutEqualCenterX(0,self.lookBtn, self.bgView)];
-    self.lookBtnPB = sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, self.lookBtn, self.bgView);
-    [self.bgView addConstraint:self.lookBtnPB];
+    [self.bgView addConstraint:sobotLayoutPaddingBottom(0, self.lookBtn, self.bgView)];
 }
 
 -(SobotEmojiLabel *)lblTextMsg{ // 消息内容
@@ -142,18 +157,95 @@
 -(SobotButton *)lookBtn{
     if (!_lookBtn) {
         _lookBtn = [SobotButton buttonWithType:UIButtonTypeCustom];
-        [_lookBtn setTitle:[NSString stringWithFormat:@"%@ ",SobotKitLocalString(@"展开")] forState:UIControlStateNormal];
-        [_lookBtn setImage:SobotKitGetImage(@"zcicon_arrow_down") forState:UIControlStateNormal];
+//        [_lookBtn setTitle:[NSString stringWithFormat:@"%@ ",SobotKitLocalString(@"展开")] forState:UIControlStateNormal];
+//        [_lookBtn setImage:SobotKitGetImage(@"zcicon_arrow_down") forState:UIControlStateNormal];
         [_lookBtn addTarget:self action:@selector(openBtnAction:) forControlEvents:UIControlEventTouchUpInside];
         _lookBtn.titleLabel.font = SobotFont14;
-        [_lookBtn setTitleColor:UIColorFromKitModeColor(SobotColorTextSub1) forState:UIControlStateNormal];
+        [_lookBtn setTitleColor:UIColorFromKitModeColor(SobotColorTextSub) forState:UIControlStateNormal];
         [self.bgView addSubview:_lookBtn];
 //        [_lookBtn setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, -40)];
 //        [_lookBtn setImageEdgeInsets:UIEdgeInsetsMake(0, 40, 0, 0)];
-        [_lookBtn setSemanticContentAttribute:UISemanticContentAttributeForceRightToLeft];
+        [_lookBtn setSemanticContentAttribute:UISemanticContentAttributeForceLeftToRight];
         _lookBtn.hidden = YES;
     }
     return _lookBtn;
+}
+
+#pragma mark -- 更新
+-(void)createOpenSubViewIsOpen:(BOOL)isOpen{
+    // 这里需要计算宽度
+    NSString *tip = SobotKitLocalString(@"展开");
+    if (isOpen) {
+        tip = SobotKitLocalString(@"收起");
+    }
+    CGFloat w1 = [SobotUITools getWidthContain:tip font:SobotFont12 Height:17];
+    // 左右间距
+    w1 = w1 + 4 + 7;
+    if (!sobotIsNull(_bgView)) {
+        [_openBgView removeFromSuperview];
+        _openBgView = nil;
+    }
+    _openBgView = ({
+        UIView *iv = [[UIView alloc]init];
+        [_lookBtn addSubview:iv];
+        [_lookBtn addConstraint:sobotLayoutEqualCenterX(0, iv, _lookBtn)];
+        [_lookBtn addConstraint:sobotLayoutEqualCenterY(0, iv, _lookBtn)];
+        self.openBgViewH = sobotLayoutEqualHeight(17, iv, NSLayoutRelationEqual);
+        [_lookBtn addConstraint:self.openBgViewH];
+        [_lookBtn addConstraint:sobotLayoutEqualWidth(w1, iv, NSLayoutRelationEqual)];
+        iv;
+    });
+    
+    if (!sobotIsNull(_openIcon)) {
+        [_openIcon removeFromSuperview];
+        _openIcon = nil;
+    }
+    _openIcon = ({
+        UIImageView *iv = [[UIImageView alloc] init];
+        if (isOpen) {
+            [iv setImage:SobotKitGetImage(@"zcicon_arrow_up")];
+        }else{
+            [iv setImage:SobotKitGetImage(@"zcicon_arrow_down")];
+        }
+        [_openBgView addSubview:iv];
+        [_openBgView addConstraints:sobotLayoutSize(7.04, 4, iv,NSLayoutRelationEqual)];
+        [_openBgView addConstraint:sobotLayoutPaddingRight(0, iv, _openBgView)];
+        [_openBgView addConstraint:sobotLayoutEqualCenterY(0, iv, _openBgView)];
+        iv;
+    });
+    
+    if (!sobotIsNull(_openLabel)) {
+        [_openLabel removeFromSuperview];
+        _openLabel = nil;
+    }
+    
+    _openLabel = ({
+        UILabel *iv = [[UILabel alloc]init];
+        iv.font = SobotFont12;
+        iv.textColor = UIColorFromKitModeColor(SobotColorTextSub);
+        iv.text = tip;
+        [_openBgView addSubview:iv];
+        [_openBgView addConstraint:sobotLayoutEqualCenterY(0, iv, _openBgView)];
+        [_openBgView addConstraint:sobotLayoutPaddingRight(-4, iv, _openBgView)];
+        [_openBgView addConstraint:sobotLayoutPaddingLeft(0, iv, _openBgView)];
+        iv;
+    });
+    
+    if (!sobotIsNull(_openClickBtn)) {
+        [_openClickBtn removeFromSuperview];
+        _openClickBtn = nil;
+    }
+    
+    _openClickBtn = ({
+        UIButton *iv = [[UIButton alloc]init];
+        [_openBgView addSubview:iv];
+        [iv addTarget:self action:@selector(openBtnAction:) forControlEvents:UIControlEventTouchUpInside];
+        [_openBgView addConstraint:sobotLayoutPaddingTop(0, iv, _openBgView)];
+        [_openBgView addConstraint:sobotLayoutPaddingRight(0, iv, _openBgView)];
+        [_openBgView addConstraint:sobotLayoutPaddingLeft(0, iv, _openBgView)];
+        [_openBgView addConstraint:sobotLayoutPaddingRight(0, iv, _openBgView)];
+        iv;
+    });
 }
 
 -(UIImageView*)imgIcon{
@@ -168,7 +260,7 @@
 -(UIView *)bgView{
     if (!_bgView) {
         _bgView = [[UIView alloc]init];
-        _bgView.backgroundColor = UIColorFromModeColor(SobotColorYellowLight);
+        _bgView.backgroundColor = UIColorFromModeColor(SobotColorHeaderBg);
         //UIColorFromRGB(noticBgColor);
         _bgView.layer.cornerRadius = 5;
         _bgView.layer.masksToBounds = YES;
@@ -188,13 +280,14 @@
 
 -(void)openBtnAction:(UIButton *)sender{
     if (!self.tempModel.isOpenNotice) {
-        [_lookBtn setTitle:[NSString stringWithFormat:@"%@ ",SobotKitLocalString(@"收起")] forState:UIControlStateNormal];
-        [_lookBtn setImage:SobotKitGetImage(@"zcicon_arrow_up") forState:UIControlStateNormal];
+//        [_lookBtn setTitle:[NSString stringWithFormat:@"%@ ",SobotKitLocalString(@"收起")] forState:UIControlStateNormal];
+//        [_lookBtn setImage:SobotKitGetImage(@"zcicon_arrow_up") forState:UIControlStateNormal];
+        [self createOpenSubViewIsOpen:YES];
     }else{
-        [_lookBtn setTitle:[NSString stringWithFormat:@"%@ ",SobotKitLocalString(@"展开")] forState:UIControlStateNormal];
-        [_lookBtn setImage:SobotKitGetImage(@"zcicon_arrow_down") forState:UIControlStateNormal];
+//        [_lookBtn setTitle:[NSString stringWithFormat:@"%@ ",SobotKitLocalString(@"展开")] forState:UIControlStateNormal];
+//        [_lookBtn setImage:SobotKitGetImage(@"zcicon_arrow_down") forState:UIControlStateNormal];
+        [self createOpenSubViewIsOpen:NO];
     }
-    
     if (self.delegate &&[self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]) {
         [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeNotice text:@"" obj:[NSString stringWithFormat:@"%zd",sender.tag]];
     }

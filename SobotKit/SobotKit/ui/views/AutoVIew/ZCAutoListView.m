@@ -10,6 +10,8 @@
 #import <SobotCommon/SobotCommon.h>
 #import <SobotChatClient/SobotChatClient.h>
 #import "ZCUIKitTools.h"
+#import "ZCUICore.h"
+#import "ZCAutoListCell.h"
 #define LineHeight 36
 
 @interface ZCAutoListView()<UITableViewDelegate,UITableViewDataSource>{
@@ -43,28 +45,45 @@
 //        _BackCellClick = CellClick;
 //    }
 }
+- (void)addTopShadowToView:(UIView *)view {
+    // 启用阴影
+    view.layer.masksToBounds = NO;
+    view.layer.shadowColor = UIColorFromKitModeColorAlpha(SobotColorBlack, 0.06).CGColor; // 阴影颜色
+    view.layer.shadowOpacity = 1; // 阴影透明度
+    view.layer.shadowOffset = CGSizeMake(0, -2); // 阴影偏移量，x为0，y为负值表示向上阴影
+    view.layer.shadowRadius = 2.0; // 阴影模糊半径
+    
+    // 可选：设置圆角
+//    view.layer.cornerRadius = 10.0;
+//    
+//    // 可选：添加底部边框以增强视觉效果
+//    view.layer.borderWidth = 0.5;
+//    view.layer.borderColor = [UIColor lightGrayColor].CGColor;
+}
 
 -(id)initPrivate{
     self = [super initWithFrame:CGRectMake(0, 0, 0, 0)];
     if(self){
         _dict = [[NSMutableDictionary alloc] init];
         _listArray = [[NSMutableArray alloc] init];
-        _listTable = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 0) style:UITableViewStylePlain];
+        _listTable = [[UITableView alloc]initWithFrame:CGRectMake(0, 8, ScreenWidth, 0) style:UITableViewStylePlain];
         _listTable.dataSource = self;
         _listTable.delegate = self;
-        [_listTable setBackgroundColor:[UIColor clearColor]];
+        _listTable.bounces = NO;
+        [_listTable setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark1)];
         [_listTable setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
         [_listTable setSeparatorColor:UIColorFromModeColor(SobotColorBgLine)];
-        [_listTable setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
+        [_listTable setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+        [_listTable registerClass:[ZCAutoListCell class] forCellReuseIdentifier:@"ZCAutoListCell"];
         if(iOS7){
             [_listTable setSeparatorInset:UIEdgeInsetsMake(0, 0, 0, 0)];
         }
         UIView *view =[ [UIView alloc]init];
-        view.backgroundColor = [UIColor clearColor];
+        view.backgroundColor = UIColorFromKitModeColor(SobotColorBgMainDark1);
         [_listTable setTableFooterView:view];
         [self addSubview:_listTable];
         _listArray  = [[NSMutableArray alloc] init];
-        [self setTableSeparatorInset];
+        [self addTopShadowToView:_listTable];
     }
     return self;
 }
@@ -80,6 +99,7 @@
         [self dissmiss];
         return;
     }
+    // 先动态的修改一遍数据 实时变化
     if(bottomView == nil){
         [self dissmiss];
         return;
@@ -97,8 +117,9 @@
         }
         startDate = [NSDate date];
     }
-    _bottomView = bottomView;
     _searchText = searchText;
+    _bottomView = bottomView;
+//    SLog(@"当前输入要搜索的内容文案 ========== sssssssssssssssssssssss %@  %@", _searchText,searchText);
     NSMutableArray *arr  = [[_dict objectForKey:searchText] mutableCopy];
     if(!sobotIsNull(arr)&& arr.count>0){
         if (_listArray.count>0) {
@@ -108,7 +129,6 @@
         [self setlistTableFrameWith];
     }else{
         if(isLoading){
-            NSLog(@"66666666666");
             return;
         }
         NSMutableDictionary * dict = [NSMutableDictionary dictionaryWithCapacity:0];
@@ -123,13 +143,22 @@
                 [self->_dict removeAllObjects];
             }
             if ([dict[@"code"] intValue] == 1) {
-                NSArray * arr = dict[@"data"][@"respInfoList"];
-                if (arr.count>0) {
+                NSArray * arr = @[];
+                if([self getZCLibConfig].aiAgent){
+                    arr = dict[@"data"];
+                }else{
+                    arr = dict[@"data"][@"respInfoList"];
+                }
+                if (!sobotIsNull(arr) && arr.count>0) {
                     if (self->_listArray.count>0) {
                         [self->_listArray removeAllObjects];
                     }
                     for(NSDictionary *item in arr){
-                        NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithData:[item[@"highlight"]  dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType} documentAttributes:nil error:nil];
+                        NSString *highlight = sobotConvertToString(item[@"highlight"]);
+                        if(highlight.length == 0){
+                            continue;
+                        }
+                        NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithData:[highlight  dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType} documentAttributes:nil error:nil];
                         [attrStr addAttribute:NSFontAttributeName value:SobotFont14 range:NSMakeRange(0, attrStr.length)];
                         [attrStr enumerateAttributesInRange:NSMakeRange(0, attrStr.length) options:NSAttributedStringEnumerationReverse usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
                             if ([attrs objectForKey:@"NSColor"]) {
@@ -165,16 +194,23 @@
 }
 
 -(void)setlistTableFrameWith{
-    CGFloat height = _listArray.count * LineHeight;
-    if(_listArray.count > 3){
-        height = 3 * LineHeight + LineHeight /2;
+    // 监听聊天页面是否销毁 ,接口慢或者 异常情况下，显示到了用户的页面上了
+    if (![ZCUICore getUICore].isCanShowAutoView || [ZCUICore getUICore].isKeyBoardIsClear) {
+        [self dissmiss];
+        return;
+    }
+    
+    CGFloat height = _listArray.count * LineHeight +8*2;
+    if(_listArray.count >= 4){
+        height = 4 * LineHeight + 8*2;
     }
     
     UIWindow * window = [SobotUITools getCurWindow];
     CGRect rect= [_bottomView convertRect:_bottomView.bounds toView:window];
     CGRect sheetViewF = CGRectMake(0,rect.origin.y - height, rect.size.width, height);
     self.frame = sheetViewF;
-    [self.listTable setFrame:CGRectMake(0, 0, ScreenWidth, height)];
+    self.backgroundColor = UIColorFromKitModeColor(SobotColorBgMainDark1);
+    [self.listTable setFrame:CGRectMake(0, 8, ScreenWidth, height-8*2)];
     [[SobotUITools getCurWindow] addSubview:self];
     [_listTable reloadData];
 }
@@ -186,18 +222,6 @@
     [self removeFromSuperview];
 }
 
-/**
- *  设置UITableView分割线空隙
- */
--(void)setTableSeparatorInset{
-    UIEdgeInsets inset = UIEdgeInsetsMake(0, 0, 0, 0);
-    if ([_listTable respondsToSelector:@selector(setSeparatorInset:)]) {
-        [_listTable setSeparatorInset:inset];
-    }
-    if ([_listTable respondsToSelector:@selector(setLayoutMargins:)]) {
-        [_listTable setLayoutMargins:inset];
-    }
-}
 
 #pragma mark -- tableview delegate
 
@@ -210,31 +234,20 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+    ZCAutoListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ZCAutoListCell"];
     if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
-    }
-    if(indexPath.row==_listArray.count-1){
-        if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
-            [cell setSeparatorInset:UIEdgeInsetsZero];
-        }
-        
-        if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
-            [cell setLayoutMargins:UIEdgeInsetsZero];
-        }
-        
-        if([cell respondsToSelector:@selector(setPreservesSuperviewLayoutMargins:)]){
-            [cell setPreservesSuperviewLayoutMargins:NO];
-        }
+        cell = [[ZCAutoListCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"ZCAutoListCell"];
     }
     
-    cell.backgroundColor = UIColorFromKitModeColor(SobotColorBgMainDark1);
-    cell.textLabel.font = SobotFont14;
-    cell.textLabel.textColor = UIColorFromKitModeColor(SobotColorTextMain);
+    // 异常处理
+    if (sobotIsNull(_listArray) || _listArray.count == 0 || _listArray.count -1 < indexPath.row ) {
+        return cell;
+    }
+    
     if(_listArray[indexPath.row][@"attr"]){
-        cell.textLabel.attributedText = _listArray[indexPath.row][@"attr"];
+        [cell initDataToView:@"" attributedText:_listArray[indexPath.row][@"attr"]];
     }else{
-        cell.textLabel.text = sobotConvertToString(_listArray[indexPath.row][@"item"][@"question"]);
+        [cell initDataToView:sobotConvertToString(_listArray[indexPath.row][@"item"][@"question"]) attributedText:@""];
     }
     return cell;
 }
@@ -266,7 +279,7 @@
         NSDictionary *dic = _listArray[indexPath.row];
         text = sobotConvertToString(dic[@"item"][@"question"]);
 //        if ([dic objectForKey:@"question"] && !([[dic objectForKey:@"question"] isEqual:[NSNull null]])) {
-//            text = [dic objectForKey:@"question"];
+//            text = [dic objectForKey:@"questio
 //        }
     }
     if(_delegate && [_delegate respondsToSelector:@selector(autoViewCellItemClick:)]){
@@ -276,10 +289,6 @@
         _BackCellClick(text);
     }
     
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return LineHeight;
 }
 
 -(ZCLibConfig *) getZCLibConfig{

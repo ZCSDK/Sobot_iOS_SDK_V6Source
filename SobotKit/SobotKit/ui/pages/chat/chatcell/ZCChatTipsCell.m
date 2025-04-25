@@ -10,10 +10,19 @@
 
 @interface ZCChatTipsCell()
 
-
+/**
+ *  显示时间
+ */
 @property(nonatomic,strong) SobotEmojiLabel *lblMessage;
 //@property(nonatomic,strong) NSLayoutConstraint *layoutWidth;
 @property(nonatomic,strong) UIImageView     *lineView;
+
+@property(nonatomic,strong) UIView *leftLineView;
+@property(nonatomic,strong) UIView *rightLineView;
+
+@property(nonatomic,strong) NSLayoutConstraint *leftPL;
+@property(nonatomic,strong) NSLayoutConstraint *rightPR;
+@property(nonatomic,strong) NSLayoutConstraint *layoutMsgTop;
 @end
 
 @implementation ZCChatTipsCell
@@ -35,27 +44,40 @@
 -(void)initDataToView:(SobotChatMessage *)message time:(NSString *)showTime{
     self.tempModel = message;
     self.ivHeader.hidden = YES;
+    self.lblNickName.text = @"";
     _lblMessage.text = @"";
-    
-    CGSize s = CGSizeZero;
-    [self HandleHTMLTagsWith:message];
-//    if(text.length > 0){
-//        [_lblMessage setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
-//        [_lblMessage setLinkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
-//
-//        [_lblMessage setText:text];
-//    self.maxWidth = ScreenWidth - 20;
-//        s = [_lblMessage preferredSizeWithMaxWidth:self.maxWidth];
-////    }
-//    _layoutWidth.constant = s.width;
-        
-    if(message.action == SobotMessageActionTypeNewMessage){
-        _lineView.hidden = NO;
-        _lblMessage.backgroundColor = [ZCUIKitTools zcgetLeftChatColor];
-    }else{
-        _lineView.hidden = YES;
-        _lblMessage.backgroundColor = UIColor.clearColor;
+    _layoutMsgTop.constant = 8;
+    self.layoutTimeTop.constant = 0;
+    if(message.action == SobotMessageActionTypeSelLanguage){
+        [super initDataToView:message time:showTime];
+        if(![@"" isEqual:sobotConvertToString(showTime)]){
+            _layoutMsgTop.constant = 10;
+            self.layoutTimeTop.constant = 8;
+        }
     }
+    self.layoutPaddingBtm.active = NO;
+    
+    [self HandleHTMLTagsWith:message];
+    _lineView.hidden = YES;
+    _lblMessage.backgroundColor = UIColor.clearColor;
+    _leftLineView.hidden = YES;
+    _rightLineView.hidden = YES;
+    if(message.action == SobotMessageActionTypeNewMessage){
+        _leftLineView.hidden = NO;
+        _rightLineView.hidden = NO;
+        // 计算 文本的宽度
+        NSString *text = sobotConvertToString(_lblMessage.text);
+        CGSize size = [SobotUITools getSizeContain:text font:_lblMessage.font Width:CGSizeMake(self.maxWidth, CGFLOAT_MAX)]; //[text sizeWithFont:[ZCUIKitTools zcgetKitChatFont] constrainedToSize:CGSizeMake(self.maxWidth, FLT_MAX) lineBreakMode:UILineBreakModeWordWrap];
+        CGFloat sp = (ScreenWidth - size.width -120 -20)/2;
+        if (sp >0) {
+            self.leftPL.constant = sp;
+            self.rightPR.constant = -sp;
+        }else{
+            self.leftPL.constant = 0;
+            self.rightPR.constant = 0;
+        }
+    }
+
     [_lblMessage layoutIfNeeded];
 }
 
@@ -64,20 +86,44 @@
     _lblMessage.delegate = self;
     _lblMessage.textAlignment = NSTextAlignmentCenter;
     _lblMessage.numberOfLines = 0;
-    _lblMessage.textInsets = UIEdgeInsetsMake(0, 10, 0, 10);
+    _lblMessage.textInsets = UIEdgeInsetsMake(0, 16, 0, 16);
     _lblMessage.font = SobotFont12;
     _lblMessage.textColor = UIColorFromKitModeColor(SobotColorTextSubDark);
     [self.contentView addSubview:_lblMessage];
-//    _layoutWidth = sobotLayoutEqualWidth(20, _lblMessage, NSLayoutRelationEqual);
-    [self.contentView addConstraint:sobotLayoutEqualCenterX(0, _lblMessage, self.contentView)];
-    [self.contentView addConstraints:sobotLayoutPaddingView(ZCChatPaddingVSpace, -ZCChatPaddingVSpace, 16, -16, _lblMessage, self.contentView)];
-    
+    _layoutMsgTop = sobotLayoutMarginTop(10, _lblMessage, self.lblTime);
+    [self.contentView addConstraint:_layoutMsgTop];
+    [self.contentView addConstraints:sobotLayoutPaddingView(0, -8, 16, -16, _lblMessage, self.contentView)];
     _lineView = [[UIImageView alloc] init];
     [_lineView setBackgroundColor:UIColorFromModeColor(SobotColorBgLine)];
     [self.contentView insertSubview:_lineView belowSubview:self.ivBgView];
     [self.contentView addConstraints:sobotLayoutPaddingView(0,0, ZCChatPaddingHSpace, -ZCChatPaddingHSpace, _lineView, self.contentView)];
     [self.contentView addConstraint:sobotLayoutEqualHeight(1, _lineView, NSLayoutRelationEqual)];
     [self.contentView addConstraint:sobotLayoutEqualCenterY(0, _lineView, _lblMessage)];
+    
+    _leftLineView = ({
+        UIView *iv = [[UIView alloc]init];
+        iv.backgroundColor = UIColorFromKitModeColor(SobotColorBgLine);
+        [self.contentView addSubview:iv];
+        [self.contentView addConstraints:sobotLayoutSize(60, 1, iv, NSLayoutRelationEqual)];
+        [self.contentView addConstraint:sobotLayoutEqualCenterY(0, iv, self.lblMessage)];
+        self.leftPL = sobotLayoutPaddingLeft(60, iv, self.contentView);
+        [self.contentView addConstraint:self.leftPL];
+        iv.hidden = YES;
+        iv;
+    });
+    
+    _rightLineView = ({
+        UIView *iv = [[UIView alloc]init];
+        iv.backgroundColor = UIColorFromKitModeColor(SobotColorBgLine);
+        [self.contentView addSubview:iv];
+        [self.contentView addConstraints:sobotLayoutSize(60, 1, iv, NSLayoutRelationEqual)];
+        [self.contentView addConstraint:sobotLayoutEqualCenterY(0, iv, self.lblMessage)];
+        self.rightPR = sobotLayoutPaddingRight(-60, iv, self.contentView);
+        [self.contentView addConstraint:self.rightPR];
+        iv.hidden = YES;
+        iv;
+    });
+    
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -92,7 +138,6 @@
     
     text = [text stringByReplacingOccurrencesOfString:@"\n" withString:@""];
     [ZCChatBaseCell configHtmlText:text label:_lblMessage right:NO isTip:YES];
-    
 //    [SobotHtmlCore filterHtml:text result:^(NSString * _Nonnull text1, NSMutableArray * _Nonnull arr, NSMutableArray * _Nonnull links) {
 //        // zcgetTipLayerTextColor  zcgetLeftChatTextColor
 //        if (text1 != nil && text1.length > 0) {

@@ -31,11 +31,13 @@
 @property(nonatomic,strong) NSLayoutConstraint *layoutCusFieldHeight;
 @property(nonatomic,strong) NSLayoutConstraint *labDescMT;
 @property(nonatomic,strong) NSLayoutConstraint *logoViewEH;
+@property(nonatomic,strong) NSLayoutConstraint *logoViewTop;
 @property(nonatomic,strong) NSLayoutConstraint *layoutCollectTop;
 @property (nonatomic,strong) UIView *cusFieldView;// 自定义字段
 
 @property (nonatomic,strong)  UIView *cusButtonView;// 自定义button
 @property (nonatomic,strong) UIButton *btnLookMore;
+@property (nonatomic,strong) NSLayoutConstraint *layoutLayoutMoreBtm;
 @end
 
 @implementation ZCChatCustomCardVerticalCell
@@ -55,14 +57,14 @@
         [self.logoView addGestureRecognizer:tapGesturer];
         
         self.bgView.layer.masksToBounds = YES;
-        self.bgView.layer.borderWidth = 2.0f;
+        self.bgView.layer.borderWidth = 1.0f;
         self.bgView.layer.shadowColor = [ZCUIKitTools zcgetChatBottomLineColor].CGColor;
-        self.bgView.layer.shadowOpacity = 0.9;
-        self.bgView.layer.shadowRadius = 8;
-        self.bgView.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
         [self.bgView setBackgroundColor:[ZCUIKitTools zcgetChatBackgroundColor]];
-        self.bgView.layer.cornerRadius = 8.0f;
+        self.bgView.layer.cornerRadius = 4.0f;
         self.bgView.layer.borderColor = [ZCUIKitTools zcgetLeftChatColor].CGColor;
+//        self.bgView.layer.shadowOpacity = 0.9;
+//        self.bgView.layer.shadowRadius = 4;
+//        self.bgView.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
         
         //设置点击事件
         _layoutBgWidth = sobotLayoutEqualWidth(ScreenWidth, self.bgView, NSLayoutRelationEqual);
@@ -73,22 +75,26 @@
         [self.contentView addConstraint:sobotLayoutPaddingBottom(0, self.bgView, self.ivBgView)];
         
         // 顶部控件 上左右都是12px
-        [self.bgView addConstraint:sobotLayoutPaddingTop(14, self.guideView, self.bgView)];// UI图需要加两个PX
+        // UI图需要加两个PX,设置最小高度
+        [self.bgView addConstraint:sobotLayoutPaddingTop(ZCChatPaddingVSpace, self.guideView, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingVSpace, self.guideView, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingVSpace, self.guideView, self.bgView)];
         
         [self.guideView addConstraint: sobotLayoutPaddingTop(0, self.labTitle, self.guideView)];
         [self.guideView addConstraint:sobotLayoutPaddingLeft(0, self.labTitle, self.guideView)];
         [self.guideView addConstraint:sobotLayoutPaddingRight(0, self.labTitle, self.guideView)];
+        [self.guideView addConstraint:sobotLayoutEqualHeight(24, self.labTitle,NSLayoutRelationGreaterThanOrEqual)];
         
-        self.labDescMT = sobotLayoutMarginTop(ZCChatRichCellItemSpace+2, self.labDesc, self.labTitle);
+        self.labDescMT = sobotLayoutMarginTop(ZCChatItemSpace2, self.labDesc, self.labTitle);
         [self.guideView addConstraint:self.labDescMT];
         [self.guideView addConstraint:sobotLayoutPaddingLeft(0, self.labDesc, self.guideView)];
         [self.guideView addConstraint:sobotLayoutPaddingRight(0, self.labDesc, self.guideView)];
+        [self.guideView addConstraint:sobotLayoutEqualHeight(22, self.labDesc,NSLayoutRelationGreaterThanOrEqual)];
         
-        self.logoViewEH = sobotLayoutEqualHeight(66, self.logoView, NSLayoutRelationEqual);
+        self.logoViewEH = sobotLayoutEqualHeight(72, self.logoView, NSLayoutRelationEqual);
         [self.guideView addConstraint:self.logoViewEH];
-        [self.guideView addConstraint:sobotLayoutMarginTop(ZCChatRichCellItemSpace, self.logoView, self.labDesc)];
+        self.logoViewTop = sobotLayoutMarginTop(ZCChatPaddingVSpace, self.logoView, self.labDesc);
+        [self.guideView addConstraint:self.logoViewTop];
         [self.guideView addConstraint:sobotLayoutPaddingBottom(0, self.logoView, self.guideView)];
         [self.guideView addConstraint:sobotLayoutPaddingLeft(0, self.logoView, self.guideView)];
         [self.guideView addConstraint:sobotLayoutPaddingRight(0, self.logoView, self.guideView)];
@@ -113,7 +119,9 @@
         
         [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingVSpace, self.btnLookMore, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingVSpace, self.btnLookMore, self.bgView)];
-        [self.bgView addConstraint:sobotLayoutMarginBottom(-ZCChatRichCellItemSpace, self.btnLookMore, self.cusButtonView)];
+        _layoutLayoutMoreBtm = sobotLayoutMarginBottom(-ZCChatRichCellItemSpace, self.btnLookMore, self.cusButtonView);
+        [self.bgView addConstraint:_layoutLayoutMoreBtm];
+        
         [self.bgView addConstraint:sobotLayoutEqualHeight(33, self.btnLookMore, NSLayoutRelationEqual)];
 //        self.btnLookMore.backgroundColor = UIColor.redColor;
         
@@ -146,6 +154,7 @@
     _logoView = ({
         SobotImageView *iv = [[SobotImageView alloc] init];
         iv.layer.masksToBounds = YES;
+        iv.backgroundColor = UIColorFromModeColor(SobotColorBgF5);
         iv.contentMode = UIViewContentModeScaleAspectFill;
         iv.layer.cornerRadius = 4.0f;
         //设置点击事件
@@ -155,7 +164,8 @@
     });
     
     _labTitle = ({
-        UILabel *iv = [[UILabel alloc] init];
+        SobotLineLabel *iv = [[SobotLineLabel alloc] init];
+        iv.lineHeight = 24;
         [iv setTextAlignment:NSTextAlignmentLeft];
         [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
         iv.numberOfLines = 0;
@@ -166,7 +176,8 @@
     
     
     _labDesc = ({
-        UILabel *iv = [[UILabel alloc] init];
+        SobotLineLabel *iv = [[SobotLineLabel alloc] init];
+        iv.lineHeight = 22;
         iv.numberOfLines = 0;
         [iv setTextAlignment:NSTextAlignmentLeft];
         [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
@@ -261,16 +272,17 @@
     [super initDataToView:message time:showTime];
     
     CGFloat tempHeight = 0;
-    
     if(sobotConvertToString(self.cardModel.cardImg).length>0){
-        [_logoView loadWithURL:[NSURL URLWithString:sobotConvertToString(self.cardModel.cardImg)]];
-        self.logoViewEH.constant = 66;
+        [_logoView loadWithURL:[NSURL URLWithString:sobotConvertToString(self.cardModel.cardImg)]placeholer:nil showActivityIndicatorView:NO];
+        self.logoViewEH.constant = 72;
+        self.logoViewTop.constant = ZCChatPaddingVSpace;
     }else{
         self.logoViewEH.constant = 0;
+        self.logoViewTop.constant = 0;
     }
     if(sobotConvertToString(self.cardModel.cardGuide).length >0){
         [_labTitle setText:sobotConvertToString(self.cardModel.cardGuide)];
-        self.labDescMT.constant = ZCChatRichCellItemSpace+2;
+        self.labDescMT.constant = ZCChatItemSpace2;
     }else{
         self.labDescMT.constant = 0;
     }
@@ -300,20 +312,18 @@
         // 一定要重新设置，否则尺寸不生效
         contentWidth = self.maxWidth + ZCChatPaddingHSpace*2 - ZCChatPaddingVSpace*2;
         if(self.tempModel.senderType == 0){
-            contentWidth = self.maxWidth + ZCChatPaddingHSpace*2 - ZCChatPaddingVSpace*2 -40;// 用户发送的宽度刷新去掉头像的间隔
+//            contentWidth = self.maxWidth + ZCChatPaddingHSpace*2 - ZCChatPaddingVSpace*2 -40;// 用户发送的宽度刷新去掉头像的间隔
         }
         
         // 这里应该获取的是动态的高度，描述是有一行或者2行的场景
         CGFloat curruntH = 0;
-        for (SobotChatCustomCardInfo * model in self.listArray) {
-            NSString *text = sobotConvertToString(model.customCardDesc);
-            CGFloat lh = [SobotUITools getHeightContain:text font:SobotFont12 Width:contentWidth - 86];
-            if(self.tempModel.senderType == 0){
-                curruntH = curruntH +76;
-            }else if(lh > 14){
-                curruntH = curruntH + 76 + 12;
-            }else{
-                curruntH = curruntH +76;
+        if(self.cardModel.cardType == 0){
+            curruntH = curruntH + [self getItemHeight:[self.listArray firstObject]];
+        }else{
+//            curruntH = 76 * self.listArray.count + 16*(self.listArray.count - 1);
+            
+            for (SobotChatCustomCardInfo * model in self.listArray) {
+                curruntH = curruntH + [self getItemHeight:model];
             }
         }
         
@@ -325,9 +335,9 @@
         
         // 只取第一个
         if(self.cardModel.cardType == 0){
-            itemHeight = [self getItemOrderHeight];
+            itemHeight = [self getItemHeight:[self.cardModel.customCards firstObject]];
         }else{
-            itemHeight = curruntH + ZCChatMarginHSpace*(self.listArray.count-1) + ZCChatCellItemSpace;
+            itemHeight = curruntH + ZCChatMarginHSpace*(self.listArray.count-1);
         }
         _layout.scrollDirection = UICollectionViewScrollDirectionVertical;
         
@@ -344,8 +354,8 @@
     NSMutableArray *tempCusArr = [NSMutableArray array];
     if(self.cardModel.cardType == 0 && self.cardModel.customField && !sobotIsNull(self.cardModel.customCards) && self.cardModel.customCards.count >0){
         SobotChatCustomCardInfo *cardInfo = [self.cardModel.customCards firstObject];
-        if(sobotConvertToString(cardInfo.customCardId).length>0){
-            [tempCusArr addObject:@{SobotKitLocalString(@"订单号"):sobotConvertToString(cardInfo.customCardId)}];
+        if(sobotConvertToString(cardInfo.customCardCode).length>0){
+            [tempCusArr addObject:@{SobotKitLocalString(@"订单号"):sobotConvertToString(cardInfo.customCardCode)}];
         }
         if(sobotConvertToString(cardInfo.customCardStatus).length >0){
             [tempCusArr addObject:@{SobotKitLocalString(@"交易状态"):sobotConvertToString(cardInfo.customCardStatus)}];
@@ -365,27 +375,33 @@
     // 自定义字段
     if(tempCusArr && tempCusArr.count > 0){
         [self createItemFieldLabel:tempCusArr];
-    }
-    
-    BOOL isCreate = NO;
-    // 自定义按钮
-    if(self.cardModel.cardMenus && self.cardModel.cardMenus.count > 0){
-        isCreate = [self createItemCusButton];
-    }
-    
-    
-    if(!isCreate){
-        // 没有自定义按钮 调整间距
-        self.customMT.constant = 0;
     }else{
-        self.customMT.constant = 16;
+        [_cusFieldView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     }
+        
+    BOOL isCreate = NO;
+        // 自定义按钮
+        if(self.cardModel.cardMenus && self.cardModel.cardMenus.count > 0){
+            isCreate = [self createItemCusButton];
+        }else{
+            [_cusButtonView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        }
+        
+        if(!isCreate){
+            // 没有自定义按钮 调整间距
+            self.customMT.constant = 0;
+            self.layoutLayoutMoreBtm.constant = 0;
+        }else{
+            self.customMT.constant = 16;
+            self.layoutLayoutMoreBtm.constant = -ZCChatRichCellItemSpace;
+        }
     
     _layoutBgWidth.constant = self.maxWidth+ ZCChatPaddingHSpace*2;
     
     if(self.tempModel.senderType == 0){
         // 右边用户发送的 和 发送前的宽度一样
-        _layoutBgWidth.constant = self.maxWidth+ ZCChatPaddingHSpace*2 -40;
+//        _layoutBgWidth.constant = self.maxWidth+ ZCChatPaddingHSpace*2 -40;
+        _layoutBgWidth.constant = self.maxWidth+ ZCChatPaddingHSpace*2;
     }
     if(!self.tempModel.showAllMessage && self.tempModel.senderType != 0){
         [self.bgView layoutIfNeeded];
@@ -400,7 +416,12 @@
             _layoutCusFieldHeight.constant = 0;
         }else{
             _layoutCollectionViewHeight.constant = itemHeight;
-            _layoutCusFieldHeight.constant = (400 - guideheight - 80 - itemHeight);
+            CGFloat fieldH = CGRectGetHeight(_cusFieldView.frame);
+            if(fieldH < (400 - guideheight - 80 - itemHeight)){
+                _layoutCusFieldHeight.constant = fieldH;
+            }else{
+                _layoutCusFieldHeight.constant = (400 - guideheight - 80 - itemHeight);
+            }
         }
         _btnLookMore.hidden = NO;
         _layoutCusFieldHeight.priority = UILayoutPriorityDefaultHigh;
@@ -423,11 +444,11 @@
         [self.bgView layoutIfNeeded];
     }
     
-    if(self.tempModel.senderType == 0){
-        [self setChatViewBgState:CGSizeMake(self.maxWidth-40,CGRectGetMaxY(_cusButtonView.frame))];
-    }else{
+//    if(self.tempModel.senderType == 0){
+//        [self setChatViewBgState:CGSizeMake(self.maxWidth-40,CGRectGetMaxY(_cusButtonView.frame))];
+//    }else{
         [self setChatViewBgState:CGSizeMake(self.maxWidth,CGRectGetMaxY(_cusButtonView.frame))];
-    }
+//    }
 
     // 这里不需要背景色
     self.ivBgView.backgroundColor = [UIColor clearColor];
@@ -445,7 +466,7 @@
              }];
             self.bgView.layer.masksToBounds = NO;
             self.bgView.layer.backgroundColor = [ZCUIKitTools zcgetChatBackgroundColor].CGColor;
-            self.bgView.layer.cornerRadius = 8;
+            self.bgView.layer.cornerRadius = 4;
             self.bgView.layer.shadowColor = [ZCUIKitTools zcgetChatBottomLineColor].CGColor;
             self.bgView.layer.shadowOffset = CGSizeMake(0,1);
             self.bgView.layer.shadowOpacity = 1;
@@ -462,7 +483,7 @@
                 [obj removeFromSuperlayer];
              }];
 
-            self.bgView.layer.cornerRadius = 8;
+            self.bgView.layer.cornerRadius = 4;
             self.bgView.layer.borderColor = [ZCUIKitTools zcgetChatBottomLineColor].CGColor;
             self.bgView.layer.borderWidth = 1.0f;
             self.bgView.layer.masksToBounds = YES;
@@ -474,46 +495,67 @@
     [self.collectionView reloadData];
 }
 
-
-// 不会使用
--(CGFloat)getItemOrderHeight{
-    SobotChatCustomCardInfo *model = [self.cardModel.customCards firstObject];
-    CGFloat imgHeight = 0;
-    // 有头像
-    if(sobotConvertToString(model.customCardThumbnail).length > 0){
-        imgHeight = 12 + 52;
-    }
-    
-    CGFloat cHeight = 8;
-    // 标题
-    if(sobotConvertToString(model.customCardName).length > 0){
-        cHeight = cHeight + 20 + 4;
-    }
-    if(sobotConvertToString(model.customCardDesc).length > 0){
-        CGFloat descH = [SobotUITools getHeightContain:sobotConvertToString(model.customCardDesc) font:SobotFont12 Width:contentWidth -78];//self.maxWidth -contentWidth - 12 - 52
-        if(descH > 34){
-            descH = 34;
+-(CGFloat) getItemHeight:(SobotChatCustomCardInfo *) model{
+    CGFloat curruntH = 0;
+    NSString *text = sobotConvertToString(model.customCardDesc);
+    CGFloat lh = 0;
+    if(sobotConvertToString(text).length > 0){
+        lh = [SobotUITools getHeightContain:text font:SobotFont12 Width:contentWidth - 86];
+        if(lh > 14){
+            lh = 40;
+        }else{
+            lh = 20;
         }
-        cHeight = cHeight + descH;
-    }
-    NSString *allStr = SobotKitLocalString(@"共");
-    NSString *unitStr = SobotKitLocalString(@"件");
-    NSString *goodsStr = SobotKitLocalString(@"商品");
-    NSString *totalStr = SobotKitLocalString(@"合计");
-    NSString *text = [NSString stringWithFormat:@"%@%@%@%@  %@ %@%@",allStr,model.customCardCount,unitStr,goodsStr,totalStr,model.customCardAmountSymbol,model.customCardAmount];
-    
-    CGFloat lw = [SobotUITools getWidthContain:text font:SobotFontBold12 Height:14];
-    if(lw > (contentWidth - 78)){
-        text = [NSString stringWithFormat:@"%@%@%@\n%@ %@%@",model.customCardCount,unitStr,goodsStr,totalStr,model.customCardAmountSymbol,model.customCardAmount];
+        
+        lh = lh + 4;
     }
     
-    cHeight = cHeight + [SobotUITools getHeightContain:text font:SobotFontBold12 Width:contentWidth - 78];
-    if(contentWidth >229 && lw > contentWidth - 78){
-        cHeight = cHeight +10; // 屏宽换行，计算高度有误差 ，之间差10个行间距
+    // 分别计算ZCChatCustomCardVNoSendCollectionCell和ZCChatCustomCardVCollectionCell不同情况的高度
+    if(self.cardModel.cardType == 0){// 订单
+        // 计算标题和描述
+        curruntH = curruntH + 8 + lh + 22;
+        if(sobotConvertToString(model.customCardAmount).length > 0 || sobotConvertToString(model.customCardAmountSymbol).length > 0){
+            curruntH = curruntH + 28;
+        }
+        // 添加文字底部间隔
+        curruntH = curruntH  + 8;
+        
+        // 有图片的时候，内容最大高度
+        if(sobotConvertToString(model.customCardThumbnail).length > 0){
+            if(curruntH < 68){
+                curruntH = 68;
+            }
+        }
+    }else{
+        // 有图片的时候，内容最大高度
+        if(sobotConvertToString(model.customCardThumbnail).length > 0){
+            
+            curruntH = curruntH + 76;
+            if(lh > 34){
+                curruntH = curruntH + 12;
+            }
+        }else{
+            // 单个计算
+            
+            // 计算标题和描述
+            curruntH = curruntH + 22 + lh;
+            
+            // 如果有按钮，优先取按钮高度
+            if(model.customMenus.count > 0 && self.tempModel.senderType!=0){
+                curruntH = curruntH + 34;
+            }else if(sobotConvertToString(model.customCardAmount).length > 0 || sobotConvertToString(model.customCardAmountSymbol).length > 0){
+                curruntH = curruntH + 28;
+            }
+            // 线条和内容的间隔
+            curruntH = curruntH + 8;
+            
+        }
     }
     
-    return cHeight > imgHeight ? (cHeight + 6):imgHeight;
+    return curruntH;
 }
+
+
 
 -(void)bgViewClick:(UITapGestureRecognizer *) tap{
     NSString * link = self.cardModel.cardLink;
@@ -522,7 +564,7 @@
         return;
     }
     if(self.delegate && [self.delegate respondsToSelector:@selector(cellItemClick:type:text:obj:)]){
-        [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeOpenFile text:sobotConvertToString(link)  obj:sobotConvertToString(link)];
+        [self.delegate cellItemClick:self.tempModel type:ZCChatCellClickTypeOpenURL text:sobotConvertToString(link)  obj:sobotConvertToString(link)];
     }
 }
 
@@ -536,7 +578,9 @@
                 NSDictionary *item = customField[i];
                 NSString *key = sobotConvertToString([item.allKeys firstObject]);
                 NSString *value = sobotConvertToString(item[key]);
-                UILabel *lab = [SobotUITools createZCLabel];
+                SobotLineLabel *lab = [[SobotLineLabel alloc] init];
+                lab.textAlignment = NSTextAlignmentLeft;
+                lab.lineHeight = 20;
                 lab.numberOfLines = 0;
                 lab.font = SobotFont12;
                 [lab setTextColor: UIColorFromModeColor(SobotColorTextMain)];
@@ -547,6 +591,7 @@
                 }
                 [_cusFieldView addConstraint:sobotLayoutPaddingLeft(0, lab, _cusFieldView)];
                 [_cusFieldView addConstraint:sobotLayoutPaddingRight(0, lab, _cusFieldView)];
+                [_cusFieldView addConstraint:sobotLayoutEqualHeight(20, lab, NSLayoutRelationGreaterThanOrEqual)];
                 if(preLab!=nil){
                     [_cusFieldView addConstraint:sobotLayoutMarginBottom(-8, lab, preLab)];
                 }
@@ -561,7 +606,9 @@
                 NSDictionary *item = customField[i];
                 NSString *key = sobotConvertToString([item.allKeys firstObject]);
                 NSString *value = sobotConvertToString(item[key]);
-                UILabel *lab = [SobotUITools createZCLabel];
+                SobotLineLabel *lab = [[SobotLineLabel alloc] init];
+                lab.textAlignment = NSTextAlignmentLeft;
+                lab.lineHeight = 20;
                 lab.numberOfLines = 0;
                 lab.font = SobotFont12;
                 [lab setTextColor: UIColorFromModeColor(SobotColorTextMain)];
@@ -593,7 +640,9 @@
             NSDictionary *item = customField[i];
             NSString *key = sobotConvertToString([item.allKeys firstObject]);
             NSString *value = sobotConvertToString(item[key]);
-            UILabel *lab = [SobotUITools createZCLabel];
+            SobotLineLabel *lab = [[SobotLineLabel alloc] init];
+            lab.textAlignment = NSTextAlignmentLeft;
+            lab.lineHeight = 20;
             lab.numberOfLines = 0;
             lab.font = SobotFont12;
             [lab setTextColor: UIColorFromModeColor(SobotColorTextMain)];
@@ -622,7 +671,11 @@
     if(self.cardModel.cardMenus.count > 0 && self.tempModel.senderType != 0){
         SobotButton *preButton = nil;
         int currentCount = 0;
-        for(int i=0;i<self.cardModel.cardMenus.count ; i ++ ){
+        int maxCount = (int)self.cardModel.cardMenus.count;
+        if (maxCount >3) {
+            maxCount = 3;
+        }
+        for(int i=0;i<maxCount; i ++ ){
             SobotChatCustomCardMenu *menu = self.cardModel.cardMenus[i];
             if(menu.menuType == 0 && menu.menuLinkType ==1){
                 continue;
@@ -648,7 +701,7 @@
                 [btn setTitleColor:[ZCUIKitTools zcgetChatTextViewColor] forState:0];
                 btn.layer.borderWidth = .75f;
             }
-            btn.layer.cornerRadius = 16.0f;
+            btn.layer.cornerRadius = 4.0f;
             [btn.titleLabel setFont:SobotFont14];
             [btn addTarget:self action:@selector(menuButton:) forControlEvents:UIControlEventTouchUpInside];
             [_cusButtonView addSubview:btn];
@@ -667,7 +720,7 @@
                 [btn setBackgroundColor:UIColorFromModeColorAlpha(SobotColorTheme, 0.3)];
             }
             
-            [_cusButtonView addConstraint:sobotLayoutEqualHeight(32, btn, NSLayoutRelationEqual)];
+            [_cusButtonView addConstraint:sobotLayoutEqualHeight(36, btn, NSLayoutRelationEqual)];
             if(sobotIsNull(preButton)){
                 [_cusButtonView addConstraint:sobotLayoutPaddingTop(0, btn, _cusButtonView)];
                 [_cusButtonView addConstraint:sobotLayoutPaddingLeft(0, btn, _cusButtonView)];
@@ -701,14 +754,16 @@
         CGFloat curruntH = 0;
         if(self.listArray &&[self.listArray isKindOfClass:[NSMutableArray class]]&& self.listArray.count > 0){
             SobotChatCustomCardInfo * model = self.listArray[indexPath.row];
-            NSString *text = sobotConvertToString(model.customCardDesc);
-            CGFloat lh = [SobotUITools getHeightContain:text font:SobotFont12 Width:contentWidth - 86];
-            if(lh > 14 && self.tempModel.senderType != 0){
-                curruntH = 76 + 12;
-            }else{
-                curruntH = curruntH +76;
-            }
+            curruntH = [self getItemHeight:model];
+//            NSString *text = sobotConvertToString(model.customCardDesc);
+//            CGFloat lh = [SobotUITools getHeightContain:text font:SobotFont12 Width:contentWidth - 86];
+//            if(lh > 14 && self.tempModel.senderType != 0){
+//                curruntH = 76 + 12;
+//            }else{
+//                curruntH = curruntH +76;
+//            }
         }
+        
         return CGSizeMake(contentWidth, curruntH);
     }
 }

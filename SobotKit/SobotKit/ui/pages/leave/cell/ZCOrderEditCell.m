@@ -39,35 +39,28 @@
 
 -(void)createItemsView{
     // 内容视图
-    _bgView = ({
-        UIView *iv = [[UIView alloc]init];
-        [self.contentView addSubview:iv];
-        iv.backgroundColor = [UIColor clearColor];
-        [self.contentView addSubview:iv];
-        [self.contentView addConstraint:sobotLayoutPaddingTop(0, iv, self.contentView)];
-        [self.contentView addConstraint:sobotLayoutPaddingLeft(0, iv, self.contentView)];
-        [self.contentView addConstraint:sobotLayoutPaddingRight(0, iv, self.contentView)];
-        [self.contentView addConstraint:sobotLayoutPaddingBottom(0, iv, self.contentView)];
-        [self.contentView addConstraint:sobotLayoutEqualHeight(76, iv, NSLayoutRelationEqual)];
-        iv;
-    });
-    
     self.labelName = ({
         UILabel *iv = [[UILabel alloc]init];
         [self.contentView addSubview:iv];
+        iv.numberOfLines = 0;
         iv.font = SobotFont14;
-        iv.textColor = UIColorFromKitModeColor(SobotColorTextMain);
-        [self.contentView addConstraint:sobotLayoutPaddingLeft(20, iv, self.contentView)];
-        self.labelNamePT = sobotLayoutPaddingTop(17, iv, self.contentView);
+        iv.textColor = UIColorFromKitModeColor(SobotColorTextSub);
+        [self.contentView addConstraint:sobotLayoutPaddingLeft(EditCellHSpec, iv, self.contentView)];
+        self.labelNamePT = sobotLayoutPaddingTop(EditCellPT, iv, self.contentView);
         [self.contentView addConstraint:self.labelNamePT];
-        self.labelNameEH = sobotLayoutEqualHeight(20, iv, NSLayoutRelationEqual);
+        self.labelNameEH = sobotLayoutEqualHeight(EditCellTitleH, iv, NSLayoutRelationGreaterThanOrEqual);
         [self.contentView addConstraint:self.labelNameEH];
-        [self.contentView addConstraint:sobotLayoutPaddingRight(-20, iv, self.contentView)];
+        [self.contentView addConstraint:sobotLayoutPaddingRight(-EditCellHSpec, iv, self.contentView)];
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            iv.textAlignment = NSTextAlignmentRight;
+        }else{
+            iv.textAlignment = NSTextAlignmentLeft;
+        }
         iv;
     });
     
     _textContent = ({
-        ZCUIPlaceHolderTextView *iv = [[ZCUIPlaceHolderTextView alloc]init];
+        ZCUITextView *iv = [[ZCUITextView alloc]init];
         iv.placeholder = @"";
         iv.placeholederFont = SobotFont14;
         [iv setPlaceholderColor:UIColorFromKitModeColor(SobotColorTextSub1)];
@@ -75,41 +68,59 @@
         [iv setFont:SobotFontBold14];
         [iv setBackgroundColor:UIColor.clearColor];
         iv.delegate = self;
+//        iv.sx = 1;
         [self.contentView addSubview:iv];
-        self.textContentPT = sobotLayoutPaddingTop(37, iv, self.contentView);
+        // 这里的10 是为了解决自定义textview的光标高度问题
+        self.textContentPT = sobotLayoutMarginTop(EditCellMT-5, iv, self.labelName);
         [self.contentView addConstraint:self.textContentPT];
-        self.textContentPL = sobotLayoutPaddingLeft(20, iv, self.contentView);
+        self.textContentPL = sobotLayoutPaddingLeft(EditCellHSpec-7, iv, self.contentView);
         [self.contentView addConstraint:self.textContentPL];
-        self.textContentPR = sobotLayoutPaddingRight(-20, iv, self.contentView);
+        self.textContentPR = sobotLayoutPaddingRight(-EditCellHSpec+7, iv, self.contentView);
         [self.contentView addConstraint:self.textContentPR];
-        self.textContentEH = sobotLayoutEqualHeight(36, iv, NSLayoutRelationEqual);
+        self.textContentEH = sobotLayoutEqualHeight(62, iv, NSLayoutRelationEqual);
         [self.contentView addConstraint:self.textContentEH];
+        [self.contentView addConstraint:sobotLayoutPaddingBottom(-EditCellPT, iv, self.contentView)];
+        iv.tintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
         iv;
     });
     
-    [self.contentView sendSubviewToBack:self.bgView];
+    self.lineView = ({
+        UIView *iv = [[UIView alloc]init];
+        [self.contentView addSubview:iv];
+        iv.backgroundColor = UIColorFromKitModeColor(SobotColorBgTopLine);
+        self.lineViewPL = sobotLayoutPaddingLeft(16, iv, self.contentView);
+        [self.contentView addConstraint:self.lineViewPL];
+        
+        [self.contentView addConstraint:sobotLayoutPaddingBottom(0, iv, self.contentView)];
+        [self.contentView addConstraint:sobotLayoutEqualHeight(0.5, iv, NSLayoutRelationEqual)];
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            self.lineViewPL.constant = 0;
+            [self.contentView addConstraint:sobotLayoutPaddingRight(-16, iv, self.contentView)];
+        }else{
+            self.lineViewPL.constant = 16;
+            [self.contentView addConstraint:sobotLayoutPaddingRight(0, iv, self.contentView)];
+        }
+        iv;
+    });
 }
 
 -(void)initDataToView:(NSDictionary *)dict{
-    self.labelName.frame = CGRectMake(20, 12, self.tableWidth - 40, 0);
-    if (self.labelNamePT) {
-        [self.contentView removeConstraint:self.labelNamePT];
-    }
-    self.labelNamePT = sobotLayoutPaddingTop(12, self.labelName, self.contentView);
-    [self.contentView addConstraint:self.labelNamePT];
-    [self autoHeightOfLabel:self.labelName with:self.tableWidth - 40];
-    
     [_textContent setText:@""];
     if(!sobotIsNull(dict[@"dictValue"])){
         [_textContent setText:dict[@"dictValue"]];
     }
     [self checkLabelState:NO];
+    // 标题固定取一开始显示的，后面不在处理 * 也在前面处理好
     self.labelNameStr = dict[@"dictDesc"];
-    NSString *string = [NSString stringWithFormat:@"%@  %@",self.labelNameStr,SobotKitLocalString(@"请输入")];
-    self.labelName.attributedText = [self getOtherColorString:string colorArray:@[[UIColor redColor],UIColorFromKitModeColor(SobotColorTextSub1)] withStringArray:@[@"*",SobotKitLocalString(@"请输入")]];
-    if(self.textContent.text.length> 0){
-        self.labelName.text = @"";
+    NSString *tempstr = sobotConvertToString(self.labelNameStr);
+    NSMutableAttributedString *att = [self getOtherColorString:@"*" Color:[UIColor redColor] withString:tempstr];
+    self.labelName.attributedText = att;
+    
+    NSString *tipText = SobotKitLocalString(@"请输入");
+    if (sobotConvertToString([dict objectForKey:@"placeholder"]).length >0) {
+        tipText = sobotConvertToString([dict objectForKey:@"placeholder"]);
     }
+    _textContent.placeholder = tipText;
 }
 
 -(void)textViewDidChange:(ZCUIPlaceHolderTextView *)textView{
@@ -120,35 +131,6 @@
 
 -(BOOL)checkLabelState:(BOOL) showSmall{
     BOOL isSmall = [super checkLabelState:showSmall text:_textContent.text];
-    if (self.textContentPT) {
-        [self.contentView removeConstraint:self.textContentPT];
-    }
-    if (self.textContentPR) {
-        [self.contentView removeConstraint:self.textContentPR];
-    }
-    if (self.textContentPL) {
-        [self.contentView removeConstraint:self.textContentPL];
-    }
-    if(!isSmall){
-        self.textContentPL = sobotLayoutPaddingLeft(70, self.textContent, self.contentView);
-        self.textContentPT = sobotLayoutPaddingTop(17, self.textContent, self.contentView);
-        [self.contentView addConstraint:self.textContentPL];
-        [self.contentView addConstraint:self.textContentPT];
-        NSString *string = self.labelNameStr;
-        if (string) {
-            NSString *string = [NSString stringWithFormat:@"%@  %@",self.labelNameStr,SobotKitLocalString(@"请输入")];
-            self.labelName.attributedText = [self getOtherColorString:string colorArray:@[[UIColor redColor],UIColorFromKitModeColor(SobotColorTextSub1)] withStringArray:@[@"*",SobotKitLocalString(@"请输入")]];
-        }
-    }else{
-        self.textContentPL = sobotLayoutPaddingLeft(17, self.textContent, self.contentView);
-        self.textContentPT = sobotLayoutPaddingTop(29, self.textContent, self.contentView);
-        [self.contentView addConstraint:self.textContentPL];
-        [self.contentView addConstraint:self.textContentPT];
-        NSString *string = self.labelNameStr;
-        if (string) {
-            self.labelName.attributedText = [self getOtherColorString:@"*" Color:[UIColor redColor] withString:string];
-        }
-    }
     return isSmall;
 }
 

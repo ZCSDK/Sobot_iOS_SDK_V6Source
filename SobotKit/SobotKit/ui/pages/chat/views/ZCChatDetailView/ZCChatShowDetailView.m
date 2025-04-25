@@ -164,4 +164,10 @@
     }
     return YES;
 }
+
+
+-(void)onViewTouch{
+    [self tapCloseView];
+}
+
 @end

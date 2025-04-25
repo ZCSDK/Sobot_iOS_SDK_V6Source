@@ -14,6 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,copy) NSString *ticketId; // 工单id
 @property (nonatomic,copy) NSString *companyId; // 工单id
 @property (nonatomic,strong) ZCLeaveMsgController *leaveMsgController;
+// 上一个页面传入
+@property (nonatomic,strong) ZCRecordListModel *listModel;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -50,7 +50,33 @@
 #define  SobotFont8       [UIFont fontWithName:@"Helvetica" size:8]
 #define  SobotFontBold8   [UIFont fontWithName:@"Helvetica-Bold" size:8]
 
+// 常用高度
+#define SobotHSheetTitle 60
+#define SobotHButton36 36
+#define SobotHButton44 44
 
+// 圆角Radius
+#define SobotRadius18 18
+#define SobotRadius8 8
+#define SobotRadius6 6
+#define SobotRadius4 4
+#define SobotRadiosMax 18
+#define SobotRadiosMiddle 8
+#define SobotRadiosMin 4
+
+// 间距SPACE
+#define SobotSpace20 20
+#define SobotSpace18 18
+#define SobotSpace16 16
+#define SobotSpace12 12
+#define SobotSpace10 10
+#define SobotSpace8 8
+#define SobotSpace2 2
+// 常用边距
+#define SobotSpaceOut 20
+#define SobotSpaceIn 16
+#define SobotSpaceInLine 8
+#define SobotSpaceInLineMin 4
 
 // Color keys
 typedef NSString *SobotTypeColor NS_STRING_ENUM;
@@ -77,6 +103,8 @@ static SobotTypeColor const SobotColorBgActionSheetView = @"SobotColorBgActionSh
 static SobotTypeColor const SobotColorBgGreen = @"SobotColorBgGreen";// 果绿色 #21CFA6
 static SobotTypeColor const SobotColorBgGray = @"SobotColorBgGray";// 果绿色 #21CFA6
 
+static SobotTypeColor const SobotColorHeaderBg = @"SobotColorHeaderBg";// 留言头部文字背景色
+static SobotTypeColor const SobotColorHeaderText = @"SobotColorHeaderText";// 留言头部文字色
 
 // 文字颜色
 static SobotTypeColor const SobotColorTextMain = @"SobotColorTextMain";//主文本颜色
@@ -97,8 +125,11 @@ static SobotTypeColor const SobotColorTextPricetTag = @"SobotColorTextPricetTag"
 static SobotTypeColor const SobotColorBgF5 = @"SobotColorBgF5";// 新增背景颜色
 
 // 线条颜色
+static SobotTypeColor const SobotColorBorderLine  = @"SobotColorBorderLine";// #D9D9D9
 static SobotTypeColor const SobotColorBgLine  = @"SobotColorBgLine";// 线条颜色"#2C2C2C";分割线
 static SobotTypeColor const SobotColorSeparatorLine = @"SobotColorSeparatorLine";// 分割线颜色
+static SobotTypeColor const SobotColorBgTopLine  = @"SobotColorBgTopLine";// 顶部线条颜色线条颜色"#EBEBEB";
+
 
 // 链接颜色
 static SobotTypeColor const SobotColorTextLink = @"SobotColorTextLink";//链接文本颜色"#0DAEAF";
@@ -116,12 +147,26 @@ static SobotTypeColor const SobotTextOrderStatus2 = @"SobotTextOrderStatus2"; //
 static SobotTypeColor const SobotTextOrderStatus3 = @"SobotTextOrderStatus3"; // 工单状态文字颜色
 static SobotTypeColor const SobotTextOrderStatus4 = @"SobotTextOrderStatus4"; // 工单状态文字颜色
 static SobotTypeColor const SobotTextOrderStatus5 = @"SobotTextOrderStatus5"; // 工单状态文字颜色
+static SobotTypeColor const SobotTextOrderStatus6 = @"SobotTextOrderStatus6"; // 工单状态文字颜色
+static SobotTypeColor const SobotTextOrderStatus7 = @"SobotTextOrderStatus7"; // 工单状态文字颜色
+
+// 状态类别 1-新建，2-受理中 3-等待客户回复 4-暂停 5-已解决 6 已关闭#161616 7 已删除#A3A5A8
+
+static SobotTypeColor const SobotTextOrderStatus1Bg = @"SobotTextOrderStatus1Bg"; // 工单状态文字颜色
+static SobotTypeColor const SobotTextOrderStatus2Bg = @"SobotTextOrderStatus2Bg"; // 工单状态文字颜色
+static SobotTypeColor const SobotTextOrderStatus3Bg = @"SobotTextOrderStatus3Bg"; // 工单状态文字颜色
+static SobotTypeColor const SobotTextOrderStatus4Bg = @"SobotTextOrderStatus4Bg"; // 工单状态文字颜色
+static SobotTypeColor const SobotTextOrderStatus5Bg = @"SobotTextOrderStatus5Bg"; // 工单状态文字颜色
+static SobotTypeColor const SobotTextOrderStatus6Bg = @"SobotTextOrderStatus6Bg"; // 工单状态文字颜色
+static SobotTypeColor const SobotTextOrderStatus7Bg = @"SobotTextOrderStatus7Bg"; // 工单状态文字颜色
 
 // 呼叫任务状态背景色
 static SobotTypeColor const SobotTextCallStatus1 = @"SobotTextCallStatus1"; // 呼叫状态文字颜色
 static SobotTypeColor const SobotTextCallStatus3 = @"SobotTextCallStatus3"; // 呼叫状态文字颜色
 static SobotTypeColor const SobotTextCallStatus4 = @"SobotTextCallStatus4"; // 呼叫状态文字颜色
 static SobotTypeColor const SobotTextCallStatus5 = @"SobotTextCallStatus5"; // 拨号页面不可点颜色
+
+static SobotTypeColor const SobotColorTest = @"SobotColorTest"; // 测试颜色
 
 // 颜色
 #define UIColorFromModeColor(themeColorKey) [SobotUITools getSobotThemeModeColor:themeColorKey  bundleName:@""]

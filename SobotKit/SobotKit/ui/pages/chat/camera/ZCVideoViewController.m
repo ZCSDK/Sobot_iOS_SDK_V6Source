@@ -75,6 +75,8 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
 @property (strong, nonatomic) UIImageView *imgRecord;
 
 @property(strong,nonatomic) dispatch_queue_t sessionQueue;
+@property (nonatomic,assign) BOOL isAddvideo;
+
 @end
 
 //时间大于这个就是视频，否则为拍摄
@@ -183,30 +185,43 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
  *  创建一个队列,防止阻塞主线程
  */
 - (void)createQueue{
-    dispatch_queue_t sessionQueue = dispatch_queue_create("zcvideoViewController session queue", DISPATCH_QUEUE_SERIAL);
-    self.sessionQueue = sessionQueue;
+    if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 15.0) {
+        dispatch_queue_t sessionQueue = dispatch_queue_create("zcvideoViewController session queue", DISPATCH_QUEUE_SERIAL);
+        self.sessionQueue = sessionQueue;
+    }
 }
 
 -(void)sessionStartRunning{
-    SobotWeakSelf(self);
-    dispatch_async(self.sessionQueue, ^{
-        SobotStrogSelf(self);
+    if([[[UIDevice currentDevice] systemVersion] doubleValue] >= 15.0){
+        SobotWeakSelf(self);
+        dispatch_async(self.sessionQueue, ^{
+            SobotStrogSelf(self);
+            if (!self.session.running) {
+                [self.session startRunning];
+            }
+        });
+    }else{
         if (!self.session.running) {
             [self.session startRunning];
         }
-    });
+    }
 }
 
 -(void)sessionStopRunning{
-    SobotWeakSelf(self);
-    dispatch_async(self.sessionQueue, ^{
-        SobotStrogSelf(self);
+    if([[[UIDevice currentDevice] systemVersion] doubleValue] >= 15.0){
+        SobotWeakSelf(self);
+        dispatch_async(self.sessionQueue, ^{
+            SobotStrogSelf(self);
+            if (self.session.running) {
+                [self.session stopRunning];
+            }
+        });
+    }else{
         if (self.session.running) {
             [self.session stopRunning];
         }
-    });
+    }
 }
-
 
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -215,7 +230,6 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
     [self customCamera];
     // -[AVCaptureSession startRunning] should be called from background thread. Calling it on the main thread can lead to UI unresponsiveness
     // 解决线程阻碍
-//    [self.session startRunning];
     [self sessionStartRunning];
 }
 
@@ -226,7 +240,6 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
 
 -(void)viewDidDisappear:(BOOL)animated{
     [super viewDidDisappear:animated];
-//    [self.session stopRunning];
     [self sessionStopRunning];
 }
 
@@ -236,22 +249,24 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
 }
 
 -(void)addAudioDevice{
-    [SobotUITools isOpenVoicePermissions:^(BOOL isResult) {
-        if(isResult){
-            //初始化输入设备
-            NSError *error = nil;
-            //添加一个音频输入设备
-            AVCaptureDevice *audioCaptureDevice=[[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
+    if (self.isAddvideo) {
+        [SobotUITools isOpenVoicePermissions:^(BOOL isResult) {
+            if(isResult){
+                //初始化输入设备
+                NSError *error = nil;
+                //添加一个音频输入设备
+                AVCaptureDevice *audioCaptureDevice=[[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
 
-            AVCaptureDeviceInput *audioCaptureDeviceInput=[[AVCaptureDeviceInput alloc]initWithDevice:audioCaptureDevice error:&error];
-            
-            //将输入设备添加到会话
-            if ([self.session canAddInput:audioCaptureDeviceInput]) {
-                [self.session addInput:audioCaptureDeviceInput];
+                AVCaptureDeviceInput *audioCaptureDeviceInput=[[AVCaptureDeviceInput alloc]initWithDevice:audioCaptureDevice error:&error];
+                
+                //将输入设备添加到会话
+                if ([self.session canAddInput:audioCaptureDeviceInput]) {
+                    [self.session addInput:audioCaptureDeviceInput];
+                }
+                
             }
-            
-        }
-    }];
+        }];
+    }
 }
 - (void)customCamera {
     //初始化会话，用来结合输入输出
@@ -292,8 +307,8 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
     if ([self.session canAddInput:self.captureDeviceInput]) {
         [self.session addInput:self.captureDeviceInput];
         
-        //添加音频
-        [self addAudioDevice];
+        //添加音频,放到长按录制视频时申请
+//        [self addAudioDevice];
         
         //设置视频防抖
         AVCaptureConnection *connection = [self.captureMovieFileOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -370,7 +385,9 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     if ([[touches anyObject] view] == self.imgRecord) {
-//        NSlog(@"开始录制");
+        SLog(@"开始录制", nil);
+//        [self addAudioDevice];
+        
         //根据设备输出获得连接
         AVCaptureConnection *connection = [self.captureMovieFileOutput connectionWithMediaType:AVMediaTypeVideo];
         //根据连接取得设备输出的数据
@@ -416,7 +433,7 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
         return;
     }
     if ([[touches anyObject] view] == self.imgRecord) {
-//        NSlog(@"结束触摸");
+        SLog(@"结束触摸", nil);
         if (!self.isVideo) {
             [self performSelector:@selector(endRecord) withObject:nil afterDelay:0.3];
         } else {
@@ -432,16 +449,26 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
         dispatch_async(dispatch_get_main_queue(), ^{
             NSString *aleartMsg = @"";
             aleartMsg = SobotKitLocalString(@"请在《设置 - 隐私 - 相机》选项中，允许访问您的相机");
-            [SobotUITools showAlert:nil message:aleartMsg cancelTitle:SobotKitLocalString(@"好的") titleArray:nil viewController:[SobotUITools getCurrentVC] confirm:^(NSInteger buttonTag) {
+            [SobotUITools showAlert:nil message:aleartMsg cancelTitle:SobotKitLocalString(@"取消") titleArray:nil viewController:[SobotUITools getCurrentVC] confirm:^(NSInteger buttonTag) {
                 // 没有权限 并且进入了 拍照页面 退出
                 AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
                 if(authStatus == AVAuthorizationStatusNotDetermined || authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied){
                     [self dismissViewControllerAnimated:YES completion:nil];
                     // 没有权限才去跳转，有就不跳转了
-                    if(buttonTag == -1){
+                    if(buttonTag == 0){
                         NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-                        if ([[UIApplication sharedApplication] canOpenURL:url]) {
-                           [[UIApplication sharedApplication] openURL:url];
+                        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 18) {
+                            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:^(BOOL success) {
+                                    if (success) {
+                                        NSLog(@"URL successfully opened.");
+                                    } else {
+                                        NSLog(@"Failed to open URL.");
+                                    }
+                                }];
+                        }else{
+                            if ([[UIApplication sharedApplication] canOpenURL:url]) {
+                               [[UIApplication sharedApplication] openURL:url];
+                            }
                         }
                     }
                 }
@@ -622,6 +649,9 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
             if (self.HSeconds - self.seconds >= TimeMax && !self.isVideo) {
                 self.isVideo = YES;//长按时间超过TimeMax 表示是视频录制
                 self->_progressView.hidden = NO;
+                //添加音频 在使用视频的时候再触发
+                [self addAudioDevice];
+                self.isAddvideo = YES;
             }
             [_progressView setProgress:(self.HSeconds - self.seconds)*1.0/self.HSeconds];
 //            NSLog(@"当前进度：----%zd -- %f",self.seconds,(self.HSeconds - self.seconds)*100.0/self.HSeconds);
@@ -648,8 +678,8 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
     [self changeLayout];
     if (self.isVideo) {
         self.saveVideoUrl = outputFileURL;
-        
         if (!self.player) {
+                // 原因 音频添加的代码会影响UI刷新
             self.player = [[ZCVideoPlayer alloc] initWithFrame:self.bgView.bounds withShowInView:self.bgView url:outputFileURL Image:nil];
         } else {
             if (outputFileURL) {
@@ -694,7 +724,7 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
     CMTime actucalTime; //缩略图实际生成的时间
     CGImageRef cgImage = [imageGenerator copyCGImageAtTime:time actualTime:&actucalTime error:&error];
     if (error) {
-//        NSLog(@"截取视频图片失败:%@",error.localizedDescription);
+        NSLog(@"截取视频图片失败:%@",error.localizedDescription);
     }
     CMTimeShow(actucalTime);
     UIImage *image = [UIImage imageWithCGImage:cgImage];
@@ -950,7 +980,6 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
     
     self.lastBackgroundTaskIdentifier = self.backgroundTaskIdentifier;
     self.backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-//    [self.session stopRunning];
     [self sessionStopRunning];
 }
 
@@ -962,7 +991,6 @@ typedef void(^ZCPropertyChangeBlock)(AVCaptureDevice *captureDevice);
         [self.player stopPlayer];
         self.player.hidden = YES;
     }
-//    [self.session startRunning];
     [self sessionStartRunning];
     
     if (!self.takeImageView.hidden) {

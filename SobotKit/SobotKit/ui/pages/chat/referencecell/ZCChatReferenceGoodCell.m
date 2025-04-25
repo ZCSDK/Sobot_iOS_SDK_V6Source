@@ -201,7 +201,7 @@
         _layoutImageLeft.constant = 8;
         _layoutImageWidth.constant = 49;
         _layoutImageWidth.constant = 49;
-        [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(urlStr)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:YES];
+        [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(urlStr)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:NO];
         _layoutImageBottom.priority = UILayoutPriorityDefaultHigh;
         _layoutLabelBottom.priority = UILayoutPriorityDefaultLow;
     }else{

@@ -11,7 +11,7 @@
 "暂时无法转接人工客服" = "Sorry, operators are busy right now";
 "暂时无法评价" = "You can\'t submit feedback now";
 "网络错误，请检查网络后重试" = "Network error. Please check the network and try again";
-"转人工" = "Manual";
+"转人工" = "Live Chat";
 "时间" = "time";
 "日期" = "date";
 "标题" = "Title";
@@ -48,7 +48,7 @@
 "您收到了一条新消息" = "You have received a new message";
 "评分" = "Score";
 "评语" = "Comment";
-"是否解决了您的问题？" = "Has solved your problem?";
+"是否解决了您的问题？" = "has solved your problem?";
 "受理中" = "Processing";
 "问题分类" = "Problem type";
 "问题详情" = "Issue details";
@@ -76,7 +76,7 @@
 "运输中" = "In transportation";
 "待发货" = "To be shipped";
 "待付款" = "Pending payment";
-"选填" = "optional";
+"选填" = "Optional";
 "展开" = "Expand";
 "收起" = "Collapse";
 "无" = "nothing";
@@ -137,10 +137,10 @@
 "删除" = "Delete";
 "数据错误" = "Data error";
 "客服" = "Customer service";
-"复制成功！" = "Copied successfully!";
+"复制成功" = "Copied successfully";
 "复制" = "Copy";
 "已创建" = "Created";
-"倒计时:" = "Countdown:";
+"倒计时" = "Countdown";
 "消息中心" = "Message";
 "未连接" = "Not connected";
 "连接中..." = "Connecting…";
@@ -207,8 +207,93 @@
 "您已同意发送个人敏感信息，本次授权有效期24小时" = "You have agreed to send personal sensitive information. This authorization is valid for 24 hours";
 "您已拒绝发送此消息" = "You have declined to send this message";
 "附件" = "Enclosure";
+
+"保存成功" = "Saved";
+"保存失败" = "Save failed";
+
+//************* 同步415的数据 ***********
 "填写信息" = "Fill in information";
 "排队自动断开结束会话" = "End session after queued auto disconnect";
 "小程序" = "Applet";
 "小程序只能通过微信打开" = "Applet can only be opened through wechat";
 "解析中..." = "Parsing";
+"转换失败" = "Conversion failed";
+"转换完成" = "Conversion done";
+"订单号" = "Order number";
+"交易状态"="Trading status";
+"创建时间"="Creation time";
+"展开更多" = "Expand More";
+"共" = "common";
+"标签" = "Label";
+"是否解决" = "Is it resolved";
+"已读"="Read";
+"未读"="Unread";
+"我"="Me";
+"已读"="read";
+"未读"="Unread";
+"我"="Me";
+"机器人"="Robot";
+"链接" = "Link";
+"文章" = "Article";
+"引用"="Quote";
+"已选"="Selected";
+"搜索"="search";
+"搜索全部省"="Search all provinces";
+"搜索全部市"="Search all cities";
+"搜索全部县（区）"="Search all counties (districts)";
+"搜索全部街道"="Search all streets";
+"无结果"="No result";
+"请选择是否解决了您的问题" = "Please choose whether your issue has been resolved";
+"换一批" = "Change";
+//************* 同步415的数据 ***********
+
+
+/**公共组件翻译*/
+"选择时区" = "Select time zone";
+"请选择时区" = "Please select time zone";
+"暂无选项内容" = "No option content";
+"时区"="Time zone";
+"年"="Y";
+"月"="M";
+"日"="D";
+
+"区号"="Area code";
+
+
+"语言已切换为“xxx”" = "Language has been switched to \"xxx\"";
+"选择语言" = "Select language";
+"请选择您要使用的聊天语言：" = "Select the chat language you want to use: ";
+"更多语言" = "More Languages";
+
+"顶" = "top";
+"踩" = "step on";
+
+"满意" = "Satisfied";
+"不满意" = "Dissatisfied";
+
+"回复了您" = "Replied to you";
+"您的回复" = "Your reply";
+
+"上传附件" = "Upload Attachments";
+"展开全部" = "Expand All";
+"收起" = "Fold";
+"松开 发送" = "Release to Send";
+"松开 取消" = "Release to Cancel";
+"松开发送，上滑取消" = "Release to send, swipe up to cancel";
+"暂无回复" = "No reply";
+"请输入" = "Please enter";
+"最多上传" = "Upload up to";
+"个，" = ",";
+"大小不超过" = " size not exceeding";
+"已达上限 15 个" = "Limit of 15 reached";
+"知道了" = "OK";
+"已拒绝" = "Rejected";
+
+"请选择" = "Please select";
+"暂无客服在线，点击进行留言。" = "No agent online. Click to leave submission";
+"工单处理状态更新后将在会话中提醒您" = "You will be notified in the chat after the ticket processing status is updated";
+
+
+"商品数" = "Quantity";
+"更多信息" = "More Information";
+"查看更多" = "View More";

@@ -133,5 +133,14 @@
     // Drawing code
 }
 */
-
+- (void)touchesEnded:(NSSet *)touches
+           withEvent:(UIEvent *)event
+{
+    if(self.delegate && [self.delegate respondsToSelector:@selector(onViewTouch)]){
+        [self.delegate onViewTouch];
+    
+        return;
+    }
+    [super touchesEnded:touches withEvent:event];
+}
 @end

@@ -66,11 +66,32 @@
    progress:(ProgressBlock) progressBlock;
 
 
++(void)post:(NSString *) stringURL
+      param:(NSDictionary *) dict
+      model:(int)model
+    timeOut:(CGFloat) timeOut
+      start:(StartBlock) startBlock
+     finish:(FinishBlock) finishBlock
+   complete:(CompleteBlock) completeBlock
+       fail:(FailBlock) failBlock
+   progress:(ProgressBlock) progressBlock;
+
++(void)stream:(NSString *) stringURL
+      param:(NSDictionary *) dict
+    timeOut:(CGFloat) timeOut
+      start:(StartBlock) startBlock
+     finish:(FinishBlock) finishBlock
+   complete:(CompleteBlock) completeBlock
+       fail:(FailBlock) failBlock
+     progress:(ProgressBlock) progressBlock;
 
 +(ZCLibHttpManager *) getZCHttpManager;
 
 // 取消 当前对应的文件上传的请求 删除缓存
 -(void)cancelConnectMsgId:(NSString *)msgid;
+
+// 关闭
+-(void)closeConnectMsgId:(NSString *)msgid;
 
 // 添加缓存
 -(void)addCache:(NSDictionary*)dict URL:(NSString *)url Connect:(NSURLConnection*)connect MsgId:(NSString *)msgid;

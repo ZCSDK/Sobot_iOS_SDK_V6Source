@@ -34,6 +34,7 @@
 @property (nonatomic, strong) UIColor                    *selectColor;
 @property (nonatomic, assign) int                        selectIndex;
 @property (nonatomic, strong) UIColor                    *titleColor;
+@property (nonatomic, strong) UIColor                    *lineColor;
 
 /**
  *  创建对象方法

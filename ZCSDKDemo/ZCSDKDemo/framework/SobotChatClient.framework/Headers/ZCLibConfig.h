@@ -10,10 +10,20 @@
 #import <SobotChatClient/ZCLibInitInfo.h>
 #import <SobotCommon/SobotCommon.h>
 
+@class ZCChatRealuateConfigInfo;
+
 /**
  *  配置信息
  */
 @interface ZCLibConfig : NSObject
+
+// 会话结束是否推送评价开关：1-开启，0-关闭
+@property(nonatomic,assign) BOOL aiAgentCommentFlag;
+
+
+// 大模型机器人接口，模板id
+@property (nonatomic , strong) NSString *templateId;
+
 
 /**
  *  用户id
@@ -36,6 +46,13 @@
 
 @property(nonatomic,assign) BOOL realuateStyle;// realuateStyle 0-右侧展示 1-下方展示！机器人点踩按钮
 
+@property(nonatomic,assign) BOOL realuateInfoFlag;// //点踩原因开关 0关闭 1开启 默认0
+
+// 顶踩图标 0-手势 1-心形 默认0 424版本 新增大模型机器人使用
+@property(nonatomic,assign) int realuateButtonStyle;
+
+@property(nonatomic,strong) ZCChatRealuateConfigInfo *RealuateConfigInfo;// 机器人点踩配置数据
+@property(nonatomic,copy) NSString *realuateConfigInfoJsonStr; // 上传接口使用json 数据
 /**
  *  客服不在线标题
  */
@@ -287,10 +304,16 @@
 @property (nonatomic, assign) int      aiStatus;
 
 
+/// 4.2.0新增
+///
+///
+@property (nonatomic, assign) BOOL      aiAgent;
+@property (nonatomic, copy) NSString *aiAgentCid;
+
 /*
  *  通告是否置顶
  */
-@property (nonatomic,assign) int   announceTopFlag;
+@property (nonatomic,assign) int announceTopFlag;
 
 /**
  *   通告是否打开
@@ -331,7 +354,7 @@
 @property (nonatomic,strong) NSString *announceClickUrl;
 
 /**
- *  通道点击之后是否关闭
+ *  通告点击之后是否关闭(4.1.6版本开始废弃)
  */
 @property (nonatomic,assign) int   announceClickFlag;
 
@@ -413,6 +436,7 @@
 @property (nonatomic,assign) BOOL adminNoneLineFlag;
 
 
+@property (nonatomic,copy) NSString *queueToMsgDoc;
 /**
  *
  *  转人工排队说辞的 开关  1 显示 0 不显示
@@ -534,7 +558,57 @@
 @property (nonatomic,assign) int adminReadFlag;
 
 
+/**
+ 转人工提示语开关: 0-关闭 1-开启(默认开启)
+ */
+@property (nonatomic,assign) int transferManualPromptFlag;
+/**
+ 转人工提示语;4.1.3 新增
+ 默认值:"对不起，未能解决您的问题，正 在为您转接人工服务"
+ */
+@property (nonatomic,copy) NSString *transferManualPromptWord;
+
+/**
+ 接入人工提示语开关: 0-关闭 1-开启(默认开启)
+ */
+@property (nonatomic,assign) int servicePromptFlag;
+
+/**
+ 转人工提示语;4.1.3 新增，中文替换“#客服昵称#”其它语言替换“#Customer nickname#”
+ 默认值:您好，客服 #客服昵称# 为您提供服务
+ 已对默认值“#客服昵称#”做了多语言处理
+ */
+@property (nonatomic,copy) NSString *servicePromptWord;
+
+// 分词联想开关  0-关闭 1-开启
+@property(nonatomic,assign) int robotGuessFlag;
+
+// 4.1.8新增需求，如果上次意外结束，转人工需要传入
+@property(nonatomic,assign) int userRemoveConnectFlag;
+@property (nonatomic,copy) NSString *userRemovedAdminId;
+
+
+
 /// *******************************************  v4.0.0 主题相关参数 千人千面  end*******************************************
+
+
+// 4.2.0 新增参数
+@property(nonatomic,assign) int chooseLanType;// 判断是否弹窗语言列表 0 关闭  1 未获取到语言弹  2 总是弹 3.每次都弹
+@property(nonatomic,copy)NSString *language;// 当前接口语言
+@property(nonatomic,copy)NSString *lan;// 当前接口默认语言
+@property(nonatomic,strong)NSMutableArray *languageArr;// 切换语言列表数据
+
+// 421 新增 询前表单ID
+@property(nonatomic,copy)NSString *inquiryPlanId;
+
+// 421 新增 询前表单 收集信息声明 开关 1 开启 0 关闭
+@property(nonatomic,assign)int formAuthFlag;
+
+// [0,1,2]  2 代表有SDK
+@property(nonatomic,copy)NSString *formEffectiveScope;
+
+// 421 新增 询前表单 声明文案
+@property(nonatomic,copy)NSString *formExplain;
 
 /**
  *  对象封装
@@ -584,7 +658,7 @@
 //  同PC端 设置-在线客服分配-排队优先设置-指定客户优先   开启传1 默认不设置
 @property (nonatomic,assign) int queueFirst;
 
-//转人工类型：1-重复提问，2-负向情绪 ,3-关键词转人工 4-多轮会话转人工 5:机器人自动转人工(新版拆分为6-9,activeTransfer此时为1) 6直接转人工，7理解转人工，8引导转人工，9未知转人工 10，点踩转人工
+//转人工类型：1-重复提问，2-负向情绪 ,3-关键词转人工 4-多轮会话转人工 5:机器人自动转人工(新版拆分为6-9,activeTransfer此时为1) 6直接转人工，7理解转人工，8引导转人工，9未知转人工 10，点踩转人工 11，多轮节点转人工
 @property (nonatomic,assign) int transferType;
 
 // 词条触发转人工的词条id
@@ -600,6 +674,21 @@
 @property (nonatomic,copy) NSString *ruleId;// 一问多答一问多答时的规则id
 
 @property (nonatomic,copy) NSString *answerMsgId;// 消息ID （直接回答的转人工按钮，对应的消息id）
+
+/**
+ * 语义id
+private String semanticsKeyWordId;
+ * 语义名称
+private String semanticsKeyWordName;
+ * 问法id
+private String semanticsKeyWordQuestionId;
+ * 问法
+private String semanticsKeyWordQuestion;
+**/
+@property (nonatomic,strong) NSString  *semanticsKeyWordId;
+@property (nonatomic,strong) NSString  *semanticsKeyWordName;
+@property (nonatomic,strong) NSString  *semanticsKeyWordQuestionId;
+@property (nonatomic,strong) NSString  *semanticsKeyWordQuestion;
 
 @end
 
@@ -627,7 +716,7 @@
 @property (nonatomic,strong) NSString *question;
 @property (nonatomic,strong) NSString *requestText;
 
-// 0,普通消息，1，有docId的普通消息，2有docId的多伦消息
+// 0,普通消息，1，有docId的普通消息，2有docId的多伦消息  3.大模型机器人点击btn 按钮  4.大模型机器人点击自定义卡片发送消息
 @property (nonatomic,strong) NSString *questionFlag;
 @property (nonatomic,strong) NSString *docId;
 @property (nonatomic,strong) NSString *duration;
@@ -648,6 +737,20 @@
 @property(nonatomic,copy)NSString *fileName;
 @property(nonatomic,copy)NSString *fileType;
 @property(nonatomic,assign)int msgType;
+
+// 机器人发送自定义卡片使用
+@property(nonatomic,copy)NSString *customCardQuestion;
+
+// 大模型机器人 点击卡片 保持数据 map
+@property(nonatomic,strong)NSDictionary *processInfo;
+
+/************************大模型机器人 点击自定义卡片发送消息使用************************/
+@property(nonatomic,strong)NSDictionary *interfaceInfo;
+// 去掉 paramInfos； cardStyle 改成 0；
+@property(nonatomic,strong)NSDictionary *showQuestion;
+// 拼接参数特殊处理
+@property(nonatomic,strong)NSDictionary *aiQuestion;
+/************************大模型机器人 点击自定义卡片发送消息end************************/
 @end
 
 // 对话框 拓展功能
@@ -671,5 +774,8 @@
 @property(nonatomic,copy)NSString *extModelLink;
 @property(nonatomic,copy)NSString *extModelPhoto;
 @property(nonatomic,copy)NSString *companyId;
+
+
 -(id)initWithMyDict:(NSDictionary *)dict;
+
 @end

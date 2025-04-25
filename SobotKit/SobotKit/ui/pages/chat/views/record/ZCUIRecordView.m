@@ -149,7 +149,7 @@
     }];
 }
 
--(void)didChangeState:(RecordState) state{
+-(void)didChangeState:(SobotKeyboardRecordState) state{
     CGRect SF = self.frame;
     
     switch (state) {
@@ -354,7 +354,7 @@
     
     if(duration>50){
         int limit=60-duration;
-        NSString *text=[NSString stringWithFormat:@"%@",[NSString stringWithFormat:@"%@%d",SobotKitLocalString(@"倒计时:"),limit]];
+        NSString *text=[NSString stringWithFormat:@"%@",[NSString stringWithFormat:@"%@ %d",SobotKitLocalString(@"倒计时"),limit]];
         
 //        NSMutableAttributedString *str = [[NSMutableAttributedString alloc] initWithString:text];
 //        [str addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:NSMakeRange(text.length-2,2)];

@@ -42,6 +42,9 @@ typedef void(^ZCLeaveEditViewBlock)(id _Nonnull object,int code);
 // 是否显示附件，是否必填
 @property (nonatomic , assign) BOOL enclosureShowFlag;
 @property (nonatomic , assign) BOOL enclosureFlag;
+
+@property(nonatomic,assign) BOOL ticketContentShowFlag;
+@property(nonatomic,assign) BOOL ticketContentFillFlag;
 // 用户自定义字段数组
 @property(nonatomic,strong)NSMutableArray *_Nullable coustomArr;
 

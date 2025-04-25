@@ -14,7 +14,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic , strong) NSString * ticketholde;//": "工单问题描述 .占位文字"
 @property (nonatomic, strong) NSString *userName;// 当前创建工单的用户昵称
 @property (nonatomic, strong) NSString *email;// 邮箱
+@property (nonatomic, strong) NSString *regionCode;// 电话区号
 @property (nonatomic, strong) NSString *tel;// 电话
+
 @property (nonatomic, strong) NSMutableArray *resultList;// 自定义字段的数组
 @property (nonatomic, strong) NSMutableArray * fileList;// 附件
 @property (nonatomic, strong) NSString * ticketTypeName;// 工单的分类

@@ -16,6 +16,7 @@
 #import "ZCUIKitTools.h"
 #import "ZCUIWebController.h"
 #import <SobotCommon/SobotCommon.h>
+#import "ZCAutoListView.h"
 @interface ZCChatController ()<ZCChatViewDelegate,SobotActionSheetViewDelegate>
 @property(nonatomic,strong) ZCChatView *chatView;
 @property(nonatomic,strong) ZCTitleView *titleView;
@@ -25,12 +26,18 @@
 @property (nonatomic,strong)NSLayoutConstraint *listY;
 @property (nonatomic,strong)NSLayoutConstraint *listL;
 
+// 临时数据记录已经执行过back方法了
+@property (nonatomic,assign) BOOL isBackSuc;
+
+@property(nonatomic,copy) NSString *currentLanugage;
 @end
 
 @implementation ZCChatController
 
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
+    // 刷新页面清理掉缓存的数据
+    [[ZCUICore getUICore] clearTempImageArray];
     if ([ZCUICore getUICore].kitInfo.navcBarHidden) {
         self.navigationController.navigationBarHidden = YES;
     }
@@ -38,6 +45,7 @@
         [_chatView beginAniantions];
     }
     if([ZCUICore getUICore].PageLoadBlock){
+        [ZCUICore getUICore].isCanShowAutoView = YES;
         [ZCUICore getUICore].PageLoadBlock(self,ZCPageStateViewShow);
     }
 }
@@ -49,8 +57,13 @@
         self.navigationController.navigationBarHidden = YES;
     }
     // 关闭左滑手势代理事件，由用户自己的项目处理左滑事件的代理。以免设置之后用户自己的项目中的左滑不起效
-//    self.navigationController.interactivePopGestureRecognizer.delegate = (id)self;
-//    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+    self.navigationController.interactivePopGestureRecognizer.delegate = (id)self;
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+    
+    _chatView = [[ZCChatView alloc] init];
+    _chatView.backgroundColor = [ZCUIKitTools zcgetChatBackgroundColor];
+    _chatView.delegate = self;
+    [self.view addSubview:_chatView];
     
     // 统一使用common的方式先创建导航栏控件
     [self createVCTitleView];
@@ -58,10 +71,6 @@
     if(self.topView !=nil || self.navigationController.navigationBarHidden || [ZCUICore getUICore].kitInfo.navcBarHidden){
         [self updateNavOrTopView]; // 自定义的导航栏 解决约束问题
     }
-    _chatView = [[ZCChatView alloc] init];
-    _chatView.backgroundColor = [ZCUIKitTools zcgetChatBackgroundColor];
-    _chatView.delegate = self;
-    [self.view addSubview:_chatView];
     self.listB = sobotLayoutPaddingBottom(-XBottomBarHeight, self.chatView, self.view);
     self.listL = sobotLayoutPaddingLeft(0, self.chatView, self.view);
     self.listR = sobotLayoutPaddingRight(0, self.chatView, self.view);
@@ -93,6 +102,99 @@
                 [weakSelf closePage];
             }
         };
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zcInitStatusLanguage) name:@"ZCInitStatusLanguage" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zcInitStatusLoadSuc) name:@"ZCInitStatusLoadSuc" object:nil];
+    
+}
+
+#pragma mark -- 初始化成功正常流程显示导航栏按钮刷新数据
+-(void)zcInitStatusLoadSuc{
+//    [self updateNavOrTopView];
+    [self zcInitStatusLanguage];
+}
+/**
+ 横竖屏切换监听
+ */
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        // 强制更新布局
+        [self.chatView roadData];
+        
+    } completion:nil];
+}
+#pragma mark -- 先不显示清理历史记录按钮
+-(void)zcInitStatusLanguage{
+    BOOL isChange = NO;
+    if (sobotConvertToString(self.currentLanugage).length == 0) {
+        if (sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language).length >0) {
+            self.currentLanugage = [ZCLibClient getZCLibClient].libInitInfo.absolute_language;
+        }
+    }else{
+        if (sobotConvertToString(self.currentLanugage).length >0) {
+            if (![[ZCLibClient getZCLibClient].libInitInfo.absolute_language hasPrefix:@"ar"] || [sobotConvertToString(self.currentLanugage) hasPrefix:@"ar"]) {
+                self.currentLanugage = [ZCLibClient getZCLibClient].libInitInfo.absolute_language;
+                isChange = YES;
+            }
+        }
+    }
+    // 统计 系统导航栏上面的按钮
+    NSMutableArray *rightItem = [NSMutableArray array];
+    NSMutableDictionary *navItemSource = [NSMutableDictionary dictionary];
+    [rightItem addObject:@(SobotButtonClickBack)];
+    [navItemSource setObject:@{@"img":@"zcicon_titlebar_back_normal",@"imgsel":sobotConvertToString([ZCUICore getUICore].kitInfo.topBackNolImg)} forKey:@(SobotButtonClickBack)];
+    // 不显示更多
+    if(![ZCUICore getUICore].kitInfo.hideNavBtnMore){
+        [rightItem addObject:@(SobotButtonClickRight)];
+        [navItemSource setObject:@{@"img":@"zcicon_btnmore",@"imgsel":@"zcicon_btnmore"} forKey:@(SobotButtonClickRight)];
+    }
+    if ([ZCUICore getUICore].kitInfo.isShowEvaluation || [ZCUICore getUICore].kitInfo.isShowTelIcon) {
+        if ([ZCUICore getUICore].kitInfo.isShowEvaluation) {
+            [rightItem addObject:@(SobotButtonClickEvaluate)];
+            [navItemSource setObject:@{@"img":@"zcicon_evaluate",@"imgsel":@"zcicon_evaluate"} forKey:@(SobotButtonClickEvaluate)];
+        }
+        if([ZCUICore getUICore].kitInfo.isShowTelIcon){
+            [rightItem addObject:@(SobotButtonClickTEL)];
+            [navItemSource setObject:@{@"img":@"zccion_call_icon",@"imgsel":@"zccion_call_icon"} forKey:@(SobotButtonClickTEL)];
+        }
+    }
+    if([ZCUICore getUICore].kitInfo.isShowClose){
+        if ([[ZCUICore getUICore] getLibConfig].isArtificial) {
+            [rightItem addObject:@(SobotButtonClickClose)];
+            [navItemSource setObject:@{@"img":@"icon_video_close",@"imgsel":@"icon_video_close"} forKey:@(SobotButtonClickClose)];
+        }
+    }
+   
+    [rightItem removeObject:@(SobotButtonClickBack)];
+    // 更新系统导航栏的按钮
+    self.navItemsSource = navItemSource;
+    if (!self.navigationController.navigationBarHidden) {
+        // 使用的是系统导航栏，这里要布局 titleView；
+        int count = rightItem.count>1?(int)rightItem.count:1;
+        CGFloat maxWidth = count * 40 * 2;
+        CGFloat TX = 0;//40 +15 ;// 默认返回按钮的宽度加间隙
+        if(_titleView){
+            _titleView.frame = CGRectMake(TX, 0, ScreenWidth - maxWidth, 44);
+        }else{
+            _titleView = [[ZCTitleView alloc] initWithFrame:CGRectMake(TX, 0, ScreenWidth - maxWidth, 44)];
+        }
+        [self.titleView setAutoresizesSubviews:YES];
+    }else{
+        if(_titleView){
+            _titleView.frame = CGRectMake(80, NavBarHeight-44, ScreenWidth-160, 44);
+        }else{
+            _titleView = [[ZCTitleView alloc]initWithFrame:CGRectMake(80, NavBarHeight-44, ScreenWidth-160, 44)];
+        }
+    }
+    if ([ZCUIKitTools getSobotIsRTLLayout]) {
+        [self setLeftTags:rightItem  rightTags:@[@(SobotButtonClickBack)] titleView:_titleView];
+        [_titleView setLogoImgLayrightItem:@[@(SobotButtonClickBack)] leftItem:rightItem];
+    }else{
+        [self setLeftTags:@[@(SobotButtonClickBack)]  rightTags:rightItem titleView:_titleView];
+        [_titleView setLogoImgLayrightItem:rightItem leftItem:@[@(SobotButtonClickBack)]];
+    }
+    
 }
 
 #pragma mark 用户在其他页面主动关闭页面
@@ -164,9 +266,16 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:@"updatecollectionitem" object:nil];
     });
+//    [_titleView setLogoImgLay];
    
 }
 
+
+-(void)updateTopViewBgColor{
+    [super updateTopViewBgColor];
+    
+    [self zcInitStatusLanguage];
+}
 
 -(void)buttonClick:(UIButton *)sender{
     if(sender){
@@ -205,11 +314,16 @@
         }
         if (sender.tag == SobotButtonClickTEL) {
             // 电话
-            if([ZCUICore getUICore].ZCViewControllerCloseBlock != nil){
+            if([ZCUICore getUICore].ZCViewControllerCloseBlock ){
                 [ZCUICore getUICore].ZCViewControllerCloseBlock(self,ZC_PhoneCustomerService);
             }
             NSString *phoneNumber = [NSString stringWithFormat:@"tel:%@",sobotConvertToString([ZCUICore getUICore].kitInfo.customTel)];
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:phoneNumber]];
+            // 是否拦截
+            if([[ZCUICore getUICore] LinkClickBlock] == nil || ![ZCUICore getUICore].LinkClickBlock(ZCLinkClickTypeURL,phoneNumber,self)){
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:phoneNumber] options:@{} completionHandler:^(BOOL res) {
+                                
+                     }];
+            }
         }
         if (sender.tag == SobotButtonClickRight) {
             // 删除历史记录
@@ -245,6 +359,18 @@
     [self.titleView setNickTitle:nick companyTitle:company title:title image:url topBarType:topBarType];
 }
 
+-(void)jumpDocumentVC:(UIViewController *)docVC{
+    if(self.navigationController != nil ){
+        [self.navigationController pushViewController:docVC animated:YES];
+    }else{
+        UINavigationController *nav=[[UINavigationController alloc] initWithRootViewController:docVC];
+        nav.navigationBarHidden=YES;
+        nav.modalPresentationStyle = UIModalPresentationOverFullScreen;
+        [self presentViewController:nav animated:YES completion:^{
+        }];
+    }
+
+}
 
 - (void)onPageConnectStatusChange:(BOOL)isArtificial{
     [self updateNavOrTopView];
@@ -286,6 +412,7 @@
 }
 
 -(void) onBackFinish:(BOOL)isAction closeClick:(BOOL)isClose{
+    self.isBackSuc = YES;
     if(isClose){
         [ZCLibClient closeAndoutZCServer:NO];
     }
@@ -328,14 +455,15 @@
             [navItemSource setObject:@{@"img":@"icon_video_close",@"imgsel":@"icon_video_close"} forKey:@(SobotButtonClickClose)];
         }
     }
-   
+
     [rightItem removeObject:@(SobotButtonClickBack)];
     // 更新系统导航栏的按钮
     self.navItemsSource = navItemSource;
     if (!self.navigationController.navigationBarHidden) {
-        // 使用的是系统导航栏，这里要布局 titleView；
-            CGFloat maxWidth = rightItem.count *40 + rightItem.count*15;
-            CGFloat TX = 40 +15 ;// 默认返回按钮的宽度加间隙
+        CGFloat TX = 0;//40 +15 ;// 默认返回按钮的宽度加间隙
+        
+        int count = rightItem.count>1?(int)rightItem.count:1;
+        CGFloat maxWidth = count * 40 * 2;
         if(_titleView){
             _titleView.frame = CGRectMake(TX, 0, ScreenWidth - maxWidth, 44);
         }else{
@@ -349,32 +477,46 @@
             _titleView = [[ZCTitleView alloc]initWithFrame:CGRectMake(80, NavBarHeight-44, ScreenWidth-160, 44)];
         }
     }
-     [self setLeftTags:@[@(SobotButtonClickBack)]  rightTags:rightItem titleView:_titleView];
+    if ([ZCUIKitTools getSobotIsRTLLayout]) {
+        [self setLeftTags:rightItem  rightTags:@[@(SobotButtonClickBack)] titleView:_titleView];
+    }else{
+        [self setLeftTags:@[@(SobotButtonClickBack)]  rightTags:rightItem titleView:_titleView];
+    }
 }
 
 -(void)didMoveToParentViewController:(UIViewController *)parent{
     [super didMoveToParentViewController:parent];
-//    NSLog(@"页面侧滑返回：%@",parent);
-    if(!parent){
-        [self goBack];
+    NSLog(@"页面侧滑返回：%@",parent);
+    if(!parent && !self.isBackSuc){
         [self goMoveBack];
+        [self goBack];
     }
 }
 // 滑动返回 左滑手势
 -(void)goMoveBack{
      NSLog(@"清理了页面数据");
+    [_chatView backChatView];
     if(self.chatView !=nil){
         self.chatView = nil;
     }
+//    [self.chatView closeChatView:NO];
+   
+//    [self goBack];
     if([ZCUICore getUICore].ZCViewControllerCloseBlock != nil){
         [ZCUICore getUICore].ZCViewControllerCloseBlock(self,ZC_CloseChat);
     }
-    [self.chatView closeChatView:NO];
 }
 
 
 -(void)dealloc{
+    [ZCUICore getUICore].isInitLoading = NO;
     SLog(@"ZCChatController dealloc", nil);
+    if([ZCUICore getUICore].PageLoadBlock){
+        [ZCUICore getUICore].isCanShowAutoView = NO;
+        [ZCUICore getUICore].PageLoadBlock(self,ZCPageStateTypeChatDealloc);
+    }
     [[ZCIMChat getZCIMChat] setChatPageState:NO];
+    // 退出SDK页面 销毁热点引导弹窗
+    [[ZCAutoListView getAutoListView] dissmiss];
 }
 @end

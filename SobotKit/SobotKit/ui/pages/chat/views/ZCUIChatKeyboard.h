@@ -10,11 +10,9 @@
 #import <SobotChatClient/SobotChatClient.h>
 #import <SobotCommon/SobotCommon.h>
 #import "ZCUIPlaceHolderTextView.h"
-#import "ZCUIRecordView.h"
+#import "SobotKeyboardRecordView.h"
 
-#define BottomHeight 59
-
-#define ZCConnectBottomHeight 64
+#define ZCConnectBottomHeight 86
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,28 +30,34 @@ typedef NS_ENUM(NSUInteger,ZCKeyboardViewStatus){
 
 @property (nonatomic , assign) ZCKeyboardViewStatus curKeyboardStatus;
 
+
+/** 键盘高度 */
+@property (nonatomic,assign) CGFloat zc_keyBoardHeight;
+
 /** 聊天页底部View（输入框，按钮的父类） */
 @property (nonatomic,strong) UIView     * _Nonnull zc_bottomView;
 @property (nonatomic,strong) ZCUIPlaceHolderTextView * _Nonnull zc_chatTextView;
 
 // 重新链接view，留言/重建会话/评价
 @property (nonatomic,strong) UIView     * _Nullable zc_reConnectView;
+@property (nonatomic , strong) UIView *fastView;
 
 //@property (nonatomic,strong) UIButton * _Nullable btnConnectUser;
 @property (nonatomic,strong) UIButton * _Nullable btnMore;
 @property (nonatomic,strong) UIButton * _Nullable btnVoice;
 @property (nonatomic,strong) UIButton * _Nullable btnFace;
 
-@property (nonatomic,strong) ZCUIRecordView *zc_recordView;
+@property (nonatomic,strong) SobotKeyboardRecordView *zc_recordView;
 
 /**
  *  初始化聊天页面中的底部输入框区域UI
  *
  *  @param unitView  聊天VC的View
  *  @param listTable 聊天的tableview
+ *  @param fastView 聊天的快捷菜单view，定位录音提醒
  *
  */
--(id)initConfigView:(UIView *)unitView table:(UITableView *)listTable;
+-(id)initConfigView:(UIView *)unitView table:(UITableView *)listTable fastView:(UIView *)fastView;
 
 /**
  *  通过初始化信息设置键盘以及相应的操作
@@ -80,6 +84,9 @@ typedef NS_ENUM(NSUInteger,ZCKeyboardViewStatus){
 -(void)showReferenceMessage:(SobotChatMessage *) rModel;
 -(void)hideReferenceView;
 
+// 切换语言的时候不要展示输入框
+-(void)hideKeyboardUI;
+-(void)showKeyboardUI;
 @end
 
 NS_ASSUME_NONNULL_END

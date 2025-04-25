@@ -24,7 +24,44 @@
     [[ZCLibClient getZCLibClient] initSobotSDK:appkey host:apiHost result:^(int code, id object) {
         resultBlock(object);
     }];
+//    [SobotCache shareSobotCache].sobotCacheEntity.bundleName = @"SobotKit";
+    
     [ZCSobotApi synchronizeLanguage:[ZCLibClient getZCLibClient].libInitInfo.absolute_language write:NO result:nil];
+}
+
++(void)getVisitorConfigInfo:(void (^)(id object,int code))resultBlock{
+    if ([@"" isEqualToString:sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.app_key)] && [@"" isEqualToString:sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.customer_code)]) {
+        if(resultBlock){
+            resultBlock(@"没有app_key",-1);
+        }
+        return;
+    }
+    // 判断初始化结果
+    if(![[ZCLibClient getZCLibClient] getInitState]){
+        if(resultBlock){
+            resultBlock(@"没有初始化或初始化失败，请先执行initSobotSDK",-1);
+        }
+        return;
+    }
+    [ZCLibServer getVisitorHelpConfig:sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.app_key) partnerId:sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.partnerid) start:^(NSString * _Nonnull urlString) {
+        
+    } success:^(NSDictionary * _Nonnull dict, ZCNetWorkCode sendCode) {
+        if([ZCPlatformTools sharedInstance].visitorConfig!=nil){
+            if(resultBlock){
+                resultBlock([ZCPlatformTools sharedInstance].visitorConfig,0);
+            }
+        }else{
+            if(resultBlock){
+                resultBlock(@"load fail",-2);
+            }
+        }
+    } failed:^(NSString * _Nonnull errorMessage, ZCNetWorkCode errorCode) {
+        if(resultBlock){
+            resultBlock(@"load fail",-2);
+        }
+    } finish:^(NSString * _Nonnull jsonString) {
+       
+    }];
 }
 
 //  打开会话页面
@@ -97,16 +134,17 @@
                 onItemClick:(void (^)(SobotClientBaseController *object))itemClickBlock {
     
     if(byController==nil){
-            return;
-        }
-        if(info == nil){
-            return;
-        }
-        
-        if ([@"" isEqualToString:sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.app_key)] && [@"" isEqualToString:sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.customer_code)]) {
-            return;
-        }
+        return;
+    }
+    if(info == nil){
+        return;
+    }
     
+    if ([@"" isEqualToString:sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.app_key)] && [@"" isEqualToString:sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.customer_code)]) {
+        return;
+    }
+    
+    [ZCSobotApi getVisitorConfigInfo:^(id  _Nonnull object, int code) {
         ZCServiceCentreVC *chat=[[ZCServiceCentreVC alloc] initWithInitInfo:info];
         [chat setOpenZCSDKTypeBlock:itemClickBlock];
         chat.hidesBottomBarWhenPushed = [ZCUICore getUICore].kitInfo.ishidesBottomBarWhenPushed;
@@ -117,13 +155,13 @@
             navc.modalPresentationStyle = UIModalPresentationOverFullScreen;
             // 设置动画效果
             [byController presentViewController:navc animated:YES completion:^{
-
+                
             }];
         }else{
             chat.isPush = YES;
             [byController.navigationController pushViewController:chat animated:YES];
         }
-    
+    }];
 }
 
 // 打开消息中心页面
@@ -135,22 +173,24 @@
     if(info == nil){
         return;
     }
-    ZCUIChatListController *chat=[[ZCUIChatListController alloc] init];
-    chat.hidesBottomBarWhenPushed = [ZCUICore getUICore].kitInfo.ishidesBottomBarWhenPushed;
-    chat.kitInfo = info;
-    [chat setOnItemClickBlock:itemClickBlock];
-    chat.byController = byController;
-    if(byController.navigationController==nil){
-        UINavigationController * navc = [[UINavigationController alloc]initWithRootViewController:chat];
-        // 设置动画效果
-        navc.modalPresentationStyle = UIModalPresentationOverFullScreen;
-        [byController presentViewController:navc animated:YES completion:^{
-
-        }];
-    }else{
-        [byController.navigationController pushViewController:chat animated:YES];
-    }
     
+    [ZCSobotApi getVisitorConfigInfo:^(id  _Nonnull object, int code) {
+        ZCUIChatListController *chat=[[ZCUIChatListController alloc] init];
+        chat.hidesBottomBarWhenPushed = [ZCUICore getUICore].kitInfo.ishidesBottomBarWhenPushed;
+        chat.kitInfo = info;
+        [chat setOnItemClickBlock:itemClickBlock];
+        chat.byController = byController;
+        if(byController.navigationController==nil){
+            UINavigationController * navc = [[UINavigationController alloc]initWithRootViewController:chat];
+            // 设置动画效果
+            navc.modalPresentationStyle = UIModalPresentationOverFullScreen;
+            [byController presentViewController:navc animated:YES completion:^{
+                
+            }];
+        }else{
+            [byController.navigationController pushViewController:chat animated:YES];
+        }
+    }];
 }
 
 +(void)getLeaveTemplateById:(NSString *) templateId result:(void(^)(NSDictionary *rdict,NSMutableArray * rtypeArr,int code)) resultBlcok{
@@ -188,6 +228,7 @@
 
             ZCLibConfig *config = [[ZCPlatformTools sharedInstance] getPlatformInfo].config;
             leaveMessageVC.enclosureShowFlag = config.enclosureShowFlag;
+            leaveMessageVC.ticketContentShowFlag = YES;// 默认显示
             leaveMessageVC.enclosureFlag = config.enclosureFlag;
             leaveMessageVC.telFlag = config.telFlag;
             leaveMessageVC.emailFlag = config.emailFlag;
@@ -224,6 +265,11 @@
                 //            leaveMessageVC.ticketShowFlag = [sobotConvertToString(dict[@"data"][@"item"][@"ticketShowFlag"]) intValue];
                         leaveMessageVC.ticketShowFlag = 1;
                         leaveMessageVC.ticketTitleShowFlag = [sobotConvertToString(dict[@"data"][@"item"][@"ticketTitleShowFlag"]) boolValue];
+                        leaveMessageVC.ticketContentShowFlag = [sobotConvertToString(dict[@"data"][@"item"][@"ticketContentShowFlag"]) boolValue];
+                        if (sobotConvertToString(dict[@"data"][@"item"][@"ticketContentShowFlag"]).length == 0) {
+                            leaveMessageVC.ticketContentShowFlag = YES;
+                        }
+                        leaveMessageVC.ticketContentFillFlag = [sobotConvertToString(dict[@"data"][@"item"][@"ticketContentFillFlag"]) boolValue];
 
                         leaveMessageVC.msgTmp = sobotConvertToString(dict[@"data"][@"item"][@"msgTmp"]);
                         leaveMessageVC.msgTxt = sobotConvertToString(dict[@"data"][@"item"][@"msgTxt"]);
@@ -386,15 +432,10 @@
 // 发送商品卡片
 + (void)sendCustomCardToRecord:(SobotChatCustomCard *)customCard resultBlock:(nonnull void (^)(NSString * _Nonnull, int))ResultBlock{
     if(customCard){
-    // 仅人工时才可以发送
-        [[ZCUICore getUICore] sendCusCardMessage:customCard type:0];
+        [[ZCUICore getUICore] sendCusCardMessage:customCard type:0 isRobot:![ZCUICore getUICore].getLibConfig.isArtificial isFirst:NO];
     
         if(ResultBlock){
             ResultBlock(@"执行了接口调用",0);
-        }
-    }else{
-        if(ResultBlock){
-               ResultBlock(@"当前是不是人工客服状态，不能给人工发送消息",1);
         }
     }
 }
@@ -402,15 +443,9 @@
 // 发送商品卡片
 + (void)sendCustomCardToChat:(SobotChatCustomCard *)customCard resultBlock:(nonnull void (^)(NSString * _Nonnull, int))ResultBlock{
     if(customCard){
-    // 仅人工时才可以发送
-        [[ZCUICore getUICore] sendCusCardMessage:customCard type:1];
-        
+        [[ZCUICore getUICore] sendCusCardMessage:customCard type:1 isRobot:![ZCUICore getUICore].getLibConfig.isArtificial isFirst:NO];
         if(ResultBlock){
             ResultBlock(@"执行了接口调用",0);
-        }
-    }else{
-        if(ResultBlock){
-               ResultBlock(@"当前是不是人工客服状态，不能给人工发送消息",1);
         }
     }
 }
@@ -600,7 +635,7 @@
 
 +(void)getLastHistoryMessage:(NSMutableArray *) cids info:(ZCPlatformInfo *) info blcok:(void (^)(ZCPlatformInfo * _Nonnull, SobotChatMessage * _Nonnull, int))resultBlock{
     
-    [ZCLibServer getHistoryMessages:[cids lastObject] withUid:info.config.uid start:^(NSString * _Nonnull url, NSDictionary * _Nonnull parameters) {
+    [ZCLibServer getHistoryMessages:[cids lastObject] withUid:info.config.uid currtCid:[ZCUICore getUICore].getLibConfig.cid start:^(NSString * _Nonnull url, NSDictionary * _Nonnull parameters) {
         
     } success:^(NSMutableArray * _Nonnull messages, ZCNetWorkCode code) {
         if(resultBlock){
@@ -846,6 +881,12 @@
 +(void)setAppletClickBlock:(BOOL(^)(SobotChatMessage *_Nonnull))appletBlock{
     if (appletBlock != nil) {
         [[ZCUICore getUICore] setAppletClickBlock:appletBlock];
+    }
+}
+
++(void)customLeavePageClickBlock:(BOOL(^)(NSDictionary *dict))leavePageBlock{
+    if (leavePageBlock != nil) {
+        [[ZCUICore getUICore] setCustomLeavePageBlock:leavePageBlock];
     }
 }
 

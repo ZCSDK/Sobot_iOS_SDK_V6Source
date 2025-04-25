@@ -36,6 +36,10 @@ NS_ASSUME_NONNULL_BEGIN
 +(NSString *)removeAllHTMLTag:(NSString *)html;
 
 
++(NSString *)stringByAddingHTMLEntities:(NSString *)htmlStr;
++(NSString *)stringByReplacingHTMLEntities:(NSString *)htmlStr;
+
+
 
 /// 提取URL信息
 /// @param url  url

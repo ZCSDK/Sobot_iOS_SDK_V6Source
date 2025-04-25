@@ -98,9 +98,12 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
     self.voiceButtonEW.constant = size.width;
     NSLog(@"size.width ==== %f",size.width);
 //    [_voiceButton setBackgroundColor:[ZCUIKitTools zcgetRobotBackGroundColorWithSize:CGSizeMake(size.width, size.height)]];
-    [_voiceButton setBackgroundColor:UIColorFromModeColorAlpha(SobotColorWhite, 0.14)];
+    [_voiceButton setBackgroundColor:UIColorFromModeColorAlpha(SobotColorTextWhite, 0.14)];
+    if(self.parentMessage.senderType != 0){
+        [_voiceButton setBackgroundColor:UIColorFromModeColor(SobotColorTextWhite)];
+    }
     // 0,自己，1机器人，2客服
-    if(self.tempMessage.senderType==0){
+    if(self.parentMessage.senderType==0){
         [_voiceButton setImage:SobotKitGetImage(@"zcicon_pop_voice_send_normal") forState:UIControlStateNormal];
         [_voiceButton setImage:SobotKitGetImage(@"zcicon_pop_voice_send_normal") forState:UIControlStateHighlighted];
         [_voiceButton setTitleColor:[ZCUIKitTools zcgetRightChatTextColor] forState:UIControlStateNormal];
@@ -108,9 +111,9 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
         [_voiceButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, size.width - ssize.width - 30 + 10)];
         
     }else{
-        [_voiceButton setImage:SobotKitGetImage(@"zcicon_pop_voice_receive_normal") forState:UIControlStateNormal];
-        [_voiceButton setImage:SobotKitGetImage(@"zcicon_pop_voice_receive_normal") forState:UIControlStateHighlighted];
-        [_voiceButton setTitleColor:[ZCUIKitTools zcgetLeftChatTextColor] forState:UIControlStateNormal];
+        [_voiceButton setImage:SobotKitGetImage(@"zcicon_pop_voice_receive_yy_normal") forState:UIControlStateNormal];
+        [_voiceButton setImage:SobotKitGetImage(@"zcicon_pop_voice_receive_yy_normal") forState:UIControlStateHighlighted];
+        [_voiceButton setTitleColor:UIColorFromModeColor(SobotColorTextMain) forState:UIControlStateNormal];
         [_voiceButton setImageEdgeInsets:UIEdgeInsetsMake(0, 10, 0,size.width - ssize.width -10)];
         [_voiceButton setTitleEdgeInsets:UIEdgeInsetsMake(0, size.width - ssize.width - 30, 0,0)];
     }

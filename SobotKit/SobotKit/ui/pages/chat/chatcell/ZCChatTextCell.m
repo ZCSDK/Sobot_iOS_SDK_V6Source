@@ -63,20 +63,21 @@
     [self.contentView addConstraint:sobotLayoutMarginBottom(-ZCChatCellItemSpace, _lblMessage, self.lblSugguest)];
     // 修改原有代码，顶部约束添加到refrenceView上
 //    [self.contentView addConstraints:sobotLayoutPaddingView(ZCChatPaddingVSpace, 0, ZCChatPaddingHSpace, 0, _lblMessage, self.ivBgView)];
+    // 这里往上提同等高度
     [self.contentView addConstraints:sobotLayoutPaddingView(0, 0, ZCChatPaddingHSpace, 0, _lblMessage, self.ivBgView)];
     _layoutMessageTop = sobotLayoutMarginTop(0, _lblMessage, self.refrenceView);
     [self.contentView addConstraint:_layoutMessageTop];
     
     _linkBgView = [[UIView alloc]init];
-    _linkBgView.layer.cornerRadius = 4;
-    _linkBgView.layer.masksToBounds = YES;
-    _linkBgView.backgroundColor = UIColorFromModeColor(SobotColorBgMainDark3);
+//    _linkBgView.layer.cornerRadius = 4;
+//    _linkBgView.layer.masksToBounds = YES;
+    _linkBgView.backgroundColor = UIColor.clearColor;// UIColorFromModeColor(SobotColorBgMainDark3);
     [self.contentView addSubview:_linkBgView];
     // 覆盖上面的明文链接
     [self.contentView addConstraint:sobotLayoutPaddingTop(0, _linkBgView, _lblMessage)];
     layoutBgWidth = sobotLayoutEqualWidth(240, _linkBgView, NSLayoutRelationEqual);
     [self.contentView addConstraint:layoutBgWidth];
-    self.linkBgViewEH = sobotLayoutEqualHeight(78, _linkBgView, NSLayoutRelationEqual);
+    self.linkBgViewEH = sobotLayoutEqualHeight(68, _linkBgView, NSLayoutRelationEqual);
     [self.contentView addConstraint:self.linkBgViewEH];
     [self.contentView addConstraint:sobotLayoutPaddingLeft(0,_linkBgView, _lblMessage)];
     _linkBgView.hidden = YES;
@@ -139,12 +140,13 @@
         s.width = w;
     }
     _layoutMessageTop.constant = 0;
+    [self.refrenceView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     // 开通了消息引用功能，并且有引用消息，显示
     if([[ZCUICore getUICore] getLibConfig].msgAppointFlag == 1 && self.tempModel.appointMessage!=nil && [self.tempModel.appointMessage isKindOfClass:[SobotChatMessage class]]){
         [self.refrenceView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
         _layoutMessageTop.constant = 10;
         // 添加引用消息
-        ZCChatReferenceCell *rview = [ZCChatReferenceCell createViewUseFactory:self.tempModel.appointMessage mainModel:self.tempModel maxWidth:self.maxWidth];
+        ZCChatReferenceCell *rview = [ZCChatReferenceCell createViewUseFactory:self.tempModel.appointMessage mainModel:self.tempModel maxWidth:self.maxWidth isRight:self.isRight];
         rview.maxWidth = self.maxWidth;
         rview.delegate = self;
         // 未实现消息不展示
@@ -169,15 +171,13 @@
             [self.refrenceView addConstraint:sobotLayoutPaddingBottom(0, rview, self.refrenceView)];
             [self.refrenceView layoutIfNeeded];
         }
-    }else{
-        [self.refrenceView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     }
     
-    if(message.includeSensitive > 0 && message.senderType == 0){
-        s = [self getAuthSensitiveView:message width:self.maxWidth with:_linkBgView];
-        //        [_linkBgView addConstraint:sobotLayoutPaddingBottom(-ZCChatCellItemSpace, _lastView, _linkBgView)];
-        _layoutHeight.constant = s.height;
-    }
+//    if(message.includeSensitive > 0 && message.senderType == 0){
+//        s = [self getAuthSensitiveView:message width:self.maxWidth with:_linkBgView];
+//        //        [_linkBgView addConstraint:sobotLayoutPaddingBottom(-ZCChatCellItemSpace, _lastView, _linkBgView)];
+//        _layoutHeight.constant = s.height;
+//    }
     
     [self setChatViewBgState:CGSizeMake(s.width, s.height)];
 }
@@ -222,15 +222,21 @@
 //    [self doClickURL:link text:@""];
 //}
 
--(CGFloat )addText:(NSString *)text maxWidth:(CGFloat ) cMaxWidth{
+-(CGFloat )addText:(NSString *)text maxWidth:(CGFloat ) inMaxWidth{
     _linkBgViewEH.constant = 0;
     _linkBgView.hidden = YES;
    
     if (sobotIsUrl(text, [ZCUIKitTools zcgetUrlRegular])) {
-        _linkBgView.backgroundColor = UIColorFromModeColor(SobotColorBgMainDark3);
+        CGFloat cMaxWidth = inMaxWidth;
+        if(cMaxWidth > 260-32){
+            cMaxWidth = 260-32;
+        }
+        
+//        _linkBgView.backgroundColor = UIColorFromModeColor(SobotColorBgMainDark3);
+        _linkBgView.backgroundColor = UIColor.clearColor;
         _lblMessage.text = @"";
         layoutBgWidth.constant = cMaxWidth;
-        _layoutHeight.constant = 78;
+        _layoutHeight.constant = 68;
         _linkBgView.hidden = NO;
         [_linkBgView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
         
@@ -248,18 +254,18 @@
         linktitleLab.textColor = UIColorFromModeColor(SobotColorTextMain);
         [self.linkBgView addSubview:linktitleLab];
         linktitleLab.numberOfLines = 1;
-        [self.linkBgView addConstraint:sobotLayoutEqualHeight(20, linktitleLab, NSLayoutRelationEqual)];
-        NSLayoutConstraint *rightTitle = sobotLayoutPaddingRight(-15, linktitleLab, self.linkBgView);
+        [self.linkBgView addConstraint:sobotLayoutEqualHeight(22, linktitleLab, NSLayoutRelationEqual)];
+        NSLayoutConstraint *rightTitle = sobotLayoutPaddingRight(0, linktitleLab, self.linkBgView);
         [self.linkBgView addConstraint:rightTitle];
-        [self.linkBgView addConstraint:sobotLayoutPaddingLeft(15, linktitleLab, self.linkBgView)];
-        [self.linkBgView addConstraint:sobotLayoutPaddingTop(12, linktitleLab, self.linkBgView)];
+        [self.linkBgView addConstraint:sobotLayoutPaddingLeft(0, linktitleLab, self.linkBgView)];
+        [self.linkBgView addConstraint:sobotLayoutPaddingTop(0, linktitleLab, self.linkBgView)];
         
         SobotImageView *icon = [[SobotImageView alloc]init];
-        [icon loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zcicon_url_icon")];
+        [icon loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
         [self.linkBgView addSubview:icon];
-        [self.linkBgView addConstraints:sobotLayoutSize(34,34, icon, NSLayoutRelationEqual)];
-        [self.linkBgView addConstraint:sobotLayoutPaddingRight(-15, icon, self.linkBgView)];
-        NSLayoutConstraint *iconTop = sobotLayoutMarginTop(ZCChatCellItemSpace, icon, linktitleLab);
+        [self.linkBgView addConstraints:sobotLayoutSize(40,40, icon, NSLayoutRelationEqual)];
+        [self.linkBgView addConstraint:sobotLayoutPaddingRight(0, icon, self.linkBgView)];
+        NSLayoutConstraint *iconTop = sobotLayoutMarginTop(ZCChatItemSpace4, icon, linktitleLab);
         [self.linkBgView addConstraint:iconTop];
         NSLayoutConstraint *iocnMT = sobotLayoutMarginTop(1, icon, linktitleLab);
         iocnMT.priority = UILayoutPriorityDefaultHigh;
@@ -272,10 +278,11 @@
         linkdescLab.textColor = UIColorFromModeColor(SobotColorTextSub);
         linkdescLab.numberOfLines = 2;
         [self.linkBgView addSubview:linkdescLab];
-        [self.linkBgView addConstraint:sobotLayoutPaddingLeft(15, linkdescLab, self.linkBgView)];
-        NSLayoutConstraint *descTop = sobotLayoutMarginTop(ZCChatCellItemSpace, linkdescLab, linktitleLab);
+        [self.linkBgView addConstraint:sobotLayoutPaddingLeft(0, linkdescLab, self.linkBgView)];
+        NSLayoutConstraint *descTop = sobotLayoutMarginTop(ZCChatItemSpace4, linkdescLab, linktitleLab);
+        [self.linkBgView addConstraint:sobotLayoutEqualHeight(20, linkdescLab, NSLayoutRelationGreaterThanOrEqual)];
         [self.linkBgView addConstraint:descTop];
-        [self.linkBgView addConstraint:sobotLayoutMarginRight(-ZCChatCellItemSpace, linkdescLab, icon)];
+        [self.linkBgView addConstraint:sobotLayoutMarginRight(-ZCChatItemSpace8, linkdescLab, icon)];
 
 //        [self setLinkValues:text titleLabel:linktitleLab desc:linkdescLab imgView:icon];
 
@@ -284,8 +291,8 @@
         [self getLinkValues:text name:@"" result:^(NSString * _Nonnull title, NSString * _Nonnull desc, NSString * _Nonnull iconUrl) {
             SobotStrogSelf(self);
             if(title.length > 0){
-               self.linkBgViewEH.constant = 78;
-               self.layoutHeight.constant = 78;
+               self.linkBgViewEH.constant = 68;
+               self.layoutHeight.constant = 68;
                 linktitleLab.text = sobotConvertToString(title);
                 linkdescLab.text = sobotConvertToString(desc);
 
@@ -294,8 +301,13 @@
                 linktitleLab.text = sobotConvertToString(text);
                 linkdescLab.hidden = YES;
                 descTop.constant = 0;
-                self->_linkBgViewEH.constant = 60;
-                self->_layoutHeight.constant = 60;
+                self->_linkBgViewEH.constant = 40;
+                self->_layoutHeight.constant = 40;
+                CGFloat cMaxWidth = inMaxWidth;
+                if(cMaxWidth > 260-32 - 48){
+                    cMaxWidth = 260-32 - 48;
+                }
+                self->layoutBgWidth.constant = cMaxWidth;
                 [self->_linkBgView removeConstraint:iconTop];
                 [self->_linkBgView addConstraint:sobotLayoutPaddingTop(0, icon, linktitleLab)];
                 

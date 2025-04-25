@@ -36,6 +36,13 @@ typedef NS_ENUM(NSInteger, SobotRefreshState) {
 @property (nonatomic, strong) UIImageView *arrowView;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingView;
 
+/** 所有状态对应的文字 */
+@property (strong, nonatomic) NSMutableDictionary *stateTitles;
+/** 所有状态对应的动画图片 */
+@property (strong, nonatomic) NSMutableDictionary *stateImages;
+/** 所有状态对应的动画时间 */
+@property (strong, nonatomic) NSMutableDictionary *stateDurations;
+
 /** 是否处于刷新状态 */
 @property (nonatomic, assign) BOOL isRefreshing;
 
@@ -69,6 +76,15 @@ typedef NS_ENUM(NSInteger, SobotRefreshState) {
 - (void)prepare NS_REQUIRES_SUPER;
 
 -(void)hideTextView;
+- (void)setTitle:(NSString *)title forState:(SobotRefreshState)state;
+
+
+/// 当需要修改自定义加载图片时，调用此方法，此方法仅header可用
+/// - Parameters:
+///   - images: 当前图片列表
+///   - duration: 动画时长
+///   - state: 动画显示的状态
+- (void)setImages:(NSArray *)images duration:(NSTimeInterval)duration forState:(SobotRefreshState)state;
 
 /** 创建子视图 */
 - (void)createViews;

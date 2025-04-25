@@ -10,6 +10,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ZCLibSatisfaction : NSObject
+/** id */
+@property (nonatomic,strong) NSString  * sId;
+
+// 模板id
+@property (nonatomic,strong) NSString  * templateId;
+
 /** 企业id */
 @property (nonatomic,strong) NSString  * companyId;
 
@@ -49,6 +55,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** 星级 1,2,3,4,5星 */
 @property (nonatomic,assign) int  score;
 
+// 4.2.4新增
+@property (nonatomic,strong) NSString *scoreExplainLan;//提交大模型评价，传值给scoreExplain
+
+
 /** 星级说明 */
 @property (nonatomic,strong) NSString  * scoreExplain;
 
@@ -68,9 +78,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 是否存在以下问题评价
 @property (nonatomic,strong) NSString  *tagTips;
-@property (nonatomic,strong) NSArray *tags;
+
+// 4.2.4版本开始，把tags换成scoreTags，使用对象解析
+@property (nonatomic,strong) NSMutableArray *scoreTags;
 
 -(id)initWithMyDict:(NSDictionary *)dict;
 @end
 
+
+@interface ZCScoreTag : NSObject
+
+@property (nonatomic,strong) NSString *tid;// id
+@property (nonatomic,strong) NSString *scoreId;
+@property (nonatomic,strong) NSString *labelId;// id
+@property (nonatomic,strong) NSString *labelName;
+@property (nonatomic,strong) NSString *labelNameLan;
+@property (nonatomic,assign) int sortNo;//
+
+-(id)initWithMyDict:(NSDictionary *)dict;
+@end
 NS_ASSUME_NONNULL_END

@@ -34,12 +34,25 @@
 +(UIImage*)sobotScaleToSize:(CGSize)size with:(UIImage *) image;
 
 
+
+/// 改变图片颜色
+/// @param originalImage 原始图片
+/// @param tintColor 要转变的颜色
++(UIImage *)changeImageColor:(UIImage *) originalImage color:(UIColor *) tintColor;
+
 // #未使用#
 + (UIImage *)sobotAnimatedGIFNamed:(NSString *)name;
 
 + (UIImage *)sobotAnimatedGIFWithData:(NSData *)data;
 
 + (UIImage *)sobotImageWithData:(NSData *)data;
+
+// 当时mp4时，必须从block中获取
++ (void)sobotImageWithData:(NSData *)data result:(void(^)(UIImage *image,NSError *error)) resultBlock;
+
+// 获取视频第一秒的图片
++(void)sobotImageWithMp4Data:(NSData *)mp4Data result:(void(^)(UIImage *image,NSError *error)) resultBlock;
+
 
 // #未使用#
 + (UIImage *)sobotAnimatedImageByScalingAndCroppingToSize:(CGSize)size with:(UIImage *) image;

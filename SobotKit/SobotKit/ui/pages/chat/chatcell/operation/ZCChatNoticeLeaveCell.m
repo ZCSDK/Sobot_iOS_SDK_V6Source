@@ -108,7 +108,7 @@
         i = i + 1;
     }
     
-    [self.bgView addConstraint:sobotLayoutPaddingBottom(-ZCChatMarginVSpace + ZCChatCellItemSpace, lastView, self.bgView)];
+    [self.bgView addConstraint:sobotLayoutPaddingBottom(0, lastView, self.bgView)];
     
     _layoutBgWidth.constant = itemMaxWidth;
     
@@ -117,7 +117,8 @@
     [self setChatViewBgState:CGSizeMake(itemMaxWidth,CGRectGetMaxX(lastView.frame))];
     
     self.ivBgView.backgroundColor = [ZCUIKitTools zcgetChatBackgroundColor];
-    self.ivBgView.layer.borderColor = [ZCUIKitTools zcgetButtonThemeBgColor].CGColor;
+//    self.ivBgView.layer.borderColor = [ZCUIKitTools zcgetButtonThemeBgColor].CGColor;
+    self.ivBgView.layer.borderColor = [ZCUIKitTools zcgetServerConfigBtnBgColor].CGColor;
     self.ivBgView.layer.borderWidth = 1.0f;
 }
 

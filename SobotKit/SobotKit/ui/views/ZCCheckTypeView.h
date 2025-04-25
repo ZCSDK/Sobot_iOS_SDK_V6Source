@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,weak) NSString *pageTitle;
 @property(nonatomic,weak) UIView *parentView;
 @property(nonatomic,strong) NSString *typeId;
+@property(nonatomic,copy)NSString *selTypeId ;
 @property (nonatomic, strong)  void(^orderTypeCheckBlock) (ZCLibTicketTypeModel *model);
 @property (nonatomic, strong)  void(^ChangePageBlock) (int type,CGFloat height);
 @end

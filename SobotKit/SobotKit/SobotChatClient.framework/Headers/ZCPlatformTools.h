@@ -7,6 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <SobotChatClient/ZCLibConfig.h>
+#import <SobotChatClient/ZCVisitorConfig.h>
 #import <SobotCommon/SobotCommon.h>
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,7 +19,23 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedInstance;
 
 
+/**
+ 访客配置
+ */
+@property (nonatomic,strong) ZCVisitorConfig *_Nullable visitorConfig;
 
+
+// 留言记录状态
+@property(nonatomic,strong) NSMutableDictionary *_Nullable orderStatusDict;
+-(NSString *)getOrderStatus:(int ) status;
+
+/**
+ 根据statusCode获取显示类型
+ 状态类别 1-新建，2-受理中 3-等待客户回复 4-暂停 5-已解决 6 已关闭 7 已删除
+ */
+-(UIColor *)getOrderStatusTypeBgColor:(int ) status bg:(BOOL) isBgColor;
+
+-(UIColor *)getOrderStatusTypeTextColor:(int ) status;
 /// 离线消息开关，1:开; 0:关,
 /// 临时存储使用
 @property (nonatomic,assign) BOOL isOfflineMsgConnect;

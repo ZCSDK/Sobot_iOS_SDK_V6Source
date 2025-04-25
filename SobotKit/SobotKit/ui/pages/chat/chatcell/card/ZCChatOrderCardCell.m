@@ -26,11 +26,10 @@
 @property(nonatomic,strong) NSLayoutConstraint *layoutItemEH;
 
 @property (strong, nonatomic) UIView *bgView; //
+@property (strong, nonatomic) UIView *guideView; //
 @property (nonatomic,strong) SobotImageView *logoView;
 @property (strong, nonatomic) UILabel *labTitle; //标题
 @property (strong, nonatomic) UILabel *labDesc; //标题
-
-@property (strong, nonatomic) UIView *lineView; //标题
 
 @property (strong, nonatomic) UILabel *labStatus; //标题
 @property (strong,nonatomic) UILabel *labStatusValue;// 状态的值
@@ -66,44 +65,45 @@
         [self.contentView addConstraint:sobotLayoutPaddingBottom(0, self.bgView, self.ivBgView)];
 //        [self.contentView addConstraint:sobotLayoutPaddingRight(0, self.bgView, self.ivBgView)];
         
-        _layoutImageHeight = sobotLayoutEqualHeight(48, self.logoView, NSLayoutRelationEqual);
-        _layoutImageWidth = sobotLayoutEqualWidth(48, self.logoView, NSLayoutRelationEqual);
-        _layoutImageLeft = sobotLayoutPaddingLeft(0, self.logoView, self.bgView);
-//        self.logoView.backgroundColor = UIColor.redColor;
-        [self.bgView addConstraint:_layoutImageWidth];
-        [self.bgView addConstraint:_layoutImageHeight];
-        [self.bgView addConstraint:_layoutImageLeft];
-        [self.bgView addConstraint:sobotLayoutPaddingTop(10, self.logoView, self.bgView)];
+        // 顶部控件 上左右都是12px
+        // UI图需要加两个PX,设置最小高度
+        [self.bgView addConstraint:sobotLayoutPaddingTop(ZCChatPaddingVSpace, self.guideView, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingVSpace, self.guideView, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingVSpace, self.guideView, self.bgView)];
         
-        _layoutTitleHeight =sobotLayoutEqualHeight(0, self.labTitle, NSLayoutRelationEqual);
-        [self.bgView addConstraint: sobotLayoutPaddingTop(10, self.labTitle, self.bgView)];
-        [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labTitle, self.logoView)];
-        [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.labTitle, self.bgView)];
+        _layoutImageWidth = sobotLayoutEqualWidth(52, self.logoView, NSLayoutRelationEqual);
+        [self.guideView addConstraint:_layoutImageWidth];
+        [self.guideView addConstraint:sobotLayoutEqualHeight(52, self.logoView, NSLayoutRelationEqual)];
+        [self.guideView addConstraint:sobotLayoutPaddingTop(ZCChatItemSpace8, self.logoView, self.guideView)];
+        [self.guideView addConstraint:sobotLayoutPaddingLeft(ZCChatItemSpace8, self.logoView, self.guideView)];
         
-        [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatCellItemSpace, self.labDesc, self.labTitle)];
-        [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labDesc, self.logoView)];
-        [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.labDesc, self.bgView)];
+        [self.guideView addConstraint: sobotLayoutPaddingTop(ZCChatItemSpace8, self.labTitle, self.guideView)];
+        [self.guideView addConstraint:sobotLayoutMarginLeft(ZCChatPaddingVSpace, self.labTitle, self.logoView)];
+        [self.guideView addConstraint:sobotLayoutPaddingRight(-ZCChatItemSpace8, self.labTitle, self.guideView)];
+        [self.guideView addConstraint:sobotLayoutEqualHeight(22, self.labTitle,NSLayoutRelationEqual)];
         
-        _layoutLineTop = sobotLayoutMarginTop(ZCChatCellItemSpace*2, self.lineView, self.logoView);
+        [self.guideView addConstraint:sobotLayoutMarginTop(10, self.labDesc, self.labTitle)];
+        [self.guideView addConstraint:sobotLayoutMarginLeft(ZCChatPaddingVSpace, self.labDesc, self.logoView)];
+        [self.guideView addConstraint:sobotLayoutPaddingRight(-ZCChatItemSpace8, self.labDesc, self.guideView)];
+        [self.guideView addConstraint:sobotLayoutEqualHeight(20, self.labDesc,NSLayoutRelationGreaterThanOrEqual)];
+        [self.guideView addConstraint:sobotLayoutPaddingBottom(-ZCChatItemSpace8, self.labDesc, self.guideView)];
+        
+        
+        _layoutLineTop = sobotLayoutMarginTop(ZCChatPaddingVSpace, self.labStatus, self.guideView);
         [self.bgView addConstraint:_layoutLineTop];
-        [self.bgView addConstraint:sobotLayoutPaddingLeft(10, self.lineView, self.bgView)];
-        [self.bgView addConstraint:sobotLayoutPaddingRight(-10, self.lineView, self.bgView)];
-        [self.bgView addConstraint:sobotLayoutEqualHeight(1, self.lineView, NSLayoutRelationEqual)];
-        
-        [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatPaddingVSpace, self.labStatus, self.lineView)];
-        [self.bgView addConstraint:sobotLayoutPaddingLeft(10, self.labStatus, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatMarginVSpace, self.labStatus, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.labStatus, self.bgView)];
         
         [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatCellItemSpace, self.labCode, self.labStatus)];
-        [self.bgView addConstraint:sobotLayoutPaddingLeft(10, self.labCode, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatMarginVSpace, self.labCode, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.labCode, self.bgView)];
         
         [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatCellItemSpace, self.labTime, self.labCode)];
-        [self.bgView addConstraint:sobotLayoutPaddingLeft(10, self.labTime, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatMarginVSpace, self.labTime, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.labTime, self.bgView)];
 //        [self.bgView addConstraint:sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, self.labTime, self.bgView)];
         
-        [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace, self.customView, self.labTime)];
+        [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatMarginVSpace, self.customView, self.labTime)];
         [self.bgView addConstraint:sobotLayoutPaddingLeft(0, self.customView, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.customView, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingBottom(0, self.customView, self.bgView)];
@@ -123,6 +123,19 @@
         iv.layer.borderWidth = 1;
         iv;
     });
+    
+    _guideView = ({
+        UIView *iv = [[UIView alloc] init];
+        [iv setBackgroundColor:UIColorFromKitModeColor(SobotColorBgSub2Dark3)];
+        [self.bgView addSubview:iv];
+        iv.layer.masksToBounds = YES;
+        iv.layer.cornerRadius = 5;
+//        iv.layer.borderColor = [ZCUIKitTools zcgetServerConfigBtnBgColor].CGColor;
+//        iv.layer.borderWidth = 1;
+        iv;
+    });
+    
+    
     _logoView = ({
         SobotImageView *iv = [[SobotImageView alloc] init];
         iv.layer.masksToBounds = YES;
@@ -130,7 +143,7 @@
         iv.contentMode = UIViewContentModeScaleAspectFill;
         //设置点击事件
         iv.userInteractionEnabled=YES;
-        [self.bgView addSubview:iv];
+        [self.guideView addSubview:iv];
         iv;
     });
     
@@ -142,7 +155,7 @@
 //        iv.numberOfLines = 0;
         [iv setFont:SobotFontBold14];
 //        [iv setFont:[ZCUIKitTools  zcgetTitleGoodsFont]];
-        [self.bgView addSubview:iv];
+        [self.guideView addSubview:iv];
         iv;
     });
     
@@ -154,14 +167,7 @@
 //        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
         [iv setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
         [iv setFont:[ZCUIKitTools zcgetGoodsDetFont]];
-        [self.bgView addSubview:iv];
-        iv;
-    });
-    
-    _lineView = ({
-        UIView *iv = [[UIView alloc] init];
-        [iv setBackgroundColor:UIColorFromKitModeColor(SobotColorBgLine)];
-        [self.bgView addSubview:iv];
+        [self.guideView addSubview:iv];
         iv;
     });
     
@@ -219,10 +225,9 @@
     NSArray *goods = message.richModel.richContent.goods;
     NSString *goodsDesc = @"";
     _logoView.hidden = YES;
-    _layoutImageLeft.constant = ZCChatPaddingVSpace - ZCChatCellItemSpace;
+    _layoutImageLeft.constant = 0;
     _layoutImageWidth.constant = 0;
     [self.bgView removeConstraint:_layoutLineTop];
-    _layoutLineTop = sobotLayoutMarginTop(ZCChatCellItemSpace, self.lineView, self.labDesc);
     [self.bgView addConstraint:_layoutLineTop];
     if(goods && [goods isKindOfClass:[NSArray class]] && goods.count>0){
         NSDictionary *good = goods[0];
@@ -230,13 +235,9 @@
         if(sobotUrlEncodedString(good[@"pictureUrl"]).length > 0){
             _logoView.hidden = NO;
             _layoutImageLeft.constant = ZCChatPaddingVSpace;
-            _layoutImageWidth.constant = 48;
-            _layoutImageWidth.constant = 48;
-            [self.bgView removeConstraint:_layoutLineTop];
-            _layoutLineTop = sobotLayoutMarginTop(ZCChatCellItemSpace, self.lineView, self.logoView);
-            [self.bgView addConstraint:_layoutLineTop];
+            _layoutImageWidth.constant = 52;
             
-            [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(good[@"pictureUrl"])] placeholer:SobotKitGetImage(@"zcicon_default_goods")  showActivityIndicatorView:YES];
+            [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(good[@"pictureUrl"])] placeholer:SobotKitGetImage(@"zcicon_default_goods")  showActivityIndicatorView:NO];
         }
     }
     
@@ -279,7 +280,7 @@
     NSString *timeStr = SobotKitLocalString(@"时间");
     [_labStatus setText:@""];
     if(sobotConvertToString(orderStatus).length > 0){
-        _labStatus.attributedText = [self getOtherColorString:orderStatus Color:UIColorFromModeColor(SobotColorYellow) withString:[NSString stringWithFormat:@"%@%@：%@",orderStr,statusStr,orderStatus]];
+        _labStatus.attributedText = [self getOtherColorString:orderStatus Color:UIColorFromModeColor(SobotColorHeaderText) withString:[NSString stringWithFormat:@"%@%@：%@",orderStr,statusStr,orderStatus]];
     }
     
     [_labCode setText:@""];
@@ -316,8 +317,8 @@
             btnlineView.backgroundColor = UIColorFromKitModeColor(SobotColorBgLine);
             [_customView addSubview:btnlineView];
             [_customView addConstraint:sobotLayoutMarginBottom(0, btnlineView, lookBtn)];
-            [_customView addConstraint:sobotLayoutPaddingLeft(10, btnlineView, _customView)];
-            [_customView addConstraint:sobotLayoutPaddingRight(-10, btnlineView, _customView)];
+            [_customView addConstraint:sobotLayoutPaddingLeft(ZCChatMarginVSpace, btnlineView, _customView)];
+            [_customView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginVSpace, btnlineView, _customView)];
             [_customView addConstraint:sobotLayoutEqualHeight(1, btnlineView, NSLayoutRelationEqual)];
             
             lastView = btnlineView;
@@ -338,12 +339,13 @@
                 [tipLab setFont:SobotFontBold14];
                 [_customView addSubview:tipLab];
                 if (!sobotIsNull(lastLab)) {
-                    [_customView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace, tipLab, lastLab)];
+                    [_customView addConstraint:sobotLayoutMarginTop(ZCChatItemSpace8, tipLab, lastLab)];
                 }else{
                     [_customView addConstraint:sobotLayoutPaddingTop(0, tipLab, _customView)];
                 }
-                [_customView addConstraint:sobotLayoutPaddingLeft(10, tipLab, _customView)];
-                [_customView addConstraint:sobotLayoutPaddingRight(-10, tipLab, _customView)];
+                [_customView addConstraint:sobotLayoutEqualHeight(20, tipLab, NSLayoutRelationGreaterThanOrEqual)];
+                [_customView addConstraint:sobotLayoutPaddingLeft(ZCChatMarginVSpace, tipLab, _customView)];
+                [_customView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginVSpace, tipLab, _customView)];
                 lastLab = tipLab;
                 if (i == self.tempModel.richModel.richContent.extendFields.count -1) {
                     // 最后一个  计算最底部的约束
@@ -376,6 +378,13 @@
     }
     [_customView setNeedsUpdateConstraints];
     _layoutBgWidth.constant = self.maxWidth + ZCChatPaddingHSpace*2;
+    
+    
+    self.bgView.layer.cornerRadius = 4;
+    self.bgView.layer.borderColor = [ZCUIKitTools zcgetChatBottomLineColor].CGColor;
+    self.bgView.layer.borderWidth = 1.0f;
+    self.bgView.layer.masksToBounds = YES;
+    
     [self.bgView layoutIfNeeded];
     [self setChatViewBgState:CGSizeMake(self.maxWidth,CGRectGetMaxX(_bgView.frame))];
     

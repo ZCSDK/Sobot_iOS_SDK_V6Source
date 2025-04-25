@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 刷新UI是否是横屏
 -(void)setlayout:(BOOL)landspace;
+
+-(void)setLogoImgLayrightItem:(NSArray*)rightItem leftItem:(NSArray *)leftItem;
 @end
 
 

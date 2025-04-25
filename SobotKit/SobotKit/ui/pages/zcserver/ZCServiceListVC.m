@@ -53,6 +53,7 @@
     _listArray = [NSMutableArray arrayWithCapacity:0];
     [self createListView];
     [self loadData];
+    [self updateNavOrTopView];
 }
 
 -(void)createListView{
@@ -74,7 +75,7 @@
     [_listView registerClass:[ZCServiceListCell class] forCellReuseIdentifier:serviceCelIdentifier];
     _listView.backgroundColor = [UIColor clearColor];
     // 分割线的隐藏
-//    _listView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    _listView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
     //可以省略不设置
     _listView.rowHeight = UITableViewAutomaticDimension;
     self.listB = sobotLayoutPaddingBottom(-XBottomBarHeight, self.listView, self.view);
@@ -122,7 +123,7 @@
  *  设置UITableView分割线空隙
  */
 -(void)setTableSeparatorInset{
-    UIEdgeInsets inset = UIEdgeInsetsMake(0, 0, 0, 0);
+    UIEdgeInsets inset = UIEdgeInsetsMake(0,16, 0, 16);
     if ([_listView respondsToSelector:@selector(setSeparatorInset:)]) {
         [_listView setSeparatorInset:inset];
     }
@@ -236,7 +237,7 @@
         [self.listView reloadData];
     }
     // 横竖屏更新导航栏渐变色
-    [self updateCenterViewBgColor];
+    [self updateTopViewBgColor];
 }
 
 @end

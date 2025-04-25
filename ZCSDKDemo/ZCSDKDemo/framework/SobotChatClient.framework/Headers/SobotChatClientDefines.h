@@ -9,6 +9,7 @@
 
 // 国际化
 #define SobotKitLocalString(key) [SobotChatClientCache localKitString:key]
+#define SobotKitIsRTLLayout [SobotChatClientCache checkKitIsRTLLayout]
 
 // 资源
 #define SobotKitGetImage(imageName) [SobotUITools getSysImageByName:imageName bundleName:ChatClientBundelName]
@@ -17,10 +18,10 @@
 #define UIColorFromKitModeColorAlpha(themeColorKey,a) [SobotUITools getSobotThemeModeColor:themeColorKey alpha:a bundleName:ChatClientBundelName]
 
 // 底部弹出标题高度
-#define ZCSheetTitleHeight   60
+#define ZCSheetTitleHeight   52
 
-// 是否开启自动提醒
-#define Sobot_isEnableAutoTips @"Sobot_isEnableAutoTips"
+// 是否开启自动提醒   414 废弃 从初始化接口获取
+//#define Sobot_isEnableAutoTips @"Sobot_isEnableAutoTips"
 
 // 企业ID
 #define Sobot_CompanyId @"Sobot_CompanyId"
@@ -57,6 +58,11 @@ typedef NS_ENUM(NSInteger, ZCNetWorkCode) {
      发送时新增数据
      */
     ZC_NETWORK_New_Data = 2,
+    
+    /**
+     发送时新增刷新数据 用于处理 大模型机器人触发的转人工操作
+     */
+    ZC_NETWORK_AI_Refresh_Data = 3,
     
     /**
      *  连接失败。

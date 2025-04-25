@@ -22,6 +22,7 @@
 @property(nonatomic,strong) NSLayoutConstraint *layoutImageBottom;
 
 @property(nonatomic,strong) NSLayoutConstraint *layoutSendBottom;
+@property(nonatomic,strong) NSLayoutConstraint *layoutSendW;
 
 @property (strong, nonatomic) UIView *bgView; //
 @property (nonatomic,strong) SobotImageView *logoView;
@@ -52,11 +53,6 @@
         [self.contentView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginHSpace, self.bgView, self.contentView)];
         [self.contentView addConstraint:sobotLayoutPaddingBottom(-ZCChatMarginVSpace, self.bgView, self.contentView)];
         
-        _layoutTitleHeight =sobotLayoutEqualHeight(0, self.labTitle, NSLayoutRelationEqual);
-        [self.bgView addConstraint: sobotLayoutPaddingTop(ZCChatPaddingVSpace, self.labTitle, self.bgView)];
-        [self.bgView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingHSpace, self.labTitle, self.bgView)];
-        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.labTitle, self.bgView)];
-        
         [self.bgView addConstraint:sobotLayoutPaddingLeft(0, self.tapBtn, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(0, self.tapBtn, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingBottom(0, self.tapBtn, self.bgView)];
@@ -64,32 +60,41 @@
         
         _layoutImageBottom = sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, self.logoView, self.bgView);
         _layoutImageBottom.priority = UILayoutPriorityDefaultHigh;
-        _layoutImageHeight = sobotLayoutEqualHeight(72, self.logoView, NSLayoutRelationEqual);
-        _layoutImageWidth = sobotLayoutEqualWidth(72, self.logoView, NSLayoutRelationEqual);
-        _layoutImageLeft = sobotLayoutPaddingLeft(ZCChatPaddingHSpace, self.logoView, self.bgView);
+        _layoutImageHeight = sobotLayoutEqualHeight(76, self.logoView, NSLayoutRelationEqual);
+        _layoutImageWidth = sobotLayoutEqualWidth(76, self.logoView, NSLayoutRelationEqual);
+        _layoutImageLeft = sobotLayoutPaddingLeft(ZCChatPaddingVSpace, self.logoView, self.bgView);
         [self.bgView addConstraint:_layoutImageWidth];
         [self.bgView addConstraint:_layoutImageHeight];
         [self.bgView addConstraint:_layoutImageLeft];
         [self.bgView addConstraint:_layoutImageBottom];
-        [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace, self.logoView, self.labTitle)];
+        [self.bgView addConstraint:sobotLayoutPaddingTop(ZCChatPaddingVSpace, self.logoView, self.bgView)];
         
         
-        [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatCellItemSpace, self.labDesc, self.labTitle)];
-        [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatCellItemSpace*2, self.labDesc, self.logoView)];
-        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.labDesc, self.bgView)];
+        _layoutTitleHeight =sobotLayoutEqualHeight(0, self.labTitle, NSLayoutRelationEqual);
+        [self.bgView addConstraint:sobotLayoutPaddingTop(ZCChatPaddingVSpace, self.labTitle, self.bgView)];
+        [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatMarginVSpace, self.labTitle, self.logoView)];
+        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginVSpace, self.labTitle, self.bgView)];
+        
+        
+        [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatCellItemSpace, self.labDesc, self.labTitle)];
+        [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatMarginVSpace, self.labDesc, self.logoView)];
+        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginVSpace, self.labDesc, self.bgView)];
         
         
         _layoutSendBottom = sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, self.btnSend, self.bgView);
         _layoutSendBottom.priority = UILayoutPriorityDefaultLow;
-        [self.bgView addConstraints:sobotLayoutSize(90, 30, self.btnSend, NSLayoutRelationEqual)];
         [self.bgView addConstraint:_layoutSendBottom];
-        [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatPaddingVSpace, self.btnSend, self.labDesc)];
-        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.btnSend, self.bgView)];
         
-        [self.bgView addConstraint: sobotLayoutMarginTop(ZCChatCellItemSpace, self.labTag, self.labDesc)];
-        [self.bgView addConstraint:sobotLayoutEqualHeight(30, self.labTag, NSLayoutRelationEqual)];
-        [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatCellItemSpace*2, self.labTag, self.logoView)];
-        [self.bgView addConstraint:sobotLayoutMarginRight(-ZCChatCellItemSpace, self.labTag, self.btnSend)];
+        _layoutSendW = sobotLayoutEqualWidth(60, self.btnSend, NSLayoutRelationEqual);
+        [self.bgView addConstraint:sobotLayoutEqualHeight(28, self.btnSend, NSLayoutRelationEqual)];
+        [self.bgView addConstraint:_layoutSendW];
+        [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatPaddingVSpace, self.btnSend, self.labDesc)];
+        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatMarginVSpace, self.btnSend, self.bgView)];
+        
+        [self.bgView addConstraint: sobotLayoutEqualCenterY(0, self.labTag, self.btnSend)];
+//        [self.bgView addConstraint:sobotLayoutEqualHeight(30, self.labTag, NSLayoutRelationEqual)];
+        [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatMarginVSpace, self.labTag, self.logoView)];
+        [self.bgView addConstraint:sobotLayoutMarginRight(-ZCChatMarginVSpace, self.labTag, self.btnSend)];
         
     }
     return self;
@@ -129,6 +134,9 @@
         iv.contentMode = UIViewContentModeScaleAspectFill;
         //设置点击事件
         iv.userInteractionEnabled=YES;
+        
+        iv.layer.cornerRadius  = 4.0f;
+        iv.layer.masksToBounds = YES;
         [self.bgView addSubview:iv];
         iv;
     });
@@ -170,7 +178,7 @@
         [iv setBackgroundColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
         [iv setTitleColor:[ZCUIKitTools zcgetGoodsSendColor] forState:0];
         [iv.titleLabel setFont:SobotFont14];
-        iv.layer.cornerRadius = 15;
+        iv.layer.cornerRadius = 14;
         iv.layer.masksToBounds = YES;
         [iv setTitle:SobotKitLocalString(@"发送") forState:0];
         iv.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -183,7 +191,8 @@
     _labTag = ({
         UILabel *iv = [[UILabel alloc] init];
         [iv setTextAlignment:NSTextAlignmentLeft];
-        [iv setTextColor:[ZCUIKitTools zcgetPricetTagTextColor]];
+//        [iv setTextColor:[ZCUIKitTools zcgetPricetTagTextColor]];
+        [iv setTextColor:UIColorFromKitModeColor(SobotColorHeaderText)];
 //        iv.numberOfLines = 0;
         [iv setFont:SobotFontBold14];
         [self.bgView addSubview:iv];
@@ -206,21 +215,35 @@
     _labDesc.text = sobotConvertToString(info.desc);
     _labTag.text = sobotConvertToString(info.label);
     _linkUrl = sobotConvertToString(info.link);
+    
+    CGFloat sendW = [SobotUITools getWidthContain:self.btnSend.titleLabel.text font:self.btnSend.titleLabel.font Height:20] + 24;
+    if(sendW > 68){
+        sendW = 68;
+    }
+    _layoutSendW.constant = sendW;
+    
     if(sobotConvertToString(info.thumbUrl).length > 0){
         _layoutImageLeft.constant = ZCChatPaddingVSpace;
-        _layoutImageWidth.constant = 72;
-        _layoutImageWidth.constant = 72;
-        [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(info.thumbUrl)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:YES];
+        _layoutImageWidth.constant = 76;
+        [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(info.thumbUrl)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:NO];
         _layoutImageBottom.priority = UILayoutPriorityDefaultHigh;
         _layoutSendBottom.priority = UILayoutPriorityDefaultLow;
     }else{
         _logoView.hidden = YES;
-        _layoutImageLeft.constant = ZCChatPaddingVSpace - ZCChatCellItemSpace;
-        _layoutImageWidth.constant = 0;
+        _layoutImageLeft.constant = 0;
         _layoutImageWidth.constant = 0;
         _layoutImageBottom.priority = UILayoutPriorityDefaultLow;
         _layoutSendBottom.priority = UILayoutPriorityDefaultHigh;
     }
+    
+    
+    self.bgView.layer.masksToBounds = NO;
+   self.bgView.layer.backgroundColor = [ZCUIKitTools zcgetChatBackgroundColor].CGColor;
+   self.bgView.layer.cornerRadius = 4;
+   self.bgView.layer.shadowColor = [ZCUIKitTools zcgetChatBottomLineColor].CGColor;
+   self.bgView.layer.shadowOffset = CGSizeMake(0,1);
+   self.bgView.layer.shadowOpacity = 1;
+   self.bgView.layer.shadowRadius = 4;
     
 
     [self.bgView layoutIfNeeded];

@@ -12,6 +12,7 @@
 #import <SobotChatClient/SobotChatClient.h>
 #import "ZCUIKitTools.h"
 #import "ZCUICore.h"
+#import <objc/runtime.h>
 /**
  *  PageClickTag ENUM
  */
@@ -50,14 +51,21 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
     [self createVCTitleView];
     [self updateNavOrTopView];
     _webView = [[WKWebView alloc]init];
-    _webView.navigationDelegate = self;
-    [_webView setOpaque:NO];
-    _webView.backgroundColor = [ZCUIKitTools zcgetLightGrayBackgroundColor];
-    [self.view addSubview:_webView];
+        WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc]init];
+        WKPreferences *preference = [[WKPreferences alloc]init];
+        preference.javaScriptEnabled = YES;
+        preference.javaScriptCanOpenWindowsAutomatically = YES;
+        config.preferences = preference;
     CGFloat nah = NavBarHeight;
     if(self.navigationController && !self.navigationController.navigationBarHidden){
         nah = 0;
     }
+    _webView = [[WKWebView alloc]initWithFrame:CGRectMake(0, nah, ScreenWidth, ScreenHeight -44 -XBottomBarHeight -nah) configuration:config];
+    _webView.navigationDelegate = self;
+    [_webView setOpaque:NO];
+    _webView.backgroundColor = [ZCUIKitTools zcgetLightGrayBackgroundColor];
+    [self.view addSubview:_webView];
+    
     [self.view addConstraint:sobotLayoutPaddingTop(nah, _webView, self.view)];
     [self.view addConstraint:sobotLayoutPaddingLeft(0, _webView, self.view)];
     [self.view addConstraint:sobotLayoutPaddingRight(0, _webView, self.view)];
@@ -66,6 +74,37 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
     
     [self checkTxtEncode];
     [self updateToolbarItems];
+    [_webView addObserver:self forKeyPath:@"URL"options:NSKeyValueObservingOptionNew context:nil];
+}
+//KVO监听进度条
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+
+    if ([keyPath isEqualToString:NSStringFromSelector(@selector(estimatedProgress))] && object == _webView) {
+//        [self.progressView setAlpha:1.0f];
+//        BOOL animated = self.wkWebView.estimatedProgress > self.progressView.progress;
+//        [self.progressView setProgress:self.wkWebView.estimatedProgress animated:animated];
+
+        // Once complete, fade out UIProgressView
+        if(_webView.estimatedProgress >= 1.0f) {
+//            [UIView animateWithDuration:0.3f delay:0.3f options:UIViewAnimationOptionCurveEaseOut animations:^{
+//                [self.progressView setAlpha:0.0f];
+//            } completion:^(BOOL finished) {
+//                [self.progressView setProgress:0.0f animated:NO];
+//            }];
+        }
+    }
+    else if([keyPath isEqualToString:@"URL"] && object == _webView)
+    {
+//        [self updateNavigationItems:self.wkWebView.URL.absoluteString];
+        NSLog(@"url == %@",_webView.URL.absoluteString);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self updateToolbarItems];
+        });
+        
+    }
+    else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 /**
@@ -159,6 +198,9 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    if ([ZCUICore getUICore].kitInfo.navcBarHidden) {
+        self.navigationController.navigationBarHidden = YES;
+    }
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         [self.navigationController setToolbarHidden:NO animated:animated];
     }
@@ -235,11 +277,30 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-    // 如果是跳转一个新页面
-    if (navigationAction.targetFrame == nil) {
-        [webView loadRequest:navigationAction.request];
+    if ([navigationAction.request.URL.scheme isEqualToString:@"tel"]) {
+        NSURL *tel = navigationAction.request.URL;
+        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 18) {
+            [[UIApplication sharedApplication] openURL:tel options:@{} completionHandler:^(BOOL success) {
+                    if (success) {
+                        NSLog(@"URL successfully opened.");
+                    } else {
+                        NSLog(@"Failed to open URL.");
+                    }
+                }];
+        }else{
+            if ([[UIApplication sharedApplication] canOpenURL:tel]) {
+                [[UIApplication sharedApplication] openURL:tel];
+            }
+        
+        }
+        decisionHandler(WKNavigationActionPolicyAllow);
+    }else{
+        // 如果是跳转一个新页面
+        if (navigationAction.targetFrame == nil) {
+            [webView loadRequest:navigationAction.request];
+        }
+        decisionHandler(WKNavigationActionPolicyAllow);
     }
-    decisionHandler(WKNavigationActionPolicyAllow);
 }
 
 - (void)updateToolbarItems {
@@ -323,8 +384,11 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
     if (!_backBarButtonItem) {
         UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
         btn.frame = CGRectMake(0, 0, 25, 25);
-        [btn setImage:[SobotUITools getSysImageByName:@"zcicon_web_back"] forState:UIControlStateNormal];
-        [btn setImage:[SobotUITools getSysImageByName:@"zcicon_web_back_pressed"] forState:UIControlStateHighlighted];
+        UIImage *img = [SobotKitGetImage(@"zcicon_web_back") imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [btn setImage:img forState:UIControlStateNormal];
+        UIImage *imgpressed = [SobotKitGetImage(@"zcicon_web_back_pressed") imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [btn setImage:imgpressed forState:UIControlStateHighlighted];
+        btn.tintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
         [btn setImage:[SobotUITools getSysImageByName:@"zcicon_web_back_disabled"] forState:UIControlStateDisabled];
         [btn addTarget:self action:@selector(goBackTapped:) forControlEvents:UIControlEventTouchUpInside];
         // 使用自定义的样式，解决系统样式不能修改背景色的问题
@@ -338,8 +402,11 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
     if (!_forwardBarButtonItem) {
         UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
         btn.frame = CGRectMake(0, 0, 25, 25);
-        [btn setImage:[SobotUITools getSysImageByName:@"zcicon_web_next"] forState:UIControlStateNormal];
-        [btn setImage:[SobotUITools getSysImageByName:@"zcicon_web_next_pressed"] forState:UIControlStateHighlighted];
+        UIImage *img = [SobotKitGetImage(@"zcicon_web_next") imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [btn setImage:img forState:UIControlStateNormal];
+        UIImage *imgpressed = [SobotKitGetImage(@"zcicon_web_next_pressed") imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [btn setImage:imgpressed forState:UIControlStateHighlighted];
+        btn.tintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
         [btn setImage:[SobotUITools getSysImageByName:@"zcicon_web_next_disabled"] forState:UIControlStateDisabled];
         [btn addTarget:self action:@selector(goForwardTapped:) forControlEvents:UIControlEventTouchUpInside];
         // 使用自定义的样式，解决系统样式不能修改背景色的问题
@@ -353,8 +420,11 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
     if (!_refreshBarButtonItem) {
         UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
         btn.frame = CGRectMake(0, 0, 25, 25);
-        [btn setImage:[SobotUITools getSysImageByName:@"zcicon_refreshbar_normal"] forState:UIControlStateNormal];
-        [btn setImage:[SobotUITools getSysImageByName:@"zcicon_refreshbar_pressed"] forState:UIControlStateHighlighted];
+        UIImage *img = [SobotKitGetImage(@"zcicon_refreshbar_normal") imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [btn setImage:img forState:UIControlStateNormal];
+        UIImage *imgpressed = [SobotKitGetImage(@"zcicon_refreshbar_pressed") imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [btn setImage:imgpressed forState:UIControlStateHighlighted];
+        btn.tintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
         [btn.imageView setContentMode:UIViewContentModeScaleAspectFit];
         [btn setImage:[SobotUITools getSysImageByName:@"zcicon_refreshbar_pressed"] forState:UIControlStateDisabled];
         [btn addTarget:self action:@selector(reloadTapped:) forControlEvents:UIControlEventTouchUpInside];
@@ -370,8 +440,11 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
         UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
         btn.frame = CGRectMake(0, 0, 25, 25);
         [btn.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        [btn setImage:[SobotUITools getSysImageByName:@"zcicon_web_copy_nols"] forState:UIControlStateNormal];
-        [btn setImage:[SobotUITools getSysImageByName:@"zcicon_web_copy_press"] forState:UIControlStateHighlighted];
+        UIImage *img = [SobotKitGetImage(@"zcicon_web_copy_nols") imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [btn setImage:img forState:UIControlStateNormal];
+        UIImage *imgpressed = [SobotKitGetImage(@"zcicon_web_copy_press") imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        btn.tintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
+        [btn setImage:imgpressed forState:UIControlStateHighlighted];
         [btn setImage:[SobotUITools getSysImageByName:@"zcicon_web_copy_press"] forState:UIControlStateDisabled];
         [btn addTarget:self action:@selector(copyURL:) forControlEvents:UIControlEventTouchUpInside];
         // 使用自定义的样式，解决系统样式不能修改背景色的问题
@@ -406,7 +479,7 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
             //    NSLog(@"复制链接%@",currentURL);
             UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
             [pasteboard setString:sobotConvertToString(currentURL)];
-            [[SobotToast shareToast] showToast:SobotKitLocalString(@"复制成功！") duration:1.0f view:self.view position:SobotToastPositionCenter];
+            [[SobotToast shareToast] showToast:SobotKitLocalString(@"复制成功") duration:1.0f view:self.view position:SobotToastPositionCenter];
         }
     }];
 }
@@ -447,4 +520,127 @@ typedef NS_ENUM(NSInteger, PageClickTag) {
     // 横竖屏更新导航栏渐变色
     [self updateTopViewBgColor];
 }
+
+
+
+#pragma mark 以下是拦截选择文件相关事件处理
+//- (void)gigi_presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {
+//
+//    //如果present的viewcontroller是UIDocumentMenuViewController
+//    //类型，且代理是WKFileUploadPanel或UIWebFileUploadPanel
+//    //进行拦截
+//    if ([viewControllerToPresent isKindOfClass:[UIDocumentMenuViewController class]]) {
+//        UIDocumentMenuViewController *dvc = (UIDocumentMenuViewController*)viewControllerToPresent;
+//        NSLog(@"dvc.delegate\n%@",dvc.delegate);
+//        if ([dvc.delegate isKindOfClass:NSClassFromString(@"WKFileUploadPanel")] || [dvc.delegate isKindOfClass:NSClassFromString(@"UIWebFileUploadPanel")]) {
+//
+////            self.isFileInputIntercept = YES;
+////            [dvc.delegate documentMenuWasCancelled:dvc];
+////
+////            dispatch_async(dispatch_get_main_queue(), ^{
+////                [self onFileInputIntercept];
+////            });
+////
+////            return;
+//        }
+//    }
+//    //正常情况下的present
+//    [self gigi_presentViewController:viewControllerToPresent animated:flag completion:completion];
+//}
+//
+//- (void)gigi_dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion {
+//
+//    //如果进行了拦截，禁止当前viewcontroller的dismiss
+//    if (self.isFileInputIntercept) {
+//        self.isFileInputIntercept = NO;
+//        completion();
+//        return;
+//    }
+//
+//    //正常情况下viewcontroller的dismiss
+//    [self gigi_dismissViewControllerAnimated:flag completion:^{
+//        if (completion) {
+//            completion();
+//        }
+//    }];
+//}
+//
+//
+//- (void)onFileInputIntercept {
+//    if ([self respondsToSelector:@selector(onFileInputClicked)]) {
+//        [self performSelector:@selector(onFileInputClicked)];
+//    }
+//}
+//
+//- (void)onFileInputClicked {
+//
+//}
+//
+//- (BOOL)isFileInputIntercept {
+//    return [objc_getAssociatedObject(self, @selector(isFileInputIntercept)) boolValue];
+//}
+//
+//- (void)setIsFileInputIntercept:(BOOL)boolValue {
+//    objc_setAssociatedObject(self, @selector(isFileInputIntercept), @(boolValue), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+//}
+//- (void)swizzlingViewWillAppear:(BOOL)animated {
+////    _UIContextMenuActionsOnlyViewController
+////    _UIResilientRemoteViewContainerViewController
+//
+//    [self swizzlingViewWillAppear:animated];
+//    NSLog(@"当前即将打开%@",self);
+//
+//    if ([self isMemberOfClass:NSClassFromString(@"PHPickerViewController")] || [self isMemberOfClass:NSClassFromString(@"UIDocumentPickerViewController")]) {
+//        [self configureRongCloudNavigation];
+//    }
+//}
+//
+//-(void)configureRongCloudNavigation{
+//    NSLog(@"%@",self);
+//    //点击系统相册弹出的控制器
+//    if ([self isMemberOfClass:NSClassFromString(@"PUPhotoPickerHostViewController")]) {
+//    }
+//
+//    //点击浏览弹出的控制器
+//    if ([self isMemberOfClass:NSClassFromString(@"UIDocumentPickerViewController")]) {
+//    }
+//}
+//+ (void)load {
+//
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        Class class = [self class];
+//        SEL originalSelector = @selector(dismissViewControllerAnimated:completion:);
+//        SEL swizzledSelector = @selector(gigi_dismissViewControllerAnimated:completion:);
+//        Method originalMethod = class_getInstanceMethod(class, originalSelector);
+//        Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
+//        BOOL success = class_addMethod(class, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod));
+//        if (success) {
+//            class_replaceMethod(class, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
+//        } else {
+//            method_exchangeImplementations(originalMethod, swizzledMethod);
+//        }
+//
+//        originalSelector = @selector(presentViewController:animated:completion:);
+//        swizzledSelector = @selector(gigi_presentViewController:animated:completion:);
+//        originalMethod = class_getInstanceMethod(class, originalSelector);
+//        swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
+//        success = class_addMethod(class, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod));
+//        if (success) {
+//            class_replaceMethod(class, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
+//        } else {
+//            method_exchangeImplementations(originalMethod, swizzledMethod);
+//        }
+//
+//        //原本的willAppear方法
+//            Method willAppearOriginal = class_getInstanceMethod([self class], @selector(viewWillAppear:));
+//            //用于交换的willAppear方法
+//            Method willAppearNew = class_getInstanceMethod([self class], @selector(swizzlingViewWillAppear:));
+//            //交换
+//            if (!class_addMethod([self class], @selector(viewWillAppear:), method_getImplementation(willAppearNew), method_getTypeEncoding(willAppearNew))) {
+//                method_exchangeImplementations(willAppearOriginal, willAppearNew);
+//            }
+//    });
+//}
 @end
+

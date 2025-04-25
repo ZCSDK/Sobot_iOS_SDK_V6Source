@@ -112,10 +112,10 @@
 
 
 - (void)configureCellWithPostURL:(NSDictionary *)model message:(SobotChatMessage *)message{
-    [_posterView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model[@"thumbnail"])] placeholer:SobotKitGetImage(@"zcicon_default_goods") showActivityIndicatorView:YES];
+    [_posterView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model[@"thumbnail"])] placeholer:SobotKitGetImage(@"zcicon_default_goods") showActivityIndicatorView:NO];
     [_labTitle setText:sobotConvertToString(model[@"title"])];// [NSString stringWithFormat:@"我是标题%@",item[@"row"]] zcicon_avatar_robot
     [_labDesc setText:sobotConvertToString(model[@"summary"])];// [NSString stringWithFormat:@"我是描述%@",item[@"desc"]]
-    [_labTag setText:sobotConvertToString(model[@"label"])];
+    [_labTag setText:sobotConvertToString(model[@"tag"])];
 //    [_labLabel setText:sobotConvertToString(model[@"label"])];
     
     

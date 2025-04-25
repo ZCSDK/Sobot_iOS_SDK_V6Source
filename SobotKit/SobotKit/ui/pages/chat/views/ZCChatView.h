@@ -18,8 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 // 标题改变
 -(void)onTitleChanged:(NSString *)title imageUrl:(NSString *) url nick:(NSString *)nick company:(NSString *)company topBarType:(int)topBarType;
 
-// 跳转留言
--(void)onLeaveMsgClick:(NSString*)tipMsg;
 
 - (void)onPageConnectStatusChange:(BOOL)isArtificial;
 
@@ -30,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 更新导航栏颜色
 -(void)updateTopViewBgColor;
+
+-(void)jumpDocumentVC:(UIViewController*)docVC;
 @end
 
 @interface ZCChatView : UIView

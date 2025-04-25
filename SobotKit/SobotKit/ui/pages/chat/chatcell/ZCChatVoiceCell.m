@@ -6,6 +6,7 @@
 //
 
 #import "ZCChatVoiceCell.h"
+//#import "ZCCustomBtnView.h"
 @interface ZCChatVoiceCell(){
     
 }
@@ -23,6 +24,7 @@
 @property(nonatomic,strong) NSLayoutConstraint *layoutTransStateBottom;
 @property(nonatomic,strong) NSLayoutConstraint *layoutTransStateHeight;
 
+//@property(nonatomic,strong) ZCCustomBtnView *cusBtnView;
 
 @end
 
@@ -45,7 +47,6 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
 }
 
 -(void)createItemViews{
-    
     _voiceButton = ({
         SobotButton *iv = [SobotButton buttonWithType:UIButtonTypeCustom];
         iv.obj = @"1";
@@ -65,7 +66,7 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
         [iv setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 0)];
         [iv setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 0)];
         _layoutWidth = sobotLayoutEqualWidth(SobotVoiceBaseWidth, iv, NSLayoutRelationEqual);
-        [self.contentView addConstraint:sobotLayoutEqualHeight(25 + ZCChatPaddingVSpace*2, iv, NSLayoutRelationEqual)];
+        [self.contentView addConstraint:sobotLayoutEqualHeight(22 + ZCChatPaddingVSpace*2, iv, NSLayoutRelationEqual)];
         [self.contentView addConstraint:_layoutWidth];
         [self.contentView addConstraint:sobotLayoutPaddingLeft(0, iv, self.ivBgView)];
         [self.contentView addConstraint:sobotLayoutPaddingTop(0, iv, self.ivBgView)];
@@ -79,16 +80,19 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
         iv.layer.masksToBounds = YES;
         [self.contentView addSubview:iv];
         
-        // 只会在左边
-        _layoutTransTop = sobotLayoutMarginTop(ZCChatMarginVSpace, iv, self.self.voiceButton);
+        // 只会在左边So
+        _layoutTransTop = sobotLayoutMarginTop(ZCChatItemSpace4, iv, self.self.voiceButton);
         [self.contentView addConstraint:_layoutTransTop];
-        [self.contentView addConstraint:sobotLayoutPaddingRight(0, iv, self.voiceButton)];
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            [self.contentView addConstraint:sobotLayoutPaddingLeft(0, iv, self.voiceButton)];
+        }else{
+            [self.contentView addConstraint:sobotLayoutPaddingRight(0, iv, self.voiceButton)];
+        }
         NSLayoutConstraint *layotBottom = sobotLayoutMarginBottom(-ZCChatCellItemSpace, iv, self.lblSugguest);
         [self.contentView addConstraint:layotBottom];
         iv;
         
     });
-    
     _translationLabel = ({
         UILabel *iv = [[UILabel alloc] init];
         iv.font = [ZCUIKitTools zcgetKitChatFont];
@@ -104,28 +108,47 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
         [self.translationView addConstraint:_layoutTransTextWidth];
         iv;
     });
-    
-    
     _translationStateButton = ({
         UIButton *iv = [UIButton buttonWithType:UIButtonTypeCustom];
         [iv setTitleColor:UIColorFromKitModeColor(SobotColorTextSub1) forState:0];
-        [iv.titleLabel setFont:[ZCUIKitTools zcgetKitChatFont]];
+        [iv.titleLabel setFont:SobotFont12];
         [iv setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 0)];
-        [iv setTitleEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
+        [iv setTitleEdgeInsets:UIEdgeInsetsMake(0, 4, 0, 0)];
         [iv.imageView setContentMode:UIViewContentModeScaleAspectFit];
         [iv setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
         [self.translationView addSubview:iv];
-        
-        _layoutTransStateTop = sobotLayoutMarginTop(ZCChatPaddingVSpace, iv, self.translationLabel);
+        _layoutTransStateTop = sobotLayoutMarginTop(4, iv, self.translationLabel);
         _layoutTransStateBottom = sobotLayoutPaddingBottom(-ZCChatPaddingVSpace, iv, self.translationView);
         _layoutTransStateHeight= sobotLayoutEqualHeight(0, iv, NSLayoutRelationEqual);
         [self.translationView addConstraint:_layoutTransStateTop];
         [self.translationView addConstraint:_layoutTransStateHeight];
         [self.translationView addConstraint:_layoutTransStateBottom];
-        [self.translationView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingHSpace, iv, self.translationView)];
-        [self.translationView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingHSpace, iv, self.translationView)];
+        [self.translationView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingHSpace-2, iv, self.translationView)];
+        [self.translationView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingHSpace+2, iv, self.translationView)];
         iv;
     });
+    
+//    _cusBtnView = ({
+//        ZCCustomBtnView *iv = [[ZCCustomBtnView alloc]init];
+//        [_translationStateButton addSubview:iv];
+//        [_translationStateButton addConstraint:sobotLayoutPaddingTop(0, iv, _translationStateButton)];
+//        [_translationStateButton addConstraint:sobotLayoutPaddingLeft(0, iv, _translationStateButton)];
+//        [_translationStateButton addConstraint:sobotLayoutPaddingRight(0, iv, _translationStateButton)];
+//        [_translationStateButton addConstraint:sobotLayoutPaddingBottom(0, iv, _translationStateButton)];
+//        iv;
+//    });
+    
+    // 重新设置阅读状态的底部位置
+    if(self.layoutReadStateBtm){
+        [self.contentView removeConstraint:self.layoutReadStateBtm];
+        [self.contentView addConstraint:sobotLayoutPaddingBottom(0, self.btnReadStatus, self.voiceButton)];
+    }
+    
+    // 重新设置阅读状态的右侧位置
+    if(self.layoutReadStateR){
+        [self.contentView removeConstraint:self.layoutReadStateR];
+        [self.contentView addConstraint:sobotLayoutMarginRight(-10, self.btnReadStatus, self.voiceButton)];
+    }
 }
 
 -(void)initDataToView:(SobotChatMessage *) message time:(NSString *) showTime{
@@ -133,7 +156,7 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
    
     _layoutTransStateHeight.constant = 0;
     
-    CGSize size = CGSizeMake(SobotVoiceBaseWidth, 25 + ZCChatPaddingVSpace*2);
+    CGSize size = CGSizeMake(SobotVoiceBaseWidth, 22 + ZCChatPaddingVSpace*2);
     if(message.richModel.duration.length < 5 || message.richModel.duration.length>6){
         message.richModel.duration=@"00:00";
     }
@@ -165,7 +188,14 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
     }
    
     CGSize ssize = [timeStr boundingRectWithSize:CGSizeMake(self.maxWidth, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:_voiceButton.titleLabel.font} context:nil].size;
-    size = CGSizeMake(ssize.width + btnWidth +50, 25); // 50个固定宽
+    size = CGSizeMake(ssize.width + btnWidth +32, 25); // 50个固定宽
+    // 最小宽度62
+    if(size.width < 62){
+        size.width = 62;
+    }
+    if (size.width >240) {
+        size.width = 240;
+    }
     _layoutWidth.constant = size.width;
     NSLog(@"size.width ==== %f",size.width);
     [_voiceButton setBackgroundColor:[ZCUIKitTools zcgetRobotBackGroundColorWithSize:CGSizeMake(size.width, size.height)]];
@@ -174,9 +204,18 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
         [_voiceButton setImage:SobotKitGetImage(@"zcicon_pop_voice_send_normal") forState:UIControlStateNormal];
         [_voiceButton setImage:SobotKitGetImage(@"zcicon_pop_voice_send_normal") forState:UIControlStateHighlighted];
         [_voiceButton setTitleColor:[ZCUIKitTools zcgetRightChatTextColor] forState:UIControlStateNormal];
-        [_voiceButton setImageEdgeInsets:UIEdgeInsetsMake(0, size.width - 30, 0, 0)];
+        CGFloat spec = 160/92;
+        CGFloat adds = size.width -62;
+        CGFloat insetsW = spec *adds;
+        if (insetsW <8) {
+            insetsW = 8;
+        }
+        [_voiceButton setImageEdgeInsets:UIEdgeInsetsMake(0, size.width - 36+8, 0, 0)];
         [_voiceButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, size.width - ssize.width - 30 + 10)];
-        
+//        [_voiceButton setImageEdgeInsets:UIEdgeInsetsMake(0, insetsW, 0, 0)];// // 图像与文本之间的间距
+//        [_voiceButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, insetsW)]; 文本与图像之间的间距
+//        [_voiceButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 16, 0, size.width - 34)];
+//        [_voiceButton setImageEdgeInsets:UIEdgeInsetsMake(0, size.width-34, 0, 16)];
     }else{
         [_voiceButton setImage:SobotKitGetImage(@"zcicon_pop_voice_receive_normal") forState:UIControlStateNormal];
         [_voiceButton setImage:SobotKitGetImage(@"zcicon_pop_voice_receive_normal") forState:UIControlStateHighlighted];
@@ -202,9 +241,9 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
         _layoutTransStateBottom.constant = 0;
     }else{
         
-        _layoutTransTop.constant = ZCChatCellItemSpace;
+        _layoutTransTop.constant = ZCChatItemSpace4;
         _layoutTransTextTop.constant = ZCChatPaddingVSpace;
-        _layoutTransStateTop.constant = ZCChatPaddingVSpace;
+        _layoutTransStateTop.constant = ZCChatItemSpace4;
         _layoutTransStateBottom.constant = -ZCChatPaddingVSpace;
         if(self.isRight){
             _translationLabel.textAlignment = NSTextAlignmentLeft;
@@ -221,9 +260,15 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
         if(message.richModel.state == 1){
             [_translationStateButton setTitle:SobotKitLocalString(@"转换完成") forState:0];
             [_translationStateButton setImage:SobotKitGetImage(@"zcicon_transvoice_success") forState:0];
+            
+//            [_cusBtnView initWithTitle:SobotKitLocalString(@"转换完成") img:SobotKitGetImage(@"zcicon_transvoice_success") iconL:16 iconH:12 iconW:12 titleFont:SobotFont12 titleColor:UIColorFromKitModeColor(SobotColorTextSub1) btnHeight:20 labL:4 supView:_translationStateButton];
         }else if(message.richModel.state == 0){
+            _layoutTransTextTop.constant = 0;
+            _layoutTransStateTop.constant = ZCChatPaddingVSpace;
             [_translationStateButton setTitle:SobotKitLocalString(@"转换失败") forState:0];
             [_translationStateButton setImage:SobotKitGetImage(@"zcicon_transvoice_fail") forState:0];
+            
+//            [_cusBtnView initWithTitle:SobotKitLocalString(@"转换失败") img:SobotKitGetImage(@"zcicon_transvoice_fail") iconL:16 iconH:12 iconW:12 titleFont:SobotFont12 titleColor:UIColorFromKitModeColor(SobotColorTextSub1) btnHeight:20 labL:4 supView:_translationStateButton];
         }else{
             
             // 默认不显示 置空
@@ -238,13 +283,25 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
         
         CGSize btnSize = [_translationStateButton.titleLabel.text boundingRectWithSize:CGSizeMake(self.maxWidth, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:_translationStateButton.titleLabel.font} context:nil].size;
         _layoutTransStateHeight.constant = btnSize.height;
-        btnSize.width = btnSize.width + 25;
+        btnSize.width = btnSize.width + 20;
     
         if(btnSize.width < textSize.width){
             _layoutTransTextWidth.constant = textSize.width;
         }else{
             _layoutTransTextWidth.constant = btnSize.width;
         }
+        
+        // 如果是转换失败使用转换失败按钮的大小
+        if ([_translationStateButton.titleLabel.text isEqualToString:SobotKitLocalString(@"转换失败")]) {
+            // 没有文案
+            // 这里需要计算宽度
+            NSString *tip = SobotKitLocalString(@"转换失败");
+            CGFloat w1 = [SobotUITools getWidthContain:tip font:SobotFont12 Height:20];
+            // 左右间距
+            w1 = w1 + 12 + 4 -3; //-2 是有2个像素的误差
+            _layoutTransTextWidth.constant = w1;
+        }
+        
     }
     [_translationView layoutIfNeeded];
     CGFloat h = CGRectGetMaxY(_translationView.frame);
@@ -265,18 +322,18 @@ static const CGFloat SobotVoiceBaseWidth = 180.0f;
 -(void)setAnimationImages:(UIButton *)sender{
     if(self.isRight){
         [sender.imageView setAnimationImages:[NSArray arrayWithObjects:
-                                              SobotKitGetImage(@"zcicon_pop_voice_send_anime_1"),
-                                              SobotKitGetImage(@"zcicon_pop_voice_send_anime_2"),
-                                              SobotKitGetImage(@"zcicon_pop_voice_send_anime_3"),
+                                              SobotKitGetImage(@"zcicon_pop_voice_send_play_anime_1"),
+                                              SobotKitGetImage(@"zcicon_pop_voice_send_play_anime_2"),
+                                              SobotKitGetImage(@"zcicon_pop_voice_send_play_anime_3"),
 //                                              [ZCUITools zcuiGetBundleImage:@"zcicon_pop_voice_send_anime_4"],
 //                                              [ZCUITools zcuiGetBundleImage:@"zcicon_pop_voice_send_anime_5"],
                                               nil]];
         
     }else{
         [sender.imageView setAnimationImages:[NSArray arrayWithObjects:
-                                              SobotKitGetImage(@"zcicon_pop_voice_receive_anime_1"),
-                                              SobotKitGetImage(@"zcicon_pop_voice_receive_anime_2"),
-                                              SobotKitGetImage(@"zcicon_pop_voice_receive_anime_3"),
+                                              SobotKitGetImage(@"zcicon_pop_voice_receive_play_anime_1"),
+                                              SobotKitGetImage(@"zcicon_pop_voice_receive_play_anime_2"),
+                                              SobotKitGetImage(@"zcicon_pop_voice_receive_play_anime_3"),
 //                                              [ZCUITools zcuiGetBundleImage:@"zcicon_pop_voice_receive_anime_4"],
 //                                              [ZCUITools zcuiGetBundleImage:@"zcicon_pop_voice_receive_anime_5"],
                                               nil]];

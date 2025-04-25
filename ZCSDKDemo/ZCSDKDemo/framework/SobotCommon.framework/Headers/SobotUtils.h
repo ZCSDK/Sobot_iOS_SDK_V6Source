@@ -75,6 +75,9 @@ BOOL sobotValidateEmail(NSString* email);
 BOOL sobotValidateMobile(NSString* mobile);
 // 验证手机号，自定义正则
 BOOL sobotValidateMobileWithRegex(NSString* mobile,NSString *regex);
+// 验证自定义字段 9 的类型 电话号码 3～16位数字、英文符号, +
+BOOL sobotValidateTelWithRegex(NSString *mobile,NSString *regex);
+
 BOOL sobotValidateQQNumber(NSString *qqNumber);
 BOOL sobotValiddatePinYin(NSString *pinYin);
 /// 纯数字
@@ -137,6 +140,9 @@ NSURL* sobotGetResourceUrl(NSString* basePath, NSString* resName, NSString* resT
 
 // 路径是否存在，不区别文件或路径
 BOOL sobotCheckFileIsExsis(NSString *filePath);
+
+// 文件大小
+long long sobotFileSizeAtPath(NSString *filePath);
 
 // 是文件并且不是路径
 BOOL sobotCheckFilePathIsExsis(NSString *filePath);
@@ -203,7 +209,7 @@ NSString *sobotGetCurrentLanguages(void);
 
 // 是否为需要支持RTL语言版本
 BOOL sobotIsRTLLayout(void);
-
+BOOL sobotCheckLanIsRTLLayout(NSString *lan);
 
 /**
  *  获取设备的尺寸
@@ -217,5 +223,9 @@ BOOL sobotIsIPhoneX(void);
 
 /// 获取当前展示的window
 UIWindow *sobotGetCurWindow(void);
+
+
+
+
 
 @end

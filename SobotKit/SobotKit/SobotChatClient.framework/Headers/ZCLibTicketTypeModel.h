@@ -24,16 +24,21 @@
 //"validFlag":1
 
 /** 类型名称 */
-@property (nonatomic,copy) NSString * typeName;
+@property (nonatomic,copy) NSString *typeName;
 
 /**  工单类型 ID*/
-@property (nonatomic,copy) NSString * typeId;
+@property (nonatomic,copy) NSString *typeId;
 
 /**  子集 */
-@property (nonatomic,strong) NSMutableArray * items;
+@property (nonatomic,strong) NSMutableArray *items;
 
 /** 1 有下一级， 0 当前是最后一级 */
-@property (nonatomic,copy) NSString * nodeFlag ;
+@property (nonatomic,copy) NSString *nodeFlag;
+
+/**
+ *  数据层级
+ */
+@property (nonatomic,assign)int typeLevel;
 
 -(id)initWithMyDict:(NSDictionary *)dict;
 

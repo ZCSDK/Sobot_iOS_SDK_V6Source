@@ -47,8 +47,13 @@ typedef void(^BackRefreshPageBlock)(id _Nonnull object);
 @property (nonatomic,assign) int tickeTypeFlag ; //1-自行选择分类，要显示  2-指定分类 其他，不显示
 @property (nonatomic,copy) NSString * _Nullable ticketTypeId;// 当-指定分类 传这个值
 @property (nonatomic,copy) BackRefreshPageBlock  _Nullable backRefreshPageblock;
+@property (nonatomic,assign) BOOL ticketContentShowFlag;
+@property (nonatomic,assign) BOOL ticketContentFillFlag;
 
-
+//ticketContentShowFlag 问题描述是否显示 0-不显示 1-显示 默认显示
+//        ticketContentFillFlag 问题描述是否必填 0-非必填 1-必填 默认必填
+//        enclosureShowFlag 是否显示附件 0 不显示 1显示
+//        enclosureFlag 附件是否为必填字段 0 选填 1 必填
 @end
 
 NS_ASSUME_NONNULL_END

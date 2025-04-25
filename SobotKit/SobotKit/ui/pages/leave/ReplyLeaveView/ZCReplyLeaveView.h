@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "ZCUIPlaceHolderTextView.h"
-
+#import "ZCUITextView.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol ZCReplyLeaveViewDelegate <NSObject>
@@ -28,14 +28,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSMutableArray *imagePathArr;
 @property (nonatomic, strong) NSString *ticketId;
 @property (nonatomic, strong) NSString *replyStr; // 回复内容
+@property (nonatomic, strong) ZCUITextView *textDesc;
 
-@property (nonatomic, strong) ZCUIPlaceHolderTextView *textDesc;
 
 - (void)showInView:(UIView *)view;
 
 - (void)tappedCancel:(BOOL) isClose;
 
 - (void)reloadScrollView;
+
 
 @property(nonatomic,weak) id<ZCReplyLeaveViewDelegate> delegate;
 

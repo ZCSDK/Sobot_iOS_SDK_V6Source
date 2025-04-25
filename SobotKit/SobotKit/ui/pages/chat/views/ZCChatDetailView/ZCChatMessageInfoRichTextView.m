@@ -80,9 +80,9 @@
             [imgView.layer setCornerRadius:4.0f];
             [imgView.layer setMasksToBounds:YES];
             if(type == 3){
-                [imgView loadWithURL:[NSURL URLWithString:sobotConvertToString(item.snapshot)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")];
+                [imgView loadWithURL:[NSURL URLWithString:sobotConvertToString(item.snapshot)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1") showActivityIndicatorView:NO];
             }else{
-                [imgView loadWithURL:[NSURL URLWithString:msg] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")];
+                [imgView loadWithURL:[NSURL URLWithString:msg] placeholer:SobotKitGetImage(@"zcicon_default_goods_1") showActivityIndicatorView:NO];
             }
             UITapGestureRecognizer *tapGesturer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imgTouchUpInside:)];
             imgView.userInteractionEnabled=YES;
@@ -93,7 +93,7 @@
             [_contentView addConstraint:sobotLayoutEqualHeight(200, imgView, NSLayoutRelationEqual)];
            
             if(type == 3){
-                [imgView loadWithURL:[NSURL URLWithString:@"https://img.sobot.com/chat/common/res/83f5636f-51b7-48d6-9d63-40eba0963bda.png"] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")];
+                [imgView loadWithURL:[NSURL URLWithString:@"https://img.sobot.com/chat/common/res/83f5636f-51b7-48d6-9d63-40eba0963bda.png"] placeholer:SobotKitGetImage(@"zcicon_default_goods_1") showActivityIndicatorView:NO];
                 // 设置一个特殊的tag，不支持点击查看大图
                 imgView.tag = 101;
                 SobotButton *_playButton = [SobotButton buttonWithType:UIButtonTypeCustom];
@@ -359,7 +359,7 @@
         [linkBgView addConstraint:sobotLayoutPaddingTop(12, linktitleLab, linkBgView)];
         
         SobotImageView *icon = [[SobotImageView alloc]init];
-        [icon loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zcicon_url_icon")];
+        [icon loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
         [linkBgView addSubview:icon];
         [superView addConstraints:sobotLayoutSize(34,34, icon, NSLayoutRelationEqual)];
         [linkBgView addConstraint:sobotLayoutPaddingRight(-15, icon, linkBgView)];
@@ -464,7 +464,7 @@
                 if (sobotConvertToString(desc).length == 0) {
                     linkLab.text = sobotConvertToString(urlMsg);
                 }
-                [icon loadWithURL:[NSURL URLWithString:imgUrl] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
+            [icon loadWithURL:[NSURL URLWithString:imgUrl] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
 //            }
         }
     } failed:^(NSString *errorMessage, ZCNetWorkCode errorCode) {
@@ -500,7 +500,17 @@
             NSString *title = sobotConvertToString([data objectForKey:@"title"]);
             NSString *desc = sobotConvertToString([data objectForKey:@"desc"]);
             NSString *imgUrl = sobotConvertToString([data objectForKey:@"imgUrl"]);
-            if(title.length > 0){
+            if(title.length > 0 || imgUrl.length >0){
+                if (sobotConvertToString(title).length == 0) {
+                    if (sobotConvertToString(name).length >0) {
+                        title = sobotConvertToString(name);
+                    }else{
+                        title = sobotConvertToString(link);
+                    }
+                }
+                if (sobotConvertToString(desc).length == 0) {
+                    desc = sobotConvertToString(link);
+                }
                 NSDictionary *dataDic = @{@"title":sobotConvertToString(title),
                                           @"desc":sobotConvertToString(desc),
                                           @"imgUrl":sobotConvertToString(imgUrl),
@@ -670,6 +680,13 @@
     return image;
 }
 
+
+
+- (void)touchesEnded:(NSSet *)touches
+           withEvent:(UIEvent *)event
+{
+    [super touchesEnded:touches withEvent:event];
+}
 
 // 链接点击
 - (void)SobotEmojiLabel:(SobotEmojiLabel*)emojiLabel didSelectLink:(NSString*)link withType:(SobotEmojiLabelLinkType)type{

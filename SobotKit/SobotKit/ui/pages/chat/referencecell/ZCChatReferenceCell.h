@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZCChatReferenceCell : UIView
 
-+(ZCChatReferenceCell *)createViewUseFactory:(SobotChatMessage *)message mainModel:(SobotChatMessage *) parentMessage maxWidth:(CGFloat)maxWidth;
++(ZCChatReferenceCell *)createViewUseFactory:(SobotChatMessage *)message mainModel:(SobotChatMessage *) parentMessage maxWidth:(CGFloat)maxWidth isRight:(BOOL)isRight;
 
 /**
  *  最大宽度
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,assign) CGFloat  maxWidth;
 @property(nonatomic,strong) SobotChatMessage *parentMessage;
 @property(nonatomic,assign) BOOL isRight;
-
+@property(nonatomic,assign) BOOL isSupRight;
 @property(nonatomic,strong) SobotChatMessage *tempMessage;
 
 @property(nonatomic,strong) id<ZCChatReferenceCellDelegate> delegate;

@@ -72,25 +72,105 @@
 		7B056D2E2B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D1A2B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.m */; };
 		7B056D2F2B32E0370040CA69 /* ZCChatCustomCardSingleCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D1B2B32E0370040CA69 /* ZCChatCustomCardSingleCell.h */; };
 		7B056D452B32E0540040CA69 /* ZCChatMessageInfoRichTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D312B32E0540040CA69 /* ZCChatMessageInfoRichTextView.m */; };
-		7B056D462B32E0540040CA69 /* ZCChatDetailView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D322B32E0540040CA69 /* ZCChatDetailView.h */; };
-		7B056D472B32E0540040CA69 /* SobotFileButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D332B32E0540040CA69 /* SobotFileButton.h */; };
 		7B056D482B32E0540040CA69 /* ZCChatMessageInfoFileView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D342B32E0540040CA69 /* ZCChatMessageInfoFileView.h */; };
 		7B056D492B32E0540040CA69 /* ZCChatMessageInfoTextView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D352B32E0540040CA69 /* ZCChatMessageInfoTextView.h */; };
 		7B056D4A2B32E0540040CA69 /* ZCChatMessageInfoImgView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D362B32E0540040CA69 /* ZCChatMessageInfoImgView.m */; };
-		7B056D4B2B32E0540040CA69 /* ZCChatDetailViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D372B32E0540040CA69 /* ZCChatDetailViewCell.m */; };
 		7B056D4C2B32E0540040CA69 /* ZCChatMessageInfoArticleView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D382B32E0540040CA69 /* ZCChatMessageInfoArticleView.h */; };
 		7B056D4D2B32E0540040CA69 /* ZCChatShowDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D392B32E0540040CA69 /* ZCChatShowDetailView.m */; };
 		7B056D4E2B32E0540040CA69 /* ZCChatMessageInfoView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D3A2B32E0540040CA69 /* ZCChatMessageInfoView.m */; };
 		7B056D4F2B32E0540040CA69 /* ZCChatMessageInfoRichTextView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D3B2B32E0540040CA69 /* ZCChatMessageInfoRichTextView.h */; };
 		7B056D502B32E0540040CA69 /* ZCChatMessageInfoFileView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D3C2B32E0540040CA69 /* ZCChatMessageInfoFileView.m */; };
-		7B056D512B32E0540040CA69 /* SobotFileButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D3D2B32E0540040CA69 /* SobotFileButton.m */; };
-		7B056D522B32E0540040CA69 /* ZCChatDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D3E2B32E0540040CA69 /* ZCChatDetailView.m */; };
 		7B056D532B32E0540040CA69 /* ZCChatMessageInfoArticleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D3F2B32E0540040CA69 /* ZCChatMessageInfoArticleView.m */; };
-		7B056D542B32E0540040CA69 /* ZCChatDetailViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D402B32E0540040CA69 /* ZCChatDetailViewCell.h */; };
 		7B056D552B32E0540040CA69 /* ZCChatMessageInfoImgView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D412B32E0540040CA69 /* ZCChatMessageInfoImgView.h */; };
 		7B056D562B32E0540040CA69 /* ZCChatMessageInfoTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B056D422B32E0540040CA69 /* ZCChatMessageInfoTextView.m */; };
 		7B056D572B32E0540040CA69 /* ZCChatMessageInfoView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D432B32E0540040CA69 /* ZCChatMessageInfoView.h */; };
 		7B056D582B32E0540040CA69 /* ZCChatShowDetailView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B056D442B32E0540040CA69 /* ZCChatShowDetailView.h */; };
+		7B17C1662DBB3FED00B5C989 /* ZCLeaveRegionEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C15A2DBB3FED00B5C989 /* ZCLeaveRegionEntity.m */; };
+		7B17C1672DBB3FED00B5C989 /* ZCLeaveRegionSheetView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C15C2DBB3FED00B5C989 /* ZCLeaveRegionSheetView.m */; };
+		7B17C1682DBB3FED00B5C989 /* ZCLeaveRegionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1582DBB3FED00B5C989 /* ZCLeaveRegionCell.m */; };
+		7B17C1692DBB3FED00B5C989 /* ZCShadowRadiusView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1612DBB3FED00B5C989 /* ZCShadowRadiusView.m */; };
+		7B17C16A2DBB3FED00B5C989 /* ZCLanguageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1642DBB3FED00B5C989 /* ZCLanguageView.m */; };
+		7B17C16B2DBB3FED00B5C989 /* ZCShadowBorderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C15F2DBB3FED00B5C989 /* ZCShadowBorderView.m */; };
+		7B17C16C2DBB3FED00B5C989 /* ZCLanguageView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1632DBB3FED00B5C989 /* ZCLanguageView.h */; };
+		7B17C16D2DBB3FED00B5C989 /* ZCShadowBorderView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C15E2DBB3FED00B5C989 /* ZCShadowBorderView.h */; };
+		7B17C16E2DBB3FED00B5C989 /* ZCLeaveRegionSheetView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C15B2DBB3FED00B5C989 /* ZCLeaveRegionSheetView.h */; };
+		7B17C16F2DBB3FED00B5C989 /* ZCLeaveRegionEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1592DBB3FED00B5C989 /* ZCLeaveRegionEntity.h */; };
+		7B17C1702DBB3FED00B5C989 /* ZCLeaveRegionCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1572DBB3FED00B5C989 /* ZCLeaveRegionCell.h */; };
+		7B17C1712DBB3FED00B5C989 /* ZCShadowRadiusView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1602DBB3FED00B5C989 /* ZCShadowRadiusView.h */; };
+		7B17C1742DBB400100B5C989 /* ZCUITextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1732DBB400100B5C989 /* ZCUITextView.m */; };
+		7B17C1752DBB400100B5C989 /* ZCUITextView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1722DBB400100B5C989 /* ZCUITextView.h */; };
+		7B17C17D2DBB401600B5C989 /* ZCSkillGroup3Cell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C17B2DBB401600B5C989 /* ZCSkillGroup3Cell.m */; };
+		7B17C17E2DBB401600B5C989 /* ZCSkillGroup1Cell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1772DBB401600B5C989 /* ZCSkillGroup1Cell.m */; };
+		7B17C17F2DBB401600B5C989 /* ZCSkillGroup2Cell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1792DBB401600B5C989 /* ZCSkillGroup2Cell.m */; };
+		7B17C1802DBB401600B5C989 /* ZCSkillGroup1Cell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1762DBB401600B5C989 /* ZCSkillGroup1Cell.h */; };
+		7B17C1812DBB401600B5C989 /* ZCSkillGroup2Cell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1782DBB401600B5C989 /* ZCSkillGroup2Cell.h */; };
+		7B17C1822DBB401600B5C989 /* ZCSkillGroup3Cell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C17A2DBB401600B5C989 /* ZCSkillGroup3Cell.h */; };
+		7B17C1872DBB403100B5C989 /* SobotMultiBarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1862DBB403100B5C989 /* SobotMultiBarView.m */; };
+		7B17C1882DBB403100B5C989 /* SobotKeyboardRecordView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1842DBB403100B5C989 /* SobotKeyboardRecordView.m */; };
+		7B17C1892DBB403100B5C989 /* SobotMultiBarView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1852DBB403100B5C989 /* SobotMultiBarView.h */; };
+		7B17C18A2DBB403100B5C989 /* SobotKeyboardRecordView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1832DBB403100B5C989 /* SobotKeyboardRecordView.h */; };
+		7B17C18D2DBB404A00B5C989 /* ZCOrderCheckMoreCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C18C2DBB404A00B5C989 /* ZCOrderCheckMoreCell.m */; };
+		7B17C18E2DBB404A00B5C989 /* ZCOrderCheckMoreCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C18B2DBB404A00B5C989 /* ZCOrderCheckMoreCell.h */; };
+		7B17C1932DBB407200B5C989 /* SobotImageButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1902DBB407200B5C989 /* SobotImageButton.m */; };
+		7B17C1942DBB407200B5C989 /* SobotVoiceButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1922DBB407200B5C989 /* SobotVoiceButton.m */; };
+		7B17C1952DBB407200B5C989 /* SobotVoiceButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1912DBB407200B5C989 /* SobotVoiceButton.h */; };
+		7B17C1962DBB407200B5C989 /* SobotImageButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C18F2DBB407200B5C989 /* SobotImageButton.h */; };
+		7B17C19E2DBB40DC00B5C989 /* ZCChatAiLoadingCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C19D2DBB40DC00B5C989 /* ZCChatAiLoadingCell.m */; };
+		7B17C19F2DBB40DC00B5C989 /* SobotChatBaseCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1982DBB40DC00B5C989 /* SobotChatBaseCell.m */; };
+		7B17C1A02DBB40DC00B5C989 /* SobotChatMsgBaseCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C19A2DBB40DC00B5C989 /* SobotChatMsgBaseCell.m */; };
+		7B17C1A12DBB40DC00B5C989 /* ZCChatAiLoadingCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C19C2DBB40DC00B5C989 /* ZCChatAiLoadingCell.h */; };
+		7B17C1A22DBB40DC00B5C989 /* SobotChatBaseCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1972DBB40DC00B5C989 /* SobotChatBaseCell.h */; };
+		7B17C1A32DBB40DC00B5C989 /* SobotChatMsgBaseCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1992DBB40DC00B5C989 /* SobotChatMsgBaseCell.h */; };
+		7B17C1B12DBB40EB00B5C989 /* ZCChatAiCustomCardPage.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1A92DBB40EB00B5C989 /* ZCChatAiCustomCardPage.m */; };
+		7B17C1B22DBB40EB00B5C989 /* ZCChatAiCustomCardCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1A72DBB40EB00B5C989 /* ZCChatAiCustomCardCell.m */; };
+		7B17C1B32DBB40EB00B5C989 /* ZCChatAiCustomCardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1AF2DBB40EB00B5C989 /* ZCChatAiCustomCardView.m */; };
+		7B17C1B42DBB40EB00B5C989 /* ZCChatAiCardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1A52DBB40EB00B5C989 /* ZCChatAiCardView.m */; };
+		7B17C1B52DBB40EB00B5C989 /* ZCChatAiCustomCardPageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1AB2DBB40EB00B5C989 /* ZCChatAiCustomCardPageCell.m */; };
+		7B17C1B62DBB40EB00B5C989 /* ZCChatAiCustomCardUserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1AD2DBB40EB00B5C989 /* ZCChatAiCustomCardUserCell.m */; };
+		7B17C1B72DBB40EB00B5C989 /* ZCChatAiCustomCardUserCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1AC2DBB40EB00B5C989 /* ZCChatAiCustomCardUserCell.h */; };
+		7B17C1B82DBB40EB00B5C989 /* ZCChatAiCustomCardView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1AE2DBB40EB00B5C989 /* ZCChatAiCustomCardView.h */; };
+		7B17C1B92DBB40EB00B5C989 /* ZCChatAiCustomCardPage.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1A82DBB40EB00B5C989 /* ZCChatAiCustomCardPage.h */; };
+		7B17C1BA2DBB40EB00B5C989 /* ZCChatAiCustomCardPageCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1AA2DBB40EB00B5C989 /* ZCChatAiCustomCardPageCell.h */; };
+		7B17C1BB2DBB40EB00B5C989 /* ZCChatAiCustomCardCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1A62DBB40EB00B5C989 /* ZCChatAiCustomCardCell.h */; };
+		7B17C1BC2DBB40EB00B5C989 /* ZCChatAiCardView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1A42DBB40EB00B5C989 /* ZCChatAiCardView.h */; };
+		7B17C1C12DBB40FF00B5C989 /* ZCChatEnumCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1BE2DBB40FF00B5C989 /* ZCChatEnumCell.m */; };
+		7B17C1C22DBB40FF00B5C989 /* ZCChatWhell1Cell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1C02DBB40FF00B5C989 /* ZCChatWhell1Cell.m */; };
+		7B17C1C32DBB40FF00B5C989 /* ZCChatEnumCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1BD2DBB40FF00B5C989 /* ZCChatEnumCell.h */; };
+		7B17C1C42DBB40FF00B5C989 /* ZCChatWhell1Cell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1BF2DBB40FF00B5C989 /* ZCChatWhell1Cell.h */; };
+		7B17C1CA2DBB5A1300B5C989 /* ZCChatStepOnBaseCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1C62DBB5A1300B5C989 /* ZCChatStepOnBaseCell.m */; };
+		7B17C1CB2DBB5A1300B5C989 /* ZCChatStepOnCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1C82DBB5A1300B5C989 /* ZCChatStepOnCell.m */; };
+		7B17C1CC2DBB5A1300B5C989 /* ZCChatStepOnCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1C72DBB5A1300B5C989 /* ZCChatStepOnCell.h */; };
+		7B17C1CD2DBB5A1300B5C989 /* ZCChatStepOnBaseCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1C52DBB5A1300B5C989 /* ZCChatStepOnBaseCell.h */; };
+		7B17C1D12DBB5A5E00B5C989 /* ZCMsgRecordVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1CF2DBB5A5E00B5C989 /* ZCMsgRecordVC.m */; };
+		7B17C1D22DBB5A5E00B5C989 /* ZCMsgRecordVC.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1CE2DBB5A5E00B5C989 /* ZCMsgRecordVC.h */; };
+		7B17C1D62DBB5AF300B5C989 /* ZCSelLeaveViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1D42DBB5AF300B5C989 /* ZCSelLeaveViewCell.m */; };
+		7B17C1D72DBB5AF300B5C989 /* ZCSelLeaveViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1D32DBB5AF300B5C989 /* ZCSelLeaveViewCell.h */; };
+		7B17C1DD2DBB5B1200B5C989 /* ZCMsgDetailsNoDataCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1DB2DBB5B1200B5C989 /* ZCMsgDetailsNoDataCell.m */; };
+		7B17C1DE2DBB5B1200B5C989 /* ZCLeaveDetailHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1D92DBB5B1200B5C989 /* ZCLeaveDetailHeaderCell.m */; };
+		7B17C1DF2DBB5B1200B5C989 /* ZCLeaveDetailHeaderCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1D82DBB5B1200B5C989 /* ZCLeaveDetailHeaderCell.h */; };
+		7B17C1E02DBB5B1200B5C989 /* ZCMsgDetailsNoDataCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1DA2DBB5B1200B5C989 /* ZCMsgDetailsNoDataCell.h */; };
+		7B17C1E32DBB5BD700B5C989 /* ZCChatSensitiveCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1E22DBB5BD700B5C989 /* ZCChatSensitiveCell.m */; };
+		7B17C1E42DBB5BD700B5C989 /* ZCChatSensitiveCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1E12DBB5BD700B5C989 /* ZCChatSensitiveCell.h */; };
+		7B17C1E72DBB5BFE00B5C989 /* ZCChatLanguageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1E62DBB5BFE00B5C989 /* ZCChatLanguageCell.m */; };
+		7B17C1E82DBB5BFE00B5C989 /* ZCChatLanguageCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1E52DBB5BFE00B5C989 /* ZCChatLanguageCell.h */; };
+		7B17C1F32DBB5C1700B5C989 /* ZCAskCusFieldView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1EA2DBB5C1700B5C989 /* ZCAskCusFieldView.m */; };
+		7B17C1F42DBB5C1700B5C989 /* ZCUIAskTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1EC2DBB5C1700B5C989 /* ZCUIAskTableCell.m */; };
+		7B17C1F52DBB5C1700B5C989 /* ZCUIAskTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1F12DBB5C1700B5C989 /* ZCUIAskTableView.m */; };
+		7B17C1F62DBB5C1700B5C989 /* ZCUIAskSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1EF2DBB5C1700B5C989 /* ZCUIAskSelectionView.m */; };
+		7B17C1F72DBB5C1700B5C989 /* ZCUIAskSelectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1EE2DBB5C1700B5C989 /* ZCUIAskSelectionView.h */; };
+		7B17C1F82DBB5C1700B5C989 /* ZCUIAskTableView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1F02DBB5C1700B5C989 /* ZCUIAskTableView.h */; };
+		7B17C1F92DBB5C1700B5C989 /* ZCAskCusFieldView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1E92DBB5C1700B5C989 /* ZCAskCusFieldView.h */; };
+		7B17C1FA2DBB5C1700B5C989 /* ZCUIAskTableCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1EB2DBB5C1700B5C989 /* ZCUIAskTableCell.h */; };
+		7B17C1FE2DBB5C7700B5C989 /* ZCAutoListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C1FC2DBB5C7700B5C989 /* ZCAutoListCell.m */; };
+		7B17C1FF2DBB5C7700B5C989 /* ZCAutoListCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C1FB2DBB5C7700B5C989 /* ZCAutoListCell.h */; };
+		7B17C2022DBB5D1900B5C989 /* SobotFastMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C2012DBB5D1900B5C989 /* SobotFastMenuView.m */; };
+		7B17C2032DBB5D1900B5C989 /* SobotFastMenuView.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C2002DBB5D1900B5C989 /* SobotFastMenuView.h */; };
+		7B17C2062DBB5D4700B5C989 /* ZCTurnRobotCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C2052DBB5D4700B5C989 /* ZCTurnRobotCell.m */; };
+		7B17C2072DBB5D4700B5C989 /* ZCTurnRobotCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C2042DBB5D4700B5C989 /* ZCTurnRobotCell.h */; };
+		7B17C20C2DBB5E0700B5C989 /* ZCCheckMulCusFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C2092DBB5E0700B5C989 /* ZCCheckMulCusFieldCell.m */; };
+		7B17C20D2DBB5E0700B5C989 /* ZCCheckTypeViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B17C20B2DBB5E0700B5C989 /* ZCCheckTypeViewCell.m */; };
+		7B17C20E2DBB5E0700B5C989 /* ZCCheckTypeViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C20A2DBB5E0700B5C989 /* ZCCheckTypeViewCell.h */; };
+		7B17C20F2DBB5E0700B5C989 /* ZCCheckMulCusFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B17C2082DBB5E0700B5C989 /* ZCCheckMulCusFieldCell.h */; };
 		7B1CC49828FFB787004B856B /* ZCChatOnlineTipsCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B1CC49628FFB787004B856B /* ZCChatOnlineTipsCell.h */; };
 		7B1CC49928FFB787004B856B /* ZCChatOnlineTipsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B1CC49728FFB787004B856B /* ZCChatOnlineTipsCell.m */; };
 		7B2360CD28BE301400A445CD /* SobotClientBaseController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B2360C828BE301400A445CD /* SobotClientBaseController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -214,8 +294,6 @@
 		ED409B1F28D078F900690A24 /* ZCActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = ED409B1D28D078F900690A24 /* ZCActionSheet.m */; };
 		ED409B2328D0A27B00690A24 /* ZCOrderOnlyEditCell.h in Headers */ = {isa = PBXBuildFile; fileRef = ED409B2128D0A27B00690A24 /* ZCOrderOnlyEditCell.h */; };
 		ED409B2428D0A27B00690A24 /* ZCOrderOnlyEditCell.m in Sources */ = {isa = PBXBuildFile; fileRef = ED409B2228D0A27B00690A24 /* ZCOrderOnlyEditCell.m */; };
-		ED474FFC28D81E7900353157 /* ZCUIEvaluateView.h in Headers */ = {isa = PBXBuildFile; fileRef = ED474FFA28D81E7900353157 /* ZCUIEvaluateView.h */; };
-		ED474FFD28D81E7900353157 /* ZCUIEvaluateView.m in Sources */ = {isa = PBXBuildFile; fileRef = ED474FFB28D81E7900353157 /* ZCUIEvaluateView.m */; };
 		ED47500128D83E7400353157 /* ZCItemView.h in Headers */ = {isa = PBXBuildFile; fileRef = ED474FFF28D83E7400353157 /* ZCItemView.h */; };
 		ED47500228D83E7400353157 /* ZCItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = ED47500028D83E7400353157 /* ZCItemView.m */; };
 		ED47500728DB0E6200353157 /* ZCTitleView.h in Headers */ = {isa = PBXBuildFile; fileRef = ED47500528DB0E6200353157 /* ZCTitleView.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -314,25 +392,105 @@
 		7B056D1A2B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatCustomCardSingleSendCell.m; sourceTree = "<group>"; };
 		7B056D1B2B32E0370040CA69 /* ZCChatCustomCardSingleCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatCustomCardSingleCell.h; sourceTree = "<group>"; };
 		7B056D312B32E0540040CA69 /* ZCChatMessageInfoRichTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoRichTextView.m; sourceTree = "<group>"; };
-		7B056D322B32E0540040CA69 /* ZCChatDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatDetailView.h; sourceTree = "<group>"; };
-		7B056D332B32E0540040CA69 /* SobotFileButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SobotFileButton.h; sourceTree = "<group>"; };
 		7B056D342B32E0540040CA69 /* ZCChatMessageInfoFileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoFileView.h; sourceTree = "<group>"; };
 		7B056D352B32E0540040CA69 /* ZCChatMessageInfoTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoTextView.h; sourceTree = "<group>"; };
 		7B056D362B32E0540040CA69 /* ZCChatMessageInfoImgView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoImgView.m; sourceTree = "<group>"; };
-		7B056D372B32E0540040CA69 /* ZCChatDetailViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatDetailViewCell.m; sourceTree = "<group>"; };
 		7B056D382B32E0540040CA69 /* ZCChatMessageInfoArticleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoArticleView.h; sourceTree = "<group>"; };
 		7B056D392B32E0540040CA69 /* ZCChatShowDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatShowDetailView.m; sourceTree = "<group>"; };
 		7B056D3A2B32E0540040CA69 /* ZCChatMessageInfoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoView.m; sourceTree = "<group>"; };
 		7B056D3B2B32E0540040CA69 /* ZCChatMessageInfoRichTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoRichTextView.h; sourceTree = "<group>"; };
 		7B056D3C2B32E0540040CA69 /* ZCChatMessageInfoFileView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoFileView.m; sourceTree = "<group>"; };
-		7B056D3D2B32E0540040CA69 /* SobotFileButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SobotFileButton.m; sourceTree = "<group>"; };
-		7B056D3E2B32E0540040CA69 /* ZCChatDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatDetailView.m; sourceTree = "<group>"; };
 		7B056D3F2B32E0540040CA69 /* ZCChatMessageInfoArticleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoArticleView.m; sourceTree = "<group>"; };
-		7B056D402B32E0540040CA69 /* ZCChatDetailViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatDetailViewCell.h; sourceTree = "<group>"; };
 		7B056D412B32E0540040CA69 /* ZCChatMessageInfoImgView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoImgView.h; sourceTree = "<group>"; };
 		7B056D422B32E0540040CA69 /* ZCChatMessageInfoTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCChatMessageInfoTextView.m; sourceTree = "<group>"; };
 		7B056D432B32E0540040CA69 /* ZCChatMessageInfoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatMessageInfoView.h; sourceTree = "<group>"; };
 		7B056D442B32E0540040CA69 /* ZCChatShowDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCChatShowDetailView.h; sourceTree = "<group>"; };
+		7B17C1572DBB3FED00B5C989 /* ZCLeaveRegionCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCLeaveRegionCell.h; sourceTree = "<group>"; };
+		7B17C1582DBB3FED00B5C989 /* ZCLeaveRegionCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCLeaveRegionCell.m; sourceTree = "<group>"; };
+		7B17C1592DBB3FED00B5C989 /* ZCLeaveRegionEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCLeaveRegionEntity.h; sourceTree = "<group>"; };
+		7B17C15A2DBB3FED00B5C989 /* ZCLeaveRegionEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCLeaveRegionEntity.m; sourceTree = "<group>"; };
+		7B17C15B2DBB3FED00B5C989 /* ZCLeaveRegionSheetView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCLeaveRegionSheetView.h; sourceTree = "<group>"; };
+		7B17C15C2DBB3FED00B5C989 /* ZCLeaveRegionSheetView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCLeaveRegionSheetView.m; sourceTree = "<group>"; };
+		7B17C15E2DBB3FED00B5C989 /* ZCShadowBorderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCShadowBorderView.h; sourceTree = "<group>"; };
+		7B17C15F2DBB3FED00B5C989 /* ZCShadowBorderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCShadowBorderView.m; sourceTree = "<group>"; };
+		7B17C1602DBB3FED00B5C989 /* ZCShadowRadiusView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCShadowRadiusView.h; sourceTree = "<group>"; };
+		7B17C1612DBB3FED00B5C989 /* ZCShadowRadiusView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCShadowRadiusView.m; sourceTree = "<group>"; };
+		7B17C1632DBB3FED00B5C989 /* ZCLanguageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCLanguageView.h; sourceTree = "<group>"; };
+		7B17C1642DBB3FED00B5C989 /* ZCLanguageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCLanguageView.m; sourceTree = "<group>"; };
+		7B17C1722DBB400100B5C989 /* ZCUITextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCUITextView.h; sourceTree = "<group>"; };
+		7B17C1732DBB400100B5C989 /* ZCUITextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCUITextView.m; sourceTree = "<group>"; };
+		7B17C1762DBB401600B5C989 /* ZCSkillGroup1Cell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCSkillGroup1Cell.h; sourceTree = "<group>"; };
+		7B17C1772DBB401600B5C989 /* ZCSkillGroup1Cell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCSkillGroup1Cell.m; sourceTree = "<group>"; };
+		7B17C1782DBB401600B5C989 /* ZCSkillGroup2Cell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCSkillGroup2Cell.h; sourceTree = "<group>"; };
+		7B17C1792DBB401600B5C989 /* ZCSkillGroup2Cell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCSkillGroup2Cell.m; sourceTree = "<group>"; };
+		7B17C17A2DBB401600B5C989 /* ZCSkillGroup3Cell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCSkillGroup3Cell.h; sourceTree = "<group>"; };
+		7B17C17B2DBB401600B5C989 /* ZCSkillGroup3Cell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCSkillGroup3Cell.m; sourceTree = "<group>"; };
+		7B17C1832DBB403100B5C989 /* SobotKeyboardRecordView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SobotKeyboardRecordView.h; sourceTree = "<group>"; };
+		7B17C1842DBB403100B5C989 /* SobotKeyboardRecordView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SobotKeyboardRecordView.m; sourceTree = "<group>"; };
+		7B17C1852DBB403100B5C989 /* SobotMultiBarView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SobotMultiBarView.h; sourceTree = "<group>"; };
+		7B17C1862DBB403100B5C989 /* SobotMultiBarView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SobotMultiBarView.m; sourceTree = "<group>"; };
+		7B17C18B2DBB404A00B5C989 /* ZCOrderCheckMoreCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCOrderCheckMoreCell.h; sourceTree = "<group>"; };
+		7B17C18C2DBB404A00B5C989 /* ZCOrderCheckMoreCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCOrderCheckMoreCell.m; sourceTree = "<group>"; };
+		7B17C18F2DBB407200B5C989 /* SobotImageButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SobotImageButton.h; sourceTree = "<group>"; };
+		7B17C1902DBB407200B5C989 /* SobotImageButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SobotImageButton.m; sourceTree = "<group>"; };
+		7B17C1912DBB407200B5C989 /* SobotVoiceButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SobotVoiceButton.h; sourceTree = "<group>"; };
+		7B17C1922DBB407200B5C989 /* SobotVoiceButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SobotVoiceButton.m; sourceTree = "<group>"; };
+		7B17C1972DBB40DC00B5C989 /* SobotChatBaseCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SobotChatBaseCell.h; sourceTree = "<group>"; };
+		7B17C1982DBB40DC00B5C989 /* SobotChatBaseCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SobotChatBaseCell.m; sourceTree = "<group>"; };
+		7B17C1992DBB40DC00B5C989 /* SobotChatMsgBaseCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SobotChatMsgBaseCell.h; sourceTree = "<group>"; };
+		7B17C19A2DBB40DC00B5C989 /* SobotChatMsgBaseCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SobotChatMsgBaseCell.m; sourceTree = "<group>"; };
+		7B17C19C2DBB40DC00B5C989 /* ZCChatAiLoadingCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatAiLoadingCell.h; sourceTree = "<group>"; };
+		7B17C19D2DBB40DC00B5C989 /* ZCChatAiLoadingCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatAiLoadingCell.m; sourceTree = "<group>"; };
+		7B17C1A42DBB40EB00B5C989 /* ZCChatAiCardView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatAiCardView.h; sourceTree = "<group>"; };
+		7B17C1A52DBB40EB00B5C989 /* ZCChatAiCardView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatAiCardView.m; sourceTree = "<group>"; };
+		7B17C1A62DBB40EB00B5C989 /* ZCChatAiCustomCardCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatAiCustomCardCell.h; sourceTree = "<group>"; };
+		7B17C1A72DBB40EB00B5C989 /* ZCChatAiCustomCardCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatAiCustomCardCell.m; sourceTree = "<group>"; };
+		7B17C1A82DBB40EB00B5C989 /* ZCChatAiCustomCardPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatAiCustomCardPage.h; sourceTree = "<group>"; };
+		7B17C1A92DBB40EB00B5C989 /* ZCChatAiCustomCardPage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatAiCustomCardPage.m; sourceTree = "<group>"; };
+		7B17C1AA2DBB40EB00B5C989 /* ZCChatAiCustomCardPageCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatAiCustomCardPageCell.h; sourceTree = "<group>"; };
+		7B17C1AB2DBB40EB00B5C989 /* ZCChatAiCustomCardPageCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatAiCustomCardPageCell.m; sourceTree = "<group>"; };
+		7B17C1AC2DBB40EB00B5C989 /* ZCChatAiCustomCardUserCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatAiCustomCardUserCell.h; sourceTree = "<group>"; };
+		7B17C1AD2DBB40EB00B5C989 /* ZCChatAiCustomCardUserCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatAiCustomCardUserCell.m; sourceTree = "<group>"; };
+		7B17C1AE2DBB40EB00B5C989 /* ZCChatAiCustomCardView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatAiCustomCardView.h; sourceTree = "<group>"; };
+		7B17C1AF2DBB40EB00B5C989 /* ZCChatAiCustomCardView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatAiCustomCardView.m; sourceTree = "<group>"; };
+		7B17C1BD2DBB40FF00B5C989 /* ZCChatEnumCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatEnumCell.h; sourceTree = "<group>"; };
+		7B17C1BE2DBB40FF00B5C989 /* ZCChatEnumCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatEnumCell.m; sourceTree = "<group>"; };
+		7B17C1BF2DBB40FF00B5C989 /* ZCChatWhell1Cell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatWhell1Cell.h; sourceTree = "<group>"; };
+		7B17C1C02DBB40FF00B5C989 /* ZCChatWhell1Cell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatWhell1Cell.m; sourceTree = "<group>"; };
+		7B17C1C52DBB5A1300B5C989 /* ZCChatStepOnBaseCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatStepOnBaseCell.h; sourceTree = "<group>"; };
+		7B17C1C62DBB5A1300B5C989 /* ZCChatStepOnBaseCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatStepOnBaseCell.m; sourceTree = "<group>"; };
+		7B17C1C72DBB5A1300B5C989 /* ZCChatStepOnCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatStepOnCell.h; sourceTree = "<group>"; };
+		7B17C1C82DBB5A1300B5C989 /* ZCChatStepOnCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatStepOnCell.m; sourceTree = "<group>"; };
+		7B17C1CE2DBB5A5E00B5C989 /* ZCMsgRecordVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCMsgRecordVC.h; sourceTree = "<group>"; };
+		7B17C1CF2DBB5A5E00B5C989 /* ZCMsgRecordVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCMsgRecordVC.m; sourceTree = "<group>"; };
+		7B17C1D32DBB5AF300B5C989 /* ZCSelLeaveViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCSelLeaveViewCell.h; sourceTree = "<group>"; };
+		7B17C1D42DBB5AF300B5C989 /* ZCSelLeaveViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCSelLeaveViewCell.m; sourceTree = "<group>"; };
+		7B17C1D82DBB5B1200B5C989 /* ZCLeaveDetailHeaderCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCLeaveDetailHeaderCell.h; sourceTree = "<group>"; };
+		7B17C1D92DBB5B1200B5C989 /* ZCLeaveDetailHeaderCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCLeaveDetailHeaderCell.m; sourceTree = "<group>"; };
+		7B17C1DA2DBB5B1200B5C989 /* ZCMsgDetailsNoDataCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCMsgDetailsNoDataCell.h; sourceTree = "<group>"; };
+		7B17C1DB2DBB5B1200B5C989 /* ZCMsgDetailsNoDataCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCMsgDetailsNoDataCell.m; sourceTree = "<group>"; };
+		7B17C1E12DBB5BD700B5C989 /* ZCChatSensitiveCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatSensitiveCell.h; sourceTree = "<group>"; };
+		7B17C1E22DBB5BD700B5C989 /* ZCChatSensitiveCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatSensitiveCell.m; sourceTree = "<group>"; };
+		7B17C1E52DBB5BFE00B5C989 /* ZCChatLanguageCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatLanguageCell.h; sourceTree = "<group>"; };
+		7B17C1E62DBB5BFE00B5C989 /* ZCChatLanguageCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatLanguageCell.m; sourceTree = "<group>"; };
+		7B17C1E92DBB5C1700B5C989 /* ZCAskCusFieldView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCAskCusFieldView.h; sourceTree = "<group>"; };
+		7B17C1EA2DBB5C1700B5C989 /* ZCAskCusFieldView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCAskCusFieldView.m; sourceTree = "<group>"; };
+		7B17C1EB2DBB5C1700B5C989 /* ZCUIAskTableCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCUIAskTableCell.h; sourceTree = "<group>"; };
+		7B17C1EC2DBB5C1700B5C989 /* ZCUIAskTableCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCUIAskTableCell.m; sourceTree = "<group>"; };
+		7B17C1EE2DBB5C1700B5C989 /* ZCUIAskSelectionView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCUIAskSelectionView.h; sourceTree = "<group>"; };
+		7B17C1EF2DBB5C1700B5C989 /* ZCUIAskSelectionView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCUIAskSelectionView.m; sourceTree = "<group>"; };
+		7B17C1F02DBB5C1700B5C989 /* ZCUIAskTableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCUIAskTableView.h; sourceTree = "<group>"; };
+		7B17C1F12DBB5C1700B5C989 /* ZCUIAskTableView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCUIAskTableView.m; sourceTree = "<group>"; };
+		7B17C1FB2DBB5C7700B5C989 /* ZCAutoListCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCAutoListCell.h; sourceTree = "<group>"; };
+		7B17C1FC2DBB5C7700B5C989 /* ZCAutoListCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCAutoListCell.m; sourceTree = "<group>"; };
+		7B17C2002DBB5D1900B5C989 /* SobotFastMenuView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SobotFastMenuView.h; sourceTree = "<group>"; };
+		7B17C2012DBB5D1900B5C989 /* SobotFastMenuView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SobotFastMenuView.m; sourceTree = "<group>"; };
+		7B17C2042DBB5D4700B5C989 /* ZCTurnRobotCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCTurnRobotCell.h; sourceTree = "<group>"; };
+		7B17C2052DBB5D4700B5C989 /* ZCTurnRobotCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCTurnRobotCell.m; sourceTree = "<group>"; };
+		7B17C2082DBB5E0700B5C989 /* ZCCheckMulCusFieldCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCCheckMulCusFieldCell.h; sourceTree = "<group>"; };
+		7B17C2092DBB5E0700B5C989 /* ZCCheckMulCusFieldCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCCheckMulCusFieldCell.m; sourceTree = "<group>"; };
+		7B17C20A2DBB5E0700B5C989 /* ZCCheckTypeViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCCheckTypeViewCell.h; sourceTree = "<group>"; };
+		7B17C20B2DBB5E0700B5C989 /* ZCCheckTypeViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCCheckTypeViewCell.m; sourceTree = "<group>"; };
 		7B1CC49628FFB787004B856B /* ZCChatOnlineTipsCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCChatOnlineTipsCell.h; sourceTree = "<group>"; };
 		7B1CC49728FFB787004B856B /* ZCChatOnlineTipsCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCChatOnlineTipsCell.m; sourceTree = "<group>"; };
 		7B2360C828BE301400A445CD /* SobotClientBaseController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SobotClientBaseController.h; sourceTree = "<group>"; };
@@ -457,8 +615,6 @@
 		ED409B1D28D078F900690A24 /* ZCActionSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCActionSheet.m; sourceTree = "<group>"; };
 		ED409B2128D0A27B00690A24 /* ZCOrderOnlyEditCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCOrderOnlyEditCell.h; sourceTree = "<group>"; };
 		ED409B2228D0A27B00690A24 /* ZCOrderOnlyEditCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCOrderOnlyEditCell.m; sourceTree = "<group>"; };
-		ED474FFA28D81E7900353157 /* ZCUIEvaluateView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCUIEvaluateView.h; sourceTree = "<group>"; };
-		ED474FFB28D81E7900353157 /* ZCUIEvaluateView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCUIEvaluateView.m; sourceTree = "<group>"; };
 		ED474FFF28D83E7400353157 /* ZCItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCItemView.h; sourceTree = "<group>"; };
 		ED47500028D83E7400353157 /* ZCItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCItemView.m; sourceTree = "<group>"; };
 		ED47500528DB0E6200353157 /* ZCTitleView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCTitleView.h; sourceTree = "<group>"; };
@@ -557,6 +713,10 @@
 		7B056D022B32E01A0040CA69 /* ZCButton */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C18F2DBB407200B5C989 /* SobotImageButton.h */,
+				7B17C1902DBB407200B5C989 /* SobotImageButton.m */,
+				7B17C1912DBB407200B5C989 /* SobotVoiceButton.h */,
+				7B17C1922DBB407200B5C989 /* SobotVoiceButton.m */,
 				7B056D032B32E01A0040CA69 /* ZCObjButton.m */,
 				7B056D042B32E01A0040CA69 /* ZCObjButton.h */,
 			);
@@ -566,6 +726,7 @@
 		7B056D072B32E0370040CA69 /* customcard */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1B02DBB40EB00B5C989 /* aiCustomView */,
 				7B056D082B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.h */,
 				7B056D092B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.m */,
 				7B056D0A2B32E0370040CA69 /* ZCChatCustomCardCell.m */,
@@ -594,27 +755,169 @@
 			isa = PBXGroup;
 			children = (
 				7B056D312B32E0540040CA69 /* ZCChatMessageInfoRichTextView.m */,
-				7B056D322B32E0540040CA69 /* ZCChatDetailView.h */,
-				7B056D332B32E0540040CA69 /* SobotFileButton.h */,
 				7B056D342B32E0540040CA69 /* ZCChatMessageInfoFileView.h */,
 				7B056D352B32E0540040CA69 /* ZCChatMessageInfoTextView.h */,
 				7B056D362B32E0540040CA69 /* ZCChatMessageInfoImgView.m */,
-				7B056D372B32E0540040CA69 /* ZCChatDetailViewCell.m */,
 				7B056D382B32E0540040CA69 /* ZCChatMessageInfoArticleView.h */,
 				7B056D392B32E0540040CA69 /* ZCChatShowDetailView.m */,
 				7B056D3A2B32E0540040CA69 /* ZCChatMessageInfoView.m */,
 				7B056D3B2B32E0540040CA69 /* ZCChatMessageInfoRichTextView.h */,
 				7B056D3C2B32E0540040CA69 /* ZCChatMessageInfoFileView.m */,
-				7B056D3D2B32E0540040CA69 /* SobotFileButton.m */,
-				7B056D3E2B32E0540040CA69 /* ZCChatDetailView.m */,
 				7B056D3F2B32E0540040CA69 /* ZCChatMessageInfoArticleView.m */,
-				7B056D402B32E0540040CA69 /* ZCChatDetailViewCell.h */,
 				7B056D412B32E0540040CA69 /* ZCChatMessageInfoImgView.h */,
 				7B056D422B32E0540040CA69 /* ZCChatMessageInfoTextView.m */,
 				7B056D432B32E0540040CA69 /* ZCChatMessageInfoView.h */,
 				7B056D442B32E0540040CA69 /* ZCChatShowDetailView.h */,
 			);
 			path = ZCChatDetailView;
+			sourceTree = "<group>";
+		};
+		7B17C15D2DBB3FED00B5C989 /* Region */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1572DBB3FED00B5C989 /* ZCLeaveRegionCell.h */,
+				7B17C1582DBB3FED00B5C989 /* ZCLeaveRegionCell.m */,
+				7B17C1592DBB3FED00B5C989 /* ZCLeaveRegionEntity.h */,
+				7B17C15A2DBB3FED00B5C989 /* ZCLeaveRegionEntity.m */,
+				7B17C15B2DBB3FED00B5C989 /* ZCLeaveRegionSheetView.h */,
+				7B17C15C2DBB3FED00B5C989 /* ZCLeaveRegionSheetView.m */,
+			);
+			path = Region;
+			sourceTree = "<group>";
+		};
+		7B17C1622DBB3FED00B5C989 /* ZCBorderView */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C15E2DBB3FED00B5C989 /* ZCShadowBorderView.h */,
+				7B17C15F2DBB3FED00B5C989 /* ZCShadowBorderView.m */,
+				7B17C1602DBB3FED00B5C989 /* ZCShadowRadiusView.h */,
+				7B17C1612DBB3FED00B5C989 /* ZCShadowRadiusView.m */,
+			);
+			path = ZCBorderView;
+			sourceTree = "<group>";
+		};
+		7B17C1652DBB3FED00B5C989 /* ZCLanguage */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1632DBB3FED00B5C989 /* ZCLanguageView.h */,
+				7B17C1642DBB3FED00B5C989 /* ZCLanguageView.m */,
+			);
+			path = ZCLanguage;
+			sourceTree = "<group>";
+		};
+		7B17C17C2DBB401600B5C989 /* cell */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1762DBB401600B5C989 /* ZCSkillGroup1Cell.h */,
+				7B17C1772DBB401600B5C989 /* ZCSkillGroup1Cell.m */,
+				7B17C1782DBB401600B5C989 /* ZCSkillGroup2Cell.h */,
+				7B17C1792DBB401600B5C989 /* ZCSkillGroup2Cell.m */,
+				7B17C17A2DBB401600B5C989 /* ZCSkillGroup3Cell.h */,
+				7B17C17B2DBB401600B5C989 /* ZCSkillGroup3Cell.m */,
+			);
+			path = cell;
+			sourceTree = "<group>";
+		};
+		7B17C19B2DBB40DC00B5C989 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1972DBB40DC00B5C989 /* SobotChatBaseCell.h */,
+				7B17C1982DBB40DC00B5C989 /* SobotChatBaseCell.m */,
+				7B17C1992DBB40DC00B5C989 /* SobotChatMsgBaseCell.h */,
+				7B17C19A2DBB40DC00B5C989 /* SobotChatMsgBaseCell.m */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
+		7B17C1B02DBB40EB00B5C989 /* aiCustomView */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1A42DBB40EB00B5C989 /* ZCChatAiCardView.h */,
+				7B17C1A52DBB40EB00B5C989 /* ZCChatAiCardView.m */,
+				7B17C1A62DBB40EB00B5C989 /* ZCChatAiCustomCardCell.h */,
+				7B17C1A72DBB40EB00B5C989 /* ZCChatAiCustomCardCell.m */,
+				7B17C1A82DBB40EB00B5C989 /* ZCChatAiCustomCardPage.h */,
+				7B17C1A92DBB40EB00B5C989 /* ZCChatAiCustomCardPage.m */,
+				7B17C1AA2DBB40EB00B5C989 /* ZCChatAiCustomCardPageCell.h */,
+				7B17C1AB2DBB40EB00B5C989 /* ZCChatAiCustomCardPageCell.m */,
+				7B17C1AC2DBB40EB00B5C989 /* ZCChatAiCustomCardUserCell.h */,
+				7B17C1AD2DBB40EB00B5C989 /* ZCChatAiCustomCardUserCell.m */,
+				7B17C1AE2DBB40EB00B5C989 /* ZCChatAiCustomCardView.h */,
+				7B17C1AF2DBB40EB00B5C989 /* ZCChatAiCustomCardView.m */,
+			);
+			path = aiCustomView;
+			sourceTree = "<group>";
+		};
+		7B17C1C92DBB5A1300B5C989 /* step0nCell */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1C52DBB5A1300B5C989 /* ZCChatStepOnBaseCell.h */,
+				7B17C1C62DBB5A1300B5C989 /* ZCChatStepOnBaseCell.m */,
+				7B17C1C72DBB5A1300B5C989 /* ZCChatStepOnCell.h */,
+				7B17C1C82DBB5A1300B5C989 /* ZCChatStepOnCell.m */,
+			);
+			path = step0nCell;
+			sourceTree = "<group>";
+		};
+		7B17C1D02DBB5A5E00B5C989 /* ZCRecordVC */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1CE2DBB5A5E00B5C989 /* ZCMsgRecordVC.h */,
+				7B17C1CF2DBB5A5E00B5C989 /* ZCMsgRecordVC.m */,
+			);
+			path = ZCRecordVC;
+			sourceTree = "<group>";
+		};
+		7B17C1D52DBB5AF300B5C989 /* cell */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1D32DBB5AF300B5C989 /* ZCSelLeaveViewCell.h */,
+				7B17C1D42DBB5AF300B5C989 /* ZCSelLeaveViewCell.m */,
+			);
+			path = cell;
+			sourceTree = "<group>";
+		};
+		7B17C1DC2DBB5B1200B5C989 /* cell */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1D82DBB5B1200B5C989 /* ZCLeaveDetailHeaderCell.h */,
+				7B17C1D92DBB5B1200B5C989 /* ZCLeaveDetailHeaderCell.m */,
+				7B17C1DA2DBB5B1200B5C989 /* ZCMsgDetailsNoDataCell.h */,
+				7B17C1DB2DBB5B1200B5C989 /* ZCMsgDetailsNoDataCell.m */,
+			);
+			path = cell;
+			sourceTree = "<group>";
+		};
+		7B17C1ED2DBB5C1700B5C989 /* cell */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1E92DBB5C1700B5C989 /* ZCAskCusFieldView.h */,
+				7B17C1EA2DBB5C1700B5C989 /* ZCAskCusFieldView.m */,
+				7B17C1EB2DBB5C1700B5C989 /* ZCUIAskTableCell.h */,
+				7B17C1EC2DBB5C1700B5C989 /* ZCUIAskTableCell.m */,
+			);
+			path = cell;
+			sourceTree = "<group>";
+		};
+		7B17C1F22DBB5C1700B5C989 /* view */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1ED2DBB5C1700B5C989 /* cell */,
+				7B17C1EE2DBB5C1700B5C989 /* ZCUIAskSelectionView.h */,
+				7B17C1EF2DBB5C1700B5C989 /* ZCUIAskSelectionView.m */,
+				7B17C1F02DBB5C1700B5C989 /* ZCUIAskTableView.h */,
+				7B17C1F12DBB5C1700B5C989 /* ZCUIAskTableView.m */,
+			);
+			path = view;
+			sourceTree = "<group>";
+		};
+		7B17C1FD2DBB5C7700B5C989 /* cell */ = {
+			isa = PBXGroup;
+			children = (
+				7B17C1FB2DBB5C7700B5C989 /* ZCAutoListCell.h */,
+				7B17C1FC2DBB5C7700B5C989 /* ZCAutoListCell.m */,
+			);
+			path = cell;
 			sourceTree = "<group>";
 		};
 		7B2360C628BE301400A445CD /* ui */ = {
@@ -644,6 +947,7 @@
 		7B2360C928BE301400A445CD /* chat */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1C92DBB5A1300B5C989 /* step0nCell */,
 				7B056CD92B32E0020040CA69 /* referencecell */,
 				7BDDE19A28D1D7BF006E7006 /* camera */,
 				7BAC4D9228C09ABA00B8EBDA /* chatcell */,
@@ -659,6 +963,8 @@
 		7B49DCDE28DC603400360945 /* card */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1E52DBB5BFE00B5C989 /* ZCChatLanguageCell.h */,
+				7B17C1E62DBB5BFE00B5C989 /* ZCChatLanguageCell.m */,
 				7B49DCDA28DC593C00360945 /* ZCChatAppletCell.h */,
 				7B49DCDB28DC593C00360945 /* ZCChatAppletCell.m */,
 				7B49DCDF28DC608300360945 /* ZCChatArticleCell.h */,
@@ -689,6 +995,10 @@
 		7B8333F828D1C026006BDFFA /* record */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1832DBB403100B5C989 /* SobotKeyboardRecordView.h */,
+				7B17C1842DBB403100B5C989 /* SobotKeyboardRecordView.m */,
+				7B17C1852DBB403100B5C989 /* SobotMultiBarView.h */,
+				7B17C1862DBB403100B5C989 /* SobotMultiBarView.m */,
 				7B8333F928D1C026006BDFFA /* ZCUIRecordView.m */,
 				7B8333FA28D1C026006BDFFA /* ZCUIRecordView.h */,
 			);
@@ -722,6 +1032,8 @@
 		7BAC4D7B28BE35B600B8EBDA /* views */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C2002DBB5D1900B5C989 /* SobotFastMenuView.h */,
+				7B17C2012DBB5D1900B5C989 /* SobotFastMenuView.m */,
 				7B056D302B32E0540040CA69 /* ZCChatDetailView */,
 				7B8333F828D1C026006BDFFA /* record */,
 				7B8333F128D06EBC006BDFFA /* EmojiBoardView.h */,
@@ -741,6 +1053,9 @@
 		7BAC4D9228C09ABA00B8EBDA /* chatcell */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C19B2DBB40DC00B5C989 /* base */,
+				7B17C19C2DBB40DC00B5C989 /* ZCChatAiLoadingCell.h */,
+				7B17C19D2DBB40DC00B5C989 /* ZCChatAiLoadingCell.m */,
 				7B056D072B32E0370040CA69 /* customcard */,
 				7B71AEEA28E52A11003A49EB /* listcell */,
 				7BCFFDA528DD8EFB00FF9002 /* operation */,
@@ -766,6 +1081,10 @@
 		7BC73A7A28D9DEFA004E1CE8 /* wheel */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1BD2DBB40FF00B5C989 /* ZCChatEnumCell.h */,
+				7B17C1BE2DBB40FF00B5C989 /* ZCChatEnumCell.m */,
+				7B17C1BF2DBB40FF00B5C989 /* ZCChatWhell1Cell.h */,
+				7B17C1C02DBB40FF00B5C989 /* ZCChatWhell1Cell.m */,
 				7BC73A7F28D9DFAA004E1CE8 /* ZCChatWheel123Cell.h */,
 				7BC73A8028D9DFAA004E1CE8 /* ZCChatWheel123Cell.m */,
 				7BC73A8328D9E01B004E1CE8 /* ZCChatWheel4Cell.h */,
@@ -794,6 +1113,8 @@
 		7BCFFDA528DD8EFB00FF9002 /* operation */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1E12DBB5BD700B5C989 /* ZCChatSensitiveCell.h */,
+				7B17C1E22DBB5BD700B5C989 /* ZCChatSensitiveCell.m */,
 				7BCFFDA628DD8F0F00FF9002 /* ZCChatNoticeCell.h */,
 				7BCFFDA728DD8F0F00FF9002 /* ZCChatNoticeCell.m */,
 				7BCFFDAA28DD8F2500FF9002 /* ZCChatNoticeLeaveCell.h */,
@@ -861,6 +1182,7 @@
 		ED409AA028C58DE800690A24 /* leave */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1D02DBB5A5E00B5C989 /* ZCRecordVC */,
 				EDCEA7B728D2F31400355DBD /* ZCSelLeaveView */,
 				ED409B0A28CB1E5C00690A24 /* PlaceHolderTextView */,
 				ED409B0528CB18DF00690A24 /* ReplyLeaveView */,
@@ -891,6 +1213,8 @@
 		ED409AD128C83CF300690A24 /* cell */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C18B2DBB404A00B5C989 /* ZCOrderCheckMoreCell.h */,
+				7B17C18C2DBB404A00B5C989 /* ZCOrderCheckMoreCell.m */,
 				ED409AD228C83D4300690A24 /* ZCMsgRecordCell.h */,
 				ED409AD328C83D4300690A24 /* ZCMsgRecordCell.m */,
 				ED409AFC28C9BFD400690A24 /* ZCLeaveDetailCell.h */,
@@ -912,6 +1236,7 @@
 		ED409AD628C8844F00690A24 /* ZCMsgDetails */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1DC2DBB5B1200B5C989 /* cell */,
 				ED409AD728C8848C00690A24 /* ZCMsgDetailsVC.h */,
 				ED409AD828C8848C00690A24 /* ZCMsgDetailsVC.m */,
 			);
@@ -939,6 +1264,13 @@
 		ED409AED28C9894F00690A24 /* views */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C2082DBB5E0700B5C989 /* ZCCheckMulCusFieldCell.h */,
+				7B17C2092DBB5E0700B5C989 /* ZCCheckMulCusFieldCell.m */,
+				7B17C20A2DBB5E0700B5C989 /* ZCCheckTypeViewCell.h */,
+				7B17C20B2DBB5E0700B5C989 /* ZCCheckTypeViewCell.m */,
+				7B17C15D2DBB3FED00B5C989 /* Region */,
+				7B17C1622DBB3FED00B5C989 /* ZCBorderView */,
+				7B17C1652DBB3FED00B5C989 /* ZCLanguage */,
 				7B056D022B32E01A0040CA69 /* ZCButton */,
 				7B056CD42B32DFE00040CA69 /* ZCStatusLab */,
 				ED47500428DB0E3200353157 /* ZCTitleView */,
@@ -1005,6 +1337,8 @@
 		ED409B0A28CB1E5C00690A24 /* PlaceHolderTextView */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1722DBB400100B5C989 /* ZCUITextView.h */,
+				7B17C1732DBB400100B5C989 /* ZCUITextView.m */,
 				ED409B0C28CB1E7E00690A24 /* ZCUIPlaceHolderTextView.h */,
 				ED409B0B28CB1E7E00690A24 /* ZCUIPlaceHolderTextView.m */,
 			);
@@ -1050,6 +1384,7 @@
 		EDCEA7B728D2F31400355DBD /* ZCSelLeaveView */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1D52DBB5AF300B5C989 /* cell */,
 				EDCEA7B828D2F31400355DBD /* ZCQuickLeaveView.h */,
 				EDCEA7BA28D2F31400355DBD /* ZCQuickLeaveView.m */,
 				EDCEA7BB28D2F31400355DBD /* ZCSelLeaveView.h */,
@@ -1061,6 +1396,7 @@
 		EDCEA7C428D3115600355DBD /* AskTable */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1F22DBB5C1700B5C989 /* view */,
 				EDCEA7C528D311BF00355DBD /* ZCUIAskTableController.h */,
 				EDCEA7C628D311BF00355DBD /* ZCUIAskTableController.m */,
 			);
@@ -1070,6 +1406,7 @@
 		EDCEA7D128D40B4200355DBD /* ZCSkillGroups */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C17C2DBB401600B5C989 /* cell */,
 				EDCEA7D228D40B4200355DBD /* ZCUISkillSetView.h */,
 				EDCEA7D328D40B4200355DBD /* ZCUISkillSetView.m */,
 			);
@@ -1079,6 +1416,8 @@
 		EDCEA7DA28D41BC700355DBD /* ZCTurnRobotView */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C2042DBB5D4700B5C989 /* ZCTurnRobotCell.h */,
+				7B17C2052DBB5D4700B5C989 /* ZCTurnRobotCell.m */,
 				EDCEA7DB28D41BC700355DBD /* ZCTurnRobotView.h */,
 				EDCEA7DC28D41BC700355DBD /* ZCTurnRobotView.m */,
 			);
@@ -1088,6 +1427,7 @@
 		EDCEA7E328D4225200355DBD /* AutoVIew */ = {
 			isa = PBXGroup;
 			children = (
+				7B17C1FD2DBB5C7700B5C989 /* cell */,
 				EDCEA7E428D4225200355DBD /* ZCAutoListView.h */,
 				EDCEA7E528D4225200355DBD /* ZCAutoListView.m */,
 			);
@@ -1126,8 +1466,6 @@
 				7B056CCA2B32DF050040CA69 /* SobotSatisfactionItemView.m */,
 				7B056CCB2B32DF050040CA69 /* SobotSatisfactionView.h */,
 				7B056CCC2B32DF050040CA69 /* SobotSatisfactionView.m */,
-				ED474FFA28D81E7900353157 /* ZCUIEvaluateView.h */,
-				ED474FFB28D81E7900353157 /* ZCUIEvaluateView.m */,
 			);
 			path = EvaluateView;
 			sourceTree = "<group>";
@@ -1139,8 +1477,12 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B17C1A12DBB40DC00B5C989 /* ZCChatAiLoadingCell.h in Headers */,
+				7B17C1A22DBB40DC00B5C989 /* SobotChatBaseCell.h in Headers */,
+				7B17C1A32DBB40DC00B5C989 /* SobotChatMsgBaseCell.h in Headers */,
+				7B17C1DF2DBB5B1200B5C989 /* ZCLeaveDetailHeaderCell.h in Headers */,
+				7B17C1E02DBB5B1200B5C989 /* ZCMsgDetailsNoDataCell.h in Headers */,
 				7B056CD12B32DF050040CA69 /* SobotSatisfactionView.h in Headers */,
-				7B056D472B32E0540040CA69 /* SobotFileButton.h in Headers */,
 				ED47500728DB0E6200353157 /* ZCTitleView.h in Headers */,
 				ED409B0428CA09A900690A24 /* ZCUIWebController.h in Headers */,
 				7B056D252B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.h in Headers */,
@@ -1152,6 +1494,7 @@
 				7B056D282B32E0370040CA69 /* ZCChatCustomCardCell.h in Headers */,
 				7BAC4D7428BE34CA00B8EBDA /* ZCUICore.h in Headers */,
 				7BCFFDB028DD8F4100FF9002 /* ZCChatEvaluationCell.h in Headers */,
+				7B17C1E42DBB5BD700B5C989 /* ZCChatSensitiveCell.h in Headers */,
 				7B49DCE128DC608300360945 /* ZCChatArticleCell.h in Headers */,
 				ED409AA328C58E5A00690A24 /* ZCLeaveMsgController.h in Headers */,
 				ED47500128D83E7400353157 /* ZCItemView.h in Headers */,
@@ -1171,6 +1514,10 @@
 				7BD9DEBA28BCAC6000D38511 /* ZCSobotApi.h in Headers */,
 				EDCEA7EC28D444BF00355DBD /* ZCPieChartView.h in Headers */,
 				7BC73AA228DB2ACB004E1CE8 /* ZCChatHotCollectionCell.h in Headers */,
+				7B17C1F72DBB5C1700B5C989 /* ZCUIAskSelectionView.h in Headers */,
+				7B17C1F82DBB5C1700B5C989 /* ZCUIAskTableView.h in Headers */,
+				7B17C1F92DBB5C1700B5C989 /* ZCAskCusFieldView.h in Headers */,
+				7B17C1FA2DBB5C1700B5C989 /* ZCUIAskTableCell.h in Headers */,
 				7B056CD82B32DFE00040CA69 /* ZCStatusLab.h in Headers */,
 				7B71AEF128E5C018003A49EB /* ZCChatWheelCollection2Cell.h in Headers */,
 				7BDDE1A628D1DA5F006E7006 /* ZCVideoPlayer.h in Headers */,
@@ -1184,11 +1531,13 @@
 				7B056D492B32E0540040CA69 /* ZCChatMessageInfoTextView.h in Headers */,
 				7B056D482B32E0540040CA69 /* ZCChatMessageInfoFileView.h in Headers */,
 				EDB3C9AB28E1BEE000261D9B /* ZCServiceCentreVC.h in Headers */,
+				7B17C1E82DBB5BFE00B5C989 /* ZCChatLanguageCell.h in Headers */,
 				EDCEA7B328D1B97B00355DBD /* ZCCheckCusFieldView.h in Headers */,
-				7B056D462B32E0540040CA69 /* ZCChatDetailView.h in Headers */,
 				7BC73A9E28DB2A5B004E1CE8 /* ZCChatHotGuideCell.h in Headers */,
 				7BE5D5DE28D94649002BCF26 /* ZCChatPhotoVideoCell.h in Headers */,
 				7B056D002B32E0020040CA69 /* ZCChatReferenceRichCell.h in Headers */,
+				7B17C1C32DBB40FF00B5C989 /* ZCChatEnumCell.h in Headers */,
+				7B17C1C42DBB40FF00B5C989 /* ZCChatWhell1Cell.h in Headers */,
 				ED409AEB28C9834D00690A24 /* ZCUIRatingView.h in Headers */,
 				ED409AE228C8B9F400690A24 /* ZCReplyFileView.h in Headers */,
 				EDCEA7F028D44A1300355DBD /* ZCServiceDetailVC.h in Headers */,
@@ -1201,13 +1550,39 @@
 				7B71AEE828E529B8003A49EB /* ZCUIChatListController.h in Headers */,
 				ED47500D28E1540800353157 /* ZCLeaveMsgVC.h in Headers */,
 				7B2360CE28BE301400A445CD /* ZCChatController.h in Headers */,
+				7B17C20E2DBB5E0700B5C989 /* ZCCheckTypeViewCell.h in Headers */,
+				7B17C20F2DBB5E0700B5C989 /* ZCCheckMulCusFieldCell.h in Headers */,
 				7B056D572B32E0540040CA69 /* ZCChatMessageInfoView.h in Headers */,
 				7B056D582B32E0540040CA69 /* ZCChatShowDetailView.h in Headers */,
+				7B17C2072DBB5D4700B5C989 /* ZCTurnRobotCell.h in Headers */,
 				7B056CFA2B32E0020040CA69 /* ZCChatReferenceGoodCell.h in Headers */,
+				7B17C1752DBB400100B5C989 /* ZCUITextView.h in Headers */,
 				7B056D212B32E0370040CA69 /* ZCChatCustomCardVerticalCell.h in Headers */,
 				7B056CF02B32E0020040CA69 /* ZCChatReferenceAppletCell.h in Headers */,
 				ED409AAD28C5E2BA00690A24 /* ZCLeaveEditView.h in Headers */,
+				7B17C1B72DBB40EB00B5C989 /* ZCChatAiCustomCardUserCell.h in Headers */,
+				7B17C1B82DBB40EB00B5C989 /* ZCChatAiCustomCardView.h in Headers */,
+				7B17C2032DBB5D1900B5C989 /* SobotFastMenuView.h in Headers */,
+				7B17C1B92DBB40EB00B5C989 /* ZCChatAiCustomCardPage.h in Headers */,
+				7B17C1BA2DBB40EB00B5C989 /* ZCChatAiCustomCardPageCell.h in Headers */,
+				7B17C1BB2DBB40EB00B5C989 /* ZCChatAiCustomCardCell.h in Headers */,
+				7B17C1D22DBB5A5E00B5C989 /* ZCMsgRecordVC.h in Headers */,
+				7B17C1BC2DBB40EB00B5C989 /* ZCChatAiCardView.h in Headers */,
 				7B056D202B32E0370040CA69 /* ZCChatCustomCardBaseCell.h in Headers */,
+				7B17C16C2DBB3FED00B5C989 /* ZCLanguageView.h in Headers */,
+				7B17C16D2DBB3FED00B5C989 /* ZCShadowBorderView.h in Headers */,
+				7B17C1CC2DBB5A1300B5C989 /* ZCChatStepOnCell.h in Headers */,
+				7B17C1CD2DBB5A1300B5C989 /* ZCChatStepOnBaseCell.h in Headers */,
+				7B17C16E2DBB3FED00B5C989 /* ZCLeaveRegionSheetView.h in Headers */,
+				7B17C1D72DBB5AF300B5C989 /* ZCSelLeaveViewCell.h in Headers */,
+				7B17C1892DBB403100B5C989 /* SobotMultiBarView.h in Headers */,
+				7B17C18A2DBB403100B5C989 /* SobotKeyboardRecordView.h in Headers */,
+				7B17C16F2DBB3FED00B5C989 /* ZCLeaveRegionEntity.h in Headers */,
+				7B17C1802DBB401600B5C989 /* ZCSkillGroup1Cell.h in Headers */,
+				7B17C1812DBB401600B5C989 /* ZCSkillGroup2Cell.h in Headers */,
+				7B17C1822DBB401600B5C989 /* ZCSkillGroup3Cell.h in Headers */,
+				7B17C1702DBB3FED00B5C989 /* ZCLeaveRegionCell.h in Headers */,
+				7B17C1712DBB3FED00B5C989 /* ZCShadowRadiusView.h in Headers */,
 				ED409AD928C8848C00690A24 /* ZCMsgDetailsVC.h in Headers */,
 				7BDDE19D28D1D7BF006E7006 /* ZCVideoViewController.h in Headers */,
 				EDB3C9B428E2F0F600261D9B /* ZCServiceListVC.h in Headers */,
@@ -1226,10 +1601,10 @@
 				7B056D552B32E0540040CA69 /* ZCChatMessageInfoImgView.h in Headers */,
 				7B056D4F2B32E0540040CA69 /* ZCChatMessageInfoRichTextView.h in Headers */,
 				7BDDE1A328D1DA5F006E7006 /* ZCCircleProgressView.h in Headers */,
+				7B17C18E2DBB404A00B5C989 /* ZCOrderCheckMoreCell.h in Headers */,
 				7B71AEED28E52A27003A49EB /* ZCUIChatListCell.h in Headers */,
 				7BC73A8928DAA609004E1CE8 /* ZCChatWheelCollectionCell.h in Headers */,
 				7BAC4D9928C09BF500B8EBDA /* ZCUIChatKeyboard.h in Headers */,
-				7B056D542B32E0540040CA69 /* ZCChatDetailViewCell.h in Headers */,
 				7B056CFB2B32E0020040CA69 /* ZCChatReferenceCustomCardCell.h in Headers */,
 				7B056D4C2B32E0540040CA69 /* ZCChatMessageInfoArticleView.h in Headers */,
 				7B056D262B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.h in Headers */,
@@ -1238,6 +1613,7 @@
 				EDCEA79228D16FDD00355DBD /* ZCOrderEditCell.h in Headers */,
 				ED409B2328D0A27B00690A24 /* ZCOrderOnlyEditCell.h in Headers */,
 				7B2360CD28BE301400A445CD /* SobotClientBaseController.h in Headers */,
+				7B17C1FF2DBB5C7700B5C989 /* ZCAutoListCell.h in Headers */,
 				7BDDE1AD28D32E03006E7006 /* ZCChatRichCell.h in Headers */,
 				7B056D062B32E01A0040CA69 /* ZCObjButton.h in Headers */,
 				ED409AFE28C9BFD500690A24 /* ZCLeaveDetailCell.h in Headers */,
@@ -1246,7 +1622,6 @@
 				7BC73A8D28DAA6ED004E1CE8 /* ZCChatWheelFlowLayout.h in Headers */,
 				7BAC4D7E28BE35D100B8EBDA /* ZCChatView.h in Headers */,
 				7BD9DE6B28BCAB4F00D38511 /* SobotKit.h in Headers */,
-				ED474FFC28D81E7900353157 /* ZCUIEvaluateView.h in Headers */,
 				7B8333F328D06EBC006BDFFA /* EmojiButton.h in Headers */,
 				7BF7EEA628DC89A40006D117 /* ZCChatFileCell.h in Headers */,
 				7BCFFDA828DD8F0F00FF9002 /* ZCChatNoticeCell.h in Headers */,
@@ -1254,6 +1629,8 @@
 				7BF7EEA228DC89910006D117 /* ZCChatOrderCardCell.h in Headers */,
 				7BCDE77928DC87C80048D82D /* ZCChatGoodsCardCell.h in Headers */,
 				EDCEA7BF28D2F31500355DBD /* ZCSelLeaveView.h in Headers */,
+				7B17C1952DBB407200B5C989 /* SobotVoiceButton.h in Headers */,
+				7B17C1962DBB407200B5C989 /* SobotImageButton.h in Headers */,
 				7B056CF32B32E0020040CA69 /* ZCChatReferenceCustomVerticalCell.h in Headers */,
 				7B056CFC2B32E0020040CA69 /* ZCChatReferenceTextCell.h in Headers */,
 				7B056CFD2B32E0020040CA69 /* ZCChatReferenceImageCell.h in Headers */,
@@ -1358,6 +1735,7 @@
 				7B056CEE2B32E0020040CA69 /* ZCChatReferenceGoodCell.m in Sources */,
 				ED409ADA28C8848C00690A24 /* ZCMsgDetailsVC.m in Sources */,
 				7BCFFDA928DD8F0F00FF9002 /* ZCChatNoticeCell.m in Sources */,
+				7B17C18D2DBB404A00B5C989 /* ZCOrderCheckMoreCell.m in Sources */,
 				EDCEA7B428D1B97B00355DBD /* ZCCheckCusFieldView.m in Sources */,
 				7BE5D5D728D706D4002BCF26 /* ZCChatVoiceCell.m in Sources */,
 				7BC73A8A28DAA609004E1CE8 /* ZCChatWheelCollectionCell.m in Sources */,
@@ -1367,14 +1745,17 @@
 				ED47500228D83E7400353157 /* ZCItemView.m in Sources */,
 				EDCEA7DE28D41BC700355DBD /* ZCTurnRobotView.m in Sources */,
 				ED409AC828C82C1600690A24 /* ZCMsgRecordView.m in Sources */,
-				7B056D4B2B32E0540040CA69 /* ZCChatDetailViewCell.m in Sources */,
 				7BE5D5DF28D94649002BCF26 /* ZCChatPhotoVideoCell.m in Sources */,
 				7B71AEE928E529B8003A49EB /* ZCUIChatListController.m in Sources */,
 				7B2360CF28BE301400A445CD /* ZCChatController.m in Sources */,
 				ED409AE328C8B9F400690A24 /* ZCReplyFileView.m in Sources */,
 				7BDDE1A528D1DA5F006E7006 /* ZCCircleProgressView.m in Sources */,
+				7B17C1CA2DBB5A1300B5C989 /* ZCChatStepOnBaseCell.m in Sources */,
+				7B17C1CB2DBB5A1300B5C989 /* ZCChatStepOnCell.m in Sources */,
 				EDB3C9B528E2F0F600261D9B /* ZCServiceListVC.m in Sources */,
 				ED409B0328CA09A900690A24 /* ZCUIWebController.m in Sources */,
+				7B17C1932DBB407200B5C989 /* SobotImageButton.m in Sources */,
+				7B17C1942DBB407200B5C989 /* SobotVoiceButton.m in Sources */,
 				7B056D532B32E0540040CA69 /* ZCChatMessageInfoArticleView.m in Sources */,
 				7BAC4D7528BE34CA00B8EBDA /* ZCUICore.m in Sources */,
 				7B1CC49928FFB787004B856B /* ZCChatOnlineTipsCell.m in Sources */,
@@ -1391,11 +1772,13 @@
 				7B056D2D2B32E0370040CA69 /* ZCChatCustomCardHCollectionCell.m in Sources */,
 				ED409B1728D0564E00690A24 /* ZCOrderContentCell.m in Sources */,
 				7B056D1D2B32E0370040CA69 /* ZCChatCustomCardInfoBaseCell.m in Sources */,
+				7B17C17D2DBB401600B5C989 /* ZCSkillGroup3Cell.m in Sources */,
+				7B17C17E2DBB401600B5C989 /* ZCSkillGroup1Cell.m in Sources */,
+				7B17C17F2DBB401600B5C989 /* ZCSkillGroup2Cell.m in Sources */,
 				ED409AFF28C9BFD500690A24 /* ZCLeaveDetailCell.m in Sources */,
 				7BC73A8628D9E01B004E1CE8 /* ZCChatWheel4Cell.m in Sources */,
 				7B056CF82B32E0020040CA69 /* ZCChatReferenceAppletCell.m in Sources */,
 				7BDDE19E28D1D7BF006E7006 /* ZCVideoViewController.m in Sources */,
-				ED474FFD28D81E7900353157 /* ZCUIEvaluateView.m in Sources */,
 				7B2360D028BE301400A445CD /* SobotClientBaseController.m in Sources */,
 				EDCEA7BE28D2F31500355DBD /* ZCQuickLeaveView.m in Sources */,
 				ED409AD528C83D4300690A24 /* ZCMsgRecordCell.m in Sources */,
@@ -1403,6 +1786,11 @@
 				7B056CF72B32E0020040CA69 /* ZCChatReferenceRichCell.m in Sources */,
 				7BAC4D9628C09ADF00B8EBDA /* ZCChatBaseCell.m in Sources */,
 				EDCEA7A728D1AC6100355DBD /* ZCCheckMulCusFieldView.m in Sources */,
+				7B17C1F32DBB5C1700B5C989 /* ZCAskCusFieldView.m in Sources */,
+				7B17C1F42DBB5C1700B5C989 /* ZCUIAskTableCell.m in Sources */,
+				7B17C1F52DBB5C1700B5C989 /* ZCUIAskTableView.m in Sources */,
+				7B17C1FE2DBB5C7700B5C989 /* ZCAutoListCell.m in Sources */,
+				7B17C1F62DBB5C1700B5C989 /* ZCUIAskSelectionView.m in Sources */,
 				EDCEA7A328D1A40400355DBD /* ZCPageSheetView.m in Sources */,
 				7B056CF12B32E0020040CA69 /* ZCChatReferenceTextCell.m in Sources */,
 				7B056D502B32E0540040CA69 /* ZCChatMessageInfoFileView.m in Sources */,
@@ -1418,20 +1806,33 @@
 				ED409B2428D0A27B00690A24 /* ZCOrderOnlyEditCell.m in Sources */,
 				7BC73AA328DB2ACB004E1CE8 /* ZCChatHotCollectionCell.m in Sources */,
 				7B056D452B32E0540040CA69 /* ZCChatMessageInfoRichTextView.m in Sources */,
+				7B17C1D12DBB5A5E00B5C989 /* ZCMsgRecordVC.m in Sources */,
 				7B49DCE228DC608300360945 /* ZCChatArticleCell.m in Sources */,
+				7B17C1662DBB3FED00B5C989 /* ZCLeaveRegionEntity.m in Sources */,
+				7B17C1672DBB3FED00B5C989 /* ZCLeaveRegionSheetView.m in Sources */,
+				7B17C1682DBB3FED00B5C989 /* ZCLeaveRegionCell.m in Sources */,
+				7B17C1692DBB3FED00B5C989 /* ZCShadowRadiusView.m in Sources */,
+				7B17C16A2DBB3FED00B5C989 /* ZCLanguageView.m in Sources */,
+				7B17C16B2DBB3FED00B5C989 /* ZCShadowBorderView.m in Sources */,
 				ED47500E28E1540800353157 /* ZCLeaveMsgVC.m in Sources */,
 				7BF7EEA728DC89A40006D117 /* ZCChatFileCell.m in Sources */,
 				7B056D222B32E0370040CA69 /* ZCChatCustomCardVCollectionCell.m in Sources */,
 				EDCEA7AF28D1B45600355DBD /* ZCZHPickView.m in Sources */,
-				7B056D512B32E0540040CA69 /* SobotFileButton.m in Sources */,
 				ED47500828DB0E6200353157 /* ZCTitleView.m in Sources */,
 				7B056CF92B32E0020040CA69 /* ZCChatReferenceCell.m in Sources */,
 				7B056D1E2B32E0370040CA69 /* ZCChatCustomCardCell.m in Sources */,
 				7B8333F428D06EBC006BDFFA /* EmojiButton.m in Sources */,
 				7B71AEEE28E52A27003A49EB /* ZCUIChatListCell.m in Sources */,
 				7BCFFDB128DD8F4100FF9002 /* ZCChatEvaluationCell.m in Sources */,
+				7B17C19E2DBB40DC00B5C989 /* ZCChatAiLoadingCell.m in Sources */,
+				7B17C19F2DBB40DC00B5C989 /* SobotChatBaseCell.m in Sources */,
+				7B17C1A02DBB40DC00B5C989 /* SobotChatMsgBaseCell.m in Sources */,
 				7BC73A8228D9DFAA004E1CE8 /* ZCChatWheel123Cell.m in Sources */,
-				7B056D522B32E0540040CA69 /* ZCChatDetailView.m in Sources */,
+				7B17C1C12DBB40FF00B5C989 /* ZCChatEnumCell.m in Sources */,
+				7B17C2062DBB5D4700B5C989 /* ZCTurnRobotCell.m in Sources */,
+				7B17C1C22DBB40FF00B5C989 /* ZCChatWhell1Cell.m in Sources */,
+				7B17C1872DBB403100B5C989 /* SobotMultiBarView.m in Sources */,
+				7B17C1882DBB403100B5C989 /* SobotKeyboardRecordView.m in Sources */,
 				7B056D052B32E01A0040CA69 /* ZCObjButton.m in Sources */,
 				7B8333ED28D05707006BDFFA /* ZCLibCusMenu.m in Sources */,
 				EDCEA79B28D1A27300355DBD /* ZCCheckTypeView.m in Sources */,
@@ -1441,16 +1842,21 @@
 				7B056D2B2B32E0370040CA69 /* ZCChatCustomCardVerticalCell.m in Sources */,
 				7BAC4D9A28C09BF500B8EBDA /* ZCUIChatKeyboard.m in Sources */,
 				7B49DCDD28DC593C00360945 /* ZCChatAppletCell.m in Sources */,
+				7B17C2022DBB5D1900B5C989 /* SobotFastMenuView.m in Sources */,
 				EDCEA79328D16FDD00355DBD /* ZCOrderEditCell.m in Sources */,
 				7B056CCE2B32DF050040CA69 /* SobotRatingView.m in Sources */,
 				ED409AF528C98CE200690A24 /* ZCDocumentLookController.m in Sources */,
+				7B17C1D62DBB5AF300B5C989 /* ZCSelLeaveViewCell.m in Sources */,
 				7B056D2E2B32E0370040CA69 /* ZCChatCustomCardSingleSendCell.m in Sources */,
 				7BE5D5DB28D86C47002BCF26 /* ZCChatTipsCell.m in Sources */,
+				7B17C20C2DBB5E0700B5C989 /* ZCCheckMulCusFieldCell.m in Sources */,
+				7B17C20D2DBB5E0700B5C989 /* ZCCheckTypeViewCell.m in Sources */,
 				7BCFFDAD28DD8F2500FF9002 /* ZCChatNoticeLeaveCell.m in Sources */,
 				7BDDE1A428D1DA5F006E7006 /* ZCVideoPlayer.m in Sources */,
 				EDB3C9AC28E1BEE000261D9B /* ZCServiceCentreVC.m in Sources */,
 				ED409B1328D04F6000690A24 /* ZCOrderCreateCell.m in Sources */,
 				ED409AFA28C9BADD00690A24 /* ZCUILoading.m in Sources */,
+				7B17C1742DBB400100B5C989 /* ZCUITextView.m in Sources */,
 				7B056D4E2B32E0540040CA69 /* ZCChatMessageInfoView.m in Sources */,
 				EDCEA7BD28D2F31500355DBD /* ZCSelLeaveView.m in Sources */,
 				7BAC4D9128C0927900B8EBDA /* ZCUIKitTools.m in Sources */,
@@ -1458,12 +1864,22 @@
 				7BAC4D7F28BE35D100B8EBDA /* ZCChatView.m in Sources */,
 				EDCEA7CF28D3241100355DBD /* ZCCheckCityView.m in Sources */,
 				7BCDE77A28DC87C80048D82D /* ZCChatGoodsCardCell.m in Sources */,
+				7B17C1E72DBB5BFE00B5C989 /* ZCChatLanguageCell.m in Sources */,
 				7BAC4D7928BE350900B8EBDA /* ZCKitInfo.m in Sources */,
 				7B056D2C2B32E0370040CA69 /* ZCChatCustomCardBaseCell.m in Sources */,
 				7B056D292B32E0370040CA69 /* ZCChatCustomCardVNoSendCollectionCell.m in Sources */,
 				EDCEA7C828D311BF00355DBD /* ZCUIAskTableController.m in Sources */,
 				7B056D272B32E0370040CA69 /* ZCChatCustomCardHorizontalCell.m in Sources */,
 				7BDDE1AE28D32E03006E7006 /* ZCChatRichCell.m in Sources */,
+				7B17C1B12DBB40EB00B5C989 /* ZCChatAiCustomCardPage.m in Sources */,
+				7B17C1B22DBB40EB00B5C989 /* ZCChatAiCustomCardCell.m in Sources */,
+				7B17C1B32DBB40EB00B5C989 /* ZCChatAiCustomCardView.m in Sources */,
+				7B17C1E32DBB5BD700B5C989 /* ZCChatSensitiveCell.m in Sources */,
+				7B17C1B42DBB40EB00B5C989 /* ZCChatAiCardView.m in Sources */,
+				7B17C1DD2DBB5B1200B5C989 /* ZCMsgDetailsNoDataCell.m in Sources */,
+				7B17C1DE2DBB5B1200B5C989 /* ZCLeaveDetailHeaderCell.m in Sources */,
+				7B17C1B52DBB40EB00B5C989 /* ZCChatAiCustomCardPageCell.m in Sources */,
+				7B17C1B62DBB40EB00B5C989 /* ZCChatAiCustomCardUserCell.m in Sources */,
 				7BF7EEA328DC89910006D117 /* ZCChatOrderCardCell.m in Sources */,
 				7B056CF22B32E0020040CA69 /* ZCChatReferenceCustomCardCell.m in Sources */,
 				7B8333F628D06EBC006BDFFA /* EmojiBoardView.m in Sources */,

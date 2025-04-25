@@ -121,7 +121,7 @@
     self.lblNickName.hidden = YES;
     self.lblSugguest.hidden = YES;
     self.ivBgView.hidden = YES;
-    [_logoView loadWithURL:[NSURL URLWithString:sobotConvertToString(message.senderFace)] placeholer:SobotKitGetImage(@"zcicon_useravatart_girl")];
+    [_logoView loadWithURL:[NSURL URLWithString:sobotConvertToString(message.senderFace)] placeholer:SobotKitGetImage(@"zcicon_useravatart_girl")showActivityIndicatorView:NO];
     
     
     [_labTitle setText:sobotConvertToString(message.senderName)];

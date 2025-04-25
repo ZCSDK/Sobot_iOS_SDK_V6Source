@@ -15,6 +15,7 @@ typedef NS_ENUM(NSInteger,ZCPageStateType) {
     ZCPageStateTypeLeave      = 3,// 留言
     ZCPageStateTypeUserClose = 4,// 用户自己调用关闭页面
     ZCPageStateViewShow   = 5,// SDK页面将要显示
+    ZCPageStateTypeChatDealloc = 6,// 聊天页面调用Dealloc 销毁
 };
 
 typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
@@ -26,6 +27,7 @@ typedef NS_ENUM(NSInteger, ZCButtonClickTag) {
     BUTTON_EVALUATION =6,// 评价
     BUTTON_TEL   = 7,// 拨打电话
     BUTTON_SEND   = 8, // 清空历史记录
+    BUTTON_NewMsgCount = 9,// 清空新消息计数
 };
 
 // 返回监听
@@ -45,15 +47,10 @@ NS_ASSUME_NONNULL_BEGIN
 // 更新导航栏背景色和渐变色
 -(void)updateTopViewBgColor;
 
-// 更新帮助中心导航栏渐变色
--(void)updateCenterViewBgColor;
 
-// 设置导航栏的样式
-- (void)setNavigationBarStyle;
+-(void)btmButtonClick:(UIButton *)sender;
 
-// 设置导航栏按钮
--(void)setNavigationBarLeft:(NSArray *__nullable)leftTags right:(NSArray *__nullable)rightTags;
-
+-(UIView *)createBtmView:(BOOL) addTel;
 @end
 
 NS_ASSUME_NONNULL_END

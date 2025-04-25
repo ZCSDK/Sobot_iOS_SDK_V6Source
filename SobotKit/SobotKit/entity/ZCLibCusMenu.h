@@ -41,8 +41,14 @@ typedef NS_ENUM(NSInteger,ZCCusMenuType) {
 
 // 菜单图标(更多时使用,选填)
 @property (nonatomic,strong) NSString * imgName;
+
+// 菜单图标(网络图片，如果此参数有值，优先使用网络图片，menuPicUrl为空则使用默认iconMaterial)
+@property (nonatomic,strong) NSString * iconMaterial;
+@property (nonatomic,strong) NSString * menuPicUrl;
+
 // 按下效果，选填
 @property (nonatomic,strong) NSString * imgNamePress;
+
 
 // enableStatus 值为1时，以下参数起效
 @property (nonatomic,strong) NSString *menuid;//": "0dd2c1ea760242b08e06e41ad17185cc", //菜单主键ID

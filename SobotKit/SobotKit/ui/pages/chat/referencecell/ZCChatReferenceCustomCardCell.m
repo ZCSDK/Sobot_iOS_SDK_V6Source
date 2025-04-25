@@ -130,7 +130,7 @@
 //    SobotChatCustomCard *cardModel = message.richModel.customCard;
     SobotChatCustomCardInfo *model = [message.richModel.customCard.customCards firstObject];
     NSString *photoUrl = sobotConvertToString(model.customCardThumbnail);
-    [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(photoUrl)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:YES];
+    [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(photoUrl)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:NO];
     [_labTitle setText:sobotConvertToString(model.customCardName)];
     [_labDesc setText:sobotConvertToString(model.customCardDesc)];
 

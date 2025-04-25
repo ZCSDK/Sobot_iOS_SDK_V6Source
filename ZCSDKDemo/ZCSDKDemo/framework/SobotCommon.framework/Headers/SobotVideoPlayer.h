@@ -12,6 +12,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SobotVideoPlayer : UIView
 
+@property(nonatomic,assign) BOOL autoRepeatPlay;
+
+@property(nonatomic,copy) NSString *bundleName;//公共组件没有图片资源包的时候，从其他SDK资源包获取，不传默认取common中的图片
+
+//@property(nonatomic,copy) NSString *bundleName;// 公共组件没有图片资源包的时候 从其他SDK资源包获取，不传默认取common中的图片
+
 - (instancetype)initWithFrame:(CGRect)frame withShowInView:(UIView *)bgView url:(NSURL *)url Image:(UIImage *)image;
 
 @property (copy, nonatomic) NSURL *videoUrl;

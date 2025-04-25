@@ -20,6 +20,16 @@
 @property(nonatomic,strong) NSLayoutConstraint *layoutImageWidth;
 @property(nonatomic,strong) NSLayoutConstraint *layoutImageLeft;
 
+
+@property(nonatomic,strong) NSLayoutConstraint *labTagMT;
+@property(nonatomic,strong) NSLayoutConstraint *labTagML;
+@property(nonatomic,strong) NSLayoutConstraint *labTagPR;
+@property(nonatomic,strong) NSLayoutConstraint *labTagMB;
+
+@property(nonatomic,strong) NSLayoutConstraint *labLabelMT;
+@property(nonatomic,strong) NSLayoutConstraint *labLabelML;
+@property(nonatomic,strong) NSLayoutConstraint *labLabelPR;
+@property(nonatomic,strong) NSLayoutConstraint *labLabelMB;
 @end
 
 @implementation ZCChatWheelCollectionCell
@@ -60,14 +70,19 @@
         [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.labDesc, self.bgView)];
         
         
-       [self.bgView addConstraint:sobotLayoutPaddingBottom(-ZCChatCellItemSpace, self.labLabel, self.posterView)];
-       [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labLabel, self.posterView)];
-        [self.bgView addConstraint:sobotLayoutEqualWidth(80, self.labLabel, NSLayoutRelationEqual)];
+        self.labLabelMB = sobotLayoutPaddingBottom(-ZCChatCellItemSpace, self.labLabel, self.posterView);
+        [self.bgView addConstraint:self.labLabelMB];
+        self.labLabelML = sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labLabel, self.posterView);
+        [self.bgView addConstraint:self.labLabelML];
+        self.labLabelPR = sobotLayoutEqualWidth(80, self.labLabel, NSLayoutRelationEqual);
+        [self.bgView addConstraint:self.labLabelPR];
         
-        
-       [self.bgView addConstraint:sobotLayoutPaddingBottom(-ZCChatCellItemSpace, self.labTag, self.posterView)];
-       [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labTag, self.labLabel)];
-       [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.labTag, self.bgView)];
+        self.labTagMB = sobotLayoutPaddingBottom(-ZCChatCellItemSpace, self.labTag, self.posterView);
+        [self.bgView addConstraint:self.labTagMB];
+        self.labTagPR = sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.labTag, self.bgView);
+        [self.bgView addConstraint:self.labTagPR];
+        self.labTagML = sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labTag, self.labLabel);
+        [self.bgView addConstraint:self.labTagML];
         
         
     }
@@ -106,8 +121,9 @@
     _labTag = ({
         UILabel *iv = [[UILabel alloc] init];
         [iv setTextAlignment:NSTextAlignmentRight];
-        [iv setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
+        [iv setTextColor:UIColorFromKitModeColor(SobotColorTextSub1)];// [ZCUIKitTools zcgetLeftChatTextColor]];
         [iv setFont:SobotFont14];
+//        iv.numberOfLines = 0;
         [self.bgView addSubview:iv];
         iv;
     });
@@ -122,8 +138,10 @@
     _labLabel = ({
         UILabel *iv = [[UILabel alloc] init];
         [iv setTextAlignment:NSTextAlignmentLeft];
-        [iv setTextColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
+//        [iv setTextColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
+        [iv setTextColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
         [iv setFont:SobotFont14];
+//        iv.numberOfLines = 0;
         [self.bgView addSubview:iv];
         iv;
     });
@@ -131,13 +149,14 @@
 }
 
 
-- (void)configureCellWithPostURL:(NSDictionary *)model message:(SobotChatMessage *)message{
-    [_posterView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model[@"thumbnail"])] placeholer:SobotKitGetImage(@"zcicon_default_goods") showActivityIndicatorView:YES];
+- (void)configureCellWithPostURL:(NSDictionary *)model message:(SobotChatMessage *)message isMoreLine:(BOOL)isMoreLine{
+    [_posterView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model[@"thumbnail"])] placeholer:SobotKitGetImage(@"zcicon_default_goods") showActivityIndicatorView:NO];
     [_labTitle setText:sobotConvertToString(model[@"title"])];// [NSString stringWithFormat:@"我是标题%@",item[@"row"]] zcicon_avatar_robot
     [_labDesc setText:sobotConvertToString(model[@"summary"])];// [NSString stringWithFormat:@"我是描述%@",item[@"desc"]]
     [_labTag setText:sobotConvertToString(model[@"tag"])];
     [_labLabel setText:sobotConvertToString(model[@"label"])];
     [_labTitle setTextColor:[ZCUIKitTools zcgetLeftChatTextColor]];
+
     
     _labTag.hidden = NO;
     _labLabel.hidden = NO;
@@ -148,14 +167,52 @@
     int templeteId = message.richModel.richContent.templateId;
     _layoutTitleTop.constant = ZCChatPaddingVSpace;
     if(templeteId == 0){
-        
         // 大图，有标题
         [_labDesc setTextColor:[ZCUIKitTools zcgetTextPlaceHolderColor]];
-        
         _layoutImageHeight.constant = 60;
         _layoutImageWidth.constant = 60;
-        
         _layoutBgBottom.constant = 0;
+        
+        [self.bgView removeConstraint:self.labLabelMB];
+        [self.bgView removeConstraint:self.labLabelML];
+        [self.bgView removeConstraint:self.labLabelPR];
+        [self.bgView removeConstraint:self.labTagMB];
+        [self.bgView removeConstraint:self.labTagPR];
+        [self.bgView removeConstraint:self.labTagML];
+
+        if (isMoreLine) {
+            self.labTagMB = sobotLayoutPaddingBottom(-ZCChatCellItemSpace, self.labTag, self.posterView);
+            [self.bgView addConstraint:self.labTagMB];
+            self.labTagPR = sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.labTag, self.bgView);
+            [self.bgView addConstraint:self.labTagPR];
+            self.labTagML = sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labTag, self.posterView);
+            [self.bgView addConstraint:self.labTagML];
+            
+            self.labLabelMB = sobotLayoutPaddingBottom(-ZCChatCellItemSpace -20, self.labLabel, self.posterView);
+            [self.bgView addConstraint:self.labLabelMB];
+            self.labLabelML = sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labLabel, self.posterView);
+            [self.bgView addConstraint:self.labLabelML];
+            self.labLabelPR = sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.labLabel, self.bgView);
+            [self.bgView addConstraint:self.labLabelPR];
+            self.labTag.textAlignment = NSTextAlignmentLeft;
+            
+        }else{
+            self.labTagMB = sobotLayoutPaddingBottom(-ZCChatCellItemSpace, self.labTag, self.posterView);
+            [self.bgView addConstraint:self.labTagMB];
+            self.labTagPR = sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.labTag, self.bgView);
+            [self.bgView addConstraint:self.labTagPR];
+            self.labTagML = sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labTag, self.labLabel);
+            [self.bgView addConstraint:self.labTagML];
+            
+            self.labLabelMB = sobotLayoutPaddingBottom(-ZCChatCellItemSpace, self.labLabel, self.posterView);
+            [self.bgView addConstraint:self.labLabelMB];
+            self.labLabelML = sobotLayoutMarginLeft(ZCChatCellItemSpace, self.labLabel, self.posterView);
+            [self.bgView addConstraint:self.labLabelML];
+            self.labLabelPR = sobotLayoutMarginRight(-8, self.labLabel, self.labTag);
+            [self.bgView addConstraint:self.labLabelPR];
+            
+            self.labTag.textAlignment = NSTextAlignmentRight;
+        }
         
     }
     else if(templeteId == 1){
@@ -186,11 +243,9 @@
         _labLabel.hidden = YES;
         _labDesc.hidden = YES;
     }else if(templeteId == 2){
-        
         _layoutBgBottom.constant = 0;
             _layoutTitleTop.constant = 0;
             _layoutTitleHeight.constant = 0;
-
             [_labDesc setText:_labTitle.text];
             _labTitle.text = @"";
             // 小图，无标题

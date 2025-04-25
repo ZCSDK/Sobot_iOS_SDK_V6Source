@@ -59,6 +59,10 @@ typedef NS_ENUM(NSInteger,SobotVoicePlayState) {
 - (void)changePlaySpeed:(CGFloat) speed;
 - (void)changePlayProgress:(CGFloat) progress;
 
+@property (nonatomic,strong)NSString *fileUrl;
+
+// 获取是否正在播放
+-(BOOL)getIsPlay;
 
 @end
 

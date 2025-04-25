@@ -42,7 +42,7 @@
         iv.image = SobotKitGetImage(@"zcicon_list_right_arrow");
         [self.contentView addConstraint:sobotLayoutEqualWidth(12, iv, NSLayoutRelationEqual)];
         [self.contentView addConstraint:sobotLayoutEqualHeight(14, iv, NSLayoutRelationEqual)];
-        [self.contentView addConstraint:sobotLayoutPaddingRight(-10, iv, self.contentView)];
+        [self.contentView addConstraint:sobotLayoutPaddingRight(-16, iv, self.contentView)];
         [self.contentView addConstraint:sobotLayoutEqualCenterY(0, iv, self.contentView)];
         iv;
     });
@@ -54,10 +54,10 @@
         iv.textAlignment = NSTextAlignmentLeft;
         iv.numberOfLines = 2;
         iv.font = SobotFont14;
-        [self.contentView addConstraint:sobotLayoutPaddingLeft(20, iv, self.contentView)];
-        [self.contentView addConstraint:sobotLayoutMarginRight(-5, iv, self.img)];
-        [self.contentView addConstraint:sobotLayoutEqualHeight(54, iv, NSLayoutRelationEqual)];
-        [self.contentView addConstraint:sobotLayoutPaddingBottom(0, iv, self.contentView)];
+        [self.contentView addConstraint:sobotLayoutPaddingLeft(16, iv, self.contentView)];
+        [self.contentView addConstraint:sobotLayoutPaddingRight(-40, iv, self.contentView)];
+        [self.contentView addConstraint:sobotLayoutPaddingTop(14, iv, self.contentView)];
+        [self.contentView addConstraint:sobotLayoutPaddingBottom(-14, iv, self.contentView)];
         iv;
     });
 }

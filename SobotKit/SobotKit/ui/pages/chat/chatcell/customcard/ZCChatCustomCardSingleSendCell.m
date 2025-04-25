@@ -15,6 +15,7 @@
 @property(nonatomic,strong) NSLayoutConstraint *layoutBgWidth;
 @property(nonatomic,strong) NSLayoutConstraint *layoutImageLeft;
 @property(nonatomic,strong) NSLayoutConstraint *layoutImageWidth;
+@property(nonatomic,strong) NSLayoutConstraint *layoutImageHeight;
 
 @property (strong, nonatomic) UIView *bgView; //
 @property (nonatomic,strong) SobotImageView *logoView;
@@ -50,11 +51,11 @@
         [self.contentView addConstraint:sobotLayoutPaddingLeft(ZCChatPaddingVSpace, self.bgView, self.ivBgView)];
         [self.contentView addConstraint:sobotLayoutMarginBottom(-ZCChatCellItemSpace, self.bgView, self.lblSugguest)];
         
-        [self.bgView addConstraints:sobotLayoutSize(76, 76, self.logoView, NSLayoutRelationEqual)];
         _layoutImageWidth = sobotLayoutEqualWidth(76, self.logoView, NSLayoutRelationEqual);
+        _layoutImageHeight = sobotLayoutEqualHeight(76, self.logoView, NSLayoutRelationEqual);
         _layoutImageLeft = sobotLayoutPaddingLeft(0, self.logoView, self.bgView);
         [self.bgView addConstraint:_layoutImageWidth];
-        [self.bgView addConstraint:sobotLayoutEqualHeight(76, self.logoView, NSLayoutRelationEqual)];
+        [self.bgView addConstraint:_layoutImageHeight];
         [self.bgView addConstraint:_layoutImageLeft];
         [self.bgView addConstraint:sobotLayoutPaddingTop(0, self.logoView, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingBottom(0, self.logoView, self.bgView)];
@@ -67,12 +68,10 @@
         [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatMarginVSpace, self.labDesc, self.logoView)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(-12, self.labDesc, self.bgView)];
         
-        [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatPaddingVSpace, self.priceTip, self.labDesc)];
         [self.bgView addConstraint:sobotLayoutMarginLeft(ZCChatMarginVSpace, self.priceTip, self.logoView)];
 //        [self.bgView addConstraint:sobotLayoutPaddingRight(-ZCChatPaddingHSpace, self.priceTip, self.s)];
         [self.bgView addConstraint:sobotLayoutPaddingBottom(0, self.priceTip, self.logoView)];
         
-        [self.bgView addConstraint:sobotLayoutMarginTop(ZCChatPaddingVSpace, self.labTag, self.labDesc)];
         [self.bgView addConstraint:sobotLayoutMarginLeft(0, self.labTag, self.self.priceTip)];
         [self.bgView addConstraint:sobotLayoutPaddingRight(-12, self.labTag, self.bgView)];
         [self.bgView addConstraint:sobotLayoutPaddingBottom(-2, self.labTag, self.logoView)];
@@ -132,7 +131,7 @@
         [iv setTextAlignment:NSTextAlignmentLeft];
         [iv setTextColor:[ZCUIKitTools zcgetPricetTagTextColor]];
         iv.numberOfLines = 1;
-        [iv setFont:SobotFontBold16];
+        [iv setFont:SobotFontBold20];
         [self.bgView addSubview:iv];
         iv;
     });
@@ -165,26 +164,54 @@
     if(sobotConvertToString(info.customCardThumbnail).length > 0){
         _layoutImageLeft.constant = 0;
         _layoutImageWidth.constant = 76;
+        _layoutImageHeight.constant = 76;
         
-        [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(info.customCardThumbnail)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:YES];
+        [_logoView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(info.customCardThumbnail)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:NO];
     }else{
         _logoView.hidden = YES;
         _layoutImageLeft.constant = -ZCChatMarginVSpace;
         _layoutImageWidth.constant = 0;
+        _layoutImageHeight.constant = 0;
     }
     
+    // 如果没有标签
+    CGFloat textHeight = 0;
+    if(sobotConvertToString(info.customCardAmount).length == 0 && sobotConvertToString(info.customCardAmountSymbol).length == 0){
+        CGFloat contentWidth = 0;
+        if(self.tempModel.senderType == 0){
+            contentWidth = self.maxWidth+2*ZCChatPaddingVSpace -40;
+        }else{
+            contentWidth = self.maxWidth+2*ZCChatPaddingVSpace;
+        }
+        CGFloat lh = [SobotUITools getHeightContain:sobotConvertToString(info.customCardDesc) font:SobotFont12 Width:contentWidth - _layoutImageWidth.constant - 2*ZCChatPaddingVSpace];
+        
+        if(lh > 14){
+            lh = 34;
+        }else{
+            lh = 17;
+        }
+        lh = lh;
+        textHeight = 18+lh;
+    }else{
+        textHeight = 76;
+    }
+    if(_layoutImageHeight.constant == 0){
+        _layoutImageHeight.constant = textHeight;
+    }
    
 //    [self setChatViewBgState:CGSizeMake(self.maxWidth,CGRectGetMaxY(_bgView.frame)) isSetBgColor:NO];
     
     if(self.tempModel.senderType == 0){
-        _layoutBgWidth.constant = self.maxWidth+2*ZCChatPaddingVSpace -40;
+        _layoutBgWidth.constant = self.maxWidth+2*ZCChatPaddingVSpace;
         [self.bgView layoutIfNeeded];
-        [self setChatViewBgState:CGSizeMake(self.maxWidth-40,CGRectGetMaxY(_bgView.frame)) isSetBgColor:NO];
+        [self setChatViewBgState:CGSizeMake(self.maxWidth,CGRectGetMaxY(_bgView.frame)) isSetBgColor:NO];
     }else{
         _layoutBgWidth.constant = self.maxWidth+2*ZCChatPaddingVSpace;
         [self.bgView layoutIfNeeded];
         [self setChatViewBgState:CGSizeMake(self.maxWidth,CGRectGetMaxY(_bgView.frame)) isSetBgColor:NO];
     }
+    
+    [self.bgView layoutIfNeeded];
 }
 
 

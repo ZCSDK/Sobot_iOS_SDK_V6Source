@@ -27,7 +27,8 @@
 #import <SobotChatClient/ZCSCListModel.h>
 #import <SobotChatClient/ZCLibHttpManager.h>
 #import <SobotChatClient/ZCSatisfactionConfig.h>
-
+#import <SobotChatClient/SobotFormNodeRespVosModel.h>
+#import <SobotChatClient/SobotFormNodeRelRespVos.h>
 //! Project version number for SobotChatClient.
 FOUNDATION_EXPORT double SobotChatClientVersionNumber;
 

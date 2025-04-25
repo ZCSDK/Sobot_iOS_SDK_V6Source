@@ -18,8 +18,7 @@
 @property(nonatomic,strong) WKWebView *webView;
 @property(nonatomic,strong) NSString *htmlStr;
 @property(nonatomic,strong) UILabel *titleLab;
-@property(nonatomic,strong) UIButton *telButton;
-@property(nonatomic,strong) NSLayoutConstraint *telBtnEW;
+
 @property(nonatomic,strong) NSLayoutConstraint *titleLabPT;
 @property(nonatomic,strong) NSLayoutConstraint *webViewMT;
 @property(nonatomic,strong) NSLayoutConstraint *titleLabPL;
@@ -41,6 +40,12 @@
     }
 }
 
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    if ([ZCUICore getUICore].kitInfo.navcBarHidden) {
+        self.navigationController.navigationBarHidden = YES;
+    }
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [ZCUIKitTools zcgetLightGrayDarkBackgroundColor];
@@ -51,34 +56,29 @@
     [self updateNavOrTopView];
     [self createSubviews];
     [self loadData];
+    [self updateNavOrTopView];
 }
 
 
 #pragma mark -- 添加子控件
 -(void)createSubviews{
     // 构建 联系客服和联系热线按钮
-    _serviceBtnBgView = [[UIView alloc]init];
-    _serviceBtnBgView.backgroundColor = UIColorFromKitModeColor(SobotColorBgSub2Dark1);
-    [self.view addSubview:_serviceBtnBgView];
-    [self createHelpCenterButtons:10 sView:_serviceBtnBgView];
-    [self.view addConstraint:sobotLayoutPaddingBottom(0, _serviceBtnBgView, self.view)];
-    [self.view addConstraint:sobotLayoutPaddingLeft(0, _serviceBtnBgView, self.view)];
-    [self.view addConstraint:sobotLayoutEqualHeight(80, _serviceBtnBgView, NSLayoutRelationEqual)];
-    [self.view addConstraint:sobotLayoutPaddingRight(0, _serviceBtnBgView, self.view)];
+    _serviceBtnBgView = [self createBtmView:YES];
     
     // 上部
     _titleLab = ({
         UILabel *iv = [[UILabel alloc]init];
         [self.view addSubview:iv];
         iv.textColor = [ZCUIKitTools zcgetscTopTextColor];
+        iv.backgroundColor = UIColor.clearColor;
         iv.numberOfLines = 0;
         iv.font = SobotFontBold16;
         iv.text = sobotConvertToString(_questionTitle);
-        self.titleLabPR = sobotLayoutPaddingRight(-10, iv, self.view);
-        self.titleLabPL = sobotLayoutPaddingLeft(10, iv, self.view);
+        self.titleLabPR = sobotLayoutPaddingRight(-16, iv, self.view);
+        self.titleLabPL = sobotLayoutPaddingLeft(16, iv, self.view);
         [self.view addConstraint:self.titleLabPR];
         [self.view addConstraint:self.titleLabPL];
-        self.titleLabPT = sobotLayoutPaddingTop(NavBarHeight + 20, iv, self.view);
+        self.titleLabPT = sobotLayoutPaddingTop(NavBarHeight + 16, iv, self.view);
         [self.view addConstraint:self.titleLabPT];
         iv;
     });
@@ -93,23 +93,36 @@
         // 设置偏好设置对象
         config.preferences = preference;
         // 自适应屏幕宽度js
-        NSString *jSString = @"var meta = document.createElement('meta'); meta.setAttribute('name', 'viewport'); meta.setAttribute('content', 'width=device-width'); document.getElementsByTagName('head')[0].appendChild(meta);";
+        NSString *jSString = @"var meta = document.createElement('meta'); meta.setAttribute('name', 'viewport'); meta.setAttribute('content', 'width=device-width'); document.getElementsByTagName('head')[0].appendChild(meta);\
+var style = document.createElement('style');\
+style.type = 'text/css';\
+style.innerHTML = '* { padding:0px;margin:0px; }';\
+document.head.appendChild(style);";
         WKUserScript *wkUserScript = [[WKUserScript alloc] initWithSource:jSString injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES];
         [config.userContentController addUserScript:wkUserScript];
-        WKWebView *iv = [[WKWebView alloc]initWithFrame:CGRectMake(0, 120, ScreenWidth, 300) configuration:config];
+        WKWebView *iv = [[WKWebView alloc]initWithFrame:CGRectZero configuration:config];
         [self.view addSubview:iv];
         iv.navigationDelegate = self;
         [iv setOpaque:NO];
-        iv.backgroundColor = [ZCUIKitTools zcgetLightGrayBackgroundColor];
-        [self.view addConstraint:sobotLayoutMarginTop(12, iv, self.titleLab)];
-        self.wkPL = sobotLayoutPaddingLeft(0, iv, self.view);
-        self.wkPR = sobotLayoutPaddingRight(0, iv, self.view);
+//        iv.backgroundColor = [ZCUIKitTools zcgetLightGrayBackgroundColor];
+        iv.backgroundColor = [ZCUIKitTools zcgetLightGrayDarkBackgroundColor];
+        [self.view addConstraint:sobotLayoutMarginTop(16, iv, self.titleLab)];
+        self.wkPL = sobotLayoutPaddingLeft(16, iv, self.view);
+        self.wkPR = sobotLayoutPaddingRight(-16, iv, self.view);
         [self.view addConstraint:self.wkPR];
         [self.view addConstraint:self.wkPL];
-        [self.view addConstraint:sobotLayoutMarginBottom(-1, iv, self.serviceBtnBgView)];
+        [self.view addConstraint:sobotLayoutMarginBottom(-16, iv, self.serviceBtnBgView)];
+        
+
         iv;
     });
+    
+    self.webView.scrollView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+    self.automaticallyAdjustsScrollViewInsets = NO;
 
+    if(@available(iOS 11.0, *)) {
+        self.webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
 }
 
 -(void)loadData{
@@ -183,9 +196,9 @@
     if(e.left > 0){
         // 横屏
         if (self.navigationController.navigationBarHidden || self.topView) {
-            self.titleLabPT = sobotLayoutPaddingTop(NavBarHeight+20, self.titleLab, self.view);
+            self.titleLabPT = sobotLayoutPaddingTop(NavBarHeight+16, self.titleLab, self.view);
         }else{
-            self.titleLabPT = sobotLayoutPaddingTop(e.top+20, self.titleLab, self.view);
+            self.titleLabPT = sobotLayoutPaddingTop(e.top+16, self.titleLab, self.view);
         }
 
     }else{
@@ -201,10 +214,10 @@
         }
         self.titleLabPT = sobotLayoutPaddingTop(TY +20, self.titleLab, self.view);
     }
-    self.titleLabPL = sobotLayoutPaddingLeft(e.left+10, self.titleLab, self.view);
-    self.titleLabPR = sobotLayoutPaddingRight(-e.right-10, self.titleLab, self.view);
-    self.wkPR = sobotLayoutPaddingRight(-e.right, self.webView, self.view);
-    self.wkPL = sobotLayoutPaddingLeft(e.left, self.webView, self.view);
+    self.titleLabPL = sobotLayoutPaddingLeft(e.left+16, self.titleLab, self.view);
+    self.titleLabPR = sobotLayoutPaddingRight(-e.right-16, self.titleLab, self.view);
+    self.wkPR = sobotLayoutPaddingRight(-e.right - 16, self.webView, self.view);
+    self.wkPL = sobotLayoutPaddingLeft(e.left + 16, self.webView, self.view);
     [self.view addConstraint:self.wkPR];
     [self.view addConstraint:self.wkPL];
     [self.view addConstraint:self.titleLabPL];
@@ -212,7 +225,7 @@
     self.titleLabPT.priority = 1000;
     [self.view addConstraint:self.titleLabPT];
     // 横竖屏更新导航栏渐变色
-    [self updateCenterViewBgColor];
+    [self updateTopViewBgColor];
 }
 
 
@@ -289,9 +302,9 @@
     return str;
 }
 
-
 #pragma mark - 联系客服 和 联系电话点击事件
--(void)openZCSDK:(UIButton *)sender{
+- (void)btmButtonClick:(UIButton *)sender{
+    NSLog(@"点击了联系客服 %ld",(long)sender.tag);
     if(sender.tag == 1){
         if (self.OpenZCSDKTypeBlock) {
             self.OpenZCSDKTypeBlock(self);
@@ -302,81 +315,7 @@
         }
         return;
     }
-    if (sender.tag == 2) {
-        NSString *link = sobotConvertToString([ZCUICore getUICore].kitInfo.helpCenterTel);
-        if(![link hasSuffix:@"tel:"]){
-            link = [NSString stringWithFormat:@"tel:%@",link];
-        }
-        if (NSFoundationVersionNumber <= NSFoundationVersionNumber_iOS_9_x_Max) {
-            [SobotUITools showAlert:nil message:[link stringByReplacingOccurrencesOfString:@"tel:" withString:@""] cancelTitle:SobotKitLocalString(@"取消") viewController:self confirm:^(NSInteger buttonTag) {
-                if(buttonTag>=0){
-                    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:link]];
-                }
-            } buttonTitles:SobotKitLocalString(@"呼叫"), nil];
-        }else{
-            if([ZCUICore getUICore].ZCViewControllerCloseBlock != nil){
-                [ZCUICore getUICore].ZCViewControllerCloseBlock(self,ZC_PhoneCustomerService);
-            }
-            // 打电话
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:link]];
-        }
-    }
+    [super btmButtonClick:sender];
 }
 
-#pragma mark - 联系客服
--(UIButton *)createHelpCenterButtons:(CGFloat ) y sView:(UIView *) superView{
-    CGFloat itemW =  (ScreenWidth - SobotNumber(24) - 20)/2;
-    _telButton = [self createHelpCenterOpenButton];
-    _telButton.tag = 2;
-    [_telButton setTitle:sobotConvertToString([ZCUICore getUICore].kitInfo.helpCenterTelTitle) forState:UIControlStateNormal];
-    [_telButton setTitle:sobotConvertToString([ZCUICore getUICore].kitInfo.helpCenterTelTitle) forState:UIControlStateHighlighted];
-    [superView addSubview:_telButton];
-    [superView addConstraint:sobotLayoutPaddingTop(y, _telButton, superView)];
-    [superView addConstraint:sobotLayoutPaddingRight(SobotNumber(-12), _telButton, superView)];
-    [superView addConstraint:sobotLayoutEqualHeight(44, _telButton, NSLayoutRelationEqual)];
-    _telButton.hidden = YES;
-    if(sobotConvertToString([ZCUICore getUICore].kitInfo.helpCenterTel).length > 0 && sobotConvertToString([ZCUICore getUICore].kitInfo.helpCenterTelTitle).length > 0){
-        _telButton.hidden = NO;
-        self.telBtnEW = sobotLayoutEqualWidth(itemW, _telButton, NSLayoutRelationEqual);
-    }else{
-        self.telBtnEW = sobotLayoutEqualWidth(0, _telButton, NSLayoutRelationEqual);
-    }
-    [superView addConstraint:self.telBtnEW];
-    UIButton *serviceButton = [self createHelpCenterOpenButton];
-    serviceButton.tag = 1;
-    [superView addSubview:serviceButton];
-    [superView addConstraint:sobotLayoutPaddingLeft(SobotNumber(12), serviceButton, superView)];
-    [superView addConstraint:sobotLayoutPaddingTop(y, serviceButton, superView)];
-    [superView addConstraint:sobotLayoutEqualHeight(44, serviceButton, NSLayoutRelationEqual)];
-    if (!_telButton.hidden) {
-        [superView addConstraint:sobotLayoutMarginRight(-20, serviceButton, _telButton)];
-    }else{
-        [superView addConstraint:sobotLayoutMarginRight(0, serviceButton, _telButton)];
-    }
-    return serviceButton;
-}
-
-#pragma mark - 在线客服按钮 和拨号按钮
--(UIButton *)createHelpCenterOpenButton{
-    // 在线客服btn
-    UIButton *serviceBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-//    serviceBtn.type = 5;
-    [serviceBtn setTitle:SobotKitLocalString(@"在线客服") forState:UIControlStateNormal];
-    [serviceBtn setTitle:SobotKitLocalString(@"在线客服") forState:UIControlStateHighlighted];
-    [serviceBtn setTitleColor:UIColorFromKitModeColor(SobotColorTextMain) forState:UIControlStateNormal];
-    [serviceBtn setTitleColor:UIColorFromKitModeColor(SobotColorTextMain) forState:UIControlStateHighlighted];
-    serviceBtn.titleLabel.font = SobotFontBold14;
-    [serviceBtn addTarget:self action:@selector(openZCSDK:) forControlEvents:UIControlEventTouchUpInside];
-    serviceBtn.layer.borderColor = UIColorFromKitModeColor(SobotColorBgLine).CGColor;
-    serviceBtn.layer.borderWidth = 0.5f;
-    serviceBtn.layer.cornerRadius = 22.0f;
-    serviceBtn.layer.masksToBounds = YES;
-    serviceBtn.titleLabel.lineBreakMode = 4;
-    [serviceBtn setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark2)];
-    [serviceBtn setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 3)];
-    [serviceBtn setTitleEdgeInsets:UIEdgeInsetsMake(0, 3, 0, 0)];
-    [serviceBtn setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin];
-    [serviceBtn setAutoresizesSubviews:YES];
-    return serviceBtn;
-}
 @end

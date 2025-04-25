@@ -1,6 +1,6 @@
 framework module SobotChatClient {
   umbrella header "SobotChatClient.h"
-
   export *
+
   module * { export * }
 }

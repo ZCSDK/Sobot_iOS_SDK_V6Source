@@ -18,11 +18,26 @@
  */
 -(void)ratingChanged:(float)newRating;
 
+
+/**
+ 仅点击变更的值
+
+ @param newRating
+ */
+@optional
+-(void)ratingChangedWithTap:(float)newRating;
+
 @end
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SobotRatingView : UIView
+
+// 是否满屏
+@property(nonatomic,assign) BOOL isFullWidth;
+
+// 是否左对齐
+@property(nonatomic,assign) BOOL alignLeft;
 
 -(void)setImagesDeselected:(NSString *)deselectedImage
               fullSelected:(NSString *)fullSelectedImage
@@ -46,6 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @return 评级等级
  */
 -(float)rating;
+
 
 @end
 

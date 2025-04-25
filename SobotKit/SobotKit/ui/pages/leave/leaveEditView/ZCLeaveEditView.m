@@ -7,6 +7,7 @@
 
 #import "ZCLeaveEditView.h"
 #import <SobotCommon/SobotCommon.h>
+#import <SobotCommon/SobotDataTimePickView.h>
 #import <SobotChatClient/SobotChatClient.h>
 #import "ZCUIKitTools.h"
 #import "ZCUICore.h"
@@ -19,10 +20,13 @@
 #define cellEditIdentifier @"ZCOrderEditCell"
 #import "ZCOrderCheckCell.h"
 #define cellCheckIdentifier @"ZCOrderCheckCell"
+#import "ZCOrderCheckMoreCell.h"
+#define cellCheckMoreIdentifier @"ZCOrderCheckMoreCell"
 #import "ZCCheckTypeView.h"
 #import "ZCPageSheetView.h"
 #import "ZCCheckMulCusFieldView.h"
 #import "ZCCheckCusFieldView.h"
+#import "ZCLeaveRegionSheetView.h"
 #import "ZCZHPickView.h"
 #import "ZCVideoPlayer.h"
 #import <AVFoundation/AVFoundation.h>
@@ -34,6 +38,9 @@
     CGPoint contentoffset;// 记录list的偏移量
     SobotXHImageViewer *xh;
     ZCOrderCusFiledsModel *curEditModel;
+    // 时间加日期
+    SobotDataTimePickView *picker;
+    ZCLeaveRegionSheetView *vc;
 }
 @property(nonatomic,strong) ZCOrderModel * model;
 @property(nonatomic, assign) BOOL isSend;
@@ -66,6 +73,7 @@
 @property (nonatomic,strong)UIButton *recordBtn;
 @property (nonatomic,strong)NSLayoutConstraint *imgPT;
 @property (nonatomic,strong)NSLayoutConstraint *comBtnMT;
+
 @end
 
 
@@ -80,23 +88,72 @@
         _model = [ZCOrderModel new];
         [self createSubViews];
 //        [self addLeaveMsgSuccessView];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didRotate:)
+                                                     name:UIDeviceOrientationDidChangeNotification
+                                                   object:nil];
     }
     return self;
 }
 
+- (void)didRotate:(NSNotification *)notification {
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight) {
+        // 横屏
+//        NSLog(@"横屏");
+        
+    } else if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown) {
+        // 竖屏
+//        NSLog(@"竖屏");
+    }
+    if (!sobotIsNull(picker)) {
+        [picker pickViewDismiss];
+    }
+    if (!sobotIsNull(vc)) {
+        [vc closeSheetView];
+    }
+    if (!sobotIsNull(_pickView)) {
+        [_pickView remove];
+    }
+}
+
 -(void)createSubViews{
+    
+    // 先创建提交按钮，悬浮到底部
+    UIButton * commitBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [commitBtn setTitle:SobotKitLocalString(@"提交") forState:UIControlStateNormal];
+    [commitBtn setTitle:SobotKitLocalString(@"提交") forState:UIControlStateSelected];
+    [commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateNormal];
+    [commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateHighlighted];
+    UIImage * img = [self createImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
+    [commitBtn setBackgroundImage:img forState:UIControlStateNormal];
+    [commitBtn setBackgroundImage:img forState:UIControlStateSelected];
+    commitBtn.tag = 1001;
+    [commitBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    commitBtn.layer.masksToBounds = YES;
+    commitBtn.layer.cornerRadius = 4.0f;
+    commitBtn.titleLabel.font = SobotFont17;
+//     commitBtn.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
+    [self addSubview:commitBtn];
+   [self addConstraint:sobotLayoutPaddingLeft(20, commitBtn, self)];
+   [self addConstraint:sobotLayoutEqualHeight(40, commitBtn, NSLayoutRelationEqual)];
+   self.commitBtnEW = sobotLayoutEqualWidth(ScreenWidth - 40, commitBtn, NSLayoutRelationEqual);
+   [self addConstraint:self.commitBtnEW];
+    [self addConstraint:sobotLayoutPaddingBottom(0, commitBtn, self)];
+    
+    
+    self.backgroundColor = UIColorFromKitModeColor(SobotColorBgMainDark1);
     _listTable = (SobotTableView*)[SobotUITools createTableWithView:self delegate:self style:UITableViewStyleGrouped];
-     _listTable.backgroundColor = [UIColor clearColor];
-     _listTable.sectionFooterHeight = 10;
+     _listTable.backgroundColor = UIColorFromKitModeColor(SobotColorBgMainDark1);
+     _listTable.sectionFooterHeight = 0;
      [self addSubview:_listTable];
      [_listTable registerClass:[ZCOrderCheckCell class] forCellReuseIdentifier:cellCheckIdentifier];
      [_listTable registerClass:[ZCOrderContentCell class] forCellReuseIdentifier:cellOrderContentIdentifier];
-    [_listTable registerClass:[ZCOrderEditCell class] forCellReuseIdentifier:cellEditIdentifier];
+     [_listTable registerClass:[ZCOrderEditCell class] forCellReuseIdentifier:cellEditIdentifier];
      [_listTable registerClass:[ZCOrderOnlyEditCell class] forCellReuseIdentifier:cellOrderSingleIdentifier];
-
+    [_listTable registerClass:[ZCOrderCheckMoreCell class] forCellReuseIdentifier:cellCheckMoreIdentifier];
     // 分割线的隐藏
-//    _listTable.separatorStyle = UITableViewCellSeparatorStyleNone;
-    [self setTableSeparatorInset];
+    _listTable.separatorColor = UIColor.clearColor;
     //可以省略不设置
     _listTable.rowHeight = UITableViewAutomaticDimension;
     self.listViewPT = sobotLayoutPaddingTop(0, _listTable, self);
@@ -105,7 +162,8 @@
     [self addConstraint:self.listViewPL];
     self.listViewPR = sobotLayoutPaddingRight(0, _listTable, self);
     [self addConstraint:self.listViewPR];
-    self.listViewPB = sobotLayoutPaddingBottom(0, _listTable, self);
+    self.listViewPB =  sobotLayoutPaddingBottom(0, _listTable, self);
+    self.listViewPB = sobotLayoutMarginBottom(-20, _listTable, commitBtn);
     [self addConstraint:self.listViewPB];
      UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapHideKeyboard)];
      gestureRecognizer.numberOfTapsRequired = 1;
@@ -114,34 +172,33 @@
      [_listTable addGestureRecognizer:gestureRecognizer];
      
      // 提交按钮
-     UIView * footView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 300)];
-    footView.userInteractionEnabled = YES;
-     footView.backgroundColor = [UIColor clearColor];
-     // 区尾添加提交按钮 2.7.1改版
-     UIButton * commitBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-     [commitBtn setTitle:SobotKitLocalString(@"提交") forState:UIControlStateNormal];
-     [commitBtn setTitle:SobotKitLocalString(@"提交") forState:UIControlStateSelected];
-     [commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateNormal];
-     [commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateHighlighted];
-     UIImage * img = [self createImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
-     [commitBtn setBackgroundImage:img forState:UIControlStateNormal];
-     [commitBtn setBackgroundImage:img forState:UIControlStateSelected];
-     commitBtn.tag = 1001;
-     [commitBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
-     commitBtn.layer.masksToBounds = YES;
-     commitBtn.layer.cornerRadius = 22.f;
-     commitBtn.titleLabel.font = SobotFont17;
-//     commitBtn.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
-     [footView addSubview:commitBtn];
-    [footView addConstraint:sobotLayoutPaddingTop(20, commitBtn, footView)];
-    [footView addConstraint:sobotLayoutPaddingLeft(20, commitBtn, footView)];
-//    [footView addConstraint:sobotLayoutPaddingRight(-20, commitBtn, footView)];
-    [footView addConstraint:sobotLayoutEqualHeight(44, commitBtn, NSLayoutRelationEqual)];
-    self.commitBtnEW = sobotLayoutEqualWidth(ScreenWidth - 40, commitBtn, NSLayoutRelationEqual);
-    [footView addConstraint:self.commitBtnEW];
-    _listTable.tableFooterView = footView;
+//     UIView * footView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 300)];
+//    footView.userInteractionEnabled = YES;
+//     footView.backgroundColor = [UIColor clearColor];
+//     // 区尾添加提交按钮 2.7.1改版
+//     UIButton * commitBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+//     [commitBtn setTitle:SobotKitLocalString(@"提交") forState:UIControlStateNormal];
+//     [commitBtn setTitle:SobotKitLocalString(@"提交") forState:UIControlStateSelected];
+//     [commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateNormal];
+//     [commitBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitTextColor] forState:UIControlStateHighlighted];
+//     UIImage * img = [self createImageWithColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
+//     [commitBtn setBackgroundImage:img forState:UIControlStateNormal];
+//     [commitBtn setBackgroundImage:img forState:UIControlStateSelected];
+//     commitBtn.tag = 1001;
+//     [commitBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+//     commitBtn.layer.masksToBounds = YES;
+//     commitBtn.layer.cornerRadius = 4.0f;
+//     commitBtn.titleLabel.font = SobotFont17;
+////     commitBtn.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
+//     [footView addSubview:commitBtn];
+//    [footView addConstraint:sobotLayoutPaddingTop(20, commitBtn, footView)];
+//    [footView addConstraint:sobotLayoutPaddingLeft(20, commitBtn, footView)];
+////    [footView addConstraint:sobotLayoutPaddingRight(-20, commitBtn, footView)];
+//    [footView addConstraint:sobotLayoutEqualHeight(40, commitBtn, NSLayoutRelationEqual)];
+//    self.commitBtnEW = sobotLayoutEqualWidth(ScreenWidth - 40, commitBtn, NSLayoutRelationEqual);
+//    [footView addConstraint:self.commitBtnEW];
+//    _listTable.tableFooterView = footView;
 }
-
 
 #pragma mark EmojiLabel链接点击事件
 // 链接点击
@@ -173,7 +230,7 @@
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
-    return 5;
+    return 0;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
@@ -187,7 +244,10 @@
         [label setFont:SobotFont14];
         [label setBackgroundColor:[UIColor clearColor]];
         [label setTextAlignment:NSTextAlignmentLeft];
-        [label setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            [label setTextAlignment:NSTextAlignmentRight];
+        }
+        [label setTextColor:UIColorFromKitModeColor(SobotColorHeaderText)];
         label.numberOfLines = 0;
         label.isNeedAtAndPoundSign = NO;
         label.disableEmoji = NO;
@@ -196,29 +256,40 @@
 //        label.delegate = self;
          __block CGSize  labSize = CGSizeZero;
         NSString *text = _msgTxt;//[self getCurConfig].msgTxt;
-        [SobotHtmlCore filterHtml:text result:^(NSString * _Nonnull text1, NSMutableArray * _Nonnull arr, NSMutableArray * _Nonnull links) {
-            if (text1 !=nil && text1.length > 0) {
-                 label.attributedText =   [SobotHtmlFilter setHtml:text1 attrs:arr view:label textColor:UIColorFromKitModeColor(SobotColorTextSub) textFont:SobotFont14 linkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
-            }else{
-                 label.attributedText = [[NSAttributedString alloc] initWithString:@""];
-            }
-            labSize  = [label preferredSizeWithMaxWidth:ScreenWidth-30];
-        }];
-        return labSize.height + 24;
+        text = [SobotHtmlCore removeAllHTMLTag:text];
+        NSString *msg = text;
+//        NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithData:[msg dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType }
+//                                                                 documentAttributes:nil
+//                                                                            error:nil];
+//        [ZCLeaveEditView setDisplayAttributedString:attrString label:label color:UIColorFromKitModeColor(SobotColorHeaderText)];
+//        [SobotHtmlCore filterHtml:text result:^(NSString * _Nonnull text1, NSMutableArray * _Nonnull arr, NSMutableArray * _Nonnull links) {
+//            if (text1 !=nil && text1.length > 0) {
+//                 label.attributedText =   [SobotHtmlFilter setHtml:text1 attrs:arr view:label textColor:UIColorFromKitModeColor(SobotColorTextSub) textFont:SobotFont14 linkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
+//            }else{
+//                 label.attributedText = [[NSAttributedString alloc] initWithString:@""];
+//            }
+            label.text = msg;
+            labSize  = [label preferredSizeWithMaxWidth:ScreenWidth-32];
+//        }];
+        return labSize.height + 20;
     }
-    return 5;
+    return 0;
 }
 
 // 返回section 的View
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
-    UIView *view=[[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, 10)];
+    UIView *view=[[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, 0)];
     if (section == 0) {
-        [view setBackgroundColor:[ZCUIKitTools zcgetLightGrayDarkBackgroundColor]];
+        [view setBackgroundColor:UIColorFromKitModeColor(SobotColorHeaderBg)];
         SobotEmojiLabel *label = [[SobotEmojiLabel alloc] initWithFrame:CGRectMake(15, 10, ScreenWidth-30, 0)];
         [label setFont:SobotFont14];
         [label setBackgroundColor:[UIColor clearColor]];
         [label setTextAlignment:NSTextAlignmentLeft];
-        [label setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
+        if ([ZCUIKitTools getSobotIsRTLLayout]) {
+            [label setTextAlignment:NSTextAlignmentRight];
+        }
+//        [label setTextColor:UIColorFromKitModeColor(SobotColorTextSub)];
+        [label setTextColor:UIColorFromKitModeColor(SobotColorHeaderText)];
         label.numberOfLines = 0;
         label.isNeedAtAndPoundSign = NO;
         label.disableEmoji = NO;
@@ -230,22 +301,26 @@
         if(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveMsgGuideContent).length > 0){
             text = SobotKitLocalString(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveMsgGuideContent));
         }
-        [SobotHtmlCore filterHtml:text result:^(NSString * _Nonnull text1, NSMutableArray * _Nonnull arr, NSMutableArray * _Nonnull links) {
-            if (text1 !=nil && text1.length > 0) {
-                 label.attributedText =   [SobotHtmlFilter setHtml:text1 attrs:arr view:label textColor:UIColorFromKitModeColor(SobotColorTextSub) textFont:SobotFont14 linkColor:[ZCUIKitTools zcgetChatLeftLinkColor]];
-            }else{
-                 label.attributedText = [[NSAttributedString alloc] initWithString:@""];
-            }
-            labSize  =  [label preferredSizeWithMaxWidth:ScreenWidth-30];
-        }];
-        label.frame = CGRectMake(15, 12, labSize.width, labSize.height);
-        [view addSubview:label];
-        CGRect VF = view.frame;
-        VF.size.height = labSize.height + 12;
-        view.frame = VF;
-        [SobotUITools setRTLFrame:label];
-    }else{
-        view.frame = CGRectMake(0, 0, ScreenWidth, 0.01);
+        text = [SobotHtmlCore removeAllHTMLTag:text];
+        NSString *msg = text;
+//        msg = [msg stringByAppendingString:@"<a href=\"https://www.w3school.com.cn\">访问 w3school.com.cn!</a>"];
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//            NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithData:[msg dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType }
+//                                                                     documentAttributes:nil
+//                                                                                error:nil];
+            // 当异步任务完成时，如果需要更新UI，可以回到主线程
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                [ZCLeaveEditView setDisplayAttributedString:attrString label:label color:UIColorFromKitModeColor(SobotColorHeaderText)];
+                label.text = msg;
+                labSize  =  [label preferredSizeWithMaxWidth:ScreenWidth-32];
+                label.frame = CGRectMake(16, 10, labSize.width, labSize.height);
+                [view addSubview:label];
+                CGRect VF = view.frame;
+                VF.size.height = labSize.height + 10;
+                view.frame = VF;
+                [SobotUITools setRTLFrame:label];
+//            });
+//        });
     }
     return view;
 }
@@ -274,6 +349,8 @@
         ((ZCOrderContentCell *)cell).imageArr = _imageArr;
         ((ZCOrderContentCell *)cell).imagePathArr = _imagePathArr;
         ((ZCOrderContentCell *)cell).enclosureShowFlag = self.enclosureShowFlag;
+        ((ZCOrderContentCell *)cell).ticketContentFillFlag = self.ticketContentFillFlag;
+        ((ZCOrderContentCell *)cell).ticketContentShowFlag = self.ticketContentShowFlag;
     }else if(type == 1 || type ==5){
         cell = (ZCOrderOnlyEditCell*)[tableView dequeueReusableCellWithIdentifier:cellOrderSingleIdentifier];
         if (cell == nil) {
@@ -283,6 +360,11 @@
         cell = (ZCOrderEditCell*)[tableView dequeueReusableCellWithIdentifier:cellEditIdentifier];
         if (cell == nil) {
             cell = [[ZCOrderEditCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellEditIdentifier];
+        }
+    }else if (type == 7){
+        cell = (ZCOrderCheckMoreCell*)[tableView dequeueReusableCellWithIdentifier:cellCheckMoreIdentifier];
+        if (cell == nil) {
+            cell = [[ZCOrderCheckMoreCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellCheckMoreIdentifier];
         }
     }else{
         cell = (ZCOrderCheckCell*)[tableView dequeueReusableCellWithIdentifier:cellCheckIdentifier];
@@ -317,6 +399,7 @@
         typeVC.typeId = @"-1";
         typeVC.parentView = nil;
         typeVC.listArray = _typeArr;
+        typeVC.selTypeId = self.model.ticketType;
         typeVC.orderTypeCheckBlock = ^(ZCLibTicketTypeModel *tempmodel) {
             if(tempmodel){
                 myself.model.ticketType = tempmodel.typeId;
@@ -348,6 +431,13 @@
         if(fieldType == 9){
             __block ZCLeaveEditView *myself = self;
             ZCCheckMulCusFieldView *typeVC = [[ZCCheckMulCusFieldView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 0)];
+            typeVC.preModel = curEditModel;
+            if(sobotConvertToString(self->curEditModel.fieldName).length > 0){
+                typeVC.pageTitle = sobotConvertToString(self->curEditModel.fieldName);
+            }else{
+                typeVC.pageTitle = SobotKitLocalString(@"选择");
+            }
+            
             ZCPageSheetView *sheetView = [[ZCPageSheetView alloc] initWithTitle:SobotKitLocalString(@"选择") superView:self showView:typeVC type:ZCPageSheetTypeLong];
             typeVC.parentDataId = @"";
             typeVC.parentView = nil;
@@ -363,12 +453,92 @@
             }];
             return;
         }
+        if(fieldType == 12){
+            // 日期时间
+            NSString *checkTimezoneId = @"";
+            NSString *checkTimezoneValue = @"";
+            if(sobotConvertToString(curEditModel.fieldSaveValue).length > 0){
+                NSArray *tempArray = [sobotConvertToString(curEditModel.fieldSaveValue) componentsSeparatedByString:@","];
+                if(tempArray.count > 1){
+                    checkTimezoneId = sobotConvertToString(tempArray[0]);
+                }
+            }
+            if(sobotConvertToString(curEditModel.fieldValue).length > 0){
+                NSArray *tempArray = [sobotConvertToString(curEditModel.fieldValue) componentsSeparatedByString:@","];
+                if([curEditModel.fieldValue containsString:@"\n"]){
+                    tempArray = [sobotConvertToString(curEditModel.fieldValue) componentsSeparatedByString:@"\n"];
+                }
+                if(tempArray.count > 1){
+                    checkTimezoneValue = sobotConvertToString(tempArray[0]);
+                }
+            }
+            NSString *language = sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.absolute_language);
+            if(language.length == 0){
+                language = sobotConvertToString([ZCLibClient getZCLibClient].libInitInfo.locale);
+            }
+            if(language.length == 0){
+                language = sobotGetLanguagePrefix();
+            }
+            
+            picker = [[SobotDataTimePickView alloc] initWithFrame:CGRectZero];
+            picker.language = language;
+            picker.region = 1;//[picker.language hasPrefix:@"zh"]?0:1;
+            picker.checkedTimeZone = @{@"timezoneId":sobotConvertToString(checkTimezoneId),@"title":sobotConvertToString(checkTimezoneValue),@"timezoneValue":sobotConvertToString(checkTimezoneValue)};
+            picker.isMustFlag = [sobotConvertToString(curEditModel.fillFlag) intValue] == 1;
+            picker.existMinute = YES;
+            picker.server_host = [[ZCLibClient getZCLibClient] getCurApiHost];
+            [picker setOnCommitBlock:^(int action, NSString * _Nonnull resultText, NSString * _Nullable timezoneId, id  _Nullable timeZone) {
+                SLog(@"%@,%@",timezoneId,resultText);
+                if(action == 1){
+                    NSString *text = resultText;
+                    NSString *value = resultText;
+                    
+                    
+                    if(sobotConvertToString(timezoneId).length > 0){
+                        value = [NSString stringWithFormat:@"%@,%@",timezoneId,resultText];
+                        text = [NSString stringWithFormat:@"%@,%@",timezoneId,resultText];
+                        NSDictionary *r = timeZone;
+                        if(r && [r isKindOfClass:[NSDictionary class]] && sobotConvertToString(r[@"timezoneValue"]).length > 0){
+                            text = [NSString stringWithFormat:@"%@,%@",sobotConvertToString(r[@"timezoneValue"]),resultText];
+                        }
+                    }
+                    self->curEditModel.fieldValue = text;
+                    self->curEditModel.fieldSaveValue = value;
+                    [self refreshViewData];
+                }
+            }];
+            
+            picker.pageTitle = curEditModel.fieldName;
+            picker.btnBgColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
+            picker.btnTitleColor = [ZCUIKitTools zcgetRobotBtnTitleColor];
+            picker.isRTL = [ZCUIKitTools getSobotIsRTLLayout];
+            [picker pickViewShow];
+            return;
+        }
         if(fieldType == 3){
             _pickView = [[ZCZHPickView alloc] initWithFrame:self.frame DatePickWithDate:[NSDate new]  datePickerMode:UIDatePickerModeDate isHaveNavControler:NO];
             [_pickView setTitle:SobotKitLocalString(@"日期")];
             _pickView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
             _pickView.delegate = self;
             [_pickView show];
+        }
+        
+        if(fieldType == 11){
+            // 地区
+            vc = [[ZCLeaveRegionSheetView alloc] initAlterView:self->curEditModel.fieldName];
+            vc.pageTitle = self->curEditModel.fieldName;
+            vc.fieldModel = self->curEditModel;
+            [vc setChooseResultBlock:^(id  _Nullable model, NSString * _Nonnull names, NSString * _Nonnull ids) {
+                if(model){
+                    self->curEditModel.fieldValue = [names stringByReplacingOccurrencesOfString:@"/" withString:@","];
+                    self->curEditModel.fieldSaveValue = [ids stringByReplacingOccurrencesOfString:@"/" withString:@","];;
+                    [self refreshViewData];
+                }
+            }];
+            [vc setBtnCommitBgColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
+            [vc setBtnCommitTitleColor:[ZCUIKitTools zcgetRobotBtnTitleColor]];
+            [vc showInView:nil];
+            return;
         }
         if(fieldType == 6 || fieldType == 7 || fieldType == 8){
             ZCCheckCusFieldView *vc = [[ZCCheckCusFieldView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 0)];
@@ -401,19 +571,6 @@
     }
 }
 
-/**
- *  设置UITableView分割线空隙
- */
--(void)setTableSeparatorInset{
-    UIEdgeInsets inset = UIEdgeInsetsMake(0, 0, 0, 0);
-    if ([_listTable respondsToSelector:@selector(setSeparatorInset:)]) {
-        [_listTable setSeparatorInset:inset];
-    }
-    if ([_listTable respondsToSelector:@selector(setLayoutMargins:)]) {
-        [_listTable setLayoutMargins:inset];
-    }
-    
-}
 
 
 #pragma mark 日期控件
@@ -438,7 +595,7 @@
             // 这里要重新处理数据 *
             NSString * titleStr = sobotConvertToString(temModel.fieldName);
             if([sobotConvertToString(temModel.fillFlag) intValue] == 1){
-                titleStr = [NSString stringWithFormat:@"%@*",titleStr];
+                titleStr = [NSString stringWithFormat:@"* %@",titleStr];
             }
             NSMutableArray *arr1 = _listArray[indexPath.section][@"arr"];
             arr1[indexPath.row] = @{@"code":[NSString stringWithFormat:@"%d",index],
@@ -459,7 +616,7 @@
                 NSString * title = SobotKitLocalString(@"邮箱");
                 if( libConfig.emailFlag){
                     text = [NSString stringWithFormat:@"%@(%@)",SobotKitLocalString(@"请输入邮箱地址"),SobotKitLocalString(@"必填")];
-                    title = [NSString stringWithFormat:@"%@*",SobotKitLocalString(@"邮箱")];
+                    title = [NSString stringWithFormat:@"* %@",SobotKitLocalString(@"邮箱")];
                 }
                arr4[indexPath.row] = @{@"code":@"1",
                                   @"dictName":@"ticketEmail",
@@ -477,7 +634,7 @@
                 NSString * title = SobotKitLocalString(@"手机");
                 if ( libConfig.telFlag) {
                     text =  [NSString stringWithFormat:@"%@(%@)",SobotKitLocalString(@"请输入手机号码"),SobotKitLocalString(@"必填")];
-                    title = [NSString stringWithFormat:@"%@*",SobotKitLocalString(@"手机")];
+                    title = [NSString stringWithFormat:@"* %@",SobotKitLocalString(@"手机")];
                 }
                 arr4[indexPath.row] = @{@"code":@"1",
                                         @"dictName":@"ticketTel",
@@ -492,8 +649,8 @@
             
             if([@"ticketTitle" isEqual:dict[@"dictName"]]){
                  _model.ticketTitle = value;
-                  NSString * text = SobotKitLocalString(@"请输入标题（必填）");
-                  NSString * title = SobotKitLocalString(@"标题*");
+                NSString * text = [NSString stringWithFormat:@"%@",SobotKitLocalString(@"请输入")];
+                  NSString * title = [NSString stringWithFormat:@"* %@",SobotKitLocalString(@"标题")];
                  arr4[indexPath.row] = @{@"code":@"1",
                                     @"dictName":@"ticketTitle",
                                     @"dictDesc":title,
@@ -658,6 +815,8 @@
         [_imageArr removeObjectAtIndex:[key intValue]];
         [_imagePathArr removeObjectAtIndex:[key intValue]];
         [_listTable reloadData];
+        // 这里重新刷新数据源
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"ZCOrderContentCellReload" object:nil];
     }
     
     if(type == ZCOrderCreateItemTypeDesc || type == ZCOrderCreateItemTypeTitle || type == ZCOrderCreateItemTypeReplyType){
@@ -673,10 +832,12 @@
                 imgPathStr = [_imagePathArr objectAtIndex:currentInt];
             }
             NSDictionary *imgDic = [_imageArr objectAtIndex:currentInt];
+//            NSString *imgFileStr =  sobotConvertToString(imgDic[@"fileUrl"]);
             NSString *imgFileStr =  sobotConvertToString(imgDic[@"cover"]);
             if (imgFileStr.length>0) {
+                imgFileStr =  sobotConvertToString(imgDic[@"fileUrl"]);
                 //        视频预览
-                NSURL *imgUrl = [NSURL fileURLWithPath:imgPathStr];
+                NSURL *imgUrl = [NSURL fileURLWithPath:imgFileStr];
                 UIWindow *window = [SobotUITools getCurWindow];
                 ZCVideoPlayer *player = [[ZCVideoPlayer alloc] initWithFrame:window.bounds withShowInView:window url:imgUrl Image:button.imageView.image];
                 [player showControlsView];
@@ -772,8 +933,10 @@
     // propertyType == 1是自定义字段，0固定字段, 3不可点击
     NSMutableArray *arr0 = [[NSMutableArray alloc] init];
     if ( _ticketTitleShowFlag) {
-        NSString * text = SobotKitLocalString(@"请输入标题（必填）");
-        NSString * title = SobotKitLocalString(@"标题*");
+//        NSString * text = SobotKitLocalString(@"请输入标题（必填）");
+//        NSString * text = [NSString stringWithFormat:@"%@%@(%@))",SobotKitLocalString(@"请输入"),SobotKitLocalString(@"标题"),SobotKitLocalString(@"必填")];
+        NSString *text = SobotKitLocalString(@"请输入");
+        NSString * title = [NSString stringWithFormat:@"* %@",SobotKitLocalString(@"标题")];
        
         [arr0 addObject:@{@"code":@"1",
                           @"dictName":@"ticketTitle",
@@ -790,7 +953,7 @@
     NSMutableArray *arr1 = [[NSMutableArray alloc] init];
     [arr1 addObject:@{@"code":@"2",
                       @"dictName":@"ticketType",
-                      @"dictDesc":[NSString stringWithFormat:@"%@*",SobotKitLocalString(@"问题分类")],
+                      @"dictDesc":[NSString stringWithFormat:@"* %@",SobotKitLocalString(@"问题分类")],
                       @"placeholder":@"",
                       @"dictValue":sobotConvertToString(_model.ticketTypeName),
                       @"dictType":@"3",
@@ -811,13 +974,17 @@
             }
             NSString * titleStr = sobotConvertToString(cusModel.fieldName);
             if([sobotConvertToString(cusModel.fillFlag) intValue] == 1){
-                titleStr = [NSString stringWithFormat:@"%@*",titleStr];
+                titleStr = [NSString stringWithFormat:@"* %@",titleStr];
+            }
+            NSString *dataValue = sobotConvertToString(cusModel.fieldValue);
+            if ([sobotConvertToString(cusModel.fieldType) intValue] == 9 && sobotConvertToString(dataValue).length >0) {
+                dataValue = [dataValue stringByReplacingOccurrencesOfString:@"," withString:@"/"];
             }
             [arr2 addObject:@{@"code":[NSString stringWithFormat:@"%d",index],
                               @"dictName":sobotConvertToString(cusModel.fieldName),
                               @"dictDesc":sobotConvertToString(titleStr),
                               @"placeholder":sobotConvertToString(cusModel.fieldRemark),
-                              @"dictValue":sobotConvertToString(cusModel.fieldValue),
+                              @"dictValue":dataValue,
                               @"dictType":sobotConvertToString(cusModel.fieldType),
                               @"propertyType":propertyType,
                               @"model":cusModel
@@ -850,26 +1017,28 @@
     if(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveContentPlaceholder).length > 0){
         tmp = SobotKitLocalString(sobotConvertToString([ZCUICore getUICore].kitInfo.leaveContentPlaceholder));
     }
-    
-//    if (libConfig.enclosureShowFlag) {
+    // 描述和附件在一个控件中
+    if (self.ticketContentShowFlag || self.enclosureShowFlag) {
         NSMutableArray *arr3 = [[NSMutableArray alloc] init];
         [arr3 addObject:@{@"code":@"1",
                           @"dictName":@"ticketReplyContent",
-                          @"dictDesc":SobotKitLocalString(@"回复内容"),
+//                          @"dictDesc":SobotKitLocalString(@"回复内容"),
+                          @"dictDesc":[NSString stringWithFormat:@"* %@",SobotKitLocalString(@"问题描述")],
                           @"placeholder":tmp,//  libConfig.msgTmp
                           @"dictValue":sobotConvertToString(_model.ticketDesc),
                           @"dictType":@"0",
                           @"propertyType":@"0"
                           }];
         [_listArray addObject:@{@"sectionName":SobotKitLocalString(@"回复"),@"arr":arr3}];
-//    }
+    }
     NSMutableArray *arr4 = [[NSMutableArray alloc] init];
     if ( _emailShowFlag) {
-        NSString * text = [NSString stringWithFormat:@"%@(%@)",SobotKitLocalString(@"请输入邮箱地址"),SobotKitLocalString(@"选填")];
+//        NSString * text = [NSString stringWithFormat:@"%@",SobotKitLocalString(@"请输入邮箱地址"),SobotKitLocalString(@"选填")];
         NSString * title = SobotKitLocalString(@"邮箱");
+        NSString *text = SobotKitLocalString(@"请输入");
         if( _emailFlag){
-            text = [NSString stringWithFormat:@"%@(%@)",SobotKitLocalString(@"请输入邮箱地址"),SobotKitLocalString(@"必填")];
-            title = [NSString stringWithFormat:@"%@*",SobotKitLocalString(@"邮箱")];
+//            text = [NSString stringWithFormat:@"%@(%@)",SobotKitLocalString(@"请输入邮箱地址"),SobotKitLocalString(@"必填")];
+            title = [NSString stringWithFormat:@"* %@",SobotKitLocalString(@"邮箱")];
         }
         [arr4 addObject:@{@"code":@"1",
                           @"dictName":@"ticketEmail",
@@ -882,11 +1051,12 @@
     }
     
     if ( _telShowFlag) {
-        NSString * text = [NSString stringWithFormat:@"%@(%@)",SobotKitLocalString(@"请输入手机号码"),SobotKitLocalString(@"选填")];
+//        NSString * text = [NSString stringWithFormat:@"%@(%@)",SobotKitLocalString(@"请输入手机号码"),SobotKitLocalString(@"选填")];
         NSString * title = SobotKitLocalString(@"手机");
+        NSString *text = SobotKitLocalString(@"请输入");
         if ( _telFlag) {
-            text = [NSString stringWithFormat:@"%@(%@)",SobotKitLocalString(@"请输入手机号码"),SobotKitLocalString(@"必填")];
-            title = [NSString stringWithFormat:@"%@*",SobotKitLocalString(@"手机")];
+//            text = [NSString stringWithFormat:@"%@(%@)",SobotKitLocalString(@"请输入手机号码"),SobotKitLocalString(@"必填")];
+            title = [NSString stringWithFormat:@"* %@",SobotKitLocalString(@"手机")];
         }
         [arr4 addObject:@{@"code":@"1",
                           @"dictName":@"ticketTel",
@@ -911,7 +1081,7 @@
         // 标题
         if (_ticketTitleShowFlag) {
             if (sobotTrimString(_model.ticketTitle).length == 0) {
-                [[SobotToast shareToast] showToast:SobotKitLocalString(@"请填写标题") duration:1.0f view:self  position:SobotToastPositionCenter];
+                [[SobotToast shareToast] showToast:[NSString stringWithFormat:@"%@ %@",SobotKitLocalString(@"标题"),SobotKitLocalString(@"不能为空")] duration:1.0f view:self  position:SobotToastPositionCenter];
                 return;
             }
             
@@ -987,7 +1157,9 @@
             return;
         }
         // 提交留言内容
-        if (_model.ticketDesc.length<=0) {
+        if (_model.ticketDesc.length<=0
+            && self.ticketContentShowFlag
+            && self.ticketContentFillFlag) {
             [[SobotToast shareToast] showToast:SobotKitLocalString(@"请填写问题描述")  duration:1.0f view:self position:SobotToastPositionCenter];
             return;
         }
@@ -1020,6 +1192,9 @@
     }
     if ( _telFlag || _telShowFlag) {
       [dic setValue:sobotConvertToString(_model.tel) forKey:@"customerPhone"];
+    }
+    if(sobotConvertToString(_model.regionCode).length > 0){
+        [dic setValue:sobotConvertToString(_model.regionCode) forKey:@"regionCode"];
     }
     
     if(!sobotIsNull([ZCUICore getUICore].kitInfo.leaveCusFieldArray) && [ZCUICore getUICore].kitInfo.leaveCusFieldArray.count > 0){
@@ -1086,7 +1261,9 @@
             // 手机号格式错误
             int status = [(NSString *)obj intValue];
             if (status ==0) {
-                [[SobotToast shareToast] showToast:sobotConvertToString(jsonString) duration:1.0f view:safeSelf position:SobotToastPositionCenter];
+                if (sobotConvertToString(jsonString).length >0) {
+                    [[SobotToast shareToast] showToast:sobotConvertToString(jsonString) duration:1.0f view:safeSelf position:SobotToastPositionCenter];
+                }
             }else{
                 // 如果是弹出的方式保存留言，保存一下存储数据
                 if(safeSelf.fromSheetView){
@@ -1169,50 +1346,57 @@
     [self addConstraint:sobotLayoutPaddingTop(0, _successView, self)];
     [self addConstraint:sobotLayoutPaddingLeft(0, _successView, self)];
     [self addConstraint:sobotLayoutPaddingRight(0, _successView, self)];
-    _img = [[UIImageView alloc]initWithFrame:CGRectMake(viewWidth/2 - (60/2), (60), (60), (60))];
+    _img = [[UIImageView alloc]initWithFrame:CGRectMake(viewWidth/2 - (54/2), 60, 54, 54)];
     if(isLandspace){
-        _img.frame = CGRectMake(viewWidth/2 - (60/2), (20), (60), (60));
+        _img.frame = CGRectMake(viewWidth/2 - (54/2), 20, 54, 54);
     }
-    _img.image = [SobotUITools getSysImageByName:@"zcicon_addleavemsgsuccess"];
+    _img.layer.cornerRadius = 54/2;
+    _img.layer.masksToBounds = YES;
+//    _img.image = [[SobotUITools getSysImageByName:@"zcicon_addleavemsgsuccess"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [_img setImage:SobotKitGetImage(@"zcicon_addleavemsgsuccess")];
+//    _img.tintColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
+    _img.backgroundColor = [ZCUIKitTools zcgetServerConfigBtnBgColor];
     [_successView addSubview:_img];
+
     
-    CGFloat imgT = (60);
+    CGFloat imgT = 150;
     if (isLandspace) {
-        imgT = (20);
+        imgT = 20;
     }
     self.imgPT = sobotLayoutPaddingTop(imgT, _img, _successView);
     [self.successView addConstraint:self.imgPT];
-    [self.successView addConstraint:sobotLayoutEqualWidth((60), _img, NSLayoutRelationEqual)];
-    [self.successView addConstraint:sobotLayoutEqualHeight((60), _img, NSLayoutRelationEqual)];
+    [self.successView addConstraint:sobotLayoutEqualWidth(54, _img, NSLayoutRelationEqual)];
+    [self.successView addConstraint:sobotLayoutEqualHeight(54, _img, NSLayoutRelationEqual)];
     [self.successView addConstraint:sobotLayoutEqualCenterX(0, _img, _successView)];
     
-    _titleLab = [[UILabel alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(_img.frame)+ (30), viewWidth, (28))];
+    _titleLab = [[UILabel alloc]initWithFrame:CGRectMake(16, CGRectGetMaxY(_img.frame)+ (24), viewWidth-32, 32)];
     _titleLab.text = SobotKitLocalString(@"提交成功");
     _titleLab.textAlignment = NSTextAlignmentCenter;
     _titleLab.font = SobotFontBold20;
     _titleLab.textColor = UIColorFromKitModeColor(SobotColorTextMain);
     [_successView addSubview:_titleLab];
-    [_successView addConstraint:sobotLayoutMarginTop((30), _titleLab, _img)];
-    [_successView addConstraint:sobotLayoutPaddingLeft(0, _titleLab, _successView)];
-    [_successView addConstraint:sobotLayoutPaddingRight(0, _titleLab, _successView)];
-    [_successView addConstraint:sobotLayoutEqualHeight((28), _titleLab, NSLayoutRelationEqual)];
+    [_successView addConstraint:sobotLayoutMarginTop(24, _titleLab, _img)];
+    [_successView addConstraint:sobotLayoutPaddingLeft(16, _titleLab, _successView)];
+    [_successView addConstraint:sobotLayoutPaddingRight(-16, _titleLab, _successView)];
+    [_successView addConstraint:sobotLayoutEqualHeight(32, _titleLab, NSLayoutRelationEqual)];
         
-    _tiplab = [[UILabel alloc]initWithFrame:CGRectMake((45), CGRectGetMaxY(_titleLab.frame) + (10), viewWidth - (90), (40))];
+    CGFloat th = [SobotUITools getHeightContain:SobotKitLocalString(@"工单处理状态更新后将在会话中提醒您") font:SobotFont14 Width:viewWidth-32];
+    _tiplab = [[UILabel alloc]initWithFrame:CGRectMake(16, CGRectGetMaxY(_titleLab.frame) + 6, viewWidth - (32), th)];
     _tiplab.textAlignment = NSTextAlignmentCenter;
     _tiplab.font = SobotFont14;
-    _tiplab.text = SobotKitLocalString(@"我们将会以链接的形式在会话中向你反馈工单处理状态");
-    [_tiplab setNumberOfLines:2];
+    _tiplab.text = SobotKitLocalString(@"工单处理状态更新后将在会话中提醒您");
+    [_tiplab setNumberOfLines:0];
     _tiplab.textColor = UIColorFromKitModeColor(SobotColorTextSub);
     [_successView addSubview:_tiplab];
     [_successView addConstraint:sobotLayoutMarginTop((10), _tiplab, _titleLab)];
     [_successView addConstraint:sobotLayoutPaddingLeft(0, _tiplab, _successView)];
     [_successView addConstraint:sobotLayoutPaddingRight(0, _tiplab,_successView)];
-    [_successView addConstraint:sobotLayoutEqualHeight((40), _tiplab, NSLayoutRelationEqual)];
+    [_successView addConstraint:sobotLayoutEqualHeight(th, _tiplab, NSLayoutRelationEqual)];
         
     _comBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    _comBtn.frame = CGRectMake((15), CGRectGetMaxY(_tiplab.frame) + (100), viewWidth - (30), (44)) ;
+    _comBtn.frame = CGRectMake(16, CGRectGetMaxY(_tiplab.frame) + 40, viewWidth - 32, 40) ;
     if(isLandspace){
-        _comBtn.frame = CGRectMake((15), CGRectGetMaxY(_tiplab.frame) + (10), viewWidth - (30), (44)) ;
+        _comBtn.frame = CGRectMake(16, CGRectGetMaxY(_tiplab.frame) + (10), viewWidth - 32, 40) ;
     }
     [_comBtn setTitle:SobotKitLocalString(@"完成") forState:UIControlStateNormal];
     [_comBtn setTitle:SobotKitLocalString(@"完成") forState:UIControlStateSelected];
@@ -1222,31 +1406,31 @@
     [_comBtn addTarget:self action:@selector(completionBackAction:) forControlEvents:UIControlEventTouchUpInside];
     _comBtn.tag = 3001;
     _comBtn.layer.masksToBounds = YES;
-    _comBtn.layer.cornerRadius = 22.0f;
-    _comBtn.titleLabel.font = SobotFont17;
+    _comBtn.layer.cornerRadius = 4.0f;
+    _comBtn.titleLabel.font = SobotFont16;
     [_successView addSubview:_comBtn];
-    CGFloat comBtnT = (100);
+    CGFloat comBtnT = 40;
     if (isLandspace) {
-        comBtnT =(10);
+        comBtnT = 10;
     }
     self.comBtnMT = sobotLayoutMarginTop(comBtnT, _comBtn, _tiplab);
     [_successView addConstraint:self.comBtnMT];
-    [_successView addConstraint:sobotLayoutPaddingLeft((15), _comBtn, _successView)];
-    [_successView addConstraint:sobotLayoutPaddingRight((-15), _comBtn, _successView)];
-    [_successView addConstraint:sobotLayoutEqualHeight((44), _comBtn, NSLayoutRelationEqual)];
+    [_successView addConstraint:sobotLayoutPaddingLeft(16, _comBtn, _successView)];
+    [_successView addConstraint:sobotLayoutPaddingRight(-16, _comBtn, _successView)];
+    [_successView addConstraint:sobotLayoutEqualHeight(40, _comBtn, NSLayoutRelationEqual)];
     
     _recordBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    _recordBtn.frame = CGRectMake((30), CGRectGetMaxY(_comBtn.frame) + (20), viewWidth - (60), (30));
+    _recordBtn.frame = CGRectMake((16), CGRectGetMaxY(_comBtn.frame) + (16), viewWidth - 32,22);
     [_recordBtn setTitle:SobotKitLocalString(@"前往留言记录") forState:UIControlStateNormal];
     [_recordBtn setTitleColor:[ZCUIKitTools zcgetLeaveSubmitImgColor] forState:UIControlStateNormal];
     _recordBtn.tag = 3002;
     [_recordBtn addTarget:self action:@selector(completionBackAction:) forControlEvents:UIControlEventTouchUpInside];
     _recordBtn.titleLabel.font = SobotFont14;
     [_successView addSubview:_recordBtn];
-    [_successView addConstraint:sobotLayoutMarginTop((20), _recordBtn, _comBtn)];
-    [_successView addConstraint:sobotLayoutEqualHeight((30), _recordBtn, NSLayoutRelationEqual)];
-    [_successView addConstraint:sobotLayoutPaddingLeft((30), _recordBtn, _successView)];
-    [_successView addConstraint:sobotLayoutPaddingRight((-30), _recordBtn, _successView)];
+    [_successView addConstraint:sobotLayoutMarginTop(16, _recordBtn, _comBtn)];
+    [_successView addConstraint:sobotLayoutEqualHeight(22, _recordBtn, NSLayoutRelationEqual)];
+    [_successView addConstraint:sobotLayoutPaddingLeft(16, _recordBtn, _successView)];
+    [_successView addConstraint:sobotLayoutPaddingRight(-16, _recordBtn, _successView)];
 }
 
 -(void)removeAddLeaveMsgSuccessView{
@@ -1269,16 +1453,16 @@
     if (self.successView != nil) {
         [self.successView removeConstraint:self.imgPT];
         [self.successView removeConstraint:self.comBtnMT];
-        CGFloat imgT = (60);
+        CGFloat imgT = 150;
         if (isLandspace) {
             imgT = (20);
         }
         self.imgPT = sobotLayoutPaddingTop(imgT, _img, _successView);
         [self.successView addConstraint:self.imgPT];
         
-        CGFloat comBtnT = (100);
+        CGFloat comBtnT = 40;
         if (isLandspace) {
-            comBtnT =(10);
+            comBtnT = 10;
         }
         self.comBtnMT = sobotLayoutMarginTop(comBtnT, _comBtn, _tiplab);
         [self.successView addConstraint:self.comBtnMT];
@@ -1457,7 +1641,91 @@
 
 #pragma mark create Views
 -(void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     NSLog(@"销毁编辑留言");
 }
 
+
++(void)setDisplayAttributedString:(NSMutableAttributedString *) attr label:(UILabel *)label color:(UIColor*)tColor {
+    UIColor *textColor = UIColorFromKitModeColor(SobotColorTextSub);
+//    if (!sobotIsNull(tColor)) {
+        textColor = tColor;
+//    }
+  
+    UIColor *linkColor = [ZCUIKitTools zcgetRightChatColor];
+    NSMutableAttributedString* attributedString = [attr mutableCopy];
+    [attributedString beginEditing];
+    [attributedString enumerateAttribute:NSFontAttributeName inRange:NSMakeRange(0,attributedString.length) options:0 usingBlock:^(id value,NSRange range,BOOL *stop) {
+        UIFont *font = value;
+        // 替换固定默认文字大小
+        if(font.pointSize == 15){
+//            NSLog(@"----替换了字体");
+            [attributedString removeAttribute:NSFontAttributeName range:range];
+            [attributedString addAttribute:NSFontAttributeName value:label.font range:range];
+        }
+    }];
+    [attributedString enumerateAttribute:NSForegroundColorAttributeName inRange:NSMakeRange(0,attributedString.length) options:0 usingBlock:^(id value,NSRange range,BOOL *stop) {
+        UIColor *color = value;
+        NSString *hexColor = [ZCUIKitTools getHexStringByColor:color];
+//                                NSLog(@"***\n%@",hexColor);
+        // 替换固定整体文字颜色
+        if([@"ff0001" isEqual:hexColor]){
+            [attributedString removeAttribute:NSForegroundColorAttributeName range:range];
+            [attributedString addAttribute:NSForegroundColorAttributeName value:textColor range:range];
+        }
+        // 替换固定连接颜色
+        if([@"ff0002" isEqual:hexColor]){
+            [attributedString removeAttribute:NSForegroundColorAttributeName range:range];
+            [attributedString addAttribute:NSForegroundColorAttributeName value:linkColor range:range];
+        }
+    }];
+    
+    //Hack for italic/skew effect to custom fonts
+    __block NSMutableDictionary *rangeIDict = [[NSMutableDictionary alloc] init];
+    [attributedString enumerateAttribute:NSParagraphStyleAttributeName inRange:NSMakeRange(0,attributedString.length) options:0 usingBlock:^(id value,NSRange range,BOOL *stop) {
+         if (value) {
+             NSMutableParagraphStyle *myStyle = (NSMutableParagraphStyle *)value;
+             if (myStyle.minimumLineHeight == 101) {
+                 // 保存加粗的标签位置，如果相同位置有斜体，需要设置为斜体加粗
+                 [rangeIDict setObject:@"YES" forKey:NSStringFromRange(range)];
+                 [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:label.font.pointSize weight:UIFontWeightBold] range:range];
+             }
+         }
+     }];
+    
+    [attributedString enumerateAttribute:NSParagraphStyleAttributeName inRange:NSMakeRange(0,attributedString.length) options:0 usingBlock:^(id value,NSRange range,BOOL *stop) {
+         if (value) {
+             NSMutableParagraphStyle *myStyle = (NSMutableParagraphStyle *)value;
+             if (myStyle.minimumLineHeight == 99) {
+                 UIFont *textFont = label.font;
+                 CGAffineTransform matrix =  CGAffineTransformMake(1, 0, tanf(10 * (CGFloat)M_PI / 180), 1, 0, 0);
+                 UIFont *font = [UIFont systemFontOfSize:textFont.pointSize];
+                 // 相同的位置，有加粗
+                 if ([@"YES" isEqual:[rangeIDict objectForKey:NSStringFromRange(range)]]) {
+                    font = [UIFont boldSystemFontOfSize:textFont.pointSize];
+                 }
+                 
+                 // 解决 CoreText note: Client requested name ".SFUI-Regular" warning
+                 NSString *fontName = font.fontName;
+                 if([fontName hasSuffix:@"SFUI-Regular"]){
+                     fontName = @"TimesNewRomanPSMT";
+                 }
+                 UIFontDescriptor *desc = [UIFontDescriptor fontDescriptorWithName:fontName matrix:matrix];
+                 [attributedString addAttribute:NSFontAttributeName value:[UIFont fontWithDescriptor:desc size:textFont.pointSize] range:range];
+             }
+         }
+     }];
+    
+    // 文本段落排版格式
+    NSMutableParagraphStyle *textStyle = [[NSMutableParagraphStyle alloc] init];
+    textStyle.lineBreakMode = NSLineBreakByWordWrapping; // 结尾部分的内容以……方式省略
+    textStyle.lineSpacing = [ZCUIKitTools zcgetChatLineSpacing]; // 调整行间距
+    NSMutableDictionary *textAttributes = [[NSMutableDictionary alloc] init];
+    // NSParagraphStyleAttributeName 文本段落排版格式
+    [textAttributes setValue:textStyle forKey:NSParagraphStyleAttributeName];
+    // 设置段落样式
+    [attributedString addAttributes:textAttributes range:NSMakeRange(0, attributedString.length)];
+    [attributedString endEditing];
+    label.text = [attributedString copy];
+}
 @end

@@ -11,8 +11,6 @@
 
 @interface SobotCacheEntity : NSObject
 
--(id)initWithBundleName:(NSString *) bundleName;
-
 // 资源bundle名称，比如SobotOnline.bundle则 bundleName = SobotOnline
 @property(nonatomic,strong) NSString *bundleName;
 
@@ -31,5 +29,8 @@
 
 // 指定语言
 @property(nonatomic,strong) NSString *absoluetelanguage;
+
+
+-(id)initWithBundleName:(NSString *) bundleName;
 
 @end

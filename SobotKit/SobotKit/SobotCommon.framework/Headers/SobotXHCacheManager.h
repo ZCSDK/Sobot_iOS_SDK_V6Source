@@ -14,6 +14,10 @@
 // instancetype
 + (instancetype)shareCacheManager;
 + (instancetype)cacheManagerWithIdentifier:(NSString *)identifier;
+// mineType 后缀名，不添加默认没有
++ (instancetype)cacheManagerWithIdentifier:(NSString *)identifier type:(NSString *)mineType;
+
+
 
 // file/url to uer
 + (void)limitNumberOfCacheFiles:(NSInteger)numberOfCacheFiles;
@@ -37,6 +41,8 @@
 
 + (BOOL)existsDataForURL:(NSURL *)url;
 - (BOOL)existsDataForURL:(NSURL *)url;
++ (NSURL *)existsDataForURLToLocalPath:(NSURL *)url;
+- (NSURL *)existsDataForURLToLocalPath:(NSURL *)url;
 
 // UIImage caching
 + (void)storeMemoryCacheWithImage:(UIImage *)image forURL:(NSURL *)url;

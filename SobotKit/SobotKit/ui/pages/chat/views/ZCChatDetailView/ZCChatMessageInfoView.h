@@ -21,6 +21,8 @@ typedef NS_ENUM(NSUInteger, ZCChatMessageInfoViewEvent) {
 -(void)onViewEvent:(ZCChatMessageInfoViewEvent)type dict:(NSDictionary *_Nullable)dict obj:(id _Nullable)obj;
 
 //-(void)updateContentHeight:(CGFloat)height;
+@optional
+-(void)onViewTouch;
 
 @end
 

@@ -11,7 +11,7 @@
 "暂时无法转接人工客服" = "Não é possível transferido para o serviço humano de atendimento ao cliente neste momento. Pode deixar uma mensagem";
 "暂时无法评价" = "Não é possível avaliar o serviço neste momento";
 "网络错误，请检查网络后重试" = "Ocorreu um erro de rede, por favor, verifique a rede e tente novamente";
-"转人工" = "Começar a transferir para o serviço de atendimento humano";
+"转人工" = "Transferir para Manual";
 "时间" = "Hora";
 "日期" = "Data";
 "标题" = "Título";
@@ -76,7 +76,7 @@
 "运输中" = "Em trânsito";
 "待发货" = "À espera de expedição";
 "待付款" = "Pagamento pendente";
-"选填" = "opcional";
+"选填" = "Opcional";
 "展开" = "Expandir";
 "收起" = "Colapsar";
 "无" = "Nenhum";
@@ -137,10 +137,10 @@
 "删除" = "Excluir";
 "数据错误" = "Dados errados";
 "客服" = "O serviço de atendimento ao cliente";
-"复制成功！" = "Copie isso com sucesso!";
+"复制成功" = "Copie isso com sucesso";
 "复制" = "Copiar";
 "已创建" = "Criado";
-"倒计时:" = "Contagem decrescente:";
+"倒计时" = "Contagem decrescente";
 "消息中心" = "Centro de notificações";
 "未连接" = "Desconectado";
 "连接中..." = "Conectando...";
@@ -200,15 +200,95 @@
 "自定义字段" = "Campos personalizados";
 "非常不满意" = "Muito insatisfeito.";
 "未解决问题？点击" = "Não resolveu seu problema?";
-"转人工服务" = "Serviços Humanos";
+"转人工服务" = "Serviços Humanos ";
 "展开消息" = "Expanda a mensagem";
 "继续发送" = "Continue enviando";
 "拒绝" = "Recusar";
 "您已同意发送个人敏感信息，本次授权有效期24小时" = "Você concordou em enviar informações pessoais sensíveis. Esta autorização é válida por 24 horas";
 "您已拒绝发送此消息" = "Você se recusou a enviar esta mensagem";
 "附件" = "invólucro";
+"保存成功" = "Salvo com sucesso";
+"保存失败" = "Falha ao salvar";
+
+
+//************* 同步415的数据 ***********
 "填写信息" = "Preencher as informações";
 "排队自动断开结束会话" = "Terminar a sessão após a desconexão automática em fila";
 "小程序" = "Applet";
 "小程序只能通过微信打开" = "A 'Applet' só pode ser aberta através do wechat";
 "解析中..." = "Analisar";
+"转换失败" = "mudar as vistas";
+"转换完成" = "converter rede";
+"订单号" = "número do pedido";
+"交易状态"="status de negociação";
+"创建时间"="tempo de criação";
+"展开更多" = "Expandir Mais";
+"共" = "frequentes";
+"已读"="Ler";
+"未读"="Não lido";
+"我"="Eu";
+"机器人"="Robô";
+"链接" = "Link";
+"文章" = "Artigo";
+"引用" = "citação";
+"已选"="Selecionado";
+"搜索"="pesquisa";
+"搜索全部省"="Procurar todas as províncias";
+"搜索全部市"="Procurar todas as cidades";
+"搜索全部县（区）"="Procurar todos os condados (distritos)";
+"搜索全部街道"="Procurem em todas as ruas";
+"无结果"="Nenhum resultado";
+"请选择是否解决了您的问题" = "Por favor, escolha se o seu problema foi resolvido";
+"换一批" = "Alterar o grupo";
+//************* 同步415的数据 end ***********
+
+/**公共组件翻译*/
+"选择时区" = "Seleccionar o fuso horário";
+"请选择时区" = "Por favor seleccione um fuso horário";
+"暂无选项内容" = "Atualmente não existem opções disponíveis";
+"时区"="Fuso horário";
+"年"="Ano";
+"月"="Mês";
+"日"="Dia";
+
+"区号"="Código da área";
+
+
+"语言已切换为“xxx”" = "O idioma foi alterado para \"xxx\"";
+"选择语言" = "Selecione o idioma";
+"请选择您要使用的聊天语言：" = "Selecione o idioma em que deseja conversar:";
+"更多语言" = "Mais Línguas";
+
+"顶" = "topo";
+"踩" = "passo em frente";
+
+"满意" = "Satisfeito";
+"不满意" = "Insatisfeito";
+
+"回复了您" = "Respondeu-lhe";
+"您的回复" = "A sua resposta";
+
+
+"上传附件" = "Enviar Anexo";
+"展开全部" = "Expandir Tudo";
+"收起" = "Recolher";
+"松开 发送" = "Solte para Enviar";
+"松开 取消" = "Solte para Cancelar";
+"松开发送，上滑取消" = "Solte para enviar e deslize para cima para cancelar";
+"暂无回复" = "Sem resposta";
+"请输入" = "Digite";
+"最多上传" = "Carregue no máximo";
+"个，" = "";
+"大小不超过" = "que não exceda";
+"已达上限 15 个" = "Limite de 15 atingido";
+"知道了" = "OK";
+"已拒绝" = "Rechazado";
+
+
+"请选择" = "Por favor selecione";
+"暂无客服在线，点击进行留言。" = "Sem agente online. Clique para sair do envio";
+"工单处理状态更新后将在会话中提醒您" = "O estado de processamento de ticket será lembrado durante a sessão após a atualização";
+
+"商品数" = "Quantidade";
+"更多信息" = "Mais informações";
+"查看更多" = "Ver mais";

@@ -81,11 +81,11 @@
 -(CGFloat ) dataToView:(SobotChatMessage *)model{
     self.msgModel = model;
     if(model.msgType == SobotMessageTypePhoto){
-        [_imgView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model.richModel.content)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:YES];
+        [_imgView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model.richModel.content)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:NO];
         _holdView.hidden = YES;
         _playButton.hidden = YES;
     }else{
-        [_imgView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model.richModel.content)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:YES];
+        [_imgView loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(model.richModel.content)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:NO];
         _playButton.obj = sobotConvertToString(model.richModel.richmoreurl);
         _holdView.hidden = NO;
         _playButton.hidden = NO;

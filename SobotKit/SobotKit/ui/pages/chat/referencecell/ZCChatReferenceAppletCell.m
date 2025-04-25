@@ -71,7 +71,7 @@
         iv.font = SobotFont13;
         iv.numberOfLines = 1;
         iv.lineBreakMode = 4;
-        iv.textColor = UIColorFromKitModeColor(SobotColorWhite);
+        iv.textColor = UIColorFromKitModeColor(SobotColorTextWhite);
         [self.bgView addConstraint:sobotLayoutEqualCenterY(0, iv, self.bgView)];
         self.nickLabPL = sobotLayoutMarginLeft(3, iv, self.iconImg);
         [self.bgView addConstraint:self.nickLabPL];
@@ -126,7 +126,7 @@
 //        [_iconImg loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zciocn_location_nol") showActivityIndicatorView:NO];
     }else if (message.richModel.type == SobotMessageRichJsonTypeArticle){
             // 有APP图标
-            [_rightImg loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(message.richModel.richContent.snapshot)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:NO];
+        [_rightImg loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(message.richModel.richContent.snapshot)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1")  showActivityIndicatorView:NO];
         _nickLab.text = sobotConvertToString(message.richModel.richContent.title);
         self.clickUrl = sobotConvertToString(message.richModel.richContent.richMoreUrl);
     }else if (message.richModel.type == SobotMessageRichJsonTypeLocation){
@@ -135,6 +135,9 @@
         self.iconImg.hidden = NO;
         self.nickLabPL.constant = 3;
         [_iconImg loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zciocn_location_nol") showActivityIndicatorView:NO];
+        if(!self.isSupRight){
+            [_iconImg loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zciocn_location_left_nol") showActivityIndicatorView:NO];
+        }
         [_rightImg loadWithURL:[NSURL URLWithString:sobotUrlEncodedString(message.richModel.richContent.picUrl)] placeholer:SobotKitGetImage(@"zcicon_default_goods_1") showActivityIndicatorView:NO];
         [_nickLab setText:sobotTrimString(message.richModel.richContent.title)];
         
@@ -144,6 +147,14 @@
             link = [NSString stringWithFormat:@"%@?longitude=%@&latitude=%@&name=%@&address=%@",@"sobot://openlocation",self.tempModel.richModel.richContent.lng,self.tempModel.richModel.richContent.lat,self.tempModel.richModel.richContent.title,self.tempModel.richModel.richContent.label];
         }
         self.clickUrl = link;
+    }
+    
+    if(self.isSupRight){
+        _bgView.backgroundColor = UIColorFromModeColorAlpha(SobotColorTextWhite, 0.14);
+        _nickLab.textColor = UIColorFromKitModeColor(SobotColorTextWhite);
+    }else{
+        _bgView.backgroundColor = UIColorFromModeColor(SobotColorTextWhite);
+        _nickLab.textColor = UIColorFromKitModeColor(SobotColorTextMain);
     }
     
     [self showContent:@"" view:_bgView btm:nil isMaxWidth:YES customViewWidth:ScreenWidth];

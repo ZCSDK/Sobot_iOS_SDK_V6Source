@@ -42,6 +42,12 @@
 
 @implementation ZCDocumentLookController
 
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    if ([ZCUICore getUICore].kitInfo.navcBarHidden) {
+        self.navigationController.navigationBarHidden = YES;
+    }
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -181,7 +187,7 @@
 // button点击事件
 -(IBAction)buttonClick:(UIButton *) sender{
     if(sender.tag == SobotButtonClickBack){
-        if(self.navigationController != nil ){
+        if(self.navigationController != nil && self.navigationController.viewControllers.count>1){
             [self.navigationController popViewControllerAnimated:YES];
         }else{
             [self dismissViewControllerAnimated:YES completion:^{
@@ -409,10 +415,6 @@
 }
 
 
-
--(void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-}
 
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];

@@ -68,9 +68,13 @@
  
     UIColor *textColor = [ZCUIKitTools zcgetLeftChatTextColor];
     UIColor *linkColor = [ZCUIKitTools zcgetChatLeftLinkColor];
+    
+    textColor =   [ZCUIKitTools zcgetReferenceLeftTextColor];
     if([self isRight]){
         textColor = [ZCUIKitTools zcgetRightChatTextColor];
         linkColor = [ZCUIKitTools zcgetChatRightlinkColor];
+        
+        textColor =  [ZCUIKitTools zcgetReferenceRightTextColor];
     }
     [tipLabel setTextColor:textColor];
     [tipLabel setLinkColor:linkColor];
@@ -148,7 +152,7 @@
         [linkBgView addConstraint:sobotLayoutEqualCenterY(0, linktitleLab, linkBgView)];
         
         SobotImageView *icon = [[SobotImageView alloc]init];
-        [icon loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zcicon_url_icon")];
+        [icon loadWithURL:[NSURL URLWithString:@""] placeholer:SobotKitGetImage(@"zcicon_url_icon") showActivityIndicatorView:NO];
         [linkBgView addSubview:icon];
         [superView addConstraints:sobotLayoutSize(20,20, icon, NSLayoutRelationEqual)];
         [linkBgView addConstraint:sobotLayoutPaddingRight(-10, icon, linkBgView)];
@@ -159,8 +163,12 @@
     }
     
     [superView addConstraint:sobotLayoutPaddingBottom(0, tipLabel, superView)];
-    
-    [self showContent:@"" view:self.viewContent btm:nil isMaxWidth:NO customViewWidth:s2.width+8*2];// 16个间隙是文本控件左右间距
+    CGFloat cusW = s2.width +16;
+    if (cusW <40) {
+        cusW = 40;
+    }
+    // 加8个间距 是因为 有时候内容没有 客服两个字的长度长 会出现打点的问题 需要
+    [self showContent:@"" view:self.viewContent btm:nil isMaxWidth:NO customViewWidth:cusW];// 16个间隙是文本控件左右间距
     return s2.height;
 }
 

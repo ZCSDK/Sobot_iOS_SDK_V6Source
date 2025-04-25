@@ -13,6 +13,20 @@
 #define KVAppLoginDict @"SobotAppLoginInfo"
 NS_ASSUME_NONNULL_BEGIN
 
+// 主要是登录APP或在线SDK时使用
+@interface SobotLoginParams:SobotBaseEntity
+
+@property(nonatomic,strong) NSString *loginEmail;
+@property(nonatomic,strong) NSString *loginPwd;
+
+@property(nonatomic,assign) int loginStatus;
+@property(nonatomic,assign) int appRegion;
+@property(nonatomic,strong) NSString *appVersion;
+@property(nonatomic,strong) NSString *deviceToken;
+@property(nonatomic,strong) NSString *factorVerifyCode;
+
+@end
+
 /// 登录
 @interface SobotLoginTools : NSObject
 
@@ -30,9 +44,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(BOOL) isLogin;
 -(BOOL) checkSupportV6;
--(NSString *)getTempId;
+//-(NSString *)getTempId;
+
+// 登录接口是否调用成功，成功才能刷新呼叫的页面，要不调用缓存token有可能会999998
+-(BOOL)isLoginRequestSuccess;
+
+/**
+ 公共组token赋值到，authoration
+ */
 -(NSString *)getToken;
--(NSString *)getLoginAccessToken;
 -(NSString *)getServiceEmail;
 
 
@@ -57,32 +77,44 @@ NS_ASSUME_NONNULL_BEGIN
 /// - Parameters:
 ///   - loginAcount: 用户名
 ///   - loginPwd: 密码
-///   - version: app版本
 ///   - loginStatue: 当前登录状态
+///   - exParams: 当前登录附加信息：包括版本、推送token，国家等
 ///   - resultBlock: 结果
 ///   --包含登录客服的所有属性，不包含accessToken
 ///   -- 用户信息，新旧权限信息
--(void)doAppLogin:(NSString *  _Nullable)loginAcount pwd:(NSString *  _Nullable)loginPwd appVersin:(NSString *)version status:(int) loginStatue appRegion:(int)appRegion result:(void (^)(NSInteger code, NSDictionary * _Nullable, NSString * _Nullable))resultBlock;
+-(void)doAppLogin:(NSString *  _Nullable)loginAcount pwd:(NSString *  _Nullable)loginPwd status:(int) loginStatue exParams:(SobotLoginParams *)inParams result:(void (^)(NSInteger code, NSDictionary * _Nullable, NSString * _Nullable))resultBlock;
 
 /// 登录
 /// - Parameters:
 ///   - loginAcount: 账号
 ///   - loginPwd: 如果当前已经登录，不要传此参数
-///   - token: 如果此参数不为空，并且loginPwd为空，会默认登录成功，直接获取用户信息
+///   - appParams: 如果是APP登录，需要配置APP相关参数
 ///   - resultBlock: 登录结果，包含token和用户信息，不包含accessToken
--(void)doLogin:(NSString *  _Nullable)loginAcount pwd:(NSString *  _Nullable)loginPwd token:(NSString *  _Nullable)token result:(void (^)(NSInteger code, NSDictionary * _Nullable, NSString * _Nullable))resultBlock;
+-(void)doLogin:(NSString *  _Nullable)loginAcount pwd:(NSString *  _Nullable)loginPwd appParams:(SobotLoginParams *  _Nullable)inParams result:(void (^)(NSInteger code, NSDictionary * _Nullable, NSString * _Nullable))resultBlock;
 
+
+
+/// 使用公司appkey登录
+/// - Parameters:
+///   - app_key: key
+///   - appid: id
+///   - email: 坐席账号
+///   - appParams: 如果是APP登录，需要配置APP相关参数
+///   - resultBlock: 登录结果
+-(void)loginWithAppkey:(NSString *)app_key appid:(NSString *) appid email:(NSString *) email appParams:(SobotLoginParams * _Nullable) appParams result:(void (^)(NSInteger code, NSDictionary * _Nullable, NSString * _Nullable))resultBlock;
+
+
+/// 使用公司token登录
+/// - Parameters:
+///   - companyToken: 公司token
+///   - email: 当前坐席的账号
+///   - appParams: 如果是APP登录，需要配置APP相关参数
+///   - resultBlock: 登录结果
+-(void)loginWithCompanyToken:(NSString *)companyToken email:(NSString *) email  appParams:(SobotLoginParams * _Nullable) appParams result:(void (^)(NSInteger code, NSDictionary * _Nullable, NSString * _Nullable))resultBlock;
 
 /// 获取登录信息
 /// - Parameter resultBlock: 如果判断当前支持V6，会自动获取accessToken
 -(void)getLoginUserInfo:(void (^)(NSInteger code,NSDictionary * _Nullable dict,NSString * _Nullable msg))resultBlock;
-
-
-/// 获取当前的accesToken
-/// - Parameters:
-///   - token: 需要先登录成功
-///   - resultBlock: 获取结果
--(void)getAccessTokenWithApi:(NSString *) token result:(void(^)(NSInteger code,NSDictionary * _Nullable dict,NSString * _Nullable msg)) resultBlock;
 
 
 /// 退出登录
@@ -90,6 +122,16 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - resultBlock: 结果
 -(void)logOut:(void(^)(NSInteger code,NSDictionary * _Nullable dict,NSString * _Nullable msg)) resultBlock;
 
+
+
+
+/// 多因子验证，发送验证码
+/// - Parameters:
+///   - account:  邮箱
+///   - pwd:密码，需要base64编码
+///   - apiMainhost: 域名
+///   - resultBlock: 结果
+-(void)getLoginSmsCode:(NSString *)account password:(NSString *) pwd with:(NSString *) apiMainhost result:(void(^)(int code,NSDictionary * _Nullable dict, NSString * _Nullable jsonString)) resultBlock;
 
 /// 清理登录数据，退出登录成功接口，会主动调用
 /// 当被踢下线时，可单独调用此接口
@@ -126,6 +168,37 @@ NS_ASSUME_NONNULL_BEGIN
 /// - Parameter checkItem: 当前选择的环境
 -(void)saveHost:(NSDictionary *) checkItem;
 
+
+
+
+/// 登录后请求header
+/// - Parameter timeOut: 请求超时时间，秒
+-(NSDictionary *) getSignHeaderDict:(int) timeOut;
+
+
+
+/// 检测当前语言文件是否需要更新，如果需要更新会自动执行synchronizeLanguage下载同步
+/// - Parameters:
+///   - language: 语言编码
+///   - catalogCodes: 当前所需的分类，@"app,sdk.common,sdk.call,sdk.crm,sdk.order,sdk.chatclient"多个使用逗号隔开
+///   - ResultBlock:
+-(void)checkLangageVersion:(NSString *) language catalogCodes:(NSString *)catalogCodes result:(nonnull void (^)(NSString * _Nonnull message, int code))ResultBlock;
+
+
+/// 下载线上多语言数据
+/// - Parameters:
+///   - language: 语言编码
+///   - catalogCodes: 当前所需的分类，@"app,sdk.common,sdk.call,sdk.crm,sdk.order,sdk.chatclient"多个使用逗号隔开
+///   - isReWrite: 是否写入到本地
+///   - ResultBlock:
+-(void)synchronizeLanguage:(NSString *) language catalogCodes:(NSString *)catalogCodes write:(BOOL) isReWrite result:(nonnull void (^)(NSString * _Nonnull message, int code))ResultBlock;
+
+
+
+
+/// 根据用户的source返回sourceName
+/// - Parameter source: 来源编码
+-(NSString *)getUserSourceName:(int )source;
 
 @end
 

@@ -8,10 +8,10 @@
 #import "ZCZHPickView.h"
 #import <SobotCommon/SobotCommon.h>
 #import <SobotChatClient/SobotChatClient.h>
-#define ZHToobarHeight 60
+#define ZHToobarHeight 52
 
 #import "ZCUIKitTools.h"
-#define ZCCommitHeight 54
+#define ZCCommitHeight 40
 @interface ZCZHPickView ()<UIPickerViewDelegate,UIPickerViewDataSource>
 @property(nonatomic,copy)NSString *plistName;
 @property(nonatomic,strong)NSArray *plistArray;
@@ -34,7 +34,17 @@
 @property(nonatomic,strong)NSMutableArray *dicKeyArray;
 @property(nonatomic,copy)NSMutableArray *state;
 @property(nonatomic,copy)NSMutableArray *city;
+@property(nonatomic,strong)NSLayoutConstraint *labTitleEH;
 @end
+
+/**
+ * 新版UI 确认按钮在右上角 ，取消在左上角
+ * 使用文字， 去掉图片 注意国际化
+ * 去掉底部确认按钮 整体布局
+ * 需要考虑标题文案换行场景
+ * 列间距调整
+ */
+
 
 @implementation ZCZHPickView
 
@@ -145,10 +155,8 @@
     _pickerView.delegate=self;
     _pickerView.dataSource=self;
     _pickeviewHeight = _pickerView.frame.size.height;
-    _pickerView.frame=CGRectMake(0, self.frame.size.height - _pickeviewHeight - XBottomBarHeight - ZCCommitHeight,_pickerView.frame.size.width, _pickerView.frame.size.height);
+    _pickerView.frame=CGRectMake(0, self.frame.size.height - _pickeviewHeight - XBottomBarHeight -ZCCommitHeight ,_pickerView.frame.size.width, _pickerView.frame.size.height);
     [self addSubview:_pickerView];
-
-
     [self ToolbarWithPickViewFrame];
 }
 
@@ -157,8 +165,7 @@
     if (_datePicker != nil) {
         [_datePicker removeFromSuperview];
     }
-    
-    
+        
     _datePicker =[[UIDatePicker alloc] init];
     _datePicker.locale = [[NSLocale alloc] initWithLocaleIdentifier:sobotGetCurrentLanguages()];
     _datePicker.datePickerMode = datePickerMode;
@@ -174,27 +181,29 @@
     }
     [_datePicker setMinimumDate:[[NSDate date] dateByAddingTimeInterval:-1000*60*60*24*365]];
     _pickeviewHeight = _datePicker.frame.size.height;
-    _datePicker.frame=CGRectMake(0, ScreenHeight - _pickeviewHeight - ZCCommitHeight-XBottomBarHeight,self.frame.size.width, _datePicker.frame.size.height);
+    _datePicker.frame=CGRectMake(0, ScreenHeight - _pickeviewHeight ,self.frame.size.width, _datePicker.frame.size.height);
     _datePicker.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     [self addSubview:_datePicker];
     [self ToolbarWithPickViewFrame];
-    CGRect bgF = CGRectMake(0, ScreenHeight - _pickeviewHeight - ZCCommitHeight-XBottomBarHeight, ScreenWidth, _pickeviewHeight + ZCCommitHeight + XBottomBarHeight);
+    
+    CGRect bgF = CGRectMake(0, ScreenHeight - _pickeviewHeight - ZCCommitHeight-XBottomBarHeight-ZCCommitHeight, ScreenWidth, _pickeviewHeight + ZCCommitHeight + XBottomBarHeight);
     _commitBgView = [[UIView alloc] initWithFrame:bgF];
-    [_commitBgView setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark1)];
     _commitBgView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
     [self addSubview:_commitBgView];
+    [_commitBgView setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark1)];
     
-    UIView *lineView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 1)];
-    lineView.backgroundColor = [ZCUIKitTools zcgetCommentButtonLineColor];
-    lineView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
-    [_commitBgView addSubview:lineView];
+//    UIView *lineView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 1)];
+//    lineView.backgroundColor = [ZCUIKitTools zcgetCommentButtonLineColor];
+//    lineView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
+//    [_commitBgView addSubview:lineView];
     
     _commitBtn= [UIButton buttonWithType:UIButtonTypeCustom];
-    _commitBtn.frame = CGRectMake(20 ,0, ScreenWidth - 40, 44);
-    _commitBtn.layer.cornerRadius = 22.0f;
+    _commitBtn.frame = CGRectMake(16 ,0, ScreenWidth - 32, 40);
+    _commitBtn.layer.cornerRadius = 4.0f;
     _commitBtn.layer.masksToBounds = YES;
-    [_commitBtn setBackgroundColor:UIColorFromKitModeColor(SobotColorTheme)];
-    [_commitBtn setTitleColor:[ZCUIKitTools zcgetTextNolColor] forState:UIControlStateNormal];
+    _commitBtn.titleLabel.font = SobotFont16;
+    [_commitBtn setBackgroundColor:[ZCUIKitTools zcgetServerConfigBtnBgColor]];
+    [_commitBtn setTitleColor:[ZCUIKitTools zcgetRobotBtnTitleColor] forState:UIControlStateNormal];
     [_commitBtn addTarget:self action:@selector(doneClick) forControlEvents:UIControlEventTouchUpInside];
     [_commitBtn setTitle:SobotKitLocalString(@"确定") forState:UIControlStateNormal];
     _commitBtn.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleBottomMargin;
@@ -219,21 +228,53 @@
 
 -(UIView*)setToolbarViewSubView{
     _toolbarView = [[UIView alloc]init];
-    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-    btn.frame = CGRectMake(self.frame.size.width-58, 20, 48, 20);
-    [btn setTitleColor:self.tintColor forState:UIControlStateNormal];
-    [btn addTarget:self action:@selector(remove) forControlEvents:UIControlEventTouchUpInside];
-    [btn setImage:[SobotUITools getSysImageByName:@"zcicon_sf_close"] forState:0];
-    btn.titleLabel.font = SobotFont14;
-    [_toolbarView addSubview:btn];
-    _rightBtn = btn;
-    UILabel *labTitle = [[UILabel alloc] initWithFrame:CGRectMake(58, 10, ScreenWidth - 58*2, 40)];
+    
+    // 取消按钮 不显示，新版UI只显示标题
+//    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+////    btn.frame = CGRectMake(self.frame.size.width-58, 20, 48, 20);
+//    [btn setTitleColor:self.tintColor forState:UIControlStateNormal];
+//    [btn addTarget:self action:@selector(remove) forControlEvents:UIControlEventTouchUpInside];
+//    [btn setTitle:SobotKitLocalString(@"取消") forState:0];
+//    [btn setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+//    [btn setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:0];
+////    [btn setImage:[SobotUITools getSysImageByName:@"zcicon_sf_close"] forState:0];
+//    btn.titleLabel.font = SobotFont14;
+//    [_toolbarView addSubview:btn];
+//    [_toolbarView addConstraint:sobotLayoutPaddingLeft(16, btn, _toolbarView)];
+//    [_toolbarView addConstraint:sobotLayoutEqualCenterY(0, btn, _toolbarView)];
+//    [_toolbarView addConstraint:sobotLayoutEqualWidth(50, btn, NSLayoutRelationEqual)];
+//    [_toolbarView addConstraint:sobotLayoutEqualHeight(52, btn, NSLayoutRelationEqual)];
+//    _rightBtn = btn;
+    
+    // 标题
+//    UILabel *labTitle = [[UILabel alloc] initWithFrame:CGRectMake(58, 10, ScreenWidth - 58*2, 40)];
+    UILabel *labTitle = [[UILabel alloc] init];
     labTitle.textColor     = UIColorFromKitModeColor(SobotColorTextMain);
     labTitle.textAlignment = NSTextAlignmentCenter;
     labTitle.numberOfLines = 0;
-    labTitle.font          = [ZCUIKitTools zcgetTitleFont];
+    labTitle.font = SobotFontBold16;
     [_toolbarView addSubview:labTitle];
+    
+    [_toolbarView addConstraint:sobotLayoutPaddingLeft(16, labTitle, _toolbarView)];
+    [_toolbarView addConstraint:sobotLayoutPaddingRight(-16, labTitle, _toolbarView)];
+    [_toolbarView addConstraint:sobotLayoutEqualCenterY(0, labTitle, _toolbarView)];
+    self.labTitleEH = sobotLayoutEqualHeight(24, labTitle, NSLayoutRelationGreaterThanOrEqual);
+    [_toolbarView addConstraint:self.labTitleEH];
     _labelTitle = labTitle;
+    
+    // 确认按钮
+//    _commitBtn= [UIButton buttonWithType:UIButtonTypeCustom];
+//    [_commitBtn setBackgroundColor:UIColor.clearColor];
+//    [_commitBtn setTitleColor:[ZCUIKitTools zcgetServerConfigBtnBgColor] forState:UIControlStateNormal];
+//    [_commitBtn addTarget:self action:@selector(doneClick) forControlEvents:UIControlEventTouchUpInside];
+//    [_commitBtn setTitle:SobotKitLocalString(@"确定") forState:UIControlStateNormal];
+//    [_commitBtn setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
+//    _commitBtn.titleLabel.font = SobotFont14;
+//    [_toolbarView addSubview:_commitBtn];
+//    [_toolbarView addConstraint:sobotLayoutPaddingRight(-16,_commitBtn, _toolbarView)];
+//    [_toolbarView addConstraint:sobotLayoutEqualCenterY(0, _commitBtn, _toolbarView)];
+//    [_toolbarView addConstraint:sobotLayoutEqualWidth(50, _commitBtn, NSLayoutRelationEqual)];
+//    [_toolbarView addConstraint:sobotLayoutEqualHeight(52, _commitBtn, NSLayoutRelationEqual)];
     return _toolbarView;
 }
 
@@ -257,11 +298,11 @@
 }
 
 -(void)ToolbarWithPickViewFrame{
-    _toolbarView.frame=CGRectMake(0, ScreenHeight - _pickeviewHeight-ZHToobarHeight - ZCCommitHeight -XBottomBarHeight,[UIScreen mainScreen].bounds.size.width, ZHToobarHeight);
-    _rightBtn.frame = CGRectMake(self.frame.size.width - 10 - 48 ,20, 48, 20);
+    _toolbarView.frame=CGRectMake(0, ScreenHeight - _pickeviewHeight-ZHToobarHeight -XBottomBarHeight-ZCCommitHeight,[UIScreen mainScreen].bounds.size.width, ZHToobarHeight);
+//    _rightBtn.frame = CGRectMake(self.frame.size.width - 10 - 48 ,20, 48, 20);
     [_toolbarView setBackgroundColor:UIColorFromKitModeColor(SobotColorBgMainDark1)];
     _toolbarView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth;
-    [self addBorderWithColor:[ZCUIKitTools zcgetCommentButtonLineColor] isBottom:YES with:_toolbarView];
+    [self addBorderWithColor:UIColorFromKitModeColor(SobotColorBgTopLine) isBottom:YES with:_toolbarView];
 }
 
 #pragma mark piackView 数据源方法
@@ -320,7 +361,6 @@
                 if (bb.count>row) {
                     rowTitle=aa[row];
                 }
-                
             }
         }
     }
@@ -440,14 +480,17 @@
 
 -(void)layoutSubviews{
     [super layoutSubviews];
-     [self ToolbarWithPickViewFrame];
+    [self ToolbarWithPickViewFrame];
     _datePicker.frame = CGRectMake(0, ScreenHeight - _pickeviewHeight-XBottomBarHeight-ZCCommitHeight,self.frame.size.width, _datePicker.frame.size.height);
+    // 按钮放到上面了，UI改版
     if(_commitBgView){
         _commitBgView.frame = CGRectMake(0, ScreenHeight - XBottomBarHeight-ZCCommitHeight,self.frame.size.width, XBottomBarHeight+ZCCommitHeight);
     }
     if(_labelTitle){
-        _labelTitle.frame = CGRectMake(58, 10, ScreenWidth - 58*2, 40);
+        _labelTitle.frame = CGRectMake(16, 10, ScreenWidth - 16*2, 52);
+        [ZCUIKitTools addRoundedCorners:UIRectCornerTopLeft|UIRectCornerTopRight withRadii:CGSizeMake(8, 8) withView:_toolbarView];
     }
+    
 }
 
 @end

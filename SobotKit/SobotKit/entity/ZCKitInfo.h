@@ -203,6 +203,7 @@
 
 /**
  *  返回时开启满意度评价,显示暂不评价
+ *  人工状态下 配置 isShowCloseSatisfaction 和isShowClose 显示暂不评价
  *  默认为NO 未开启
  */
 @property (nonatomic,assign) BOOL canBackWithNotEvaluation;
@@ -440,6 +441,9 @@
  */
 @property (nonatomic,strong) UIColor *commentItemButtonBgColor;
 
+// 不可点带透明度的按钮文字颜色
+@property (nonatomic,strong) UIColor *commentItemButtonBgColorAlpha;
+
 @property (nonatomic,strong) UIColor *commentItemButtonSelBgColor;
 
 /**
@@ -456,12 +460,12 @@
 /**
  *  返回按钮的默认背景色
  */
-@property (nonatomic,strong) UIColor *topBackNolColor;
+//@property (nonatomic,strong) UIColor *topBackNolColor;
 
 /**
  *  返回按钮的高亮背景色
  */
-@property (nonatomic,strong) UIColor *topBackSelColor;
+//@property (nonatomic,strong) UIColor *topBackSelColor;
 
 /**
  * 导航栏背景色  （系统导航栏 和自定义导航栏View背景色  默认白色）
@@ -493,10 +497,6 @@
  */
 @property (nonatomic, strong) UIColor *satisfactionSelectedBgColor;
 
-/**
- *  留言页面背景色
- */
-@property(nonatomic,strong) UIColor *leaveVCBgColor;
 
 /**
  *  留言页面中 提交按钮的背景颜色和留言页面顶部选项卡底部线条颜色
@@ -516,7 +516,7 @@
 //========================================================= 自定义背景颜色 end ========================================
 
 
-#pragma Mark -- 自定义文字颜色，（可选）
+#pragma Mark -- 自定义文字颜色，可选
 //=======================================================  自定义文字颜色 ========================================
 
 /**
@@ -672,11 +672,6 @@
 
 
 /**
- *   超链卡片的标题文字颜色
- */
-@property (nonatomic,strong) UIColor *linkTitleTextColor;
-
-/**
  *  提交留言成功后提示页面的背景颜色
  *  4.0.0  新增
  */
@@ -690,6 +685,18 @@
 
 /// 自定义卡片 商品价格文件颜色
 @property(nonatomic,strong)UIColor *pricetTagTextColor;
+
+
+
+///  引用消息，左右文字
+@property (nonatomic,strong) UIColor *referenceLeftLineColor;
+@property (nonatomic,strong) UIColor *referenceLeftNameColor;
+@property (nonatomic,strong) UIColor *referenceLeftTextColor;
+
+@property (nonatomic,strong) UIColor *referenceRightLineColor;
+@property (nonatomic,strong) UIColor *referenceRightNameColor;
+@property (nonatomic,strong) UIColor *referenceRightTextColor;
+
 //=======================================================自定义文字颜色 end ==============================================
 
 #pragma Mark -- 图片相关
@@ -698,22 +705,22 @@
 /**
  *更多按钮默认图片
  */
-@property (nonatomic,copy) NSString *moreBtnNolImg;
+//@property (nonatomic,copy) NSString *moreBtnNolImg;
 
 /**
  *更多按钮选中图片
  */
-@property (nonatomic,copy) NSString *moreBtnSelImg;
+//@property (nonatomic,copy) NSString *moreBtnSelImg;
 
-/**
- * 转人工按钮默认图片
- */
-@property (nonatomic,copy) NSString *turnBtnNolImg;
+///**
+// * 转人工按钮默认图片
+// */
+//@property (nonatomic,copy) NSString *turnBtnNolImg;
 
 /**
  *转人工按选中图片
  */
-@property (nonatomic,copy) NSString *turnBtnSelImg;
+//@property (nonatomic,copy) NSString *turnBtnSelImg;
 
 /**
  *返回按钮默认图片

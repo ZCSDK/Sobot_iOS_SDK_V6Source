@@ -17,6 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
 -(id)initWithSuperView:(UIView *) view;
 -(void)refreshData;
 -(void)clearDataUpdateUIForNewSession;
+
+
+-(NSString *)getMenuUrl:(NSString *) menuUrl paramFlag:(NSString *)paramFlag;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -25,10 +25,14 @@
 
 @property (nonatomic,assign) id<SobotPickViewDelegate>delegate;
 
-
+// 顶部文案
+@property (nonatomic,strong) NSString *topLabStr;
+@property(nonatomic,strong) NSString *leftBtnTitle;
+@property(nonatomic,strong) NSString *rightBtnTitle;
 
 
 - (void)pickViewShow;
 - (void)pickViewDismiss;
 
+- (void)selectRow:(NSInteger)row inComponent:(NSInteger)component animated:(BOOL)animated;  
 @end

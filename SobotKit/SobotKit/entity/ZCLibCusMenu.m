@@ -19,7 +19,7 @@
             _lableId = [sobotConvertToString(dict[@"lableId"]) integerValue];
             _imgName = sobotConvertToString(dict[@"imgName"]);
             _imgNamePress = sobotConvertToString(dict[@"imgNamePress"]);
-            
+            _paramFlag = sobotConvertToString([dict objectForKey:@"paramFlag"]);
             _menuid      = sobotConvertToString(dict[@"id"]);
             
             if(_menuType == ZCCusMenuTypeLeave){

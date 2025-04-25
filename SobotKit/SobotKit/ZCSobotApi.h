@@ -35,6 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
+/// 主动获取访客信息，必须配置了appkey和partnerid以后调用
+/// @param resultBlock resultBlock description
+/// code = 0，成功，可直接进入使用
++(void)getVisitorConfigInfo:(void (^)(id object,int code))resultBlock;
+
+
 /// 启动聊天页面，简单处理
 /// @param info 自定义UI属性
 /// @param byController  启动的页面
@@ -53,6 +59,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 点击拦截 小程序事件
 /// @param appletBlock 获取到的参数对象
 +(void)setAppletClickBlock:(BOOL(^)(SobotChatMessage *_Nonnull))appletBlock;
+
+// 点击拦截留言，跳转到用户自己的留言页面
++(void)customLeavePageClickBlock:(BOOL(^)(NSDictionary *dict))leavePageBlock;
 
 /// 拦截留言事件，如果实现该方法，SDK内部不在处理留言事件，用户可以跳转到自己的留言页面
 /// @param leavePageBlock 获取到的参数对象

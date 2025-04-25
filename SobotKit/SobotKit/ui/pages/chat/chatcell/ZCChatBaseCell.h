@@ -95,6 +95,16 @@ typedef NS_ENUM(NSInteger,ZCChatCellClickType) {
     ZCChatCellClickTypeItemClickCellDetail = 40,
     // 关闭键盘
     ZCChatCellClickTypeItemCloseKeyboard = 41,
+    // 打开更多语言切换
+    ZCChatCellClickTypeOpenMoreLanguage = 42,
+    //选择单个语言切换
+    ZCChatCellClickTypeSelLanguage = 43,
+    /** 大模型机器人 按钮卡片点击事件 */
+    ZCChatCellClickTypeAiRobotBtnClickSendMsg = 44,
+    /** 大模型机器人  查看更多按钮卡片 */
+    ZCChatCellClickLookMoreCard       = 45,
+    /** 大模型机器人  发送单个卡片 */
+    ZCChatCellClickAiRobotSendCard     = 46,
 };
 
 /**
@@ -110,19 +120,36 @@ typedef NS_ENUM(NSInteger,ZCChatCellClickType) {
  *  @param object 代理
  */
 -(void)cellItemClick:(SobotChatMessage * _Nullable)model type:(ZCChatCellClickType) type text:(NSString * _Nullable)text obj:(id _Nullable )object;
+
+@optional
+// 大模型机器人自定义卡片点击发送使用
+-(void)aiRobotCellItemClick:(SobotChatMessage * _Nullable)model type:(ZCChatCellClickType) type text:(NSString * _Nullable)text obj:(id _Nullable )object Menu:(SobotChatCustomCardMenu*)menu;
+
 @optional
 // 评价cell使用
-- (void)cellItemClick:(int)satifactionType isResolved:(int)isResolved rating:(int)rating problem:(NSString * _Nullable) problem scoreFlag:(int)scoreFlag;
+- (void)cellItemClick:(int)satifactionType isResolved:(int)isResolved rating:(int)rating problem:(NSString * _Nullable) problem scoreFlag:(int)scoreFlag scoreExplain:(NSString * _Nullable) scoreExplain checkScore:(ZCLibSatisfaction *) model;
 
+// 点踩提交事件
+-(void)cellCommitRealuateTagInfo:(NSString*)tagId tipStr:(NSString*)tipStr text:(NSString *)text msg:(SobotChatMessage *)msg answer:(NSString *)answer realuateTagLan:(NSString*)realuateTagLan realuateSubmitWordLan:(NSString *)realuateSubmitWordLan;
+
+// 点击输入框，调整页面偏移量
+-(void)updateListViewHeight:(CGFloat)height;
 @end
+
+// 相邻控件间隔
+#define ZCChatItemSpace2 2
+#define ZCChatItemSpace4 4
+#define ZCChatItemSpace5 5
+#define ZCChatItemSpace8 8
+#define ZCChatItemSpace10 10
 
 // 气泡外部间隔
 #define ZCChatMarginHSpace 16
-#define ZCChatMarginVSpace 10
+#define ZCChatMarginVSpace 12
 
 // 气泡内容四周的边距
 #define ZCChatPaddingVSpace 12
-#define ZCChatPaddingHSpace 18
+#define ZCChatPaddingHSpace 16
 
 // 拼接内容相邻空间间距
 #define ZCChatCellItemSpace 5
@@ -131,7 +158,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZCChatBaseCell : UITableViewCell<SobotEmojiLabelDelegate,SobotXHImageViewerDelegate>
 
-
+/**
+ *  记录下标
+ */
+@property(nonatomic,strong)NSIndexPath *indexPath;
 
 /**
  *  显示时间
@@ -158,14 +188,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,strong) UILabel                  *lblNickName; // 2.8.0 去掉
 
 
-@property(nonatomic,strong) SobotEmojiLabel *lblSugguest;
+//@property(nonatomic,strong) SobotEmojiLabel *lblSugguest;
+@property(nonatomic,strong) UIView *lblSugguest;
 
 /**
  *  发送动画
  */
 @property (nonatomic,strong) UIActivityIndicatorView  *activityView;
 
-@property (nonatomic,strong) UIActivityIndicatorView *sendUpLoadView;// 语音文件上传动画
+//@property (nonatomic,strong) UIActivityIndicatorView *sendUpLoadView;// 语音文件上传动画
 
 /**
  *  重新发送
@@ -174,10 +205,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,strong) UIButton                 *btnReadStatus;
 
+
+/**
+ 流式传输，还在发送
+ */
+@property (nonatomic,strong) UIButton                 *btnAddingMsg;
+
 /**
  *  转人工
  */
 @property (nonatomic,strong) UIButton                 *btnTurnUser;
+
+/********************转人工 子视图*****************/
+@property(nonatomic,strong) UIView *btnTurnUserBgView;
+@property(nonatomic,strong) UIImageView *btnTurnUserImg;
+@property(nonatomic,strong) UILabel *btnTurnUserLab;
+@property(nonatomic,strong) UIButton *btnTurnUserClick;
+@property(nonatomic,strong) NSLayoutConstraint *btnTurnUserBgH;
+/********************转人工 子视图******end***********/
 
 /**
  *
@@ -196,6 +241,30 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic,strong) UIButton                 *btnStepOn;
 
+/**
+ *  顶
+ */
+@property (nonatomic,strong) UIButton                 *btnBtmTheTop;
+
+/**
+ *  踩
+ */
+@property (nonatomic,strong) UIButton                 *btnBtmStepOn;
+
+/*********************这里拆分点踩 点赞 按钮满足UI要求*****************/
+@property(nonatomic,strong) UIView *btnBtmTheTopBgView;
+@property(nonatomic,strong) UIImageView *btnBtmTheTopImg;
+@property(nonatomic,strong) UILabel *btnBtmTheTopLab;
+@property(nonatomic,strong) UIButton *btnBtmTheTopClick;
+
+@property(nonatomic,strong) UIView *btnBtmStepOnImgBgView;
+@property(nonatomic,strong) UIImageView *btnBtmStepOnImg;
+@property(nonatomic,strong) UILabel *btnBtmStepOnLab;
+@property(nonatomic,strong) UIButton *btnBtmStepOnClick;
+
+@property(nonatomic,strong) NSLayoutConstraint *btnBtmTheTopBgViewH;
+@property(nonatomic,strong) NSLayoutConstraint *btnBtmStepOnImgBgViewH;
+/*********************这里拆分点踩 点赞 按钮满足UI要求* end****************/
 
 /**
  *  气泡
@@ -244,12 +313,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic,strong) NSString     *callURL;
 
+@property(nonatomic,strong) NSLayoutConstraint *ivBgViewMT;
 
+// 语音消息有翻译时，位置不对
+@property(nonatomic,strong) NSLayoutConstraint *layoutReadStateBtm;
+@property(nonatomic,strong) NSLayoutConstraint *layoutReadStateR;
+@property(nonatomic,strong) NSLayoutConstraint *layoutPaddingBtm;
+@property(nonatomic,strong) NSLayoutConstraint *layoutTimeTop;
 
 +(SobotEmojiLabel *) createRichLabel;
 
 // 如果要添加点击事件，需要设置代理，否则点击事件不起效
-+(SobotEmojiLabel *) createRichLabel:(id) delegate;
++(SobotEmojiLabel *) createRichLabel:(id _Nullable) delegate;
 
 +(BOOL) isRightChat:(SobotChatMessage *) model;
 +(void)configHtmlText:(NSString *) text label:(SobotEmojiLabel *)label right:(BOOL) isRight;

@@ -11,7 +11,7 @@
 "暂时无法转接人工客服" = "Impossible de transférer temporairement le service client manuel";
 "暂时无法评价" = "Impossible d\'évaluer temporairement";
 "网络错误，请检查网络后重试" = "Erreur réseau, veuillez vérifier le réseau et réessayer";
-"转人工" = "Transfert au service humain";
+"转人工" = "Transaction vers Agent";
 "时间" = "Temps";
 "日期" = "Date";
 "标题" = "Titre";
@@ -26,7 +26,7 @@
 "换一组" = "Changer un groupe";
 "建议为必填" = "Suggérer : Obligatoire";
 "服务评价" = "Évaluation";
-"留言" = "Laisser un mot";
+"留言" = "Laisser un mot ";
 "您好，客服" = "Bonjour, service client";
 "接受了您的请求" = "a accepté votre demande";
 "服务器请求错误！" = "Erreur de demande du serveur!";
@@ -76,7 +76,7 @@
 "运输中" = "En transit";
 "待发货" = "En attente de livraison";
 "待付款" = "En attente de paiement";
-"选填" = "facultatif";
+"选填" = "Facultatif";
 "展开" = "Se dérouler";
 "收起" = "Ranger";
 "无" = "Non";
@@ -137,10 +137,10 @@
 "删除" = "Supprimer";
 "数据错误" = "Erreur de donnée";
 "客服" = "Service clients";
-"复制成功！" = "Copiez avec succès!";
+"复制成功" = "Copiez avec succès";
 "复制" = "Copie";
 "已创建" = "Établi";
-"倒计时:" = "Compte à rebours :";
+"倒计时" = "Compte à rebours";
 "消息中心" = "Centre de messagerie";
 "未连接" = "Non connecté";
 "连接中..." = "En cours de connecxion…";
@@ -200,7 +200,96 @@
 "自定义字段" = "Champ personnalisé";
 "非常不满意" = "Très insatisfait";
 "未解决问题？点击" = "Votre problème n'a pas été résolu ?";
-"转人工服务" = "Services à la personne";
+"转人工服务" = "Services à la personne ";
+"展开消息" = "Développer le message";
+"继续发送" = "Continuer à envoyer";
+"拒绝" = "Refuser";
+"您已同意发送个人敏感信息，本次授权有效期24小时" = "Vous avez accepté d\'envoyer des renseignements personnels de nature délicate et cette autorisation est valide 24 heures sur 24.";
+"您已拒绝发送此消息" = "Vous avez refusé d\'envoyer ce message";
+"附件" = "Annexe";
+"保存成功" = "Enregistré avec succès";
+"保存失败" = "L\'enregistrement a échoué";
+
+
+//************* 同步415的数据 ***********
+"填写信息" = "Remplir les informations";
+"排队自动断开结束会话" = "Fin de la session après la déconnexion automatique de la file d\'attente";
 "小程序" = "Applet";
 "小程序只能通过微信打开" = "Les applets ne peuvent être ouverts que par Wechat";
 "解析中..." = "Parsing...";
+"转换失败" = "La conversion a échoué";
+"转换完成" = "Conversion terminée";
+"订单号" = "numéro de commande";
+"交易状态"="statut commercial";
+"创建时间"="temps de creation";
+"展开更多" = "Développer plus";
+"共" = "Au total";
+"已读"="Lu";
+"未读"="non lu";
+"我"="Moi";
+"机器人"="Robots";
+"链接" = "liens";
+"文章" = "articles";
+"引用" = "Citations";
+"已选"="sélectionné";
+"搜索"="Rechercher";
+"搜索全部省"="Rechercher dans toutes les provinces";
+"搜索全部市"="Rechercher dans toutes les villes";
+"搜索全部县（区）"="Rechercher dans tous les comtés (districts)";
+"搜索全部街道"="Rechercher toutes les rues";
+"无结果"="aucun résultat";
+"请选择是否解决了您的问题" = "Veuillez choisir si votre problème est résolu";
+"换一批" = "Changer un groupe";
+//************* 同步415的数据 ***********
+
+
+/**公共组件翻译*/
+"选择时区" = "choisir un fuseau horaire";
+"请选择时区" = "Veuillez sélectionner un fuseau horaire";
+"暂无选项内容" = "Pas de contenu optionnel pour le moment";
+"时区"="fuseau horaire";
+"年"="Année";
+"月"="Mois";
+"日"="Le jour";
+
+"区号"="Code régional";
+
+
+"语言已切换为“xxx”" = "Langue changée en \"xxx\"";
+"选择语言" = "Sélectionnez la langue";
+"请选择您要使用的聊天语言：" = "Veuillez sélectionner la langue dans laquelle vous souhaitez discuter :";
+"更多语言" = "Plus de langues";
+
+"顶" = "TOP";
+"踩" = "Marche!";
+
+"满意" = "Satisfait";
+"不满意" = "Non satisfait";
+
+"回复了您" = "Je t'ai répondu";
+"您的回复" = "votre réponse";
+
+// ************** 423  UI改版新增 **************
+"上传附件" = "Pièce Jointe";
+"展开全部" = "Développer Tout";
+"收起" = "Plier";
+"松开 发送" = "Relâcher pour Envoyer";
+"松开 取消" = "Relâcher pour Annuler";
+"松开发送，上滑取消" = "Relâcher pour envoyer, glisser vers le haut pour annuler";
+"暂无回复" = "Aucune réponse pour le moment";
+"请输入" = "Veuillez saisir";
+"最多上传" = "Maximum";
+"个，" = " éléments,";
+"大小不超过" = "taille maximale";
+"已达上限 15 个" = "Limite de 15 atteinte";
+"知道了" = "OK";
+"已拒绝" = "Refusé";
+
+
+"请选择" = "Veuillez sélectionner";
+"暂无客服在线，点击进行留言。" = "Aucun agent en ligne. Cliquez pour quitter la soumission";
+"工单处理状态更新后将在会话中提醒您" = "Vous serez averti dans la conversation lorsque l'état du ticket sera mis à jour.";
+
+"商品数" = "Quantité";
+"更多信息" = "Plus d'informations";
+"查看更多" = "Meer bekijken";

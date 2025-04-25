@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,copy) NSString *fieldId; // 分类的ID
 @property (nonatomic,copy) NSString *dataValue;
 @property (nonatomic,assign) BOOL isChecked;// 是否选中
+@property (nonatomic,assign) int level;// 数据层级 0 第一级
 -(id)initWithMyDict:(NSDictionary *)dict;
 @end
 

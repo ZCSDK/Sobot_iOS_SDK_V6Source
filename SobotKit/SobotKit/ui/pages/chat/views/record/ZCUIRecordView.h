@@ -10,20 +10,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
-
-/**
- *  录音状态
- */
-typedef NS_ENUM(NSInteger, RecordState) {
-    /** 开始录音或接着录音 */
-    RecordStart=1,
-    /** 暂停录音 */
-    RecordPause=2,
-    /** 录音完成 */
-    RecordComplete=3,
-    /** 取消录音 */
-    RecordCancel=4,
-};
+#import "SobotKeyboardRecordView.h"
 
 /**
  *  ZCUIRecordDelegate 
@@ -44,7 +31,7 @@ typedef NS_ENUM(NSInteger, RecordState) {
  *  @param  type  开始录音/取消录音
  *
  */
-- (void)recordCompleteType:(RecordState) type videoDuration:(CGFloat)duration;
+- (void)recordCompleteType:(SobotKeyboardRecordState) type videoDuration:(CGFloat)duration;
 
 @end
 
@@ -83,7 +70,7 @@ typedef NS_ENUM(NSInteger, RecordState) {
  *
  *  @param state 当前显示的状态
  */
--(void)didChangeState:(RecordState) state;
+-(void)didChangeState:(SobotKeyboardRecordState) state;
 
 /**
  *   当前时间
